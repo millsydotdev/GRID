@@ -1,0 +1,93 @@
+{
+  "name": "unity",
+  "displayName": "Unity Support",
+  "description": "Enhanced C# support for Unity with auto-installing editor plugin",
+  "version": "1.0.0",
+  "publisher": "grid",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.5.0"
+  },
+  "icon": "media/icon.png",
+  "categories": ["Programming Languages", "Debuggers"],
+  "keywords": ["unity", "unity3d", "c#", "csharp", "gamedev"],
+  "capabilities": {
+    "virtualWorkspaces": false,
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Unity plugin installation requires workspace trust"
+    }
+  },
+  "activationEvents": [
+    "workspaceContains:**/Assets",
+    "workspaceContains:**/ProjectSettings",
+    "onLanguage:csharp"
+  ],
+  "main": "./out/extension",
+  "scripts": {
+    "compile": "gulp compile-extension:unity",
+    "watch": "gulp watch-extension:unity"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "unity-csharp",
+        "aliases": ["Unity C#"],
+        "extensions": [".cs"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "unity-csharp",
+        "scopeName": "source.cs.unity",
+        "path": "./syntaxes/unity-csharp.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "csharp",
+        "path": "./snippets/unity.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "unity.installPlugin",
+        "title": "Install GRID Editor Plugin",
+        "category": "Unity"
+      },
+      {
+        "command": "unity.refreshProject",
+        "title": "Refresh Project",
+        "category": "Unity"
+      },
+      {
+        "command": "unity.openInUnity",
+        "title": "Open in Unity Editor",
+        "category": "Unity"
+      }
+    ],
+    "configuration": {
+      "title": "Unity",
+      "properties": {
+        "unity.autoInstallPlugin": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically install GRID editor plugin when Unity project is detected"
+        },
+        "unity.editorPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Unity Editor executable (auto-detected if empty)"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/node": "22.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GRID-NETWORK-REPO/GRID.git"
+  }
+}

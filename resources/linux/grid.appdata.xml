@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+	<id>grid.desktop</id>
+	<metadata_license>MIT</metadata_license>
+	<project_license>MIT</project_license>
+	<name>GRID</name>
+	<url type="homepage">https://grid.com</url>
+	<summary>GRID. Code editing with AI-first workflows.</summary>
+	<description>
+		<p>GRID is a modern code editor with an AI-native development loop, privacy-aware controls, and cross-platform packaging. It supports local models (Ollama) and OpenAI-compatible endpoints.</p>
+	</description>
+</component>
+
+

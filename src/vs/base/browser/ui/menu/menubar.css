@@ -1,0 +1,312 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Menubar styles */
+
+.menubar {
+	display: flex;
+	flex-shrink: 1;
+	box-sizing: border-box;
+	height: 100%;
+	overflow: hidden;
+}
+
+.menubar.overflow-menu-only {
+	width: 38px;
+}
+
+.fullscreen .menubar:not(.compact) {
+	margin: 0px;
+	padding: 4px 5px;
+}
+
+.menubar > .menubar-menu-button {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	cursor: default;
+	-webkit-app-region: no-drag;
+	zoom: 1;
+	white-space: nowrap;
+	outline: 0 !important;
+}
+
+.menubar:not(.compact) > .menubar-menu-button:focus .menubar-menu-title {
+	outline-width: 1px;
+	outline-style: solid;
+	outline-offset: -1px;
+	outline-color: var(--vscode-focusBorder);
+}
+
+.menubar.compact {
+	flex-shrink: 0;
+	overflow: visible; /* to avoid the compact menu to be repositioned when clicking */
+}
+
+.menubar.compact > .menubar-menu-button {
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+}
+
+.menubar-menu-title {
+	padding: 0px 8px;
+	border-radius: 5px;
+}
+
+/* Standalone rule for when menu is appended to document.body (Windows) */
+.menubar-menu-items-holder {
+	position: fixed;
+	opacity: 1;
+	z-index: 10000;
+	display: block;
+	visibility: visible;
+	pointer-events: auto;
+	/* Ensure menu is above all workbench content and overlays */
+	transform: none;
+	will-change: auto;
+}
+
+.menubar .menubar-menu-items-holder {
+	position: fixed;
+	left: 0px;
+	opacity: 1;
+	z-index: 10000;
+}
+
+.menubar.compact .menubar-menu-items-holder {
+	position: fixed;
+}
+
+/* Standalone rule for when menu is appended to document.body (Windows) */
+.menubar-menu-items-holder.monaco-menu-container {
+	outline: 0;
+	border: none;
+	/* Ensure container and its children are visible */
+	opacity: 1 !important;
+	visibility: visible !important;
+	display: block !important;
+	pointer-events: auto !important;
+}
+
+.menubar-menu-items-holder.monaco-menu-container :focus {
+	outline: 0;
+}
+
+.menubar .menubar-menu-items-holder.monaco-menu-container {
+	outline: 0;
+	border: none;
+}
+
+.menubar .menubar-menu-items-holder.monaco-menu-container :focus {
+	outline: 0;
+}
+
+/* Windows-specific: Ensure menu is visible when appended to document.body */
+/* Note: On Windows, menu is appended to body, so we target body > selector */
+body > .menubar-menu-items-holder.monaco-menu-container {
+	position: fixed !important;
+	z-index: 10000 !important;
+	opacity: 1 !important;
+	visibility: visible !important;
+	display: block !important;
+	pointer-events: auto !important;
+	transform: none !important;
+	/* Prevent any stacking context issues */
+	isolation: auto;
+	/* Ensure menu appears above all workbench content including titlebar with backdrop-filter */
+	will-change: auto;
+	/* Ensure menu container doesn't interfere with theme - Menu widget handles theming */
+	background: transparent !important;
+}
+
+/* Menubar dropdown styling - matching Quick Input aesthetic */
+/* Use GRID theme variables for modern, cohesive styling */
+body > .menubar-menu-items-holder.monaco-menu-container {
+	/* Modern rounded corners and backdrop blur like Quick Input */
+	border-radius: 16px !important;
+	backdrop-filter: blur(22px) !important;
+	/* Subtle shadow and inner glow */
+	box-shadow: var(--grid-shadow-soft, 0 30px 80px rgba(0, 0, 0, 0.5)), inset 0 0 0 1px rgba(255, 255, 255, 0.02) !important;
+	/* Ensure menu container doesn't interfere with theme */
+	background: transparent !important;
+}
+
+/* Menu scrollable element - main container styling */
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-scrollable-element {
+	/* Enable scrolling when content overflows */
+	max-height: calc(100vh - 100px) !important; /* Leave space for menu bar and padding */
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+	/* Ensure proper height calculation - let content determine height up to max */
+	height: auto !important;
+	min-height: fit-content !important;
+	/* Modern background with color-mix like Quick Input */
+	background: color-mix(in srgb, var(--grid-surface-2, #080808) 92%, #020208 8%) !important;
+	color: var(--grid-text-base, var(--vscode-menu-foreground, #E0E0E0)) !important;
+	border: 1px solid var(--grid-border-strong, var(--vscode-menu-border, #1C1C1C)) !important;
+	border-radius: 16px !important;
+	/* Font family to match codebase */
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+	/* Remove default outline, use border instead */
+	outline: none !important;
+	/* Smooth scrolling */
+	scroll-behavior: smooth !important;
+}
+
+/* Custom scrollbar styling to match theme */
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-scrollable-element::-webkit-scrollbar {
+	width: 8px !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-scrollable-element::-webkit-scrollbar-track {
+	background: transparent !important;
+	border-radius: 4px !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-scrollable-element::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--grid-border-strong, #1f1f1f) 60%, transparent) !important;
+	border-radius: 4px !important;
+	border: 1px solid transparent !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-scrollable-element::-webkit-scrollbar-thumb:hover {
+	background: color-mix(in srgb, var(--grid-border-strong, #1f1f1f) 80%, transparent) !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-menu {
+	/* Ensure proper height calculation */
+	height: auto !important;
+	min-height: fit-content !important;
+	/* Transparent background to show parent styling */
+	background: transparent !important;
+	color: var(--grid-text-base, var(--vscode-menu-foreground, #E0E0E0)) !important;
+	/* Font family */
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .actions-container {
+	/* Ensure proper height calculation */
+	height: auto !important;
+	min-height: fit-content !important;
+	/* Transparent background */
+	background: transparent !important;
+	/* Theme colors */
+	color: var(--grid-text-base, var(--vscode-menu-foreground, #E0E0E0)) !important;
+	/* Font family */
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .monaco-action-bar {
+	/* Font family */
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+	/* Transparent background */
+	background: transparent !important;
+}
+
+/* Menu items - modern styling matching Quick Input */
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item {
+	color: var(--grid-text-muted, var(--vscode-menu-foreground, #E0E0E0)) !important;
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+	background: transparent !important;
+	border-radius: 12px !important;
+	border: 1px solid transparent !important;
+	padding: 6px 12px !important;
+	transition: all var(--grid-transition-fast, 140ms ease) !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .action-label {
+	color: inherit !important;
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+	font-size: var(--grid-font-body, 12px) !important;
+	line-height: 20px !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .keybinding {
+	color: inherit !important;
+	font-family: "Segoe WPC", "Segoe UI", sans-serif !important;
+	font-size: var(--grid-font-body, 12px) !important;
+	opacity: 0.7;
+}
+
+/* Menu item hover and focus states - modern highlight like Quick Input */
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:hover,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:focus {
+	background: color-mix(in srgb, var(--grid-surface-1-alt, #060606) 65%, #090c18 35%) !important;
+	border-color: var(--grid-border-strong, var(--vscode-menu-selectionBackground, #161016)) !important;
+	color: var(--grid-text-strong, var(--vscode-menu-selectionForeground, #FFFFFF)) !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:hover .action-label,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:focus .action-label,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:hover .keybinding,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:focus .keybinding {
+	color: var(--grid-text-strong, var(--vscode-menu-selectionForeground, #FFFFFF)) !important;
+}
+
+/* Icons and indicators */
+body > .menubar-menu-items-holder.monaco-menu-container .codicon,
+body > .menubar-menu-items-holder.monaco-menu-container .submenu-indicator,
+body > .menubar-menu-items-holder.monaco-menu-container .menu-item-check {
+	color: var(--grid-text-muted, var(--vscode-menu-foreground, #E0E0E0)) !important;
+}
+
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:hover .codicon,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:focus .codicon,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:hover .submenu-indicator,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:focus .submenu-indicator,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:hover .menu-item-check,
+body > .menubar-menu-items-holder.monaco-menu-container .action-menu-item:focus .menu-item-check {
+	color: var(--grid-text-strong, var(--vscode-menu-selectionForeground, #FFFFFF)) !important;
+}
+
+/* Disabled menu items */
+body > .menubar-menu-items-holder.monaco-menu-container .action-item.disabled .action-label,
+body > .menubar-menu-items-holder.monaco-menu-container .action-item.disabled .keybinding,
+body > .menubar-menu-items-holder.monaco-menu-container .action-item.disabled .codicon {
+	color: var(--grid-text-subtle, var(--vscode-disabledForeground, #6E6E6E)) !important;
+	opacity: 0.4;
+}
+
+/* Separator styling */
+body > .menubar-menu-items-holder.monaco-menu-container .action-label.separator {
+	border-bottom-color: color-mix(in srgb, var(--grid-border-weak, #161616) 80%, transparent) !important;
+}
+
+.menubar .toolbar-toggle-more {
+	width: 22px;
+	height: 22px;
+	padding: 0 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: sub;
+}
+
+.menubar.compact .toolbar-toggle-more {
+	position: relative;
+	left: 0px;
+	top: 0px;
+	cursor: pointer;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.menubar:not(.compact) .menubar-menu-button:first-child .toolbar-toggle-more::before,
+.menubar.compact .toolbar-toggle-more::before {
+	content: var(--vscode-icon-menu-content) !important;
+	font-family: var(--vscode-icon-menu-font-family) !important;
+}
+
+/* Match behavior of outline for activity bar icons */
+.menubar.compact > .menubar-menu-button.open .menubar-menu-title,
+.menubar.compact > .menubar-menu-button:focus .menubar-menu-title,
+.menubar.compact > .menubar-menu-button:hover .menubar-menu-title{
+	outline-width: 1px !important;
+	outline-offset: -8px !important;
+}

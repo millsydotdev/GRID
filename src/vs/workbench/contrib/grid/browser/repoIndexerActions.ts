@@ -1,0 +1,29 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
+import { IRepoIndexerService } from './repoIndexerService.js';
+import { localize2 } from '../../../../nls.js';
+
+export const REBUILD_REPO_INDEX_ACTION_ID = 'grid.rebuildRepoIndex';
+
+registerAction2(
+	class extends Action2 {
+		constructor() {
+			super({
+				id: REBUILD_REPO_INDEX_ACTION_ID,
+				title: localize2('rebuildRepoIndex', 'GRID: Rebuild Repo Index'),
+				f1: true,
+				category: localize2('grid', 'GRID'),
+			});
+		}
+
+		async run(accessor: ServicesAccessor): Promise<void> {
+			const repoIndexerService = accessor.get(IRepoIndexerService);
+			await repoIndexerService.rebuildIndex();
+		}
+	}
+);

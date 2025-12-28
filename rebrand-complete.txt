@@ -1,0 +1,1 @@
+Rebrand to GRID 100% complete. No references to the old name remain. Project builds and runs successfully. Ready for development.

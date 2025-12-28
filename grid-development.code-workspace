@@ -1,0 +1,77 @@
+{
+	"folders": [
+		{
+			"name": "GRID (Root)",
+			"path": "."
+		},
+		{
+			"name": "Core Source",
+			"path": "./src"
+		},
+		{
+			"name": "Extensions",
+			"path": "./extensions"
+		},
+		{
+			"name": "Build Scripts",
+			"path": "./build"
+		},
+		{
+			"name": "CLI",
+			"path": "./cli"
+		},
+		{
+			"name": "Tests",
+			"path": "./test"
+		},
+		{
+			"name": "Documentation",
+			"path": "./docs"
+		}
+	],
+	"settings": {
+		// Inherit all settings from .vscode/settings.json
+		// Additional workspace-specific settings can be added here
+		"files.exclude": {
+			"**/.git": true,
+			"**/.DS_Store": true,
+			"**/node_modules": true,
+			"**/.build": true,
+			"out/**": true,
+			"out-build/**": true,
+			"out-vscode/**": true,
+			"out-vscode-reh/**": true
+		},
+		"search.useIgnoreFiles": true,
+		"search.followSymlinks": false,
+		// Multi-root specific: Show workspace folder in breadcrumbs
+		"breadcrumbs.showFolders": true,
+		// Enable workspace trust
+		"security.workspace.trust.enabled": true
+	},
+	"extensions": {
+		"recommendations": [
+			"dbaeumer.vscode-eslint",
+			"editorconfig.editorconfig",
+			"github.vscode-pull-request-github",
+			"ms-vscode.vscode-github-issue-notebooks",
+			"ms-vscode.extension-test-runner",
+			"jrieken.vscode-pr-pinger",
+			"typescriptteam.native-preview",
+			// Additional recommendations for multi-language support
+			"ms-python.python",
+			"ms-python.vscode-pylance",
+			"redhat.vscode-yaml",
+			"golang.go",
+			"timonwong.shellcheck"
+		]
+	},
+	"launch": {
+		"configurations": [],
+		"compounds": []
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": []
+	}
+}

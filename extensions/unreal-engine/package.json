@@ -1,0 +1,92 @@
+{
+  "name": "unreal-engine",
+  "displayName": "Unreal Engine Support",
+  "description": "Enhanced C++ support for Unreal Engine with auto-installing editor plugin",
+  "version": "1.0.0",
+  "publisher": "grid",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.5.0"
+  },
+  "icon": "media/icon.png",
+  "categories": ["Programming Languages", "Debuggers"],
+  "keywords": ["unreal", "unreal engine", "ue5", "ue4", "cpp", "c++", "gamedev"],
+  "capabilities": {
+    "virtualWorkspaces": false,
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Unreal Engine plugin installation requires workspace trust"
+    }
+  },
+  "activationEvents": [
+    "workspaceContains:**/*.uproject",
+    "onLanguage:cpp"
+  ],
+  "main": "./out/extension",
+  "scripts": {
+    "compile": "gulp compile-extension:unreal-engine",
+    "watch": "gulp watch-extension:unreal-engine"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "unreal-cpp",
+        "aliases": ["Unreal C++", "UE C++"],
+        "extensions": [".h", ".cpp"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "unreal-cpp",
+        "scopeName": "source.cpp.unreal",
+        "path": "./syntaxes/unreal-cpp.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "cpp",
+        "path": "./snippets/unreal.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "unrealEngine.installPlugin",
+        "title": "Install GRID Editor Plugin",
+        "category": "Unreal Engine"
+      },
+      {
+        "command": "unrealEngine.refreshProject",
+        "title": "Refresh Project Files",
+        "category": "Unreal Engine"
+      },
+      {
+        "command": "unrealEngine.buildEditor",
+        "title": "Build Editor",
+        "category": "Unreal Engine"
+      }
+    ],
+    "configuration": {
+      "title": "Unreal Engine",
+      "properties": {
+        "unrealEngine.autoInstallPlugin": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically install GRID editor plugin when .uproject file is detected"
+        },
+        "unrealEngine.enginePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Unreal Engine installation (auto-detected if empty)"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/node": "22.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GRID-NETWORK-REPO/GRID.git"
+  }
+}

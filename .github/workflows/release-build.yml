@@ -1,0 +1,196 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.106.0)'
+        required: true
+        default: '1.106.0'
+      create_release:
+        description: 'Create GitHub Release'
+        required: true
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  VSCODE_QUALITY: 'stable'
+  ELECTRON_SKIP_BINARY_DOWNLOAD: 0
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+jobs:
+  build-linux:
+    name: Build Linux x64
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libx11-dev libx11-xcb-dev \
+            libxkbfile-dev libnotify-bin libkrb5-dev libsecret-1-dev
+
+      - name: Install Node dependencies
+        run: |
+          npm ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compile build folder
+        run: npm run compile
+        working-directory: build
+
+      - name: Compile application
+        run: npm run compile
+
+      - name: Build extensions
+        run: npm run compile-extensions-build
+
+      - name: Package application
+        run: npm run minify-vscode
+
+      - name: Create distribution archive
+        run: |
+          cd ..
+          mkdir -p artifacts
+          tar -czf artifacts/GRID-linux-x64-${{ github.event.inputs.version || github.ref_name }}.tar.gz GRID
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: GRID-linux-x64
+          path: ../artifacts/GRID-linux-x64-*.tar.gz
+          retention-days: 30
+
+  build-windows:
+    name: Build Windows x64
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Node dependencies
+        run: npm ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compile build folder
+        run: npm run compile
+        working-directory: build
+
+      - name: Compile application
+        run: npm run compile
+
+      - name: Build extensions
+        run: npm run compile-extensions-build
+
+      - name: Package application
+        run: npm run minify-vscode
+
+      - name: Create distribution archive
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path ..\artifacts
+          Compress-Archive -Path GRID -DestinationPath ..\artifacts\GRID-windows-x64-${{ github.event.inputs.version || github.ref_name }}.zip
+        working-directory: ..
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: GRID-windows-x64
+          path: ../artifacts/GRID-windows-x64-*.zip
+          retention-days: 30
+
+  build-macos:
+    name: Build macOS Universal
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Node dependencies
+        run: npm ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compile build folder
+        run: npm run compile
+        working-directory: build
+
+      - name: Compile application
+        run: npm run compile
+
+      - name: Build extensions
+        run: npm run compile-extensions-build
+
+      - name: Package application
+        run: npm run minify-vscode
+
+      - name: Create distribution archive
+        run: |
+          cd ..
+          mkdir -p artifacts
+          tar -czf artifacts/GRID-macos-universal-${{ github.event.inputs.version || github.ref_name }}.tar.gz GRID
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: GRID-macos-universal
+          path: ../artifacts/GRID-macos-universal-*.tar.gz
+          retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-22.04
+    if: github.event.inputs.create_release == 'true' || startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Display structure
+        run: ls -R artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: GRID ${{ github.event.inputs.version || github.ref_name }}
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/**/*.tar.gz
+            artifacts/**/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,60 @@
+{
+	"nameShort": "GRID",
+	"nameLong": "GRID",
+	"gridVersion": "0.0.8",
+	"gridRelease": "0906",
+	"applicationName": "grid",
+	"dataFolderName": ".grid",
+	"win32MutexName": "grid",
+	"licenseName": "MIT",
+	"licenseUrl": "https://github.com/GRID-NETWORK-REPO/GRID/blob/main/LICENSE.txt",
+	"serverLicenseUrl": "https://github.com/GRID-NETWORK-REPO/GRID/blob/main/LICENSE.txt",
+	"serverGreeting": [],
+	"serverLicense": [],
+	"serverLicensePrompt": "",
+	"serverApplicationName": "grid-server",
+	"serverDataFolderName": ".grid-server",
+	"tunnelApplicationName": "grid-tunnel",
+	"win32DirName": "GRID",
+	"win32NameVersion": "GRID",
+	"win32RegValueName": "GRID",
+	"win32x64AppId": "{{9D394D01-1728-45A7-B997-A6C82C5452C3}",
+	"win32arm64AppId": "{{0668DD58-2BDE-4101-8CDA-40252DF8875D}",
+	"win32x64UserAppId": "{{8BED5DC1-6C55-46E6-9FE6-18F7E6F7C7F1}",
+	"win32arm64UserAppId": "{{F6C87466-BC82-4A8F-B0FF-18CA366BA4D8}",
+	"win32AppUserModelId": "GRID.Editor",
+	"win32ShellNameShort": "GRID",
+	"win32TunnelServiceMutex": "grid-tunnelservice",
+	"win32TunnelMutex": "grid-tunnel",
+	"win32ContextMenu": {
+		"x64": {
+			"clsid": "{6B6B4E5C-7B3A-4C5D-8E9F-1A2B3C4D5E6F}"
+		},
+		"arm64": {
+			"clsid": "{7C7C5F6D-8C4B-5D6E-9F0A-2B3C4D5E6F7A}"
+		}
+	},
+	"darwinBundleIdentifier": "com.grid.code",
+	"linuxIconName": "grid",
+	"licenseFileName": "LICENSE.txt",
+	"reportIssueUrl": "https://github.com/GRID-NETWORK-REPO/GRID/issues/new",
+	"nodejsRepository": "https://nodejs.org",
+	"urlProtocol": "grid",
+	"extensionsGallery": {
+		"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+		"itemUrl": "https://marketplace.visualstudio.com/items"
+	},
+	"builtInExtensions": [],
+	"linkProtectionTrustedDomains": [
+		"https://grid.millsy.dev",
+		"https://github.com/GRID-NETWORK-REPO/GRID",
+		"https://ollama.com"
+	]
+	,
+	"extensionEnabledApiProposals": {
+		"open-remote-ssh": [
+			"resolvers",
+			"contribViewsRemote"
+		]
+	}
+}

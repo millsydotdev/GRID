@@ -1,0 +1,5 @@
+# Dev builds - these are temporary and should not be committed
+*
+!.gitignore
+!README.md
+!scripts/

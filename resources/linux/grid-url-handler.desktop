@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=GRID URL Handler
+Exec=/usr/share/grid/bin/grid --open-url %U
+Icon=code
+Type=Application
+NoDisplay=true
+MimeType=x-scheme-handler/grid;
+
+

@@ -1,0 +1,171 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { Action2, registerAction2, MenuId } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
+import { ICodeReviewService, CodeReviewAnnotation } from '../common/codeReviewService.js';
+import { CodeReviewEditorContribution } from './codeReviewEditorContribution.js';
+import {
+	IProgressService,
+	ProgressLocation,
+	IProgress,
+	IProgressStep,
+} from '../../../../platform/progress/common/progress.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { localize2 } from '../../../../nls.js';
+import { KeyMod, KeyCode } from '../../../../base/common/keyCodes.js';
+import { KeybindingWeight } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
+import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
+import { CancellationToken, CancellationTokenSource } from '../../../../base/common/cancellation.js';
+import { IChatService } from '../../../../workbench/contrib/chat/common/chatService.js';
+import { IChatEditingService } from '../../../../workbench/contrib/chat/common/chatEditingService.js';
+import { ChatAgentLocation } from '../../../../workbench/contrib/chat/common/constants.js';
+import { IViewsService } from '../../../../workbench/services/views/common/viewsService.js';
+import { ComposerPanel } from '../../../../workbench/contrib/chat/browser/chatEditing/composerPanel.js';
+import { URI } from '../../../../base/common/uri.js';
+
+/**
+ * Command to review the current file
+ */
+registerAction2(
+	class extends Action2 {
+		constructor() {
+			super({
+				id: 'grid.codeReview.reviewFile',
+				f1: true,
+				title: localize2('gridCodeReviewFile', 'GRID: Review This File'),
+				category: localize2('gridCategory', 'GRID'),
+				keybinding: {
+					primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyR,
+					weight: KeybindingWeight.ExternalExtension,
+					when: ContextKeyExpr.deserialize('editorFocus && !terminalFocus'),
+				},
+				menu: {
+					id: MenuId.EditorContext,
+					group: '1_modification',
+					order: 2,
+					when: ContextKeyExpr.deserialize('editorTextFocus && !terminalFocus'),
+				},
+			});
+		}
+
+		async run(accessor: ServicesAccessor): Promise<void> {
+			const editorService = accessor.get(ICodeEditorService);
+			const codeReviewService = accessor.get(ICodeReviewService);
+			const progressService = accessor.get(IProgressService);
+			const notificationService = accessor.get(INotificationService);
+
+			const editor = editorService.getFocusedCodeEditor();
+			if (!editor || !editor.hasModel()) {
+				notificationService.warn('No editor is focused');
+				return;
+			}
+
+			const uri = editor.getModel().uri;
+			const fileName = uri.fsPath.split('/').pop() || 'file';
+
+			// Create cancellation token source
+			const cancellationTokenSource = new CancellationTokenSource();
+
+			// Show progress
+			await progressService.withProgress(
+				{
+					location: ProgressLocation.Notification,
+					title: `Reviewing ${fileName}...`,
+					cancellable: true,
+				},
+				async (progress: IProgress<IProgressStep>) => {
+					try {
+						progress.report({ message: 'Analyzing code...' });
+
+						// Perform review
+						const result = await codeReviewService.reviewFile(uri, cancellationTokenSource.token);
+
+						if (cancellationTokenSource.token.isCancellationRequested) {
+							return;
+						}
+
+						if (!result.success) {
+							notificationService.error(`Code review failed: ${result.error || 'Unknown error'}`);
+							return;
+						}
+
+						// Get the editor contribution and set annotations
+						const contribution = CodeReviewEditorContribution.get(editor);
+						if (contribution) {
+							contribution.setAnnotations(uri, result.annotations);
+							progress.report({ message: `Found ${result.annotations.length} issue(s)` });
+						}
+
+						// Show notification with summary
+						if (result.annotations.length === 0) {
+							notificationService.info(`✅ ${fileName}: No issues found!`);
+						} else {
+							notificationService.info(`📋 ${fileName}: ${result.summary}`);
+						}
+					} catch (error) {
+						notificationService.error(`Code review error: ${error instanceof Error ? error.message : String(error)}`);
+					}
+				},
+				() => {
+					// onDidCancel callback
+					cancellationTokenSource.cancel();
+				}
+			);
+		}
+	}
+);
+
+/**
+ * Command to apply a suggested fix from a code review annotation
+ */
+registerAction2(
+	class extends Action2 {
+		constructor() {
+			super({
+				id: 'grid.codeReview.applyFix',
+				f1: false, // Not in command palette, called programmatically
+				title: localize2('gridCodeReviewApplyFix', 'GRID: Apply Fix'),
+			});
+		}
+
+		async run(accessor: ServicesAccessor, annotation: CodeReviewAnnotation, uri: URI): Promise<void> {
+			if (!annotation.suggestedFix) {
+				return;
+			}
+
+			const chatService = accessor.get(IChatService);
+			const chatEditingService = accessor.get(IChatEditingService) as IChatEditingService;
+			const viewsService = accessor.get(IViewsService);
+			const notificationService = accessor.get(INotificationService);
+
+			try {
+				// Create a chat session for the editing session
+				const chatModel = chatService.startSession(ChatAgentLocation.Chat, CancellationToken.None, false);
+
+				// Create editing session
+				const editingSession = await chatEditingService.createEditingSession(chatModel);
+
+				// Open ComposerPanel to show the diff
+				const composerPanel = (await viewsService.openView(ComposerPanel.ID)) as ComposerPanel | undefined;
+				if (composerPanel) {
+					// Set the file in scope and create a request to apply the fix
+					composerPanel.setScope([uri]);
+					composerPanel.setGoal(
+						`Apply fix for: ${annotation.message}\n\nSuggested fix:\n\`\`\`\n${annotation.suggestedFix}\n\`\`\``
+					);
+
+					// Show the panel
+					await editingSession.show();
+				}
+
+				// Note: The user can then generate proposals and apply them
+			} catch (error) {
+				notificationService.error(`Failed to apply fix: ${error instanceof Error ? error.message : String(error)}`);
+			}
+		}
+	}
+);

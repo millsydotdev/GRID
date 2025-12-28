@@ -1,0 +1,19 @@
+[Desktop Entry]
+Name=GRID
+Comment=GRID
+GenericName=GRID
+Exec=/usr/share/grid/bin/grid %F
+Icon=code
+Type=Application
+StartupNotify=true
+Categories=Utility;TextEditor;Development;IDE;
+MimeType=text/plain;inode/directory;application/x-code-workspace;
+Actions=new-empty-window;
+Keywords=Development;IDE;GRID;
+
+[Desktop Action new-empty-window]
+Name=New Empty Window
+Exec=/usr/share/grid/bin/grid --new-window %F
+Icon=grid
+
+

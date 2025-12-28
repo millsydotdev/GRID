@@ -1,0 +1,51 @@
+{
+    "name": "grid-enterprise",
+    "displayName": "GRID Enterprise Features",
+    "description": "Enterprise features for GRID IDE including License Management and AI Services",
+    "version": "1.0.0",
+    "publisher": "grid",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "main": "./out/extension",
+    "activationEvents": [
+        "onStartupFinished",
+        "onCommand:grid.connect"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "grid.connect",
+                "title": "GRID: Connect to Enterprise Hub",
+                "category": "GRID"
+            },
+            {
+                "command": "grid.logout",
+                "title": "GRID: Sign Out",
+                "category": "GRID"
+            }
+        ],
+        "configuration": {
+            "title": "GRID Enterprise",
+            "properties": {
+                "grid.enterprise.hubUrl": {
+                    "type": "string",
+                    "default": "http://localhost:3000",
+                    "description": "URL of the GRID Hub (Enterprise Server)"
+                },
+                "grid.telemetry.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable enterprise telemetry reporting."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "compile": "gulp compile-extension:grid-enterprise"
+    },
+    "devDependencies": {
+        "@types/node": "^16.x"
+    }
+}

@@ -1,0 +1,459 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.chat-composer-panel {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.chat-composer-panel .composer-scope-section,
+.chat-composer-panel .composer-goal-section {
+    padding: 6px 10px; /* denser */
+    border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.chat-composer-panel .composer-scope-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.chat-composer-panel .composer-scope-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 8px;
+}
+
+.chat-composer-panel .composer-scope-btn {
+	padding: 4px 8px;
+	font-size: 11px;
+	border: 1px solid var(--vscode-button-border, transparent);
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.chat-composer-panel .composer-scope-btn-primary {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	font-weight: 500;
+}
+
+.chat-composer-panel .composer-scope-btn:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.chat-composer-panel .composer-scope-list {
+	margin-top: 8px;
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+.chat-composer-panel .composer-scope-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 8px;
+	margin-bottom: 4px;
+	background: var(--vscode-list-hoverBackground);
+	border-radius: 2px;
+	font-size: 11px;
+}
+
+.chat-composer-panel .composer-scope-item-label {
+	flex: 1;
+	color: var(--vscode-foreground);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.chat-composer-panel .composer-scope-item-type {
+	padding: 2px 6px;
+	font-size: 10px;
+	border-radius: 2px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	text-transform: uppercase;
+}
+
+.chat-composer-panel .composer-scope-item-remove {
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	font-size: 16px;
+	line-height: 1;
+	border-radius: 2px;
+}
+
+.chat-composer-panel .composer-scope-item-remove:hover {
+	background: var(--vscode-button-hoverBackground);
+}
+
+.chat-composer-panel .composer-label {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 12px;
+	color: var(--vscode-foreground);
+	opacity: 0.8;
+}
+
+.chat-composer-panel .composer-scope-indicator {
+	padding: 4px 8px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	border-radius: 3px;
+	font-size: 11px;
+	display: inline-block;
+}
+
+.chat-composer-panel .composer-goal-input {
+	width: 100%;
+	min-height: 60px;
+	padding: 6px 8px;
+	border: 1px solid var(--vscode-input-border);
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border-radius: 2px;
+	font-family: var(--vscode-font-family);
+	font-size: 13px;
+	resize: vertical;
+}
+
+.chat-composer-panel .composer-goal-input:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+	outline-offset: -1px;
+}
+
+.chat-composer-panel .composer-buttons {
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+	display: flex;
+	gap: 8px;
+}
+
+.chat-composer-panel .composer-progress {
+	padding: 8px 12px;
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.chat-composer-panel .composer-proposals {
+	flex: 1;
+	padding: 12px;
+	overflow-y: auto;
+	color: var(--vscode-foreground);
+}
+
+.chat-composer-panel .composer-proposals-empty {
+	padding: 20px;
+	text-align: center;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+}
+
+.chat-composer-panel .composer-file-entry {
+	margin-bottom: 16px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 4px;
+	padding: 8px;
+	background: var(--vscode-editor-background);
+}
+
+.chat-composer-panel .composer-file-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+    position: sticky;
+    top: 0;
+    background: var(--vscode-editor-background);
+    z-index: 1;
+}
+
+.chat-composer-panel .composer-file-name {
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--vscode-foreground);
+}
+
+.chat-composer-panel .composer-file-change-count {
+	font-size: 11px;
+	padding: 2px 6px;
+	border-radius: 3px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+}
+
+.chat-composer-panel .composer-file-progress {
+	font-size: 14px;
+	margin-right: 8px;
+	display: inline-block;
+	width: 18px;
+	text-align: center;
+	opacity: 0.7;
+}
+
+.chat-composer-panel .composer-file-progress-generating {
+	color: var(--vscode-progressBar-background, var(--vscode-button-background));
+	animation: composer-spin 1s linear infinite;
+}
+
+.chat-composer-panel .composer-file-progress-ready {
+	color: var(--vscode-editorInfo-foreground);
+	opacity: 1;
+}
+
+.chat-composer-panel .composer-file-progress-applied {
+	color: var(--vscode-testing-iconPassed);
+	opacity: 1;
+}
+
+.chat-composer-panel .composer-file-progress-rejected {
+	color: var(--vscode-errorForeground);
+	opacity: 1;
+}
+
+@keyframes composer-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.chat-composer-panel .composer-file-no-changes,
+.chat-composer-panel .composer-file-error {
+	padding: 8px;
+	color: var(--vscode-descriptionForeground);
+	font-size: 12px;
+}
+
+.chat-composer-panel .composer-file-toggle {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 0;
+	margin-bottom: 8px;
+}
+
+.chat-composer-panel .composer-hunks-container {
+	margin-top: 8px;
+}
+
+.chat-composer-panel .composer-hunk {
+	margin-bottom: 6px;
+	padding: 6px;
+	border-radius: 3px;
+	background: var(--vscode-list-hoverBackground);
+}
+
+.chat-composer-panel .composer-hunk-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.chat-composer-panel .composer-hunk-checkbox {
+	cursor: pointer;
+}
+
+.chat-composer-panel .composer-hunk-info {
+	flex: 1;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 11px;
+}
+
+.chat-composer-panel .composer-hunk-range {
+	color: var(--vscode-foreground);
+}
+
+.chat-composer-panel .composer-hunk-stats {
+	display: flex;
+	gap: 4px;
+}
+
+.chat-composer-panel .composer-hunk-added {
+	color: var(--vscode-diffEditor-insertedTextBackground, #4ec9b0);
+	font-weight: 500;
+}
+
+.chat-composer-panel .composer-hunk-removed {
+	color: var(--vscode-diffEditor-removedTextBackground, #f48771);
+	font-weight: 500;
+}
+
+/* Mode Toggle Styles */
+.chat-composer-panel .composer-mode-section {
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.chat-composer-panel .composer-mode-label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 12px;
+	color: var(--vscode-foreground);
+	opacity: 0.8;
+}
+
+.chat-composer-panel .composer-mode-toggle {
+	display: flex;
+	gap: 4px;
+}
+
+.chat-composer-panel .composer-mode-btn {
+	padding: 4px 12px;
+	font-size: 12px;
+	border: 1px solid var(--vscode-button-border, transparent);
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.chat-composer-panel .composer-mode-btn:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.chat-composer-panel .composer-mode-btn.active {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border-color: var(--vscode-button-border);
+}
+
+/* Summary Section Styles */
+.chat-composer-panel .composer-summary-section {
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+	background: var(--vscode-editor-background);
+}
+
+.chat-composer-panel .composer-summary-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.chat-composer-panel .composer-summary-toggle {
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.chat-composer-panel .composer-summary-title {
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--vscode-foreground);
+}
+
+.chat-composer-panel .composer-summary-content {
+	display: none;
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid var(--vscode-panel-border);
+}
+
+.chat-composer-panel .composer-summary-stat {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 0;
+	font-size: 12px;
+}
+
+.chat-composer-panel .composer-summary-label {
+	color: var(--vscode-descriptionForeground);
+}
+
+.chat-composer-panel .composer-summary-value {
+	color: var(--vscode-foreground);
+	font-weight: 500;
+}
+
+.chat-composer-panel .composer-summary-added {
+	color: var(--vscode-diffEditor-insertedTextBackground, #4ec9b0);
+}
+
+.chat-composer-panel .composer-summary-removed {
+	color: var(--vscode-diffEditor-removedTextBackground, #f48771);
+}
+
+.chat-composer-panel .composer-plan-preview {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--vscode-panel-border);
+}
+
+.chat-composer-panel .composer-plan-preview-title {
+	font-weight: 600;
+	font-size: 12px;
+	color: var(--vscode-foreground);
+	margin-bottom: 8px;
+}
+
+.chat-composer-panel .composer-plan-file-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.chat-composer-panel .composer-plan-file-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 0;
+	font-size: 11px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.chat-composer-panel .composer-plan-file-item:last-child {
+	border-bottom: none;
+}
+
+.chat-composer-panel .composer-plan-file-name {
+	color: var(--vscode-foreground);
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.chat-composer-panel .composer-plan-file-changes {
+	font-size: 10px;
+	padding: 2px 6px;
+	border-radius: 3px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	margin-left: 8px;
+}
+

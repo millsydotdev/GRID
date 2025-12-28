@@ -1,0 +1,6 @@
+{
+	"type": "commonjs",
+	"devDependencies": {
+		"sharp": "^0.34.5"
+	}
+}

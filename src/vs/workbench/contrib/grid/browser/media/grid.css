@@ -1,0 +1,765 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Millsy.dev. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+:root {
+	/* Core surfaces - Pure black theme with depth */
+	--grid-surface-0: #000000;
+	--grid-surface-1: #0a0a0a;
+	--grid-surface-1-alt: #0f0f0f;
+	--grid-surface-2: #141414;
+	--grid-surface-2-alt: #1a1a1a;
+	--grid-surface-3: #1f1f1f;
+	--grid-surface-4: #252525;
+	--grid-overlay: rgba(0, 0, 0, 0.95);
+	--grid-glass: rgba(10, 10, 10, 0.8);
+
+	/* Text - High contrast with black background */
+	--grid-text-strong: #ffffff;
+	--grid-text-base: #e5e5e5;
+	--grid-text-muted: #a0a0a0;
+	--grid-text-subtle: #707070;
+
+	/* Primary brand - RED accent */
+	--grid-primary: #ff3333;
+	--grid-primary-bright: #ff4d4d;
+	--grid-primary-dark: #cc0000;
+	--grid-primary-soft: rgba(255, 51, 51, 0.15);
+	--grid-primary-glow: rgba(255, 51, 51, 0.5);
+
+	/* Secondary - Darker red for depth */
+	--grid-secondary: #cc0000;
+	--grid-secondary-soft: rgba(204, 0, 0, 0.15);
+
+	/* Accent variations - All red themed */
+	--grid-accent-light: #ff6666;
+	--grid-accent-light-soft: rgba(255, 102, 102, 0.15);
+	--grid-accent-dark: #990000;
+	--grid-accent-dark-soft: rgba(153, 0, 0, 0.15);
+	--grid-accent-bright: #ff0000;
+	--grid-accent-bright-soft: rgba(255, 0, 0, 0.15);
+
+	/* Default accent - RED */
+	--grid-brand: var(--grid-primary);
+	--grid-brand-soft: var(--grid-primary-soft);
+	--grid-accent: var(--grid-brand);
+
+	/* Semantic colors - Red themed variations */
+	--grid-success: #00ff00;
+	--grid-success-soft: rgba(0, 255, 0, 0.15);
+	--grid-warning: #ffaa00;
+	--grid-warning-soft: rgba(255, 170, 0, 0.15);
+	--grid-danger: #ff0000;
+	--grid-danger-soft: rgba(255, 0, 0, 0.15);
+	--grid-info: #ff6666;
+	--grid-info-soft: rgba(255, 102, 102, 0.15);
+
+	/* Borders + outlines - Enhanced depth */
+	--grid-border-subtle: rgba(255, 255, 255, 0.04);
+	--grid-border-weak: rgba(255, 255, 255, 0.06);
+	--grid-border-base: rgba(255, 255, 255, 0.08);
+	--grid-border-strong: rgba(255, 255, 255, 0.12);
+	--grid-border-accent: var(--grid-brand);
+	--grid-ring-color: var(--grid-brand);
+
+	/* Typography - Modern scale */
+	--grid-font-hero: 18px;
+	--grid-font-title: 15px;
+	--grid-font-subtitle: 13px;
+	--grid-font-body: 12px;
+	--grid-font-label: 11px;
+	--grid-font-micro: 10px;
+
+	/* Font weights */
+	--grid-weight-normal: 400;
+	--grid-weight-medium: 500;
+	--grid-weight-semibold: 600;
+	--grid-weight-bold: 700;
+
+	/* Spacing - Consistent scale */
+	--grid-space-2xs: 2px;
+	--grid-space-xs: 4px;
+	--grid-space-sm: 8px;
+	--grid-space-md: 12px;
+	--grid-space-lg: 16px;
+	--grid-space-xl: 20px;
+	--grid-space-2xl: 24px;
+	--grid-space-3xl: 32px;
+	--grid-space-4xl: 40px;
+
+	/* Radii - Modern rounded corners */
+	--grid-radius-xs: 4px;
+	--grid-radius-sm: 6px;
+	--grid-radius-md: 10px;
+	--grid-radius-lg: 14px;
+	--grid-radius-xl: 18px;
+	--grid-radius-2xl: 24px;
+	--grid-radius-full: 9999px;
+
+	/* Motion + depth - Smooth animations */
+	--grid-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	--grid-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+	--grid-transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+	--grid-transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	/* Shadows - Layered depth system */
+	--grid-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+	--grid-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+	--grid-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
+	--grid-shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+	--grid-shadow-2xl: 0 30px 60px rgba(0, 0, 0, 0.7);
+	--grid-shadow-soft: 0 30px 80px rgba(0, 0, 0, 0.5);
+	--grid-shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+	--grid-shadow-hairline: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+	--grid-shadow-glow: 0 0 20px var(--grid-primary-glow);
+	--grid-shadow-glow-strong: 0 0 30px var(--grid-primary-glow);
+
+	--grid-logo-url: url('../../../../browser/media/code-icon.svg');
+
+	/* Component theme tokens (derived from core tokens) */
+	--grid-bg-0: var(--grid-surface-0);
+	--grid-bg-1: var(--grid-surface-1);
+	--grid-bg-1-alt: var(--grid-surface-1-alt);
+	--grid-bg-2: var(--grid-surface-2);
+	--grid-bg-2-alt: var(--grid-surface-2-alt);
+	--grid-bg-2-hover: color-mix(in srgb, var(--grid-surface-2-alt) 80%, var(--grid-primary) 20%);
+	--grid-bg-3: var(--grid-surface-3);
+	--grid-bg-4: var(--grid-surface-4);
+
+	/* Foreground hierarchy */
+	--grid-fg-0: var(--grid-text-strong);
+	--grid-fg-1: var(--grid-text-base);
+	--grid-fg-2: var(--grid-text-muted);
+	--grid-fg-3: var(--grid-text-subtle);
+	--grid-fg-4: rgba(109, 112, 144, 0.6);
+
+	/* Border hierarchy */
+	--grid-border-1: var(--grid-border-strong);
+	--grid-border-2: var(--grid-border-base);
+	--grid-border-3: var(--grid-border-weak);
+	--grid-border-4: var(--grid-border-subtle);
+
+	/* Gradient backgrounds - Red themed */
+	--grid-gradient-primary: linear-gradient(135deg, var(--grid-primary) 0%, var(--grid-secondary) 100%);
+	--grid-gradient-surface: linear-gradient(180deg, var(--grid-surface-1) 0%, var(--grid-surface-2) 100%);
+	--grid-gradient-accent: linear-gradient(135deg, var(--grid-primary-bright) 0%, var(--grid-accent-dark) 100%);
+	--grid-gradient-red-glow: linear-gradient(135deg, rgba(255, 51, 51, 0.3) 0%, rgba(204, 0, 0, 0.1) 100%);
+
+	--grid-link-color: var(--grid-accent);
+
+	--grid-space-1: var(--grid-space-2xs);
+	--grid-space-2: var(--grid-space-xs);
+	--grid-space-3: 6px;
+	--grid-space-4: var(--grid-space-sm);
+	--grid-space-5: var(--grid-space-md);
+	--grid-space-6: var(--grid-space-lg);
+	--grid-space-7: var(--grid-space-xl);
+	--grid-space-8: var(--grid-space-2xl);
+
+	--grid-radius-xl: calc(var(--grid-radius-lg) + 4px);
+}
+
+/* ----------------------------------------------------------------------------------------
+ * Workbench chrome & layout scaffolding
+ * ------------------------------------------------------------------------------------- */
+body.monaco-workbench,
+.monaco-workbench {
+	background: var(--grid-surface-0) !important;
+	color: var(--grid-text-base) !important;
+	font-size: var(--grid-font-body);
+}
+
+body.monaco-workbench {
+	--vscode-activityBar-background: var(--grid-surface-2);
+	--vscode-activityBar-activeBorder: var(--grid-brand);
+	--vscode-activityBarBadge-background: var(--grid-brand);
+	--vscode-button-background: #0f0f0f;
+	--vscode-button-foreground: var(--grid-text-base);
+	--vscode-button-hoverBackground: #1a1a1a;
+	--vscode-focusBorder: var(--grid-brand);
+	--vscode-input-background: #080808;
+	--vscode-input-border: var(--grid-border-strong);
+	--vscode-input-foreground: var(--grid-text-base);
+	--vscode-list-activeSelectionBackground: #111111;
+	--vscode-menu-selectionBackground: #141414;
+	--vscode-panel-background: var(--grid-surface-1);
+	--vscode-panel-border: var(--grid-border-strong);
+	--vscode-sideBar-background: var(--grid-surface-1);
+	--vscode-sideBarSectionHeader-background: var(--grid-surface-1);
+	--vscode-statusBar-background: var(--grid-surface-0);
+	--vscode-statusBar-border: var(--grid-border-strong);
+	--vscode-tab-activeBackground: var(--grid-surface-1);
+	--vscode-tab-inactiveBackground: var(--grid-surface-0);
+	--vscode-titleBar-activeBackground: var(--grid-surface-0);
+	--vscode-titleBar-border: #101010;
+}
+
+.monaco-workbench .part.titlebar,
+.monaco-workbench .part.statusbar {
+	backdrop-filter: blur(16px);
+	background: var(--grid-surface-0) !important;
+	box-shadow: var(--grid-shadow-hairline);
+}
+
+/* On Windows, disable backdrop-filter on titlebar to avoid stacking context issues
+ * that prevent menubar dropdowns from appearing when appended to document.body */
+.monaco-workbench.windows .part.titlebar {
+	backdrop-filter: none;
+}
+
+.monaco-workbench .part.activitybar {
+	background: var(--grid-surface-3) !important;
+	border-right: 1px solid var(--grid-border-strong) !important;
+	box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.monaco-workbench .part.sidebar,
+.monaco-workbench .part.auxiliarybar,
+.monaco-workbench .part.panel {
+	background: var(--grid-surface-1) !important;
+	border-color: var(--grid-border-strong) !important;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.monaco-workbench .part.sidebar > .content .pane-header,
+.monaco-workbench .part.auxiliarybar > .content .pane-header {
+	padding: var(--grid-space-sm) var(--grid-space-md) !important;
+	min-height: 32px;
+}
+
+.monaco-workbench .part.sidebar > .content .pane-body,
+.monaco-workbench .part.auxiliarybar > .content .pane-body {
+	padding-bottom: var(--grid-space-sm);
+}
+
+.monaco-workbench .split-view-view {
+	background: transparent;
+}
+
+.monaco-workbench .part.editor>.content .editor-group-container {
+	border-color: color-mix(in srgb, var(--grid-border-strong) 65%, transparent);
+}
+
+.monaco-workbench .part.statusbar .statusbar-item {
+	font-size: var(--grid-font-label);
+	font-weight: 500;
+	letter-spacing: 0.01em;
+}
+
+.monaco-workbench .part.editor,
+.monaco-workbench .editor-container,
+.monaco-workbench .part.editor>.content .editor-group-container,
+.monaco-workbench .auxiliarybar-part {
+	background-color: var(--grid-surface-1) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .tab,
+.monaco-workbench .monaco-list,
+.monaco-workbench .split-view-view,
+.monaco-workbench .pane-body,
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor-background,
+.monaco-workbench .part.editor>.content .editor-group-container {
+	background-color: var(--grid-surface-1) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-editor .grid-sweepIdxBG {
+	background-color: var(--vscode-grid-sweepIdxBG);
+}
+
+.grid-sweepBG {
+	background-color: var(--vscode-grid-sweepBG);
+}
+
+.grid-highlightBG {
+	background-color: var(--vscode-grid-highlightBG);
+}
+
+.grid-greenBG {
+	background-color: var(--vscode-grid-greenBG);
+}
+
+.grid-redBG {
+	background-color: var(--vscode-grid-redBG);
+}
+
+.grid-diff-disabled {
+	opacity: 0.5;
+}
+
+
+/* Renamed from grid-watermark-button to grid-openfolder-button */
+.grid-openfolder-button {
+	padding: 8px 20px;
+	background-color: var(--grid-surface-3);
+	color: var(--grid-text-base);
+	border: 1px solid var(--grid-border-strong);
+	border-radius: 4px;
+	outline: none !important;
+	box-shadow: none !important;
+	cursor: pointer;
+	transition: background-color var(--grid-transition-fast);
+}
+.grid-openfolder-button:hover,
+.grid-openfolder-button:active {
+	background-color: var(--grid-surface-4);
+}
+
+/* Added for Open SSH button with slightly darker color */
+.grid-openssh-button {
+	padding: 8px 20px;
+	background-color: var(--grid-surface-2);
+	color: var(--grid-text-base);
+	border: 1px solid var(--grid-border-strong);
+	border-radius: 4px;
+	outline: none !important;
+	box-shadow: none !important;
+	cursor: pointer;
+	transition: background-color var(--grid-transition-fast);
+}
+.grid-openssh-button:hover,
+.grid-openssh-button:active {
+	background-color: var(--grid-surface-3);
+}
+
+
+.grid-settings-watermark-button {
+	margin: 8px 0;
+	padding: 8px 20px;
+	background-color: var(--grid-surface-2);
+	color: var(--grid-text-base);
+	border: 1px solid var(--grid-border-strong);
+	border-radius: 4px;
+	outline: none !important;
+	box-shadow: none !important;
+	cursor: pointer;
+	transition: background-color var(--grid-transition-fast);
+}
+
+.grid-settings-watermark-button:hover,
+.grid-settings-watermark-button:active {
+	background-color: var(--grid-surface-3);
+}
+
+.grid-link {
+	color: var(--grid-text-base);
+	cursor: pointer;
+	transition: opacity var(--grid-transition-fast);
+}
+
+.grid-link:hover {
+	opacity: 0.8;
+}
+
+/* ----------------------------------------------------------------------------------------
+ * Explorer / Search / Extensions surfaces
+ * ------------------------------------------------------------------------------------- */
+.monaco-workbench .part.sidebar .composite,
+.monaco-workbench .part.sidebar .pane-body,
+.monaco-workbench .part.sidebar .monaco-list,
+.monaco-workbench .part.sidebar .monaco-list-rows,
+.monaco-workbench .part.sidebar .monaco-tree,
+.monaco-workbench .part.sidebar .split-view-view,
+.monaco-workbench .part.sidebar .pane-body .monaco-list-row,
+.monaco-workbench .part.sidebar .pane-body .monaco-list-row:hover {
+	background-color: var(--grid-surface-1) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .part.sidebar .pane-header,
+.monaco-workbench .part.sidebar .pane-header .title {
+	background-color: var(--grid-surface-0) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .extensions-viewlet .extensions-list .monaco-list-row,
+.monaco-workbench .extensions-viewlet .extension-editor,
+.monaco-workbench .extensions-viewlet .extension-editor .body {
+	background-color: var(--grid-surface-1) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .search-view .search-widget,
+.monaco-workbench .search-view .query-details,
+.monaco-workbench .search-view .monaco-split-view2,
+.monaco-workbench .search-view .results .monaco-list {
+	background-color: var(--grid-surface-1) !important;
+	color: var(--grid-text-base) !important;
+	border-color: var(--grid-border-strong) !important;
+}
+
+/* ----------------------------------------------------------------------------------------
+ * Chat / message input experience
+ * ------------------------------------------------------------------------------------- */
+.monaco-workbench .interactive-session .chat-input-container {
+	background-color: var(--grid-surface-2) !important;
+	border: 1px solid var(--grid-border-strong) !important;
+	box-shadow: none !important;
+}
+
+.monaco-workbench .interactive-session .chat-input-container:focus-within {
+	border-color: var(--grid-brand) !important;
+	box-shadow: 0 0 0 1px var(--grid-brand) inset;
+}
+
+.monaco-workbench .interactive-session .chat-input-container .chat-editor-container .monaco-editor,
+.monaco-workbench .interactive-session .chat-input-container .chat-editor-container .monaco-editor .monaco-editor-background,
+.monaco-workbench .interactive-session .chat-input-container .chat-editor-container .monaco-editor .margin,
+.monaco-workbench .interactive-session .chat-input-container .chat-editor-container .monaco-editor .inputarea.ime-input {
+	background-color: var(--grid-surface-2) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .interactive-session .chat-input-container .chat-editor-container .monaco-editor .cursor {
+	border-color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .interactive-session .chat-input-toolbars,
+.monaco-workbench .interactive-session .chat-input-toolbars .monaco-toolbar .action-item,
+.monaco-workbench .interactive-session .chat-modelPicker-item {
+	background-color: var(--grid-surface-0) !important;
+	color: var(--grid-text-base) !important;
+	border-color: var(--grid-border-strong) !important;
+}
+
+/* ----------------------------------------------------------------------------------------
+ * Settings experience
+ * ------------------------------------------------------------------------------------- */
+.monaco-workbench .settings-editor,
+.monaco-workbench .settings-editor .settings-body,
+.monaco-workbench .settings-editor .settings-tree-container,
+.monaco-workbench .settings-editor .settings-toc-container {
+	background: var(--grid-surface-1) !important;
+	color: var(--grid-text-base);
+}
+
+.monaco-workbench .settings-editor .settings-header {
+	background: var(--grid-surface-0) !important;
+	border-bottom: 1px solid var(--grid-border-strong);
+}
+
+.monaco-workbench .settings-editor .settings-target-container .settings-target-button,
+.monaco-workbench .settings-editor .settings-header-controls .monaco-dropdown,
+.monaco-workbench .settings-editor .settings-target-container .monaco-select-box {
+	background: var(--grid-surface-2) !important;
+	border-color: var(--grid-border-strong) !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .settings-editor .monaco-list.settings-toc-tree,
+.monaco-workbench .settings-editor .monaco-list.settings-toc-tree .monaco-list-row {
+	background: transparent !important;
+}
+
+.monaco-workbench .settings-editor .setting-item {
+	background: var(--grid-surface-2) !important;
+	border: 1px solid var(--grid-border-weak) !important;
+	border-radius: var(--grid-radius-md);
+}
+
+/* styles for all containers used by grid */
+.grid-scope {
+	--scrollbar-vertical-width: 8px;
+	--scrollbar-horizontal-height: 6px;
+}
+
+/* Target both grid-scope and all its descendants with scrollbars */
+.grid-scope,
+.grid-scope * {
+	scrollbar-width: thin !important;
+	scrollbar-color: var(--grid-bg-1) var(--grid-bg-3) !important;
+	/* For Firefox */
+}
+
+.grid-scope::-webkit-scrollbar,
+.grid-scope *::-webkit-scrollbar {
+	width: var(--scrollbar-vertical-width) !important;
+	height: var(--scrollbar-horizontal-height) !important;
+	background-color: var(--grid-bg-3) !important;
+}
+
+.grid-scope::-webkit-scrollbar-thumb,
+.grid-scope *::-webkit-scrollbar-thumb {
+	background-color: var(--grid-bg-1) !important;
+	border-radius: 4px !important;
+	border: none !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+}
+
+.grid-scope::-webkit-scrollbar-thumb:hover,
+.grid-scope *::-webkit-scrollbar-thumb:hover {
+	background-color: var(--grid-bg-1) !important;
+	filter: brightness(1.1) !important;
+}
+
+.grid-scope::-webkit-scrollbar-thumb:active,
+.grid-scope *::-webkit-scrollbar-thumb:active {
+	background-color: var(--grid-bg-1) !important;
+	filter: brightness(1.2) !important;
+}
+
+.grid-scope::-webkit-scrollbar-track,
+.grid-scope *::-webkit-scrollbar-track {
+	background-color: var(--grid-bg-3) !important;
+	border: none !important;
+}
+
+.grid-scope::-webkit-scrollbar-corner,
+.grid-scope *::-webkit-scrollbar-corner {
+	background-color: var(--grid-bg-3) !important;
+}
+
+/* Add grid-scrollable-element styles to match */
+.grid-scrollable-element {
+	background-color: var(--vscode-editor-background);
+	--scrollbar-vertical-width: 14px;
+	--scrollbar-horizontal-height: 6px;
+	overflow: auto;
+	/* Ensure scrollbars are shown when needed */
+}
+
+.grid-scrollable-element,
+.grid-scrollable-element * {
+	scrollbar-width: thin !important;
+	/* For Firefox */
+	scrollbar-color: var(--grid-bg-1) var(--grid-bg-3) !important;
+	/* For Firefox */
+}
+
+.grid-scrollable-element::-webkit-scrollbar,
+.grid-scrollable-element *::-webkit-scrollbar {
+	width: var(--scrollbar-vertical-width) !important;
+	height: var(--scrollbar-horizontal-height) !important;
+	background-color: var(--grid-bg-3) !important;
+}
+
+.grid-scrollable-element::-webkit-scrollbar-thumb,
+.grid-scrollable-element *::-webkit-scrollbar-thumb {
+	background-color: var(--grid-bg-1) !important;
+	border-radius: 4px !important;
+	border: none !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+}
+
+.grid-scrollable-element::-webkit-scrollbar-thumb:hover,
+.grid-scrollable-element *::-webkit-scrollbar-thumb:hover {
+	background-color: var(--grid-bg-1) !important;
+	filter: brightness(1.1) !important;
+}
+
+.grid-scrollable-element::-webkit-scrollbar-thumb:active,
+.grid-scrollable-element *::-webkit-scrollbar-thumb:active {
+	background-color: var(--grid-bg-1) !important;
+	filter: brightness(1.2) !important;
+}
+
+.grid-scrollable-element::-webkit-scrollbar-track,
+.grid-scrollable-element *::-webkit-scrollbar-track {
+	background-color: var(--grid-bg-3) !important;
+	border: none !important;
+}
+
+.grid-scrollable-element::-webkit-scrollbar-corner,
+.grid-scrollable-element *::-webkit-scrollbar-corner {
+	background-color: var(--grid-bg-3) !important;
+}
+
+/* GRID logo in sidebar title - target the title label for the grid view container */
+.monaco-workbench .auxiliarybar-part > .content > .composite#workbench.view.grid ~ .composite.title > .title-label h2::before,
+.monaco-workbench .auxiliarybar-part > .content > .composite.title > .title-label h2::before {
+	content: '';
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-right: 8px;
+	vertical-align: middle;
+	background-image: var(--grid-logo-url);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-mask: none;
+	mask: none;
+}
+
+.monaco-workbench .editor-group-watermark .grid-icon {
+	border-radius: 0 !important;
+	background-color: transparent !important;
+	mask: none !important;
+	-webkit-mask: none !important;
+}
+
+/* ----------------------------------------------------------------------------------------
+ * Command palette / quick input
+ * ------------------------------------------------------------------------------------- */
+.monaco-workbench .quick-input-widget {
+	background: color-mix(in srgb, var(--grid-surface-2) 92%, #020208 8%) !important;
+	color: var(--grid-text-base) !important;
+	border-radius: 24px !important;
+	border: 1px solid var(--grid-border-strong) !important;
+	box-shadow: var(--grid-shadow-soft), inset 0 0 0 1px rgba(255, 255, 255, 0.02) !important;
+	backdrop-filter: blur(22px);
+	/* Ensure transform doesn't interfere with JavaScript positioning */
+	transform: none !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-header,
+.monaco-workbench .quick-input-widget .quick-input-and-message,
+.monaco-workbench .quick-input-widget .quick-input-check-all {
+	background: transparent !important;
+	border-bottom: 1px solid color-mix(in srgb, var(--grid-border-weak) 80%, transparent) !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-header .monaco-inputbox,
+.monaco-workbench .quick-input-widget .monaco-inputbox {
+	background: color-mix(in srgb, var(--grid-surface-1) 90%, #050505 10%) !important;
+	border: 1px solid var(--grid-border-weak) !important;
+	border-radius: 16px !important;
+}
+
+.monaco-workbench .quick-input-widget .monaco-inputbox input {
+	background: transparent !important;
+	color: var(--grid-text-base) !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list {
+	background: transparent !important;
+	line-height: 22px !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-entry {
+	background: transparent !important;
+	color: var(--grid-text-muted) !important;
+	border-radius: 14px !important;
+	border: 1px solid transparent !important;
+	padding: 6px 12px !important;
+	height: 32px !important;
+	min-height: 32px !important;
+	max-height: 32px !important;
+	line-height: 20px !important;
+	box-sizing: border-box !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-entry .quick-input-list-label {
+	color: inherit !important;
+	line-height: 22px !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .monaco-list-row {
+	height: 32px !important;
+	min-height: 32px !important;
+	max-height: 32px !important;
+	box-sizing: border-box !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-icon {
+	height: 20px !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-rows {
+	line-height: 22px !important;
+	height: 100% !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-rows > .quick-input-list-row {
+	line-height: 20px !important;
+	min-height: 20px !important;
+	height: auto !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-entry:hover,
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-entry.focused,
+.monaco-workbench .quick-input-widget .quick-input-list .quick-input-list-entry.selected {
+	background: color-mix(in srgb, var(--grid-surface-1-alt) 65%, #090c18 35%) !important;
+	border-color: var(--grid-border-strong) !important;
+	color: var(--grid-text-strong) !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+	height: 32px !important;
+	min-height: 32px !important;
+	max-height: 32px !important;
+	padding: 6px 12px !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-message {
+	color: var(--grid-text-subtle) !important;
+}
+
+.monaco-workbench .quick-input-widget .quick-input-action-bar .action-label {
+	color: var(--grid-text-muted) !important;
+}
+
+/* ----------------------------------------------------------------------------------------
+ * Settings / preferences
+ * ------------------------------------------------------------------------------------- */
+.monaco-workbench .settings-editor,
+.monaco-workbench .settings-editor > .settings-header,
+.monaco-workbench .settings-editor > .settings-body,
+.monaco-workbench .settings-editor .settings-tree-container,
+.monaco-workbench .settings-editor .settings-toc-container,
+.monaco-workbench .settings-editor .settings-body > .monaco-split-view2 {
+	background: color-mix(in srgb, var(--grid-bg-2-alt) 92%, #020204 8%) !important;
+	color: var(--grid-fg-1) !important;
+	border-color: var(--grid-border-3) !important;
+}
+
+.monaco-workbench .settings-editor .settings-header,
+.monaco-workbench .settings-editor .settings-body {
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.monaco-workbench .settings-editor .suggest-input-container,
+.monaco-workbench .settings-editor .monaco-inputbox {
+	background: color-mix(in srgb, var(--grid-bg-1) 85%, #050505 15%) !important;
+	border: 1px solid var(--grid-border-2) !important;
+	border-radius: 14px !important;
+}
+
+.monaco-workbench .settings-editor .monaco-inputbox input {
+	background: transparent !important;
+	color: var(--grid-fg-1) !important;
+}
+
+.monaco-workbench .settings-editor .monaco-list-row,
+.monaco-workbench .settings-editor .settings-tree-container .setting-item,
+.monaco-workbench .settings-editor .settings-tree-container .setting-item-contents {
+	background: transparent !important;
+	color: var(--grid-fg-1) !important;
+	border-radius: 16px;
+}
+
+.monaco-workbench .settings-editor .monaco-list-row.focused,
+.monaco-workbench .settings-editor .monaco-list-row:hover,
+.monaco-workbench .settings-editor .setting-item.focused,
+.monaco-workbench .settings-editor .setting-item:hover {
+	background: color-mix(in srgb, var(--grid-bg-1-alt) 70%, #0a0c16 30%) !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.monaco-workbench .settings-editor .settings-toc-container {
+	border-right: 1px solid var(--grid-border-3) !important;
+}
+
+.monaco-workbench .settings-editor .settings-group-title-label,
+.monaco-workbench .settings-editor .setting-item-label,
+.monaco-workbench .settings-editor .setting-item-description {
+	color: var(--grid-fg-1) !important;
+}
+
+.monaco-workbench .settings-editor .setting-item-title.is-overridden::before {
+	color: var(--grid-warning) !important;
+}
+
+.monaco-workbench .settings-editor .settings-toc-container .monaco-list-row.focused .monaco-tl-contents {
+	color: var(--grid-fg-0) !important;
+}

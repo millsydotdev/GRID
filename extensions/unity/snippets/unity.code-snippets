@@ -1,0 +1,175 @@
+{
+	"MonoBehaviour Class": {
+		"prefix": "monobehaviour",
+		"body": [
+			"using UnityEngine;",
+			"",
+			"public class ${1:${TM_FILENAME_BASE}} : MonoBehaviour",
+			"{",
+			"\tvoid Start()",
+			"\t{",
+			"\t\t$0",
+			"\t}",
+			"",
+			"\tvoid Update()",
+			"\t{",
+			"\t\t",
+			"\t}",
+			"}"
+		],
+		"description": "Create a Unity MonoBehaviour class"
+	},
+	"ScriptableObject Class": {
+		"prefix": "scriptableobject",
+		"body": [
+			"using UnityEngine;",
+			"",
+			"[CreateAssetMenu(fileName = \"${1:New${TM_FILENAME_BASE}}\", menuName = \"${2:ScriptableObjects}/${3:${TM_FILENAME_BASE}}\")]",
+			"public class ${4:${TM_FILENAME_BASE}} : ScriptableObject",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Create a Unity ScriptableObject class"
+	},
+	"SerializeField": {
+		"prefix": "serializefield",
+		"body": [
+			"[SerializeField] private ${1:string} ${2:variableName}$0;"
+		],
+		"description": "Create a Unity SerializeField"
+	},
+	"Header": {
+		"prefix": "header",
+		"body": [
+			"[Header(\"${1:Section Name}\")]",
+			"$0"
+		],
+		"description": "Add a Unity Header attribute"
+	},
+	"Tooltip": {
+		"prefix": "tooltip",
+		"body": [
+			"[Tooltip(\"${1:Description}\")]",
+			"$0"
+		],
+		"description": "Add a Unity Tooltip attribute"
+	},
+	"RequireComponent": {
+		"prefix": "requirecomponent",
+		"body": [
+			"[RequireComponent(typeof(${1:Rigidbody}))]",
+			"$0"
+		],
+		"description": "Add a Unity RequireComponent attribute"
+	},
+	"MenuItem": {
+		"prefix": "menuitem",
+		"body": [
+			"[MenuItem(\"${1:Tools}/${2:Menu Item}\")]",
+			"private static void ${3:MethodName}()",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Create a Unity MenuItem for editor scripts"
+	},
+	"Debug.Log": {
+		"prefix": "log",
+		"body": [
+			"Debug.Log($\"${1:Message}: {${2:variable}}\"$0);"
+		],
+		"description": "Create a Unity Debug.Log statement"
+	},
+	"Coroutine": {
+		"prefix": "coroutine",
+		"body": [
+			"private IEnumerator ${1:CoroutineName}()",
+			"{",
+			"\t${2:yield return new WaitForSeconds(1f);}",
+			"\t$0",
+			"}"
+		],
+		"description": "Create a Unity Coroutine"
+	},
+	"Awake": {
+		"prefix": "awake",
+		"body": [
+			"void Awake()",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Unity Awake method"
+	},
+	"Start": {
+		"prefix": "start",
+		"body": [
+			"void Start()",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Unity Start method"
+	},
+	"Update": {
+		"prefix": "update",
+		"body": [
+			"void Update()",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Unity Update method"
+	},
+	"FixedUpdate": {
+		"prefix": "fixedupdate",
+		"body": [
+			"void FixedUpdate()",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Unity FixedUpdate method"
+	},
+	"OnCollisionEnter": {
+		"prefix": "oncollisionenter",
+		"body": [
+			"void OnCollisionEnter(Collision ${1:collision})",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Unity OnCollisionEnter method"
+	},
+	"OnTriggerEnter": {
+		"prefix": "ontriggerenter",
+		"body": [
+			"void OnTriggerEnter(Collider ${1:other})",
+			"{",
+			"\t$0",
+			"}"
+		],
+		"description": "Unity OnTriggerEnter method"
+	},
+	"Custom Editor": {
+		"prefix": "customeditor",
+		"body": [
+			"#if UNITY_EDITOR",
+			"using UnityEditor;",
+			"using UnityEngine;",
+			"",
+			"[CustomEditor(typeof(${1:TargetScript}))]",
+			"public class ${2:${TM_FILENAME_BASE}} : Editor",
+			"{",
+			"\tpublic override void OnInspectorGUI()",
+			"\t{",
+			"\t\tbase.OnInspectorGUI();",
+			"\t\t$0",
+			"\t}",
+			"}",
+			"#endif"
+		],
+		"description": "Create a Unity Custom Editor"
+	}
+}

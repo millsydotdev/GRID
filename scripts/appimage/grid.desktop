@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=GRID
+Comment=GRID
+Exec=grid %F
+Icon=void
+Terminal=false
+Type=Application
+Categories=Utility;TextEditor;Development;IDE;
+MimeType=text/plain;inode/directory;application/x-code-workspace;
+
+

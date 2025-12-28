@@ -1,0 +1,140 @@
+{
+	"UCLASS": {
+		"prefix": "uclass",
+		"body": [
+			"UCLASS(${1:BlueprintType})",
+			"class ${2:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}} : public ${3:UObject}",
+			"{",
+			"\tGENERATED_BODY()",
+			"",
+			"public:",
+			"\t$0",
+			"};"
+		],
+		"description": "Create an Unreal UCLASS"
+	},
+	"USTRUCT": {
+		"prefix": "ustruct",
+		"body": [
+			"USTRUCT(${1:BlueprintType})",
+			"struct F${2:${TM_FILENAME_BASE}}",
+			"{",
+			"\tGENERATED_BODY()",
+			"",
+			"\t$0",
+			"};"
+		],
+		"description": "Create an Unreal USTRUCT"
+	},
+	"UPROPERTY": {
+		"prefix": "uproperty",
+		"body": [
+			"UPROPERTY(${1:EditAnywhere, BlueprintReadWrite})",
+			"${2:FString} ${3:PropertyName}$0;"
+		],
+		"description": "Create an Unreal UPROPERTY"
+	},
+	"UFUNCTION": {
+		"prefix": "ufunction",
+		"body": [
+			"UFUNCTION(${1:BlueprintCallable})",
+			"${2:void} ${3:FunctionName}($4)$0;"
+		],
+		"description": "Create an Unreal UFUNCTION"
+	},
+	"Actor Class": {
+		"prefix": "uactor",
+		"body": [
+			"UCLASS()",
+			"class ${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}} : public AActor",
+			"{",
+			"\tGENERATED_BODY()",
+			"",
+			"public:",
+			"\t${1}();",
+			"",
+			"protected:",
+			"\tvirtual void BeginPlay() override;",
+			"",
+			"public:",
+			"\tvirtual void Tick(float DeltaTime) override;",
+			"",
+			"\t$0",
+			"};"
+		],
+		"description": "Create an Unreal Actor class"
+	},
+	"Character Class": {
+		"prefix": "ucharacter",
+		"body": [
+			"UCLASS()",
+			"class ${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}} : public ACharacter",
+			"{",
+			"\tGENERATED_BODY()",
+			"",
+			"public:",
+			"\t${1}();",
+			"",
+			"protected:",
+			"\tvirtual void BeginPlay() override;",
+			"",
+			"public:",
+			"\tvirtual void Tick(float DeltaTime) override;",
+			"\tvirtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;",
+			"",
+			"\t$0",
+			"};"
+		],
+		"description": "Create an Unreal Character class"
+	},
+	"Component Class": {
+		"prefix": "ucomponent",
+		"body": [
+			"UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))",
+			"class ${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}} : public UActorComponent",
+			"{",
+			"\tGENERATED_BODY()",
+			"",
+			"public:",
+			"\t${1}();",
+			"",
+			"protected:",
+			"\tvirtual void BeginPlay() override;",
+			"",
+			"public:",
+			"\tvirtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;",
+			"",
+			"\t$0",
+			"};"
+		],
+		"description": "Create an Unreal ActorComponent class"
+	},
+	"UENUM": {
+		"prefix": "uenum",
+		"body": [
+			"UENUM(${1:BlueprintType})",
+			"enum class E${2:EnumName} : uint8",
+			"{",
+			"\t${3:Value1} UMETA(DisplayName = \"${4:Display Name 1}\"),",
+			"\t${5:Value2} UMETA(DisplayName = \"${6:Display Name 2}\")$0",
+			"};"
+		],
+		"description": "Create an Unreal UENUM"
+	},
+	"UE_LOG": {
+		"prefix": "uelog",
+		"body": [
+			"UE_LOG(${1:LogTemp}, ${2:Warning}, TEXT(\"${3:Message}: %s\"), *${4:Variable})$0;"
+		],
+		"description": "Create an Unreal Engine log statement"
+	},
+	"Blueprint Native Event": {
+		"prefix": "ublueprintnativeevent",
+		"body": [
+			"UFUNCTION(BlueprintNativeEvent)",
+			"${1:void} ${2:EventName}($3);",
+			"${1:void} ${2:EventName}_Implementation($3)$0;"
+		],
+		"description": "Create a Blueprint Native Event"
+	}
+}
