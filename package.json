@@ -14,7 +14,10 @@
     "kerberos@2.1.1": {
       "node-addon-api": "7.1.0"
     },
-    "@electron/get": "2.0.3"
+    "@electron/get": "2.0.3",
+    "gulp-untar": {
+      "tar": "^6.2.1"
+    }
   },
   "resolutions": {
     "@electron/get": "2.0.3"
