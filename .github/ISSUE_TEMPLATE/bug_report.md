@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!-- ⚠️⚠️ Do Not Delete This! bug_report_template ⚠️⚠️ -->
-<!-- Please read our Contributing guide: https://github.com/GRID-NETWORK-REPO/GRID/blob/main/CONTRIBUTING.md -->
+<!-- Please read our Contributing guide: https://github.com/GRID-Editor/GRID/blob/main/CONTRIBUTING.md -->
 <!-- 🔎 Search existing issues to avoid creating duplicates. -->
 <!-- 🔧 Launch with `--disable-extensions` to check if extensions are causing the issue. -->
 Does this issue occur when all extensions are disabled?: Yes/No
