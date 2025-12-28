@@ -8,6 +8,10 @@ on:
         type: string
         required: true
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   linux-cli-test:
     name: ${{ inputs.job_name }}
