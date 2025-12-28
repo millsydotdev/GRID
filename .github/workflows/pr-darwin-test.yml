@@ -14,6 +14,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   macOS-test:
     name: ${{ inputs.job_name }}
