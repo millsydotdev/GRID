@@ -10,6 +10,10 @@
   "type": "module",
   "private": true,
   "overrides": {
+    "node-gyp-build": "4.8.1",
+    "kerberos@2.1.1": {
+      "node-addon-api": "7.1.0"
+    },
     "@electron/get": "2.0.3"
   },
   "resolutions": {
@@ -227,9 +231,9 @@
     "gulp-plumber": "^1.2.0",
     "gulp-rename": "^1.2.0",
     "gulp-replace": "^0.5.4",
-    "gulp-sourcemaps": "^3.0.0",
+    "gulp-sourcemaps": "^2.6.5",
     "gulp-svgmin": "^4.1.0",
-    "gulp-untar": "^0.0.7",
+    "gulp-untar": "^0.0.1",
     "husky": "^0.13.1",
     "innosetup": "^6.4.1",
     "istanbul-lib-coverage": "^3.2.0",
@@ -278,13 +282,6 @@
     "xml2js": "^0.5.0",
     "yaserver": "^0.4.0",
     "zx": "^8.7.0"
-  },
-  "overrides": {
-    "node-gyp-build": "4.8.1",
-    "kerberos@2.1.1": {
-      "node-addon-api": "7.1.0"
-    },
-    "@electron/get": "2.0.3"
   },
   "repository": {
     "type": "git",
