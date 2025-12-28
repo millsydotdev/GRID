@@ -51,7 +51,7 @@ shell-escape = "0.1.5"
 thiserror = "1.0.40"
 cfg-if = "1.0.0"
 pin-project = "1.1.0"
-console = "0.15.7"
+console = "0.16.2"
 bytes = "1.4.0"
 tar = "0.4.38"
 

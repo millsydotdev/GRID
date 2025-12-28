@@ -411,7 +411,7 @@ dependencies = [
  "chrono",
  "clap",
  "clap_lex",
- "console 0.15.8",
+ "console 0.16.2",
  "const_format",
  "core-foundation",
  "dialoguer",
