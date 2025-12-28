@@ -233,7 +233,7 @@
     "gulp-replace": "^0.5.4",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-svgmin": "^4.1.0",
-    "gulp-untar": "^0.0.1",
+    "gulp-untar": "^0.0.8",
     "husky": "^0.13.1",
     "innosetup": "^6.4.1",
     "istanbul-lib-coverage": "^3.2.0",
