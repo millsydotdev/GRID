@@ -30,7 +30,7 @@
     "@types/jws": "^3.2.10",
     "@types/lazy.js": "^0.5.9",
     "@types/mime": "0.0.29",
-    "@types/minimatch": "^3.0.3",
+    "@types/minimatch": "^6.0.0",
     "@types/minimist": "^1.2.1",
     "@types/node": "^22.18.10",
     "@types/p-all": "^1.0.0",
