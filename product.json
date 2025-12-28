@@ -7,8 +7,8 @@
 	"dataFolderName": ".grid",
 	"win32MutexName": "grid",
 	"licenseName": "MIT",
-	"licenseUrl": "https://github.com/GRID-NETWORK-REPO/GRID/blob/main/LICENSE.txt",
-	"serverLicenseUrl": "https://github.com/GRID-NETWORK-REPO/GRID/blob/main/LICENSE.txt",
+	"licenseUrl": "https://github.com/GRID-Editor/GRID/blob/main/LICENSE.txt",
+	"serverLicenseUrl": "https://github.com/GRID-Editor/GRID/blob/main/LICENSE.txt",
 	"serverGreeting": [],
 	"serverLicense": [],
 	"serverLicensePrompt": "",
@@ -37,7 +37,7 @@
 	"darwinBundleIdentifier": "com.grid.code",
 	"linuxIconName": "grid",
 	"licenseFileName": "LICENSE.txt",
-	"reportIssueUrl": "https://github.com/GRID-NETWORK-REPO/GRID/issues/new",
+	"reportIssueUrl": "https://github.com/GRID-Editor/GRID/issues/new",
 	"nodejsRepository": "https://nodejs.org",
 	"urlProtocol": "grid",
 	"extensionsGallery": {
@@ -46,8 +46,8 @@
 	},
 	"builtInExtensions": [],
 	"linkProtectionTrustedDomains": [
-		"https://grid.millsy.dev",
-		"https://github.com/GRID-NETWORK-REPO/GRID",
+		"https://grid-website-one.vercel.app",
+		"https://github.com/GRID-Editor/GRID",
 		"https://ollama.com"
 	]
 	,
