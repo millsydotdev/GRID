@@ -49,26 +49,31 @@
 	height: calc(100% - 70px);
 }
 
+/* light */
+.void-void-icon,
 .monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark > .letterpress {
 	width: 100%;
 	max-height: 100%;
 	aspect-ratio: 1/1;
-	background-image: url('./letterpress-light.svg');
+	background-image: url('./grid_cube_noshadow.png'); /* // Void */
 	background-size: contain;
 	background-position-x: center;
 	background-repeat: no-repeat;
 }
 
+.void-void-icon,
 .monaco-workbench.vs-dark .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
-	background-image: url('./letterpress-dark.svg');
+	background-image: url('./grid_cube_noshadow.png'); /* // Void */
 }
 
+.void-void-icon,
 .monaco-workbench.hc-light .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
-	background-image: url('./letterpress-hcLight.svg');
+	background-image: url('./grid_cube_noshadow.png'); /* // Void */
 }
 
+.void-void-icon,
 .monaco-workbench.hc-black .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
-	background-image: url('./letterpress-hcDark.svg');
+	background-image: url('./grid_cube_noshadow.png'); /* // Void */
 }
 
 .monaco-workbench .part.editor > .content:not(.empty) .editor-group-container > .editor-group-watermark > .shortcuts,
@@ -109,7 +114,7 @@
 
 .monaco-workbench .part.editor > .content .editor-group-container > .title {
 	position: relative;
-	box-sizing: border-box;
+	box-sizing:	border-box;
 	overflow: hidden;
 }
 
@@ -157,7 +162,7 @@
 
 /* Editor */
 
-.monaco-workbench .part.editor > .content .editor-group-container.empty > .editor-container {
+.monaco-workbench .part.editor > .content .editor-group-container.empty > .editor-container  {
 	display: none;
 }
 

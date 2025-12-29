@@ -141,40 +141,41 @@ export const subscriptionTiers: Record<UserTier, SubscriptionTier | null> = {
 
 /**
  * Dashboard API endpoints
+ * Note: IDE-specific endpoints use /api/ide/ prefix, dashboard-only endpoints use /api/
  */
 export const dashboardApiEndpoints = {
-	// Authentication
-	login: '/api/auth/login',
-	logout: '/api/auth/logout',
-	validateToken: '/api/auth/validate',
+	// Authentication (IDE endpoints)
+	login: '/api/ide/auth/login',
+	logout: '/api/ide/auth/logout',
+	validateToken: '/api/ide/auth/validate',
 
-	// User management
-	getUser: '/api/user',
-	updateUser: '/api/user',
-	deleteUser: '/api/user',
+	// User management (IDE endpoints)
+	getUser: '/api/ide/user',
+	updateUser: '/api/ide/user',
+	deleteUser: '/api/ide/user',
 
-	// Configuration
-	getConfig: '/api/config',
-	updateConfig: '/api/config',
-	getMcpConfig: '/api/config/mcp',
-	updateMcpConfig: '/api/config/mcp',
-	getProviderSettings: '/api/config/providers',
-	updateProviderSettings: '/api/config/providers',
+	// Configuration (IDE endpoints)
+	getConfig: '/api/ide/config',
+	updateConfig: '/api/ide/config',
+	getMcpConfig: '/api/ide/config/mcp',
+	updateMcpConfig: '/api/ide/config/mcp',
+	getProviderSettings: '/api/ide/config/providers',
+	updateProviderSettings: '/api/ide/config/providers',
 
-	// Teams (Pro/Enterprise)
-	getTeam: '/api/team',
-	updateTeam: '/api/team',
-	listMembers: '/api/team/members',
-	inviteMember: '/api/team/members/invite',
-	removeMember: '/api/team/members/:memberId',
+	// Teams (Pro/Enterprise) - Dashboard routes
+	getTeam: '/api/organization',
+	updateTeam: '/api/organization',
+	listMembers: '/api/organization/members',
+	inviteMember: '/api/organization/invite',
+	removeMember: '/api/organization/members/:memberId',
 
 	// Repositories
 	listRepos: '/api/repos',
 	getRepo: '/api/repos/:repoId',
 	authorizeClone: '/api/repos/clone',
 
-	// Billing (Stripe)
-	createCheckoutSession: '/api/billing/checkout',
+	// Billing (Stripe) - Dashboard routes
+	createCheckoutSession: '/api/checkout',
 	createPortalSession: '/api/billing/portal',
 	getSubscription: '/api/billing/subscription',
 	cancelSubscription: '/api/billing/subscription/cancel',

@@ -5,13 +5,16 @@
     "version": "1.0.0",
     "publisher": "grid",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/GRID-Editor/GRID.git"
+    },
     "engines": {
         "vscode": "^1.80.0"
     },
     "main": "./out/extension",
     "activationEvents": [
-        "onStartupFinished",
-        "onCommand:grid.connect"
+        "onStartupFinished"
     ],
     "contributes": {
         "commands": [

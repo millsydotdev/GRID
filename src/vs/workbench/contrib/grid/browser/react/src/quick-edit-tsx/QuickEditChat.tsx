@@ -1,16 +1,16 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSettingsState, useAccessor, useCtrlKZoneStreamingState } from '../util/services.js';
 import { TextAreaFns, GridInputBox2 } from '../util/inputs.js';
 import { QuickEditPropsType } from '../../../quickEditActions.js';
 import { ButtonStop, ButtonSubmit, IconX, GridChatArea } from '../sidebar-tsx/SidebarChat.js';
-import { GRID_CTRL_K_ACTION_ID } from '../../../actionIDs.js';
+import { VOID_CTRL_K_ACTION_ID } from '../../../actionIDs.js';
 import { useRefState } from '../util/helpers.js';
-import { isFeatureNameDisabled } from '../../../../../../../workbench/contrib/grid/common/gridSettingsTypes.js';
+import { isFeatureNameDisabled } from '../../../../../../../workbench/contrib/GRID/common/GRIDSettingsTypes.js';
 
 
 
@@ -57,7 +57,7 @@ export const QuickEditChat = ({
 	}, [diffareaid, setIsStreamingRef]))
 
 	const loadingIcon = <div
-		className="@@codicon @@codicon-loading @@codicon-modifier-spin @@codicon-no-default-spin text-grid-fg-3"
+		className="@@codicon @@codicon-loading @@codicon-modifier-spin @@codicon-no-default-spin text-void-fg-3"
 	/>
 
 	const onSubmit = useCallback(async () => {
@@ -91,7 +91,7 @@ export const QuickEditChat = ({
 		editCodeService.removeCtrlKZone({ diffareaid })
 	}, [editCodeService, diffareaid])
 
-	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(GRID_CTRL_K_ACTION_ID)?.getLabel()
+	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(VOID_CTRL_K_ACTION_ID)?.getLabel()
 
 	const chatAreaRef = useRef<HTMLDivElement | null>(null)
 	return <div ref={sizerRef} style={{ maxWidth: 450 }} className={`py-2 w-full`}>

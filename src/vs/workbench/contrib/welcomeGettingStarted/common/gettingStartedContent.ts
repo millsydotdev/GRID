@@ -252,7 +252,7 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 	{
 		id: 'GridSetup',
 		title: localize('gettingStarted.gridsetup.title', "Get Started with GRID"),
-		description: localize('gettingStarted.gridsetup.description', "Configure your AI-powered development platform. Set up agents, workspaces, and game engines."),
+		description: localize('gettingStarted.gridsetup.description', "Configure your AI-powered development platform. Set up BYOK, agents, workspaces, and game engines."),
 		isFeatured: true,
 		icon: setupIcon,
 		when: '!isWeb',
@@ -262,15 +262,33 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 			type: 'steps',
 			steps: [
 				{
+					id: 'configureKeys',
+					title: localize('gettingStarted.configureKeys.title', "Configure your own API keys (BYOK)"),
+					description: localize(
+						'gettingStarted.configureKeys.description',
+						"GRID IDE is BYOK by default. Add your own model keys (Claude, GPT, Gemini, DeepSeek, Ollama) and choose whether they stay local or sync via GRID Cloud.\n{0}",
+						Button(localize('configureKeysBtn', "Open keys & security docs"), 'https://grideditor.com/support/docs/api-keys')
+					),
+					media: { type: 'svg', altText: 'GRID keys and security configuration', path: 'grid-agents.svg' }
+				},
+				{
 					id: 'connectHub',
 					title: localize('gettingStarted.connectHub.title', "Connect to GRID Hub"),
-					description: localize('gettingStarted.connectHub.description', "Link your workspace to GRID Hub for cloud sync, team orchestration, and remote agent management.\n{0}", Button(localize('connectHubBtn', "Connect Hub"), 'command:workbench.action.grid.connectHub')),
+					description: localize(
+						'gettingStarted.connectHub.description',
+						"Optionally link your workspace to GRID Hub for cloud sync, team orchestration, and remote agent management. IDE remains fully functional with BYOK even without Hub.\n{0}",
+						Button(localize('connectHubBtn', "Connect Hub"), 'command:workbench.action.grid.connectHub')
+					),
 					media: { type: 'svg', altText: 'GRID Hub Connection', path: 'grid-hub.svg' }
 				},
 				{
 					id: 'configureAgents',
 					title: localize('gettingStarted.configureAgents.title', "Configure AI Agents"),
-					description: localize('gettingStarted.configureAgents.description', "Set up your autonomous coding agents. GRID supports Gemini, OpenAI, Anthropic, and local LLMs via Ollama.\n{0}", Button(localize('configureAgentsBtn', "Manage Agents"), 'command:workbench.action.grid.manageAgents')),
+					description: localize(
+						'gettingStarted.configureAgents.description',
+						"Set up your autonomous coding agents and brains. GRID supports Gemini, OpenAI, Anthropic, DeepSeek, and local LLMs via Ollama.\n{0}",
+						Button(localize('configureAgentsBtn', "Manage Agents"), 'command:workbench.action.grid.manageAgents')
+					),
 					media: { type: 'svg', altText: 'AI Agents Configuration', path: 'grid-agents.svg' }
 				},
 				{
@@ -285,7 +303,6 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 					description: localize('gettingStarted.gameEngines.description', "GRID deeply integrates with Unreal Engine, Unity, and Godot. Enable plugins for your engine of choice.\n{0}", Button(localize('enableGamePlugins', "Browse Game Extensions"), 'command:workbench.extensions.action.showRecommendedExtensions')),
 					media: { type: 'svg', altText: 'Game Engine Integration', path: 'grid-game-engines.svg' }
 				},
-				createCopilotSetupStep('CopilotSetupAnonymous', CopilotAnonymousButton, 'chatAnonymous && !chatSetupInstalled', true),
 				{
 					id: 'pickColorTheme',
 					title: localize('gettingStarted.pickColor.title', "Choose your theme"),
@@ -301,20 +318,16 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 	},
 	{
 		id: 'Setup',
-		title: localize('gettingStarted.setup.title', "VS Code Essentials"),
-		description: localize('gettingStarted.setup.description', "Customize your editor, learn the basics, and start coding"),
+		title: localize('gettingStarted.setup.title', "GRID Essentials"),
+		description: localize('gettingStarted.setup.description', "Customize your editor, learn the basics, and start coding with GRID"),
 		isFeatured: false,
 		icon: setupIcon,
 		when: '!isWeb',
-		walkthroughPageTitle: localize('gettingStarted.setup.walkthroughPageTitle', 'Setup VS Code'),
+		walkthroughPageTitle: localize('gettingStarted.setup.walkthroughPageTitle', 'Setup GRID'),
 		next: 'Beginner',
 		content: {
 			type: 'steps',
 			steps: [
-				createCopilotSetupStep('CopilotSetupAnonymous', CopilotAnonymousButton, 'chatAnonymous && !chatSetupInstalled', true),
-				createCopilotSetupStep('CopilotSetupSignedOut', CopilotSignedOutButton, 'chatEntitlementSignedOut && !chatAnonymous', false),
-				createCopilotSetupStep('CopilotSetupComplete', CopilotCompleteButton, 'chatSetupInstalled && !chatSetupDisabled && (chatAnonymous || chatPlanPro || chatPlanProPlus || chatPlanBusiness || chatPlanEnterprise || chatPlanFree)', false),
-				createCopilotSetupStep('CopilotSetupSignedIn', CopilotSignedInButton, '!chatEntitlementSignedOut && (!chatSetupInstalled || chatSetupDisabled || chatPlanCanSignUp)', false),
 				{
 					id: 'pickColorTheme',
 					title: localize('gettingStarted.pickColor.title', "Choose your theme"),
@@ -326,10 +339,14 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 					media: { type: 'markdown', path: 'theme_picker', }
 				},
 				{
-					id: 'videoTutorial',
-					title: localize('gettingStarted.videoTutorial.title', "Watch video tutorials"),
-					description: localize('gettingStarted.videoTutorial.description.interpolated', "Watch the first in a series of short & practical video tutorials for VS Code's key features.\n{0}", Button(localize('watch', "Watch Tutorial"), 'https://aka.ms/vscode-getting-started-video')),
-					media: { type: 'svg', altText: 'VS Code Settings', path: 'learn.svg' },
+					id: 'gridDocs',
+					title: localize('gettingStarted.gridDocs.title', "Read GRID docs"),
+					description: localize(
+						'gettingStarted.gridDocs.description',
+						"Open the online docs to learn more about BYOK, brains, and the GRID control plane.\n{0}",
+						Button(localize('openDocs', "Open GRID Documentation"), 'https://grideditor.com/support/docs/getting-started')
+					),
+					media: { type: 'svg', altText: 'GRID documentation', path: 'learn.svg' },
 				}
 			]
 		}

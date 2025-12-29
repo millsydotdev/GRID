@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 import React, { forwardRef, ForwardRefExoticComponent, MutableRefObject, RefAttributes, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { IInputBoxStyles, InputBox } from '../../../../../../../base/browser/ui/inputbox/inputBox.js';
@@ -19,7 +19,6 @@ import { useFloating, autoUpdate, offset, flip, shift, size, autoPlacement } fro
 import { URI } from '../../../../../../../base/common/uri.js';
 import { getBasename, getFolderName } from '../sidebar-tsx/SidebarChat.js';
 import { ChevronRight, File, Folder, FolderClosed, LucideProps } from 'lucide-react';
-import { shorten } from '../../../../../../../base/common/labels.js';
 import { StagingSelectionItem } from '../../../../common/chatThreadServiceTypes.js';
 import { DiffEditorWidget } from '../../../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js';
 import { extractSearchReplaceBlocks, ExtractedSearchReplaceBlock } from '../../../../common/helpers/extractCodeFromResult.js';
@@ -29,8 +28,8 @@ import { detectLanguage } from '../../../../common/helpers/languageHelpers.js';
 
 
 // type guard
-const isConstructor = (f: unknown)
-	: f is { new(...params: unknown[]): unknown } => {
+const isConstructor = (f: any)
+	: f is { new(...params: any[]): any } => {
 	return !!f.prototype && f.prototype.constructor === f;
 }
 
@@ -67,7 +66,7 @@ type Option = {
 } & (
 		| { leafNodeType?: undefined, nextOptions: Option[], generateNextOptions?: undefined, }
 		| { leafNodeType?: undefined, nextOptions?: undefined, generateNextOptions: GenerateNextOptions, }
-		| { leafNodeType: 'File' | 'Folder', uri: URI, range?: unknown, nextOptions?: undefined, generateNextOptions?: undefined, }
+		| { leafNodeType: 'File' | 'Folder', uri: URI, nextOptions?: undefined, generateNextOptions?: undefined, }
 	)
 
 
@@ -182,6 +181,11 @@ const numOptionsToShow = 100
 
 
 
+// TODO make this unique based on other options
+const getAbbreviatedName = (relativePath: string) => {
+	return getBasename(relativePath, 1)
+}
+
 const getOptionsAtPath = async (accessor: ReturnType<typeof useAccessor>, path: string[], optionText: string): Promise<Option[]> => {
 
 	const toolsService = accessor.get('IToolsService')
@@ -198,20 +202,17 @@ const getOptionsAtPath = async (accessor: ReturnType<typeof useAccessor>, path: 
 			})).result).uris
 
 			if (searchFor === 'files') {
-				// Collect all relative paths
-				const paths: string[] = searchResults.map(uri => getRelativeWorkspacePath(accessor, uri));
-
-				// Use shorten() to make paths unique when there are duplicates
-				const shortenedPaths = shorten(paths, '/');
-
-				const res: Option[] = searchResults.map((uri, idx) => ({
-					leafNodeType: 'File',
-					uri: uri,
-					iconInMenu: File,
-					fullName: paths[idx],
-					abbreviatedName: shortenedPaths[idx],
-				}));
-				return res;
+				const res: Option[] = searchResults.map(uri => {
+					const relativePath = getRelativeWorkspacePath(accessor, uri)
+					return {
+						leafNodeType: 'File',
+						uri: uri,
+						iconInMenu: File,
+						fullName: relativePath,
+						abbreviatedName: getAbbreviatedName(relativePath),
+					}
+				})
+				return res
 			}
 
 			else if (searchFor === 'folders') {
@@ -266,17 +267,13 @@ const getOptionsAtPath = async (accessor: ReturnType<typeof useAccessor>, path: 
 						}
 					}
 				}
-				// Convert map to array and shorten folder paths for uniqueness
-				const folderEntries = Array.from(directoryMap.entries());
-				const folderPaths = folderEntries.map(([relativePath]) => relativePath);
-				const shortenedFolderPaths = shorten(folderPaths, '/');
-
-				return folderEntries.map(([relativePath, uri], idx) => ({
+				// Convert map to array
+				return Array.from(directoryMap.entries()).map(([relativePath, uri]) => ({
 					leafNodeType: 'Folder',
 					uri: uri,
-					iconInMenu: Folder,
+					iconInMenu: Folder, // Folder
 					fullName: relativePath,
-					abbreviatedName: shortenedFolderPaths[idx],
+					abbreviatedName: getAbbreviatedName(relativePath),
 				})) satisfies Option[];
 			}
 		} catch (error) {
@@ -287,76 +284,6 @@ const getOptionsAtPath = async (accessor: ReturnType<typeof useAccessor>, path: 
 
 
 	const allOptions: Option[] = [
-		{
-			fullName: 'selection',
-			abbreviatedName: 'selection',
-			iconInMenu: File,
-			generateNextOptions: async (_t) => {
-				try {
-					const editorService = accessor.get('IEditorService')
-					const languageService = accessor.get('ILanguageService')
-					const active = editorService.activeTextEditorControl
-					const activeResource = editorService.activeEditor?.resource
-					const sel = active?.getSelection?.()
-					if (activeResource && sel && !sel.isEmpty()) {
-						const basename = getAbbreviatedName(getRelativeWorkspacePath(accessor, activeResource))
-						const label = `${basename}:${sel.startLineNumber}-${sel.endLineNumber}`
-						return [{
-							leafNodeType: 'File',
-							uri: activeResource,
-							range: sel,
-							iconInMenu: File,
-							fullName: label,
-							abbreviatedName: 'selection',
-						}]
-					}
-				} catch {}
-				return []
-			},
-		},
-		{
-			fullName: 'recent',
-			abbreviatedName: 'recent',
-			iconInMenu: File,
-			generateNextOptions: async (t) => {
-				try {
-					const historyService = accessor.get('IHistoryService')
-					const items = historyService.getHistory().filter((h: unknown) => h.resource).map((h: unknown) => h.resource)
-					const options = items.map((uri: URI) => {
-						const relativePath = getRelativeWorkspacePath(accessor, uri)
-						return {
-							leafNodeType: 'File',
-							uri,
-							iconInMenu: File,
-							fullName: relativePath,
-							abbreviatedName: getAbbreviatedName(relativePath),
-						} satisfies Option
-					})
-
-					// simple filter
-					return options.filter(o => isSubsequence(o.fullName, t))
-				} catch {
-					return []
-				}
-			},
-		},
-		{
-			fullName: 'workspace',
-			abbreviatedName: 'workspace',
-			iconInMenu: Folder,
-			generateNextOptions: async (_t) => {
-				try {
-					const workspaceService = accessor.get('IWorkspaceContextService')
-					return workspaceService.getWorkspace().folders.map((f: unknown) => ({
-						leafNodeType: 'Folder',
-						uri: f.uri,
-						iconInMenu: Folder,
-						fullName: getRelativeWorkspacePath(accessor, f.uri) || '/',
-						abbreviatedName: getFolderName(getRelativeWorkspacePath(accessor, f.uri) || '/')
-					})) as Option[]
-				} catch { return [] }
-			},
-		},
 		{
 			fullName: 'files',
 			abbreviatedName: 'files',
@@ -421,15 +348,13 @@ type InputBox2Props = {
 	enableAtToMention?: boolean;
 	fnsRef?: { current: null | TextAreaFns };
 	className?: string;
-	appearance?: 'default' | 'chatDark';
-	style?: React.CSSProperties;
 	onChangeText?: (value: string) => void;
 	onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 	onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 	onChangeHeight?: (newHeight: number) => void;
 }
-export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className = '', appearance = 'default', style, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
+export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
 
 
 	// mirrors whatever is in ref
@@ -445,9 +370,6 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 		if (!enableAtToMention) { return; } // never open menu if not enabled
 		_setIsMenuOpen(value);
 	}
-
-	// Undo stack for removed selections
-	const removedSelectionsStack = useRef<StagingSelectionItem[][]>([]);
 
 	// logic for @ to mention vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	const [optionPath, setOptionPath] = useState<string[]>([]);
@@ -811,23 +733,6 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 
 
 
-	const isChatDark = appearance === 'chatDark'
-	const appearanceClasses = isChatDark
-		? 'text-white placeholder:text-white/40'
-		: 'text-grid-fg-1 placeholder:text-grid-fg-3'
-
-	const baseStyle: React.CSSProperties = isChatDark
-		? {
-			background: 'transparent',
-			color: '#fff',
-			border: 'none',
-			boxShadow: 'none',
-		}
-		: {
-			background: asCssVariable(inputBackground),
-			color: asCssVariable(inputForeground),
-		}
-
 	return <>
 		<textarea
 			autoFocus={false}
@@ -848,8 +753,13 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 
 			disabled={!isEnabled}
 
-			className={`w-full resize-none max-h-[500px] overflow-y-auto ${appearanceClasses} ${className}`}
-			style={{ ...baseStyle, ...style }}
+			className={`w-full resize-none max-h-[500px] overflow-y-auto text-void-fg-1 placeholder:text-void-fg-3 ${className}`}
+			style={{
+				// defaultInputBoxStyles
+				background: asCssVariable(inputBackground),
+				color: asCssVariable(inputForeground)
+				// inputBorder: asCssVariable(inputBorder),
+			}}
 
 			onInput={useCallback((event: React.FormEvent<HTMLTextAreaElement>) => {
 				const latestChange = (event.nativeEvent as InputEvent).data;
@@ -874,35 +784,12 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 					return;
 				}
 
-				// Handle Ctrl+Z / Cmd+Z for undo
-				if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
-					const removed = removedSelectionsStack.current.pop();
-					if (removed && removed.length > 0) {
-						e.preventDefault();
-						// Restore the removed selections
-						chatThreadService.addStagingSelections(removed);
-					}
-					return;
-				}
-
-				if (e.key === 'Backspace') {
+				if (e.key === 'Backspace') { // TODO allow user to undo this.
 					if (!e.currentTarget.value || (e.currentTarget.selectionStart === 0 && e.currentTarget.selectionEnd === 0)) { // if there is no text or cursor is at position 0, remove a selection
-						const currentThread = chatThreadService.getThread();
-						const currentSelections = currentThread?.state.stagingSelections || [];
-
 						if (e.metaKey || e.ctrlKey) { // Ctrl+Backspace = remove all
-							// Save all selections to undo stack before removing
-							if (currentSelections.length > 0) {
-								removedSelectionsStack.current.push([...currentSelections]);
-							}
-							chatThreadService.popStagingSelections(Number.MAX_SAFE_INTEGER);
+							chatThreadService.popStagingSelections(Number.MAX_SAFE_INTEGER)
 						} else { // Backspace = pop 1 selection
-							// Save the selection being removed to undo stack
-							if (currentSelections.length > 0) {
-								const removed = currentSelections[currentSelections.length - 1];
-								removedSelectionsStack.current.push([removed]);
-							}
-							chatThreadService.popStagingSelections(1);
+							chatThreadService.popStagingSelections(1)
 						}
 						return;
 					}
@@ -922,7 +809,7 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 		{isMenuOpen && (
 			<div
 				ref={refs.setFloating}
-				className="z-[100] border-grid-border-3 bg-grid-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
+				className="z-[100] border-void-border-3 bg-void-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
 				style={{
 					position: strategy,
 					top: y ?? 0,
@@ -932,7 +819,7 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 				onWheel={(e) => e.stopPropagation()}
 			>
 				{/* Breadcrumbs Header */}
-				{isBreadcrumbsShowing && <div className="px-2 py-1 text-grid-fg-1 bg-grid-bg-2-alt border-b border-grid-border-3 sticky top-0 bg-grid-bg-1 z-10 select-none pointer-events-none">
+				{isBreadcrumbsShowing && <div className="px-2 py-1 text-void-fg-1 bg-void-bg-2-alt border-b border-void-border-3 sticky top-0 bg-void-bg-1 z-10 select-none pointer-events-none">
 					{optionText ?
 						<div className="flex items-center">
 							{/* {optionPath.map((path, index) => (
@@ -952,7 +839,7 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 				<div className='max-h-[400px] w-full max-w-full overflow-y-auto overflow-x-auto'>
 					<div className="w-max min-w-full flex flex-col gap-0 text-nowrap flex-nowrap">
 						{options.length === 0 ?
-							<div className="text-grid-fg-3 px-3 py-0.5">No results found</div>
+							<div className="text-void-fg-3 px-3 py-0.5">No results found</div>
 							: options.map((o, oIdx) => {
 
 								return (
@@ -963,7 +850,7 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 										className={`
 											flex items-center gap-2
 											px-3 py-1 cursor-pointer
-											${oIdx === optionIdx ? 'bg-blue-500 text-white/80' : 'bg-grid-bg-2-alt text-grid-fg-1'}
+											${oIdx === optionIdx ? 'bg-blue-500 text-white/80' : 'bg-void-bg-2-alt text-void-fg-1'}
 										`}
 										onClick={() => { onSelectOption(); }}
 										onMouseMove={() => { setOptionIdx(oIdx) }}
@@ -1038,7 +925,7 @@ export const GridSimpleInputBox = ({ value, onChangeValue, placeholder, classNam
 			onChange={handleChange}
 			placeholder={placeholder}
 			disabled={disabled}
-			className={`w-full resize-none bg-grid-bg-1 text-grid-fg-1 placeholder:text-grid-fg-3 border border-grid-border-2 focus:border-grid-border-1
+			className={`w-full resize-none bg-void-bg-1 text-void-fg-1 placeholder:text-void-fg-3 border border-void-border-2 focus:border-void-border-1
 				${compact ? 'py-1 px-2' : 'py-2 px-4 '}
 				rounded
 				${disabled ? 'opacity-50 cursor-not-allowed' : ''}
@@ -1070,8 +957,8 @@ export const GridInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, plac
 	const contextViewProvider = accessor.get('IContextViewService')
 	return <WidgetComponent
 		className='
-			bg-grid-bg-1
-			@@grid-force-child-placeholder-grid-fg-1
+			bg-void-bg-1
+			@@void-force-child-placeholder-void-fg-1
 		'
 		ctor={InputBox}
 		propsFn={useCallback((container) => [
@@ -1221,7 +1108,7 @@ export const GridSlider = ({
 							size === 'xs' ? 'h-1' :
 								size === 'sm' ? 'h-1.5' :
 									size === 'sm+' ? 'h-2' : 'h-2.5'
-							} bg-grid-bg-2 rounded-full cursor-pointer`}
+							} bg-void-bg-2 rounded-full cursor-pointer`}
 						onClick={handleTrackClick}
 					>
 						{/* Filled part of track */}
@@ -1230,7 +1117,7 @@ export const GridSlider = ({
 								size === 'xs' ? 'h-1' :
 									size === 'sm' ? 'h-1.5' :
 										size === 'sm+' ? 'h-2' : 'h-2.5'
-								} bg-grid-fg-1 rounded-full`}
+								} bg-void-fg-1 rounded-full`}
 							style={{ width: `${percentage}%` }}
 						/>
 					</div>
@@ -1243,8 +1130,8 @@ export const GridSlider = ({
 									size === 'sm' ? 'h-3 w-3' :
 										size === 'sm+' ? 'h-3.5 w-3.5' : 'h-4 w-4'
 							}
-							bg-grid-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
-							border border-grid-fg-1`}
+							bg-void-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
+							border border-void-fg-1`}
 						style={{ left: `${percentage}%`, zIndex: 2 }}  // Ensure thumb is above the invisible clickable area
 						onMouseDown={(e) => {
 							if (disabled) return;
@@ -1304,22 +1191,22 @@ export const GridSwitch = ({
 			${size === 'sm' ? 'h-5 w-9' : ''}
 			${size === 'sm+' ? 'h-5 w-10' : ''}
 			${size === 'md' ? 'h-6 w-11' : ''}
-		`}
+		  `}
 			>
 				<span
 					className={`
-						inline-block transform rounded-full bg-white dark:bg-zinc-900 shadow transition-transform duration-200 ease-in-out
-						${size === 'xxs' ? 'h-2 w-2' : ''}
-						${size === 'xs' ? 'h-2.5 w-2.5' : ''}
-						${size === 'sm' ? 'h-3 w-3' : ''}
-						${size === 'sm+' ? 'h-3.5 w-3.5' : ''}
-						${size === 'md' ? 'h-4 w-4' : ''}
-						${size === 'xxs' ? (value ? 'translate-x-2.5' : 'translate-x-0.5') : ''}
-						${size === 'xs' ? (value ? 'translate-x-3.5' : 'translate-x-0.5') : ''}
-						${size === 'sm' ? (value ? 'translate-x-5' : 'translate-x-1') : ''}
-						${size === 'sm+' ? (value ? 'translate-x-6' : 'translate-x-1') : ''}
-						${size === 'md' ? (value ? 'translate-x-6' : 'translate-x-1') : ''}
-					`}
+			  inline-block transform rounded-full bg-white dark:bg-zinc-900 shadow transition-transform duration-200 ease-in-out
+			  ${size === 'xxs' ? 'h-2 w-2' : ''}
+			  ${size === 'xs' ? 'h-2.5 w-2.5' : ''}
+			  ${size === 'sm' ? 'h-3 w-3' : ''}
+			  ${size === 'sm+' ? 'h-3.5 w-3.5' : ''}
+			  ${size === 'md' ? 'h-4 w-4' : ''}
+			  ${size === 'xxs' ? (value ? 'translate-x-2.5' : 'translate-x-0.5') : ''}
+			  ${size === 'xs' ? (value ? 'translate-x-3.5' : 'translate-x-0.5') : ''}
+			  ${size === 'sm' ? (value ? 'translate-x-5' : 'translate-x-1') : ''}
+			  ${size === 'sm+' ? (value ? 'translate-x-6' : 'translate-x-1') : ''}
+			  ${size === 'md' ? (value ? 'translate-x-6' : 'translate-x-1') : ''}
+			`}
 				/>
 			</div>
 		</label>
@@ -1529,7 +1416,7 @@ export const GridCustomDropdownBox = <T extends NonNullable<any>>({
 			{isOpen && (
 				<div
 					ref={refs.setFloating}
-					className="z-[10000] bg-grid-bg-1 border-grid-border-3 border rounded shadow-lg"
+					className="z-[100] bg-void-bg-1 border-void-border-3 border rounded shadow-lg"
 					style={{
 						position: strategy,
 						top: y ?? 0,
@@ -1591,7 +1478,7 @@ export const GridCustomDropdownBox = <T extends NonNullable<any>>({
 
 
 
-export const _GridSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
+export const _VoidSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
 	onChangeSelection: (value: T) => void;
 	onCreateInstance?: ((instance: SelectBox) => void | IDisposable[]);
 	selectBoxRef?: React.MutableRefObject<SelectBox | null>;
@@ -1606,9 +1493,9 @@ export const _GridSelectBox = <T,>({ onChangeSelection, onCreateInstance, select
 	return <WidgetComponent
 		className={`
 			@@select-child-restyle
-			@@[&_select]:!grid-text-grid-fg-3
-			@@[&_select]:!grid-text-xs
-			!text-grid-fg-3
+			@@[&_select]:!void-text-void-fg-3
+			@@[&_select]:!void-text-xs
+			!text-void-fg-3
 			${className ?? ''}
 		`}
 		ctor={SelectBox}
@@ -1728,7 +1615,7 @@ export const BlockCode = ({ initValue, language, maxHeight, showScrollbars }: Bl
 		if (language) modelRef.current?.setLanguage(language)
 	}, [language])
 
-	return <div ref={divRef} className='relative z-0 px-2 py-1 bg-grid-bg-3'>
+	return <div ref={divRef} className='relative z-0 px-2 py-1 bg-void-bg-3'>
 		<WidgetComponent
 			className='@@bg-editor-style-override' // text-sm
 			ctor={useCallback((container) => {
@@ -2058,7 +1945,7 @@ const SingleDiffEditor = ({ block, lang }: { block: ExtractedSearchReplaceBlock,
 	}, [originalModel, modifiedModel, instantiationService]);
 
 	return (
-		<div className="w-full bg-grid-bg-3 @@bg-editor-style-override" ref={divRef} />
+		<div className="w-full bg-void-bg-3 @@bg-editor-style-override" ref={divRef} />
 	);
 };
 
@@ -2073,7 +1960,7 @@ const SingleDiffEditor = ({ block, lang }: { block: ExtractedSearchReplaceBlock,
  *   - searchReplaceBlocks: string in search/replace format (from LLM)
  *   - language?: string (optional, fallback to 'plaintext')
  */
-export const GridDiffEditor = ({ uri, searchReplaceBlocks, language }: { uri?: unknown, searchReplaceBlocks: string, language?: string }) => {
+export const GridDiffEditor = ({ uri, searchReplaceBlocks, language }: { uri?: any, searchReplaceBlocks: string, language?: string }) => {
 	const accessor = useAccessor();
 	const languageService = accessor.get('ILanguageService');
 
@@ -2088,7 +1975,7 @@ export const GridDiffEditor = ({ uri, searchReplaceBlocks, language }: { uri?: u
 
 	// If no blocks, show empty state
 	if (blocks.length === 0) {
-		return <div className="w-full p-4 text-grid-fg-4 text-sm">No changes found</div>;
+		return <div className="w-full p-4 text-void-fg-4 text-sm">No changes found</div>;
 	}
 
 	// Display all blocks
@@ -2097,7 +1984,7 @@ export const GridDiffEditor = ({ uri, searchReplaceBlocks, language }: { uri?: u
 			{blocks.map((block, index) => (
 				<div key={index} className="w-full">
 					{blocks.length > 1 && (
-						<div className="text-grid-fg-4 text-xs mb-1 px-1 grid-diff-block-header">
+						<div className="text-void-fg-4 text-xs mb-1 px-1">
 							Change {index + 1} of {blocks.length}
 						</div>
 					)}

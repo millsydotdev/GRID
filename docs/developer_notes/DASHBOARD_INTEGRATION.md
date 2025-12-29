@@ -7,6 +7,7 @@ This document describes the automated dashboard integration system for GRID IDE,
 ## User Tiers
 
 ### Community (Free)
+
 - **Price**: Free
 - **Setup**: Manual configuration in local settings
 - **Configuration**: Local mcp.json and API keys only
@@ -14,6 +15,7 @@ This document describes the automated dashboard integration system for GRID IDE,
 - **Support**: Community support
 
 ### Pro (£12/month)
+
 - **Price**: £12 per month
 - **Setup**: Self-service via Stripe checkout
 - **Configuration**: Dashboard-managed with local overrides allowed
@@ -26,6 +28,7 @@ This document describes the automated dashboard integration system for GRID IDE,
   - Multiple repository access
 
 ### Enterprise (Seat-based)
+
 - **Price**: £25 per seat per month
 - **Setup**: Self-service via Stripe checkout
 - **Configuration**: Dashboard-managed (read-only, no local overrides)
@@ -45,11 +48,13 @@ This document describes the automated dashboard integration system for GRID IDE,
 #### Core Services
 
 **DashboardApiClient** (`src/vs/workbench/contrib/grid/common/dashboardApiClient.ts`)
+
 - HTTP client for dashboard API
 - Handles authentication with API keys
 - Manages all API requests (user, config, team, billing)
 
 **DashboardConfigService** (`src/vs/workbench/contrib/grid/common/dashboardConfigService.ts`)
+
 - Manages configuration synchronization
 - Implements tier-based config merging:
   - **Community**: Local only
@@ -58,6 +63,7 @@ This document describes the automated dashboard integration system for GRID IDE,
 - Auto-sync on startup (configurable)
 
 **GridSettingsService** (`src/vs/workbench/contrib/grid/common/gridSettingsService.ts`)
+
 - Extended with `dashboardSettings` and `mcpConfig` fields
 - Stores encrypted dashboard API key
 - Manages user tier and sync preferences
@@ -65,63 +71,71 @@ This document describes the automated dashboard integration system for GRID IDE,
 #### Type Definitions
 
 **DashboardTypes** (`src/vs/workbench/contrib/grid/common/dashboardTypes.ts`)
+
 - Complete type definitions for dashboard API
 - User, config, team, subscription types
 - Stripe integration types
 
 **GridSettingsTypes** (`src/vs/workbench/contrib/grid/common/gridSettingsTypes.ts`)
+
 - Extended with `DashboardSettings` interface
 - User tier and config source types
 
-### Backend API (To Be Implemented)
+### Backend API
 
-The IDE expects a backend at `https://dashboard.grid.network` with the following endpoints:
+The IDE connects to `https://grideditor.com` with the following endpoints:
 
-#### Authentication
-```
-POST   /api/auth/login              - Login with API key
-POST   /api/auth/logout             - Logout
-POST   /api/auth/validate           - Validate API key
-```
+#### Authentication (IDE-specific)
 
-#### User Management
 ```
-GET    /api/user                    - Get user info (tier, email, team)
-PUT    /api/user                    - Update user info
-DELETE /api/user                    - Delete account
+POST   /api/ide/auth/login           - Login with API key
+POST   /api/ide/auth/logout          - Logout
+POST   /api/ide/auth/validate        - Validate API key
 ```
 
-#### Configuration
+#### User Management (IDE-specific)
+
 ```
-GET    /api/config                  - Get full configuration
-PUT    /api/config                  - Update full configuration
-GET    /api/config/mcp              - Get MCP.json
-PUT    /api/config/mcp              - Update MCP.json
-GET    /api/config/providers        - Get provider settings
-PUT    /api/config/providers        - Update provider settings
+GET    /api/ide/user                 - Get user info (tier, email, team)
+PUT    /api/ide/user                 - Update user info
+DELETE /api/ide/user                 - Delete account
 ```
 
-#### Teams (Pro/Enterprise)
+#### Configuration (IDE-specific)
+
 ```
-GET    /api/team                    - Get team info
-PUT    /api/team                    - Update team info
-GET    /api/team/members            - List team members
-POST   /api/team/members/invite     - Invite team member
-DELETE /api/team/members/:memberId  - Remove team member
+GET    /api/ide/config               - Get full configuration
+PUT    /api/ide/config               - Update full configuration
+GET    /api/ide/config/mcp           - Get MCP.json
+PUT    /api/ide/config/mcp           - Update MCP.json
+GET    /api/ide/config/providers     - Get provider settings
+PUT    /api/ide/config/providers     - Update provider settings
+```
+
+#### Teams (Pro/Enterprise) - Dashboard routes
+
+```
+GET    /api/organization             - Get team info
+PUT    /api/organization             - Update team info
+GET    /api/organization/members     - List team members
+POST   /api/organization/invite      - Invite team member
+DELETE /api/organization/members/:id - Remove team member
 ```
 
 #### Repositories
+
 ```
-GET    /api/repos                   - List accessible repos
-GET    /api/repos/:repoId           - Get repo details
-POST   /api/repos/clone             - Authorize CLI clone
+GET    /api/repos                    - List accessible repos
+GET    /api/repos/:repoId            - Get repo details
+POST   /api/repos/clone              - Authorize CLI clone
 ```
 
-#### Billing (Stripe)
+#### Billing (Stripe) - Dashboard routes
+
 ```
-POST   /api/billing/checkout        - Create Stripe checkout session
-POST   /api/billing/portal          - Create Stripe customer portal session
-GET    /api/billing/subscription    - Get subscription status
+POST   /api/checkout                 - Create Stripe checkout session
+POST   /api/billing/portal           - Create Stripe customer portal session
+GET    /api/billing/subscription     - Get subscription status
 POST   /api/billing/subscription/cancel - Cancel subscription
 POST   /api/billing/subscription/update - Update subscription (seats)
 ```
@@ -177,12 +191,14 @@ CREATE TABLE subscriptions (
 ## Configuration Flow
 
 ### Community Users
+
 1. User opens GRID IDE
 2. Manually configures API keys in Settings
 3. Manually creates/edits `.vscode/mcp.json`
 4. Everything stored locally
 
 ### Pro Users
+
 1. User signs up via dashboard
 2. Completes Stripe checkout (£12/month)
 3. Receives API key via email
@@ -195,6 +211,7 @@ CREATE TABLE subscriptions (
    - Share MCP servers and API keys
 
 ### Enterprise Users
+
 1. User signs up via dashboard
 2. Completes Stripe checkout (seat-based)
 3. Admin receives API key
@@ -260,6 +277,7 @@ Events to handle:
 ## Auto-Sync Behavior
 
 ### On IDE Startup
+
 ```typescript
 if (dashboardSettings.autoSyncConfig && dashboardSettings.dashboardApiKey) {
   try {
@@ -271,12 +289,14 @@ if (dashboardSettings.autoSyncConfig && dashboardSettings.dashboardApiKey) {
 ```
 
 ### Manual Sync
+
 ```typescript
 // Command Palette: "Grid: Sync Configuration from Dashboard"
 await dashboardConfigService.syncFromDashboard();
 ```
 
 ### Push Local to Dashboard
+
 ```typescript
 // Command Palette: "Grid: Push Configuration to Dashboard"
 await dashboardConfigService.pushToDashboard();
@@ -285,6 +305,7 @@ await dashboardConfigService.pushToDashboard();
 ## Configuration Merging
 
 ### Pro Tier (Merged)
+
 ```typescript
 mergedConfig = {
   providerSettings: {
@@ -303,6 +324,7 @@ mergedConfig = {
 ```
 
 ### Enterprise Tier (Dashboard Only)
+
 ```typescript
 // Local config is replaced entirely
 config = dashboardConfig;
@@ -312,19 +334,23 @@ config = dashboardConfig;
 ## Security
 
 ### API Key Storage
+
 - Stored encrypted using `IEncryptionService`
 - Uses system keyring (macOS/Windows) or encrypted file (Linux)
 - Never sent to telemetry or logs
 
 ### Secret Detection
+
 - Existing `secretDetectionService` scans dashboard configs
 - Prevents accidental secret transmission
 
 ### HTTPS Only
+
 - All dashboard communication over HTTPS
 - Certificate validation enforced
 
 ### Audit Logging (Enterprise)
+
 - Track all config changes
 - Record user, timestamp, changes
 - Stored in `${workspaceRoot}/.grid/audit.jsonl`
@@ -332,12 +358,14 @@ config = dashboardConfig;
 ## Testing
 
 ### Unit Tests (To Be Added)
+
 ```
 src/vs/workbench/contrib/grid/test/common/dashboardApiClient.test.ts
 src/vs/workbench/contrib/grid/test/common/dashboardConfigService.test.ts
 ```
 
 ### Integration Tests
+
 1. Test Community → Pro upgrade flow
 2. Test Pro → Enterprise upgrade flow
 3. Test config sync with various network conditions
@@ -347,11 +375,13 @@ src/vs/workbench/contrib/grid/test/common/dashboardConfigService.test.ts
 ## Migration Path
 
 ### Existing Users
+
 1. Community users: No change, continue using local config
 2. All users see new "Dashboard" section in Settings
 3. Upgrade flow starts from Settings UI
 
 ### Breaking Changes
+
 None - all changes are additive and backward compatible.
 
 ## Future Enhancements
@@ -386,6 +416,7 @@ None - all changes are additive and backward compatible.
 ## Implementation Status
 
 ✅ **Completed**
+
 - Type definitions and interfaces
 - Dashboard API client service
 - Dashboard configuration sync service
@@ -393,6 +424,7 @@ None - all changes are additive and backward compatible.
 - Service registration
 
 ⏳ **Pending**
+
 - Backend API implementation
 - Database setup
 - Stripe integration
@@ -405,8 +437,9 @@ None - all changes are additive and backward compatible.
 ## Support
 
 For issues or questions:
+
 - Community: GitHub Discussions
-- Pro: Priority email support (support@grid.network)
+- Pro: Priority email support (<support@grid.network>)
 - Enterprise: Dedicated Slack channel + SLA support
 
 ## License

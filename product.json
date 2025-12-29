@@ -46,7 +46,28 @@
 		"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
 		"itemUrl": "https://marketplace.visualstudio.com/items"
 	},
-	"builtInExtensions": [],
+	"builtInExtensions": [
+		{
+			"name": "ms-dotnettools.csharp",
+			"version": "1.25.0",
+			"repo": "https://github.com/OmniSharp/omnisharp-vscode",
+			"metadata": {
+				"id": "ms-dotnettools.csharp",
+				"publisherId": "ms-dotnettools",
+				"publisherDisplayName": "Microsoft"
+			}
+		},
+		{
+			"name": "ms-vscode.cpptools",
+			"version": "1.18.5",
+			"repo": "https://github.com/microsoft/vscode-cpptools",
+			"metadata": {
+				"id": "ms-vscode.cpptools",
+				"publisherId": "ms-vscode",
+				"publisherDisplayName": "Microsoft"
+			}
+		}
+	],
 	"linkProtectionTrustedDomains": [
 		"https://grideditor.com",
 		"https://millsy.dev",

@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 import { useMemo, useState } from 'react';
 import { CopyButton, IconShell1 } from '../markdown/ApplyBlockHoverButtons.js';
@@ -23,33 +23,27 @@ export const PastThreadsList = ({ className = '' }: { className?: string }) => {
 
 	const streamState = useFullChatThreadsStreamState()
 
-	// Memoize runningThreadIds computation to avoid recalculating on every render
-	const runningThreadIds = useMemo(() => {
-		const result: { [threadId: string]: IsRunningType | undefined } = {}
-		for (const threadId in streamState) {
-			const isRunning = streamState[threadId]?.isRunning
-			if (isRunning) { result[threadId] = isRunning }
-		}
-		return result
-	}, [streamState])
+	const runningThreadIds: { [threadId: string]: IsRunningType | undefined } = {}
+	for (const threadId in streamState) {
+		const isRunning = streamState[threadId]?.isRunning
+		if (isRunning) { runningThreadIds[threadId] = isRunning }
+	}
 
 	if (!allThreads) {
 		return <div key="error" className="p-1">{`Error accessing chat history.`}</div>;
 	}
 
-	// Memoize sortedThreadIds computation to avoid recalculating on every render
-	const sortedThreadIds = useMemo(() => {
-		return Object.keys(allThreads ?? {})
-			.sort((threadId1, threadId2) => (allThreads[threadId1]?.lastModified ?? 0) > (allThreads[threadId2]?.lastModified ?? 0) ? -1 : 1)
-			.filter(threadId => (allThreads![threadId]?.messages.length ?? 0) !== 0)
-	}, [allThreads])
+	// sorted by most recent to least recent
+	const sortedThreadIds = Object.keys(allThreads ?? {})
+		.sort((threadId1, threadId2) => (allThreads[threadId1]?.lastModified ?? 0) > (allThreads[threadId2]?.lastModified ?? 0) ? -1 : 1)
+		.filter(threadId => (allThreads![threadId]?.messages.length ?? 0) !== 0)
 
 	// Get only first 5 threads if not showing all
 	const hasMoreThreads = sortedThreadIds.length > numInitialThreads;
 	const displayThreads = showAll ? sortedThreadIds : sortedThreadIds.slice(0, numInitialThreads);
 
 	return (
-		<div className={`flex flex-col mb-2 gap-2 w-full text-nowrap text-grid-fg-2 select-none relative ${className}`}>
+		<div className={`flex flex-col mb-2 gap-2 w-full text-nowrap text-void-fg-3 select-none relative ${className}`}>
 			{displayThreads.length === 0 // this should never happen
 				? <></>
 				: displayThreads.map((threadId, i) => {
@@ -73,7 +67,7 @@ export const PastThreadsList = ({ className = '' }: { className?: string }) => {
 
 			{hasMoreThreads && !showAll && (
 				<div
-					className="text-grid-fg-3 opacity-80 hover:opacity-100 hover:brightness-115 cursor-pointer p-1 text-xs"
+					className="text-void-fg-3 opacity-80 hover:opacity-100 hover:brightness-115 cursor-pointer p-1 text-xs"
 					onClick={() => setShowAll(true)}
 				>
 					Show {sortedThreadIds.length - numInitialThreads} more...
@@ -81,7 +75,7 @@ export const PastThreadsList = ({ className = '' }: { className?: string }) => {
 			)}
 			{hasMoreThreads && showAll && (
 				<div
-					className="text-grid-fg-3 opacity-80 hover:opacity-100 hover:brightness-115 cursor-pointer p-1 text-xs"
+					className="text-void-fg-3 opacity-80 hover:opacity-100 hover:brightness-115 cursor-pointer p-1 text-xs"
 					onClick={() => setShowAll(false)}
 				>
 					Show less
@@ -128,7 +122,7 @@ const DuplicateButton = ({ threadId }: { threadId: string }) => {
 		Icon={Copy}
 		className='size-[11px]'
 		onClick={() => { chatThreadsService.duplicateThread(threadId); }}
-		data-tooltip-id='grid-tooltip'
+		data-tooltip-id='void-tooltip'
 		data-tooltip-place='top'
 		data-tooltip-content='Duplicate thread'
 	>
@@ -150,7 +144,7 @@ const TrashButton = ({ threadId }: { threadId: string }) => {
 				Icon={X}
 				className='size-[11px]'
 				onClick={() => { setIsTrashPressed(false); }}
-				data-tooltip-id='grid-tooltip'
+				data-tooltip-id='void-tooltip'
 				data-tooltip-place='top'
 				data-tooltip-content='Cancel'
 			/>
@@ -158,7 +152,7 @@ const TrashButton = ({ threadId }: { threadId: string }) => {
 				Icon={Check}
 				className='size-[11px]'
 				onClick={() => { chatThreadsService.deleteThread(threadId); setIsTrashPressed(false); }}
-				data-tooltip-id='grid-tooltip'
+				data-tooltip-id='void-tooltip'
 				data-tooltip-place='top'
 				data-tooltip-content='Confirm'
 			/>
@@ -167,7 +161,7 @@ const TrashButton = ({ threadId }: { threadId: string }) => {
 			Icon={Trash2}
 			className='size-[11px]'
 			onClick={() => { setIsTrashPressed(true); }}
-			data-tooltip-id='grid-tooltip'
+			data-tooltip-id='void-tooltip'
 			data-tooltip-place='top'
 			data-tooltip-content='Delete thread'
 		/>
@@ -210,7 +204,7 @@ const PastThreadElement = ({ pastThread, idx, hoveredIdx, setHoveredIdx, isRunni
 	// 	codeStr={async () => {
 	// 		return JSON.stringify(currentThread.messages, null, 2)
 	// 	}}
-	// 	toolTipName={`Copy As GRID Chat`}
+	// 	toolTipName={`Copy As Void Chat`}
 	// />
 
 	let firstMsg = null;
@@ -225,17 +219,21 @@ const PastThreadElement = ({ pastThread, idx, hoveredIdx, setHoveredIdx, isRunni
 
 	const numMessages = pastThread.messages.filter((msg) => msg.role === 'assistant' || msg.role === 'user').length;
 
-	const detailsHTML = (
-		<span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-grid-bg-2 text-[10px] tracking-wide uppercase text-grid-fg-3'>
-			<span>{numMessages} msg</span>
-			<span className='opacity-80'>{formatDate(new Date(pastThread.lastModified))}</span>
-		</span>
-	)
+	const detailsHTML = <span
+	// data-tooltip-id='void-tooltip'
+	// data-tooltip-content={`Last modified ${formatTime(new Date(pastThread.lastModified))}`}
+	// data-tooltip-place='top'
+	>
+		<span className='opacity-60'>{numMessages}</span>
+		{` `}
+		{formatDate(new Date(pastThread.lastModified))}
+		{/* {` messages `} */}
+	</span>
 
 	return <div
 		key={pastThread.id}
 		className={`
-			group px-3 py-2 rounded-xl border border-grid-border-3/70 bg-grid-bg-1/40 hover:bg-grid-bg-2/70 cursor-pointer text-sm text-grid-fg-1 transition-all duration-150 ease-out shadow-[0_8px_20px_rgba(0,0,0,0.35)] hover:-translate-y-0.5
+			py-1 px-2 rounded text-sm bg-zinc-700/5 hover:bg-zinc-700/10 dark:bg-zinc-300/5 dark:hover:bg-zinc-300/10 cursor-pointer opacity-80 hover:opacity-100
 		`}
 		onClick={() => {
 			chatThreadsService.switchToThread(pastThread.id);
@@ -243,17 +241,17 @@ const PastThreadElement = ({ pastThread, idx, hoveredIdx, setHoveredIdx, isRunni
 		onMouseEnter={() => setHoveredIdx(idx)}
 		onMouseLeave={() => setHoveredIdx(null)}
 	>
-		<div className="flex items-center justify-between gap-2">
-			<span className="flex items-center gap-2 min-w-0 overflow-hidden text-grid-fg-2">
-                {/* status icon */}
-                {isRunning === 'LLM' || isRunning === 'tool' || isRunning === 'preparing' ? (
-                    <LoaderCircle className="animate-spin text-grid-fg-1 flex-shrink-0 flex-grow-0" size={14} />
-                ) : isRunning === 'awaiting_user' ? (
-                    <MessageCircleQuestion className="text-grid-fg-1 flex-shrink-0 flex-grow-0" size={14} />
-                ) : null}
+		<div className="flex items-center justify-between gap-1">
+			<span className="flex items-center gap-2 min-w-0 overflow-hidden">
+				{/* spinner */}
+				{isRunning === 'LLM' || isRunning === 'tool' || isRunning === 'idle' ? <LoaderCircle className="animate-spin bg-void-stroke-1 flex-shrink-0 flex-grow-0" size={14} />
+					:
+					isRunning === 'awaiting_user' ? <MessageCircleQuestion className="bg-void-stroke-1 flex-shrink-0 flex-grow-0" size={14} />
+						:
+						null}
 				{/* name */}
-				<span className="truncate overflow-hidden text-ellipsis text-grid-fg-1"
-					data-tooltip-id='grid-tooltip'
+				<span className="truncate overflow-hidden text-ellipsis"
+					data-tooltip-id='void-tooltip'
 					data-tooltip-content={numMessages + ' messages'}
 					data-tooltip-place='top'
 				>{firstMsg}</span>
@@ -261,7 +259,7 @@ const PastThreadElement = ({ pastThread, idx, hoveredIdx, setHoveredIdx, isRunni
 				{/* <span className='opacity-60'>{`(${numMessages})`}</span> */}
 			</span>
 
-			<div className="flex items-center gap-x-1 opacity-80 text-grid-fg-3">
+			<div className="flex items-center gap-x-1 opacity-60">
 				{idx === hoveredIdx ?
 					<>
 						{/* trash icon */}
@@ -271,7 +269,7 @@ const PastThreadElement = ({ pastThread, idx, hoveredIdx, setHoveredIdx, isRunni
 						<TrashButton threadId={pastThread.id} />
 					</>
 					: <>
-						<div className="opacity-90">{detailsHTML}</div>
+						{detailsHTML}
 					</>
 				}
 			</div>

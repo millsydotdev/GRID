@@ -1,18 +1,10 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
-import React, { JSX, useMemo, useState, useEffect, useRef } from 'react'
+import React, { JSX, useMemo, useState } from 'react'
 import { marked, MarkedToken, Token } from 'marked'
-
-// Type declarations for requestIdleCallback (fallback for older browsers)
-declare global {
-	interface Window {
-		requestIdleCallback?: (callback: (deadline: { timeRemaining: () => number, didTimeout: boolean }) => void, options?: { timeout?: number }) => number
-		cancelIdleCallback?: (id: number) => void
-	}
-}
 
 import { convertToVscodeLang, detectLanguage } from '../../../../common/helpers/languageHelpers.js'
 import { BlockCodeApplyWrapper } from './ApplyBlockHoverButtons.js'
@@ -22,7 +14,7 @@ import { isAbsolute } from '../../../../../../../base/common/path.js'
 import { separateOutFirstLine } from '../../../../common/helpers/util.js'
 import { BlockCode } from '../util/inputs.js'
 import { CodespanLocationLink } from '../../../../common/chatThreadServiceTypes.js'
-import { getBasename, getRelative, gridOpenFileFn } from '../sidebar-tsx/SidebarChat.js'
+import { getBasename, getRelative, GridOpenFileFn } from '../sidebar-tsx/SidebarChat.js'
 
 
 export type ChatMessageLocation = {
@@ -98,12 +90,14 @@ const LatexRender = ({ latex }: { latex: string }) => {
 }
 
 const Codespan = ({ text, className, onClick, tooltip }: { text: string, className?: string, onClick?: () => void, tooltip?: string }) => {
-	// Display text is now computed once and memoized in CodespanWithLink for efficiency
+
+	// TODO compute this once for efficiency. we should use `labels.ts/shorten` to display duplicates properly
+
 	return <code
-		className={`font-mono font-medium rounded-sm bg-grid-bg-1 px-1 ${className}`}
+		className={`font-mono font-medium rounded-sm bg-void-bg-1 px-1 ${className}`}
 		onClick={onClick}
 		{...tooltip ? {
-			'data-tooltip-id': 'grid-tooltip',
+			'data-tooltip-id': 'void-tooltip',
 			'data-tooltip-content': tooltip,
 			'data-tooltip-place': 'top',
 		} : {}}
@@ -125,13 +119,16 @@ const CodespanWithLink = ({ text, rawText, chatMessageLocation }: { text: string
 
 	const [didComputeCodespanLink, setDidComputeCodespanLink] = useState<boolean>(false)
 
-	// Compute link from cache (memoized to avoid recomputation on every render)
-	const link = useMemo(() => {
-		if (!rawText.endsWith('`')) return undefined;
+	let link: CodespanLocationLink | undefined = undefined
+	let tooltip: string | undefined = undefined
+	let displayText = text
 
-		const cachedLink = chatThreadService.getCodespanLink({ codespanStr: text, messageIdx, threadId });
 
-		if (cachedLink === undefined) {
+	if (rawText.endsWith('`')) {
+		// get link from cache
+		link = chatThreadService.getCodespanLink({ codespanStr: text, messageIdx, threadId })
+
+		if (link === undefined) {
 			// if no link, generate link and add to cache
 			chatThreadService.generateCodespanLink({ codespanStr: text, threadId })
 				.then(link => {
@@ -140,34 +137,24 @@ const CodespanWithLink = ({ text, rawText, chatMessageLocation }: { text: string
 				})
 		}
 
-		return cachedLink;
-	}, [rawText, text, messageIdx, threadId, didComputeCodespanLink]);
-
-	// Compute display text and tooltip (memoized for efficiency)
-	const { displayText, tooltip } = useMemo(() => {
-		let computed = text;
-		let computedTooltip: string | undefined = undefined;
-
 		if (link?.displayText) {
-			computed = link.displayText;
+			displayText = link.displayText
 		}
 
-		if (isValidUri(computed)) {
-			computedTooltip = getRelative(URI.file(computed), accessor);  // Full path as tooltip
-			computed = getBasename(computed);
+		if (isValidUri(displayText)) {
+			tooltip = getRelative(URI.file(displayText), accessor)  // Full path as tooltip
+			displayText = getBasename(displayText)
 		}
-
-		return { displayText: computed, tooltip: computedTooltip };
-	}, [text, link, accessor]);
+	}
 
 
 	const onClick = () => {
 		if (!link) return;
-		// Use the updated gridOpenFileFn to open the file and handle selection
+		// Use the updated GridOpenFileFn to open the file and handle selection
 		if (link.selection)
-			gridOpenFileFn(link.uri, accessor, [link.selection.startLineNumber, link.selection.endLineNumber]);
+			GridOpenFileFn(link.uri, accessor, [link.selection.startLineNumber, link.selection.endLineNumber]);
 		else
-			gridOpenFileFn(link.uri, accessor);
+			GridOpenFileFn(link.uri, accessor);
 	}
 
 	return <Codespan
@@ -204,7 +191,6 @@ const paragraphToLatexSegments = (paragraphText: string) => {
 
 			// First replace display math ($$...$$)
 			let match;
-			displayMathRegex.lastIndex = 0; // Reset regex lastIndex to prevent bugs
 			while ((match = displayMathRegex.exec(rawText)) !== null) {
 				const [fullMatch, formula] = match;
 				const matchIndex = match.index;
@@ -298,17 +284,9 @@ const RenderToken = ({ token, inPTag, codeURI, chatMessageLocation, tokenIdx, ..
 	if (t.type === 'code') {
 		const [firstLine, remainingContents] = separateOutFirstLine(t.text)
 		const firstLineIsURI = isValidUri(firstLine) && !codeURI
-		let contents = firstLineIsURI ? (remainingContents?.trimStart() || '') : t.text // exclude first-line URI from contents
+		const contents = firstLineIsURI ? (remainingContents?.trimStart() || '') : t.text // exclude first-line URI from contents
 
 		if (!contents) return null
-
-		// Redact secrets in code block contents
-		const secretDetectionService = accessor.get('ISecretDetectionService')
-		const config = secretDetectionService.getConfig()
-		if (config.enabled) {
-			const detection = secretDetectionService.detectSecrets(contents)
-			contents = detection.redactedText
-		}
 
 		// figure out langauge and URI
 		let uri: URI | null
@@ -397,13 +375,13 @@ const RenderToken = ({ token, inPTag, codeURI, chatMessageLocation, tokenIdx, ..
 		)
 		// return (
 		// 	<div>
-		// 		<table className={'min-w-full border border-grid-bg-2'}>
+		// 		<table className={'min-w-full border border-void-bg-2'}>
 		// 			<thead>
-		// 				<tr className='bg-grid-bg-1'>
-		// 					{t.header.map((cell: unknown, index: number) => (
+		// 				<tr className='bg-void-bg-1'>
+		// 					{t.header.map((cell: any, index: number) => (
 		// 						<th
 		// 							key={index}
-		// 							className='px-4 py-2 border border-grid-bg-2 font-semibold'
+		// 							className='px-4 py-2 border border-void-bg-2 font-semibold'
 		// 							style={{ textAlign: t.align[index] || 'left' }}
 		// 						>
 		// 							{cell.raw}
@@ -412,12 +390,12 @@ const RenderToken = ({ token, inPTag, codeURI, chatMessageLocation, tokenIdx, ..
 		// 				</tr>
 		// 			</thead>
 		// 			<tbody>
-		// 				{t.rows.map((row: unknown[], rowIndex: number) => (
-		// 					<tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-grid-bg-1'}>
-		// 						{row.map((cell: unknown, cellIndex: number) => (
+		// 				{t.rows.map((row: any[], rowIndex: number) => (
+		// 					<tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-void-bg-1'}>
+		// 						{row.map((cell: any, cellIndex: number) => (
 		// 							<td
 		// 								key={cellIndex}
-		// 								className={'px-4 py-2 border border-grid-bg-2'}
+		// 								className={'px-4 py-2 border border-void-bg-2'}
 		// 								style={{ textAlign: t.align[cellIndex] || 'left' }}
 		// 							>
 		// 								{cell.raw}
@@ -504,44 +482,22 @@ const RenderToken = ({ token, inPTag, codeURI, chatMessageLocation, tokenIdx, ..
 	}
 
 	if (t.type === 'link') {
-		// Redact secrets in link href and text
-		const secretDetectionService = accessor.get('ISecretDetectionService')
-		const config = secretDetectionService.getConfig()
-		let href = t.href
-		let text = t.text
-		if (config.enabled) {
-			const hrefDetection = secretDetectionService.detectSecrets(href)
-			href = hrefDetection.redactedText
-			const textDetection = secretDetectionService.detectSecrets(text)
-			text = textDetection.redactedText
-		}
 		return (
 			<a
-				onClick={() => { window.open(href) }}
-				href={href}
+				onClick={() => { window.open(t.href) }}
+				href={t.href}
 				title={t.title ?? undefined}
-				className='underline cursor-pointer hover:brightness-90 transition-all duration-200 text-grid-fg-2'
+				className='underline cursor-pointer hover:brightness-90 transition-all duration-200 text-void-fg-2'
 			>
-				{text}
+				{t.text}
 			</a>
 		)
 	}
 
 	if (t.type === 'image') {
-		// Redact secrets in image src URL
-		const secretDetectionService = accessor.get('ISecretDetectionService')
-		const config = secretDetectionService.getConfig()
-		let src = t.href
-		let alt = t.text
-		if (config.enabled) {
-			const srcDetection = secretDetectionService.detectSecrets(src)
-			src = srcDetection.redactedText
-			const altDetection = secretDetectionService.detectSecrets(alt)
-			alt = altDetection.redactedText
-		}
 		return <img
-			src={src}
-			alt={alt}
+			src={t.href}
+			alt={t.text}
 			title={t.title ?? undefined}
 
 		/>
@@ -557,25 +513,17 @@ const RenderToken = ({ token, inPTag, codeURI, chatMessageLocation, tokenIdx, ..
 
 	// inline code
 	if (t.type === 'codespan') {
-		// Redact secrets in inline code
-		const secretDetectionService = accessor.get('ISecretDetectionService')
-		const config = secretDetectionService.getConfig()
-		let text = t.text
-		if (config.enabled) {
-			const detection = secretDetectionService.detectSecrets(text)
-			text = detection.redactedText
-		}
 
 		if (options.isLinkDetectionEnabled && chatMessageLocation) {
 			return <CodespanWithLink
-				text={text}
+				text={t.text}
 				rawText={t.raw}
 				chatMessageLocation={chatMessageLocation}
 			/>
 
 		}
 
-		return <Codespan text={text} />
+		return <Codespan text={t.text} />
 	}
 
 	if (t.type === 'br') {
@@ -596,71 +544,8 @@ const RenderToken = ({ token, inPTag, codeURI, chatMessageLocation, tokenIdx, ..
 
 
 export const ChatMarkdownRender = ({ string, inPTag = false, chatMessageLocation, ...options }: { string: string, inPTag?: boolean, codeURI?: URI, chatMessageLocation: ChatMessageLocation | undefined } & RenderTokenOptions) => {
-	const accessor = useAccessor()
-	const secretDetectionService = accessor.get('ISecretDetectionService')
-
-	// Redact secrets before rendering
-	const redactedString = useMemo(() => {
-		const config = secretDetectionService.getConfig()
-		if (!config.enabled) {
-			return string.replaceAll('\n•', '\n\n•')
-		}
-		const detection = secretDetectionService.detectSecrets(string)
-		return detection.redactedText.replaceAll('\n•', '\n\n•')
-	}, [string, secretDetectionService])
-
-	// Optimize: Use requestAnimationFrame to sync with browser repaint cycle
-	// This reduces parsing overhead and aligns with throttled state updates
-	const [debouncedString, setDebouncedString] = useState(redactedString)
-	const rafRef = useRef<number | undefined>()
-	const lastUpdateRef = useRef<string>(redactedString)
-
-	useEffect(() => {
-		// Update ref immediately to track latest content
-		lastUpdateRef.current = redactedString
-
-		// For very short strings, update immediately (likely complete)
-		if (redactedString.length < 500) {
-			setDebouncedString(redactedString)
-			return
-		}
-
-		// For longer strings, batch updates using requestAnimationFrame
-		// This syncs with browser repaint (60fps) and reduces parsing overhead
-		if (rafRef.current) {
-			cancelAnimationFrame(rafRef.current)
-		}
-
-		rafRef.current = requestAnimationFrame(() => {
-			// Use the latest content at the time of the frame
-			setDebouncedString(lastUpdateRef.current)
-			rafRef.current = undefined
-		})
-
-		return () => {
-			if (rafRef.current) {
-				cancelAnimationFrame(rafRef.current)
-			}
-		}
-	}, [redactedString])
-
-	// Parse markdown tokens (debounced + optimized for streaming)
-	// Use incremental parsing: only parse new content when string grows significantly
-	const tokens = useMemo(() => {
-		// For very long strings during streaming, use incremental approach
-		// Only re-parse if content changed significantly (avoid re-parsing on every small update)
-		if (debouncedString.length > 10_000) {
-			// For long content, use marked's async option if available, otherwise sync
-			try {
-				return marked.lexer(debouncedString, { async: false })
-			} catch (e) {
-				// Fallback: return empty tokens on error
-				return []
-			}
-		}
-		return marked.lexer(debouncedString)
-	}, [debouncedString])
-
+	string = string.replaceAll('\n•', '\n\n•')
+	const tokens = marked.lexer(string); // https://marked.js.org/using_pro#renderer
 	return (
 		<>
 			{tokens.map((token, index) => (

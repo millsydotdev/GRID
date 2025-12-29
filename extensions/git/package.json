@@ -4,6 +4,10 @@
   "description": "%description%",
   "publisher": "vscode",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/vscode.git"
+  },
   "version": "1.0.0",
   "engines": {
     "vscode": "^1.5.0"
@@ -16,8 +20,6 @@
     "contribMergeEditorMenus",
     "contribMultiDiffEditorMenus",
     "contribDiffEditorGutterToolBarMenus",
-    "contribSourceControlArtifactGroupMenu",
-    "contribSourceControlArtifactMenu",
     "contribSourceControlHistoryItemMenu",
     "contribSourceControlHistoryTitleMenu",
     "contribSourceControlInputBoxMenu",
@@ -28,7 +30,6 @@
     "quickInputButtonLocation",
     "quickPickSortByLabel",
     "scmActionButton",
-    "scmArtifactProvider",
     "scmHistoryProvider",
     "scmMultiDiffEditor",
     "scmProviderOptions",
@@ -45,7 +46,6 @@
     "Other"
   ],
   "activationEvents": [
-    "*",
     "onEditSession:file",
     "onFileSystem:git",
     "onFileSystem:git-show"
@@ -4030,9 +4030,5 @@
     "@types/node": "22.x",
     "@types/picomatch": "2.3.0",
     "@types/which": "3.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/microsoft/vscode.git"
   }
 }

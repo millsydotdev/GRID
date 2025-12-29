@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { EditorInput } from '../../../common/editor/editorInput.js';
@@ -22,20 +22,22 @@ import { IEditorService } from '../../../services/editor/common/editorService.js
 import { URI } from '../../../../base/common/uri.js';
 import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
 
-import { mountGridSettings } from './react/out/grid-settings-tsx/index.js';
+
+import { mountGridSettings } from './react/out/grid-settings-tsx/index.js'
 import { Codicon } from '../../../../base/common/codicons.js';
 import { toDisposable } from '../../../../base/common/lifecycle.js';
+
 
 // refer to preferences.contribution.ts keybindings editor
 
 class GridSettingsInput extends EditorInput {
+
 	static readonly ID: string = 'workbench.input.grid.settings';
 
-	static readonly RESOURCE = URI.from({
-		// I think this scheme is invalid, it just shuts up TS
-		scheme: 'grid', // Custom scheme for our editor (try Schemas.https)
-		path: 'settings',
-	});
+	static readonly RESOURCE = URI.from({ // I think this scheme is invalid, it just shuts up TS
+		scheme: 'grid',  // Custom scheme for our editor (try Schemas.https)
+		path: 'settings'
+	})
 	readonly resource = GridSettingsInput.RESOURCE;
 
 	constructor() {
@@ -43,17 +45,19 @@ class GridSettingsInput extends EditorInput {
 	}
 
 	override get typeId(): string {
-		return GridSettingsInput.ID;
+		return VoidSettingsInput.ID;
 	}
 
 	override getName(): string {
-		return nls.localize('gridSettingsInputsName', 'GRID Settings');
+		return nls.localize('gridSettingsInputsName', 'GRID\'s Settings');
 	}
 
 	override getIcon() {
-		return Codicon.checklist; // symbol for the actual editor pane
+		return Codicon.checklist // symbol for the actual editor pane
 	}
+
 }
+
 
 class GridSettingsPane extends EditorPane {
 	static readonly ID = 'workbench.test.myCustomPane';
@@ -85,9 +89,9 @@ class GridSettingsPane extends EditorPane {
 		// this._scrollbar.scanDomNode();
 
 		// Mount React into the scrollable content
-		this.instantiationService.invokeFunction((accessor) => {
+		this.instantiationService.invokeFunction(accessor => {
 			const disposeFn = mountGridSettings(settingsElt, accessor)?.dispose;
-			this._register(toDisposable(() => disposeFn?.()));
+			this._register(toDisposable(() => disposeFn?.()))
 
 			// setTimeout(() => { // this is a complete hack and I don't really understand how scrollbar works here
 			// 	this._scrollbar?.scanDomNode();
@@ -101,102 +105,105 @@ class GridSettingsPane extends EditorPane {
 		// settingsElt.style.width = `${dimension.width}px`;
 	}
 
-	override get minimumWidth() {
-		return 700;
-	}
+
+	override get minimumWidth() { return 700 }
+
 }
 
 // register Settings pane
 Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
-	EditorPaneDescriptor.create(
-		GridSettingsPane,
-		GridSettingsPane.ID,
-		nls.localize('GridSettingsPane', 'GRID Settings Pane')
-	),
+	EditorPaneDescriptor.create(GridSettingsPane, GridSettingsPane.ID, nls.localize('GridSettingsPane', "GRID\'s Settings Pane")),
 	[new SyncDescriptor(GridSettingsInput)]
 );
 
+
 // register the gear on the top right
-export const GRID_TOGGLE_SETTINGS_ACTION_ID = 'workbench.action.toggleGridSettings';
-registerAction2(
-	class extends Action2 {
-		constructor() {
-			super({
-				id: GRID_TOGGLE_SETTINGS_ACTION_ID,
-				title: nls.localize2('gridSettings', 'GRID: Toggle Settings'),
-				icon: Codicon.settingsGear,
-				menu: [
-					{
-						id: MenuId.LayoutControlMenuSubmenu,
-						group: 'z_end',
-					},
-					{
-						id: MenuId.LayoutControlMenu,
-						when: ContextKeyExpr.equals('config.workbench.layoutControl.type', 'both'),
-						group: 'z_end',
-					},
-				],
-			});
-		}
-
-		async run(accessor: ServicesAccessor): Promise<void> {
-			const editorService = accessor.get(IEditorService);
-			const editorGroupService = accessor.get(IEditorGroupsService);
-
-			const instantiationService = accessor.get(IInstantiationService);
-
-			// if is open, close it
-			const openEditors = editorService.findEditors(GridSettingsInput.RESOURCE); // should only have 0 or 1 elements...
-			if (openEditors.length !== 0) {
-				const openEditor = openEditors[0].editor;
-				const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath;
-				if (isCurrentlyOpen) await editorService.closeEditors(openEditors);
-				else await editorGroupService.activeGroup.openEditor(openEditor);
-				return;
-			}
-
-			// else open it
-			const input = instantiationService.createInstance(GridSettingsInput);
-
-			await editorGroupService.activeGroup.openEditor(input);
-		}
+export const GRID_TOGGLE_SETTINGS_ACTION_ID = 'workbench.action.toggleGridSettings'
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: GRID_TOGGLE_SETTINGS_ACTION_ID,
+			title: nls.localize2('gridSettings', "GRID: Toggle Settings"),
+			icon: Codicon.settingsGear,
+			menu: [
+				{
+					id: MenuId.LayoutControlMenuSubmenu,
+					group: 'z_end',
+				},
+				{
+					id: MenuId.LayoutControlMenu,
+					when: ContextKeyExpr.equals('config.workbench.layoutControl.type', 'both'),
+					group: 'z_end'
+				}
+			]
+		});
 	}
-);
 
-export const GRID_OPEN_SETTINGS_ACTION_ID = 'workbench.action.openGridSettings';
-registerAction2(
-	class extends Action2 {
-		constructor() {
-			super({
-				id: GRID_OPEN_SETTINGS_ACTION_ID,
-				title: nls.localize2('gridSettingsAction2', 'GRID: Open Settings'),
-				f1: true,
-				icon: Codicon.settingsGear,
-			});
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		const editorGroupService = accessor.get(IEditorGroupsService);
+
+		const instantiationService = accessor.get(IInstantiationService);
+
+		// if is open, close it
+		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE); // should only have 0 or 1 elements...
+		if (openEditors.length !== 0) {
+			const openEditor = openEditors[0].editor
+			const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath
+			if (isCurrentlyOpen)
+				await editorService.closeEditors(openEditors)
+			else
+				await editorGroupService.activeGroup.openEditor(openEditor)
+			return;
 		}
-		async run(accessor: ServicesAccessor): Promise<void> {
-			const editorService = accessor.get(IEditorService);
-			const instantiationService = accessor.get(IInstantiationService);
 
-			// close all instances if found
-			const openEditors = editorService.findEditors(GridSettingsInput.RESOURCE);
-			if (openEditors.length > 0) {
-				await editorService.closeEditors(openEditors);
-			}
 
-			// then, open one single editor
-			const input = instantiationService.createInstance(GridSettingsInput);
-			await editorService.openEditor(input);
-		}
+		// else open it
+		const input = instantiationService.createInstance(VoidSettingsInput);
+
+		await editorGroupService.activeGroup.openEditor(input);
 	}
-);
+})
+
+
+
+export const GRID_OPEN_SETTINGS_ACTION_ID = 'workbench.action.openGridSettings'
+export const VOID_OPEN_SETTINGS_ACTION_ID = GRID_OPEN_SETTINGS_ACTION_ID // Alias for backwards compatibility
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: GRID_OPEN_SETTINGS_ACTION_ID,
+			title: nls.localize2('gridSettingsAction2', "GRID: Open Settings"),
+			f1: true,
+			icon: Codicon.settingsGear,
+		});
+	}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		const instantiationService = accessor.get(IInstantiationService);
+
+		// close all instances if found
+		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE);
+		if (openEditors.length > 0) {
+			await editorService.closeEditors(openEditors);
+		}
+
+		// then, open one single editor
+		const input = instantiationService.createInstance(VoidSettingsInput);
+		await editorService.openEditor(input);
+	}
+})
+
+
+
+
 
 // add to settings gear on bottom left
 MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
 	group: '0_command',
 	command: {
 		id: GRID_TOGGLE_SETTINGS_ACTION_ID,
-		title: nls.localize('gridSettingsActionGear', 'GRID Settings'),
+		title: nls.localize('gridSettingsActionGear', "GRID\'s Settings")
 	},
-	order: 1,
+	order: 1
 });

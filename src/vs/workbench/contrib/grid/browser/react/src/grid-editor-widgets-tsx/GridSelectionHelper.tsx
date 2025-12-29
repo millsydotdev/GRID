@@ -1,18 +1,18 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 
 import { useAccessor, useActiveURI, useIsDark, useSettingsState } from '../util/services.js';
 
 import '../styles.css'
-import { GRID_CTRL_K_ACTION_ID, GRID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
+import { VOID_CTRL_K_ACTION_ID, VOID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
 import { Circle, MoreVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { GridSelectionHelperProps } from '../../../../../../contrib/grid/browser/gridSelectionHelperWidget.js';
-import { GRID_OPEN_SETTINGS_ACTION_ID } from '../../../gridSettingsPane.js';
+import { GridSelectionHelperProps } from '../../../../../../contrib/GRID/browser/GridSelectionHelperWidget.js';
+import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../GridSettingsPane.js';
 
 
 export const GridSelectionHelperMain = (props: GridSelectionHelperProps) => {
@@ -20,7 +20,7 @@ export const GridSelectionHelperMain = (props: GridSelectionHelperProps) => {
 	const isDark = useIsDark()
 
 	return <div
-		className={`@@grid-scope ${isDark ? 'dark' : ''}`}
+		className={`@@void-scope ${isDark ? 'dark' : ''}`}
 	>
 		<GridSelectionHelper {...props} />
 	</div>
@@ -35,17 +35,17 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 	const keybindingService = accessor.get('IKeybindingService')
 	const commandService = accessor.get('ICommandService')
 
-	const ctrlLKeybind = keybindingService.lookupKeybinding(GRID_CTRL_L_ACTION_ID)
-	const ctrlKKeybind = keybindingService.lookupKeybinding(GRID_CTRL_K_ACTION_ID)
+	const ctrlLKeybind = keybindingService.lookupKeybinding(VOID_CTRL_L_ACTION_ID)
+	const ctrlKKeybind = keybindingService.lookupKeybinding(VOID_CTRL_K_ACTION_ID)
 
-	const dividerHTML = <div className='w-[0.5px] bg-grid-border-3'></div>
+	const dividerHTML = <div className='w-[0.5px] bg-void-border-3'></div>
 
 	const [reactRerenderCount, setReactRerenderKey] = useState(rerenderKey)
 	const [clickState, setClickState] = useState<'init' | 'clickedOption' | 'clickedMore'>('init')
 
 	useEffect(() => {
 		const disposable = commandService.onWillExecuteCommand(e => {
-			if (e.commandId === GRID_CTRL_L_ACTION_ID || e.commandId === GRID_CTRL_K_ACTION_ID) {
+			if (e.commandId === VOID_CTRL_L_ACTION_ID || e.commandId === VOID_CTRL_K_ACTION_ID) {
 				setClickState('clickedOption')
 			}
 		});
@@ -79,7 +79,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 					cursor-pointer
 				'
 				onClick={() => {
-					commandService.executeCommand(GRID_CTRL_L_ACTION_ID)
+					commandService.executeCommand(VOID_CTRL_L_ACTION_ID)
 					setClickState('clickedOption');
 				}}
 			>
@@ -99,7 +99,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 					cursor-pointer
 				'
 				onClick={() => {
-					commandService.executeCommand(GRID_CTRL_K_ACTION_ID)
+					commandService.executeCommand(VOID_CTRL_K_ACTION_ID)
 					setClickState('clickedOption');
 				}}
 			>
@@ -133,7 +133,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 				cursor-pointer
 			'
 			onClick={() => {
-				commandService.executeCommand(GRID_OPEN_SETTINGS_ACTION_ID);
+				commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID);
 				setClickState('clickedOption');
 			}}
 		>
@@ -159,7 +159,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 		pointer-events-auto select-none
 		z-[1000]
 		rounded-sm shadow-md flex flex-nowrap text-nowrap
-		border border-grid-border-3 bg-grid-bg-2
+		border border-void-border-3 bg-void-bg-2
 		transition-all duration-200
 	'>
 		{clickState === 'init' ? defaultHTML

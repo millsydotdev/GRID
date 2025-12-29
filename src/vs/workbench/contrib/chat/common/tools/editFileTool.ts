@@ -20,9 +20,27 @@ export const ExtensionEditToolId = 'vscode_editFile';
 export const InternalEditToolId = 'vscode_editFile_internal';
 export const EditToolData: IToolData = {
 	id: InternalEditToolId,
-	displayName: '', // not used
-	modelDescription: '', // Not used
+	displayName: 'Edit File',
+	modelDescription: 'Edit a file in the workspace. Use this tool to modify code or text files. Provide the file URI, an explanation of the change, and the new code. The tool will apply the edits allowing the user to review them.',
 	source: ToolDataSource.Internal,
+	inputSchema: {
+		type: 'object',
+		properties: {
+			uri: {
+				type: 'object',
+				description: 'The URI of the file to edit'
+			},
+			explanation: {
+				type: 'string',
+				description: 'Explanation of the edit'
+			},
+			code: {
+				type: 'string',
+				description: 'The new code content'
+			}
+		},
+		required: ['uri', 'explanation', 'code']
+	}
 };
 
 export interface EditToolParams {

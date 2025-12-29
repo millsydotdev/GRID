@@ -119,7 +119,7 @@ const viewContainerRegistry = Registry.as<IViewContainersRegistry>(ViewContainer
 const container = viewContainerRegistry.registerViewContainer(
 	{
 		id: GRID_VIEW_CONTAINER_ID,
-		title: nls.localize2('gridContainer', 'Chat'), // Chat container (Ctrl + L)
+		title: nls.localize2('gridContainer', 'GRID AI'), // GRID AI container (Ctrl + L)
 		ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [
 			GRID_VIEW_CONTAINER_ID,
 			{
@@ -145,7 +145,7 @@ viewsRegistry.registerViews(
 			id: GRID_VIEW_ID,
 			hideByDefault: false, // start open
 			containerIcon: FileAccess.asBrowserUri('vs/workbench/browser/media/code-icon.svg'), // GRID logo
-			name: nls.localize2('gridChat', ''), // this says ... : CHAT
+			name: nls.localize2('gridChat', 'GRID AI'),
 			ctorDescriptor: new SyncDescriptor(SidebarViewPane),
 			canToggleVisibility: false,
 			canMoveView: false, // can't move this out of its container

@@ -66,7 +66,7 @@ export async function collectWorkspaceStats(folder: string, filter: string[]): P
 		{ tag: 'agent.md', filePattern: /^agent\.md$/i },
 		{ tag: 'agents.md', filePattern: /^agents\.md$/i },
 		{ tag: 'claude.md', filePattern: /^claude\.md$/i },
-		{ tag: 'gemini.md', filePattern: /^gemini\.md$/i },
+
 		{ tag: 'copilot-instructions.md', filePattern: /^copilot\-instructions\.md$/i, relativePathPattern: /^\.github$/i },
 	];
 

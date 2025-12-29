@@ -1,16 +1,16 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FeatureName, featureNames, isFeatureNameDisabled, ModelSelection, modelSelectionsEqual, ProviderName, providerNames, SettingsOfProvider } from '../../../../../../../workbench/contrib/grid/common/gridSettingsTypes.js'
+import { FeatureName, featureNames, isFeatureNameDisabled, ModelSelection, modelSelectionsEqual, ProviderName, providerNames, SettingsOfProvider } from '../../../../../../../workbench/contrib/GRID/common/GRIDSettingsTypes.js'
 import { useSettingsState, useRefreshModelState, useAccessor } from '../util/services.js'
-import { _GridSelectBox, GridCustomDropdownBox } from '../util/inputs.js'
+import { _VoidSelectBox, GridCustomDropdownBox } from '../util/inputs.js'
 import { SelectBox } from '../../../../../../../base/browser/ui/selectBox/selectBox.js'
 import { IconWarning } from '../sidebar-tsx/SidebarChat.js'
-import { GRID_OPEN_SETTINGS_ACTION_ID, GRID_TOGGLE_SETTINGS_ACTION_ID } from '../../../gridSettingsPane.js'
-import { modelFilterOfFeatureName, ModelOption } from '../../../../../../../workbench/contrib/grid/common/gridSettingsService.js'
+import { VOID_OPEN_SETTINGS_ACTION_ID, VOID_TOGGLE_SETTINGS_ACTION_ID } from '../../../GridSettingsPane.js'
+import { modelFilterOfFeatureName, ModelOption } from '../../../../../../../workbench/contrib/GRID/common/GRIDSettingsService.js'
 import { WarningBox } from './WarningBox.js'
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js'
 
@@ -24,38 +24,22 @@ const optionsEqual = (m1: ModelOption[], m2: ModelOption[]) => {
 
 const ModelSelectBox = ({ options, featureName, className }: { options: ModelOption[], featureName: FeatureName, className: string }) => {
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
 
-	const selection = gridSettingsService.state.modelSelectionOfFeature[featureName]
-	const selectedOption = selection ? gridSettingsService.state._modelOptions.find(v => modelSelectionsEqual(v.selection, selection))! : options[0]
+	const selection = GridSettingsService.state.modelSelectionOfFeature[featureName]
+	const selectedOption = selection ? GridSettingsService.state._modelOptions.find(v => modelSelectionsEqual(v.selection, selection))! : options[0]
 
 	const onChangeOption = useCallback((newOption: ModelOption) => {
-		gridSettingsService.setModelSelectionOfFeature(featureName, newOption.selection)
-	}, [gridSettingsService, featureName])
+		GridSettingsService.setModelSelectionOfFeature(featureName, newOption.selection)
+	}, [GridSettingsService, featureName])
 
 	return <GridCustomDropdownBox
 		options={options}
 		selectedOption={selectedOption}
 		onChangeOption={onChangeOption}
-		getOptionDisplayName={(option) => {
-			// Special display for "Auto" option
-			if (option.selection.providerName === 'auto' && option.selection.modelName === 'auto') {
-				return 'Auto'
-			}
-			return option.selection.modelName
-		}}
-		getOptionDropdownName={(option) => {
-			if (option.selection.providerName === 'auto' && option.selection.modelName === 'auto') {
-				return 'Auto'
-			}
-			return option.selection.modelName
-		}}
-		getOptionDropdownDetail={(option) => {
-			if (option.selection.providerName === 'auto' && option.selection.modelName === 'auto') {
-				return 'Automatic model selection'
-			}
-			return option.selection.providerName
-		}}
+		getOptionDisplayName={(option) => option.selection.modelName}
+		getOptionDropdownName={(option) => option.selection.modelName}
+		getOptionDropdownDetail={(option) => option.selection.providerName}
 		getOptionsEqual={(a, b) => optionsEqual([a], [b])}
 		className={className}
 		matchInputWidth={false}
@@ -72,17 +56,13 @@ const MemoizedModelDropdown = ({ featureName, className }: { featureName: Featur
 
 	useEffect(() => {
 		const oldOptions = oldOptionsRef.current
-		// For Chat feature, include "Auto" option; for others, filter it out
-		const allOptions = featureName === 'Chat'
-			? settingsState._modelOptions
-			: settingsState._modelOptions.filter((o) => !(o.selection.providerName === 'auto' && o.selection.modelName === 'auto'))
-		const newOptions = allOptions.filter((o) => filter(o.selection, { chatMode: settingsState.globalSettings.chatMode, overridesOfModel: settingsState.overridesOfModel }))
+		const newOptions = settingsState._modelOptions.filter((o) => filter(o.selection, { chatMode: settingsState.globalSettings.chatMode, overridesOfModel: settingsState.overridesOfModel }))
 
 		if (!optionsEqual(oldOptions, newOptions)) {
 			setMemoizedOptions(newOptions)
 		}
 		oldOptionsRef.current = newOptions
-	}, [settingsState._modelOptions, filter, featureName])
+	}, [settingsState._modelOptions, filter])
 
 	if (memoizedOptions.length === 0) { // Pretty sure this will never be reached unless filter is enabled
 		return <WarningBox text={emptyMessage?.message || 'No models available'} />
@@ -98,7 +78,7 @@ export const ModelDropdown = ({ featureName, className }: { featureName: Feature
 	const accessor = useAccessor()
 	const commandService = accessor.get('ICommandService')
 
-	const openSettings = () => { commandService.executeCommand(GRID_OPEN_SETTINGS_ACTION_ID); };
+	const openSettings = () => { commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID); };
 
 
 	const { emptyMessage } = modelFilterOfFeatureName[featureName]

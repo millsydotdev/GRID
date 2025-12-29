@@ -1,10 +1,10 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------*/
 
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'; // Added useRef import just in case it was missed, though likely already present
-import { ProviderName, SettingName, displayInfoOfSettingName, providerNames, GridStatefulModelInfo, customSettingNamesOfProvider, RefreshableProviderName, refreshableProviderNames, displayInfoOfProviderName, nonlocalProviderNames, localProviderNames, GlobalSettingName, featureNames, displayInfoOfFeatureName, isProviderNameDisabled, FeatureName, hasDownloadButtonsOnModelsProviderNames, subTextMdOfProviderName } from '../../../../common/gridSettingsTypes.js'
+import { ProviderName, SettingName, displayInfoOfSettingName, providerNames, GridStatefulModelInfo, customSettingNamesOfProvider, RefreshableProviderName, refreshableProviderNames, displayInfoOfProviderName, nonlocalProviderNames, localProviderNames, GlobalSettingName, featureNames, displayInfoOfFeatureName, isProviderNameDisabled, FeatureName, hasDownloadButtonsOnModelsProviderNames, subTextMdOfProviderName } from '../../../../common/GRIDSettingsTypes.js'
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js'
 import { GridButtonBgDarken, GridCustomDropdownBox, GridInputBox2, GridSimpleInputBox, GridSwitch } from '../util/inputs.js'
 import { useAccessor, useIsDark, useIsOptedOut, useRefreshModelListener, useRefreshModelState, useSettingsState } from '../util/services.js'
@@ -23,7 +23,6 @@ import { MCPServer } from '../../../../common/mcpServiceTypes.js';
 import { useMCPServiceState } from '../util/services.js';
 import { OPT_OUT_KEY } from '../../../../common/storageKeys.js';
 import { StorageScope, StorageTarget } from '../../../../../../../platform/storage/common/storage.js';
-import { generateUuid } from '../../../../../../../base/common/uuid.js'
 
 type Tab =
 	| 'models'
@@ -37,7 +36,7 @@ type Tab =
 
 const ButtonLeftTextRightOption = ({ text, leftButton }: { text: string, leftButton?: React.ReactNode }) => {
 
-	return <div className='flex items-center text-grid-fg-3 px-3 py-0.5 rounded-sm overflow-hidden gap-2'>
+	return <div className='flex items-center text-void-fg-3 px-3 py-0.5 rounded-sm overflow-hidden gap-2'>
 		{leftButton ? leftButton : null}
 		<span>
 			{text}
@@ -57,9 +56,9 @@ const RefreshModelButton = ({ providerName }: { providerName: RefreshableProvide
 	const [justFinished, setJustFinished] = useState<null | 'finished' | 'error'>(null)
 
 	useRefreshModelListener(
-		useCallback((providerName2: ProviderName, newRefreshModelState: any) => {
+		useCallback((providerName2, refreshModelState) => {
 			if (providerName2 !== providerName) return
-			const { state } = newRefreshModelState[providerName]
+			const { state } = refreshModelState[providerName]
 			if (!(state === 'finished' || state === 'error')) return
 			// now we know we just entered 'finished' state for this providerName
 			setJustFinished(state)
@@ -77,7 +76,6 @@ const RefreshModelButton = ({ providerName }: { providerName: RefreshableProvide
 		leftButton={
 			<button
 				className='flex items-center'
-				aria-label="Manually refresh models"
 				disabled={state === 'refreshing' || justFinished !== null}
 				onClick={() => {
 					refreshModelService.startRefreshingModels(providerName, { enableProviderOnSuccess: false, doNotFire: false })
@@ -110,73 +108,6 @@ const RefreshableModels = () => {
 		{buttons}
 	</>
 
-}
-
-// Refresh button for remote provider catalogs
-const RefreshRemoteCatalogButton = ({ providerName }: { providerName: ProviderName }) => {
-	const accessor = useAccessor()
-	const refreshModelService = accessor.get('IRefreshModelService')
-	const metricsService = accessor.get('IMetricsService')
-	const [isRefreshing, setIsRefreshing] = useState(false)
-	const [justFinished, setJustFinished] = useState<null | 'finished' | 'error'>(null)
-
-	const { title: providerTitle } = displayInfoOfProviderName(providerName)
-
-	const handleRefresh = async () => {
-		if (isRefreshing) return
-		setIsRefreshing(true)
-		setJustFinished(null)
-
-		try {
-			await refreshModelService.refreshRemoteCatalog(providerName, true)
-			setJustFinished('finished')
-			metricsService.capture('Click', { providerName, action: 'Refresh Remote Catalog' })
-		} catch (error) {
-			console.error('Failed to refresh remote catalog:', error)
-			setJustFinished('error')
-		} finally {
-			setIsRefreshing(false)
-			const tid = setTimeout(() => { setJustFinished(null) }, 2000)
-			return () => clearTimeout(tid)
-		}
-	}
-
-	return <ButtonLeftTextRightOption
-		leftButton={
-			<button
-				className='flex items-center'
-				aria-label="Refresh remote catalog"
-				disabled={isRefreshing || justFinished !== null}
-				onClick={handleRefresh}
-			>
-				{justFinished === 'finished' ? <Check className='stroke-green-500 size-3' />
-					: justFinished === 'error' ? <X className='stroke-red-500 size-3' />
-						: isRefreshing ? <Loader2 className='size-3 animate-spin' />
-							: <RefreshCw className='size-3' />}
-			</button>
-		}
-		text={justFinished === 'finished' ? `${providerTitle} catalog refreshed!`
-			: justFinished === 'error' ? `Failed to refresh ${providerTitle} catalog`
-				: `Refresh ${providerTitle} model catalog`}
-	/>
-}
-
-const RefreshableRemoteCatalogs = () => {
-	const settingsState = useSettingsState()
-
-	// Show refresh buttons for remote providers that are configured
-	const buttons = nonlocalProviderNames.map(providerName => {
-		if (!settingsState.settingsOfProvider[providerName]._didFillInProviderSettings) return null
-		return <RefreshRemoteCatalogButton key={providerName} providerName={providerName} />
-	})
-
-	// Filter out nulls
-	const validButtons = buttons.filter(Boolean)
-	if (validButtons.length === 0) return null
-
-	return <>
-		{validButtons}
-	</>
 }
 
 
@@ -216,7 +147,6 @@ export const AnimatedCheckmarkButton = ({ text, className }: { text?: string, cl
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
-				// eslint-disable-next-line
 				style={{
 					strokeDasharray: 40,
 					strokeDashoffset: dashOffset
@@ -290,7 +220,7 @@ const SimpleModelSettingsDialog = ({
 	const accessor = useAccessor()
 	const settingsState = useSettingsState()
 	const mouseDownInsideModal = useRef(false); // Ref to track mousedown origin
-	const settingsStateService = accessor.get('IGridSettingsService')
+	const settingsStateService = accessor.get('IGRIDSettingsService')
 
 	// current overrides and defaults
 	const defaultModelCapabilities = getModelCapabilities(providerName, modelName, undefined);
@@ -353,7 +283,7 @@ const SimpleModelSettingsDialog = ({
 		onClose();
 	};
 
-	const sourcecodeOverridesLink = `https://github.com/GRID-Editor/GRID/blob/main/src/vs/workbench/contrib/grid/common/modelCapabilities.ts#L146-L172`
+	const sourcecodeOverridesLink = `https://github.com/Grideditor/void/blob/2e5ecb291d33afbe4565921664fb7e183189c1c5/src/vs/workbench/contrib/void/common/modelCapabilities.ts#L146-L172`
 
 	return (
 		<div // Backdrop
@@ -370,9 +300,9 @@ const SimpleModelSettingsDialog = ({
 		>
 			{/* MODAL */}
 			<div
-				className="bg-grid-bg-1 rounded-md p-4 max-w-xl w-full shadow-xl overflow-y-auto max-h-[90vh]"
-				onClick={(e: any) => e.stopPropagation()} // Keep stopping propagation for normal clicks inside
-				onMouseDown={(e: any) => {
+				className="bg-void-bg-1 rounded-md p-4 max-w-xl w-full shadow-xl overflow-y-auto max-h-[90vh]"
+				onClick={(e) => e.stopPropagation()} // Keep stopping propagation for normal clicks inside
+				onMouseDown={(e) => {
 					mouseDownInsideModal.current = true;
 					e.stopPropagation();
 				}}
@@ -383,15 +313,14 @@ const SimpleModelSettingsDialog = ({
 					</h3>
 					<button
 						onClick={onClose}
-						title="Close"
-						className="text-grid-fg-3 hover:text-grid-fg-1"
+						className="text-void-fg-3 hover:text-void-fg-1"
 					>
 						<X className="size-5" />
 					</button>
 				</div>
 
 				{/* Display model recognition status */}
-				<div className="text-sm text-grid-fg-3 mb-4">
+				<div className="text-sm text-void-fg-3 mb-4">
 					{type === 'default' ? `${modelName} comes packaged with GRID, so you shouldn't need to change these settings.`
 						: isUnrecognizedModel
 							? `Model not recognized by GRID.`
@@ -402,18 +331,18 @@ const SimpleModelSettingsDialog = ({
 				{/* override toggle */}
 				<div className="flex items-center gap-2 mb-4">
 					<GridSwitch size='xs' value={overrideEnabled} onChange={setOverrideEnabled} />
-					<span className="text-grid-fg-3 text-sm">Override model defaults</span>
+					<span className="text-void-fg-3 text-sm">Override model defaults</span>
 				</div>
 
 				{/* Informational link */}
-				{overrideEnabled && <div className="text-sm text-grid-fg-3 mb-4">
+				{overrideEnabled && <div className="text-sm text-void-fg-3 mb-4">
 					<ChatMarkdownRender string={`See the [sourcecode](${sourcecodeOverridesLink}) for a reference on how to set this JSON (advanced).`} chatMessageLocation={undefined} />
 				</div>}
 
 				<textarea
 					key={overrideEnabled + ''}
 					ref={textAreaRef}
-					className={`w-full min-h-[200px] p-2 rounded-sm border border-grid-border-2 bg-grid-bg-2 resize-none font-mono text-sm ${!overrideEnabled ? 'text-grid-fg-3' : ''}`}
+					className={`w-full min-h-[200px] p-2 rounded-sm border border-void-border-2 bg-void-bg-2 resize-none font-mono text-sm ${!overrideEnabled ? 'text-void-fg-3' : ''}`}
 					defaultValue={overrideEnabled && currentOverrides ? JSON.stringify(currentOverrides, null, 2) : placeholder}
 					placeholder={placeholder}
 					readOnly={!overrideEnabled}
@@ -444,7 +373,7 @@ const SimpleModelSettingsDialog = ({
 
 export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderName[] }) => {
 	const accessor = useAccessor()
-	const settingsStateService = accessor.get('IGridSettingsService')
+	const settingsStateService = accessor.get('IGRIDSettingsService')
 	const settingsState = useSettingsState()
 
 	// State to track which model's settings dialog is open
@@ -525,9 +454,9 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 
 
 			const detailAboutModel = type === 'autodetected' ?
-				<Asterisk size={14} className="inline-block align-text-top brightness-115 stroke-[2] text-[#0e70c0]" data-tooltip-id='grid-tooltip' data-tooltip-place='right' data-tooltip-content='Detected locally' />
+				<Asterisk size={14} className="inline-block align-text-top brightness-115 stroke-[2] text-[#0e70c0]" data-tooltip-id='void-tooltip' data-tooltip-place='right' data-tooltip-content='Detected locally' />
 				: type === 'custom' ?
-					<Asterisk size={14} className="inline-block align-text-top brightness-115 stroke-[2] text-[#0e70c0]" data-tooltip-id='grid-tooltip' data-tooltip-place='right' data-tooltip-content='Custom model' />
+					<Asterisk size={14} className="inline-block align-text-top brightness-115 stroke-[2] text-[#0e70c0]" data-tooltip-id='void-tooltip' data-tooltip-place='right' data-tooltip-content='Custom model' />
 					: undefined
 
 			const hasOverrides = !!settingsState.overridesOfModel?.[providerName]?.[modelName]
@@ -550,13 +479,12 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 						<div className="w-5 flex items-center justify-center">
 							<button
 								onClick={() => { setOpenSettingsModel({ modelName, providerName, type }) }}
-								data-tooltip-id='grid-tooltip'
+								data-tooltip-id='void-tooltip'
 								data-tooltip-place='right'
 								data-tooltip-content='Advanced Settings'
 								className={`${hasOverrides ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
-								aria-label="Advanced Settings"
 							>
-								<Plus size={12} className="text-grid-fg-3 opacity-50" />
+								<Plus size={12} className="text-void-fg-3 opacity-50" />
 							</button>
 						</div>
 					)}
@@ -572,7 +500,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 						disabled={disabled}
 						size='sm'
 
-						data-tooltip-id='grid-tooltip'
+						data-tooltip-id='void-tooltip'
 						data-tooltip-place='right'
 						data-tooltip-content={tooltipName}
 					/>
@@ -581,13 +509,12 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 					<div className={`w-5 flex items-center justify-center`}>
 						{type === 'default' || type === 'autodetected' ? null : <button
 							onClick={() => { settingsStateService.deleteModel(providerName, modelName); }}
-							data-tooltip-id='grid-tooltip'
+							data-tooltip-id='void-tooltip'
 							data-tooltip-place='right'
 							data-tooltip-content='Delete'
 							className={`${hasOverrides ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
-							aria-label="Delete model"
 						>
-							<X size={12} className="text-grid-fg-3 opacity-50" />
+							<X size={12} className="text-void-fg-3 opacity-50" />
 						</button>}
 					</div>
 				</div>
@@ -612,7 +539,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 							getOptionDisplayName={(pn) => pn ? displayInfoOfProviderName(pn).title : 'Provider Name'}
 							getOptionDropdownName={(pn) => pn ? displayInfoOfProviderName(pn).title : 'Provider Name'}
 							getOptionsEqual={(a, b) => a === b}
-							className="max-w-32 mx-2 w-full resize-none bg-grid-bg-1 text-grid-fg-1 placeholder:text-grid-fg-3 border border-grid-border-2 focus:border-grid-border-1 py-1 px-2 rounded"
+							className="max-w-32 mx-2 w-full resize-none bg-void-bg-1 text-void-fg-1 placeholder:text-void-fg-3 border border-void-border-2 focus:border-void-border-1 py-1 px-2 rounded"
 							arrowTouchesText={false}
 						/>
 					</ErrorBoundary>
@@ -646,8 +573,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 							setModelName('');
 							setUserChosenProviderName(null);
 						}}
-						className='text-grid-fg-4'
-						title="Cancel"
+						className='text-void-fg-4'
 					>
 						<X className='size-4' />
 					</button>
@@ -661,7 +587,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 			</div>
 		) : (
 			<div
-				className="text-grid-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer mt-4"
+				className="text-void-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer mt-4"
 				onClick={() => setIsAddModelOpen(true)}
 			>
 				<div className="flex items-center gap-1">
@@ -689,7 +615,7 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 	const { title: settingTitle, placeholder, isPasswordField } = displayInfoOfSettingName(providerName, settingName)
 
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
 	const settingsState = useSettingsState()
 
 	const settingValue = settingsState.settingsOfProvider[providerName][settingName] as string // this should always be a string in this component
@@ -700,8 +626,8 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 
 	// Create a stable callback reference using useCallback with proper dependencies
 	const handleChangeValue = useCallback((newVal: string) => {
-		gridSettingsService.setSettingOfProvider(providerName, settingName, newVal)
-	}, [gridSettingsService, providerName, settingName]);
+		GridSettingsService.setSettingOfProvider(providerName, settingName, newVal)
+	}, [GridSettingsService, providerName, settingName]);
 
 	return <ErrorBoundary>
 		<div className='my-1'>
@@ -720,14 +646,14 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 }
 
 // const OldSettingsForProvider = ({ providerName, showProviderTitle }: { providerName: ProviderName, showProviderTitle: boolean }) => {
-// 	const gridSettingsState = useSettingsState()
+// 	const GridSettingsState = useSettingsState()
 
-// 	const needsModel = isProviderNameDisabled(providerName, gridSettingsState) === 'addModel'
+// 	const needsModel = isProviderNameDisabled(providerName, GridSettingsState) === 'addModel'
 
 // 	// const accessor = useAccessor()
-// 	// const gridSettingsService = accessor.get('IGridSettingsService')
+// 	// const GridSettingsService = accessor.get('IGRIDSettingsService')
 
-// 	// const { enabled } = gridSettingsState.settingsOfProvider[providerName]
+// 	// const { enabled } = GridSettingsState.settingsOfProvider[providerName]
 // 	const settingNames = customSettingNamesOfProvider(providerName)
 
 // 	const { title: providerTitle } = displayInfoOfProviderName(providerName)
@@ -742,9 +668,9 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 // 				value={!!enabled}
 // 				onChange={
 // 					useCallback(() => {
-// 						const enabledRef = gridSettingsService.state.settingsOfProvider[providerName].enabled
-// 						gridSettingsService.setSettingOfProvider(providerName, 'enabled', !enabledRef)
-// 					}, [gridSettingsService, providerName])}
+// 						const enabledRef = GridSettingsService.state.settingsOfProvider[providerName].enabled
+// 						GridSettingsService.setSettingOfProvider(providerName, 'enabled', !enabledRef)
+// 					}, [GridSettingsService, providerName])}
 // 				size='sm+'
 // 			/> */}
 // 		</div>
@@ -766,14 +692,14 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 
 
 export const SettingsForProvider = ({ providerName, showProviderTitle, showProviderSuggestions }: { providerName: ProviderName, showProviderTitle: boolean, showProviderSuggestions: boolean }) => {
-	const gridSettingsState = useSettingsState()
+	const GridSettingsState = useSettingsState()
 
-	const needsModel = isProviderNameDisabled(providerName, gridSettingsState) === 'addModel'
+	const needsModel = isProviderNameDisabled(providerName, GridSettingsState) === 'addModel'
 
 	// const accessor = useAccessor()
-	// const gridSettingsService = accessor.get('IGridSettingsService')
+	// const GridSettingsService = accessor.get('IGRIDSettingsService')
 
-	// const { enabled } = gridSettingsState.settingsOfProvider[providerName]
+	// const { enabled } = GridSettingsState.settingsOfProvider[providerName]
 	const settingNames = customSettingNamesOfProvider(providerName)
 
 	const { title: providerTitle } = displayInfoOfProviderName(providerName)
@@ -788,9 +714,9 @@ export const SettingsForProvider = ({ providerName, showProviderTitle, showProvi
 				value={!!enabled}
 				onChange={
 					useCallback(() => {
-						const enabledRef = gridSettingsService.state.settingsOfProvider[providerName].enabled
-						gridSettingsService.setSettingOfProvider(providerName, 'enabled', !enabledRef)
-					}, [gridSettingsService, providerName])}
+						const enabledRef = GridSettingsService.state.settingsOfProvider[providerName].enabled
+						GridSettingsService.setSettingOfProvider(providerName, 'enabled', !enabledRef)
+					}, [GridSettingsService, providerName])}
 				size='sm+'
 			/> */}
 		</div>
@@ -832,20 +758,20 @@ export const AutoDetectLocalModelsToggle = () => {
 	const settingName: GlobalSettingName = 'autoRefreshModels'
 
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
 	const metricsService = accessor.get('IMetricsService')
 
-	const gridSettingsState = useSettingsState()
+	const GridSettingsState = useSettingsState()
 
 	// right now this is just `enabled_autoRefreshModels`
-	const enabled = gridSettingsState.globalSettings[settingName]
+	const enabled = GridSettingsState.globalSettings[settingName]
 
 	return <ButtonLeftTextRightOption
 		leftButton={<GridSwitch
 			size='xxs'
 			value={enabled}
 			onChange={(newVal) => {
-				gridSettingsService.setGlobalSetting(settingName, newVal)
+				GridSettingsService.setGlobalSetting(settingName, newVal)
 				metricsService.capture('Click', { action: 'Autorefresh Toggle', settingName, enabled: newVal })
 			}}
 		/>}
@@ -857,33 +783,33 @@ export const AutoDetectLocalModelsToggle = () => {
 
 export const AIInstructionsBox = () => {
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
-	const gridSettingsState = useSettingsState()
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsState = useSettingsState()
 	return <GridInputBox2
 		className='min-h-[81px] p-3 rounded-sm'
-		initValue={gridSettingsState.globalSettings.aiInstructions}
+		initValue={GridSettingsState.globalSettings.aiInstructions}
 		placeholder={`Do not change my indentation or delete my comments. When writing TS or JS, do not add ;'s. Write new code using Rust if possible. `}
 		multiline
 		onChangeText={(newText) => {
-			gridSettingsService.setGlobalSetting('aiInstructions', newText)
+			GridSettingsService.setGlobalSetting('aiInstructions', newText)
 		}}
 	/>
 }
 
 const FastApplyMethodDropdown = () => {
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
 
 	const options = useMemo(() => [true, false], [])
 
 	const onChangeOption = useCallback((newVal: boolean) => {
-		gridSettingsService.setGlobalSetting('enableFastApply', newVal)
-	}, [gridSettingsService])
+		GridSettingsService.setGlobalSetting('enableFastApply', newVal)
+	}, [GridSettingsService])
 
 	return <GridCustomDropdownBox
-		className='text-xs text-grid-fg-3 bg-grid-bg-1 border border-grid-border-1 rounded p-0.5 px-1'
+		className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-1 rounded p-0.5 px-1'
 		options={options}
-		selectedOption={gridSettingsService.state.globalSettings.enableFastApply}
+		selectedOption={GridSettingsService.state.globalSettings.enableFastApply}
 		onChangeOption={onChangeOption}
 		getOptionDisplayName={(val) => val ? 'Fast Apply' : 'Slow Apply'}
 		getOptionDropdownName={(val) => val ? 'Fast Apply' : 'Slow Apply'}
@@ -895,449 +821,16 @@ const FastApplyMethodDropdown = () => {
 
 
 export const OllamaSetupInstructions = ({ sayWeAutoDetect }: { sayWeAutoDetect?: boolean }) => {
-	const accessor = useAccessor()
-	const terminalToolService = accessor.get('ITerminalToolService')
-	const nativeHostService = accessor.get('INativeHostService')
-	const notificationService = accessor.get('INotificationService')
-	const refreshModelService = accessor.get('IRefreshModelService')
-	const repoIndexerService = accessor.get('IRepoIndexerService')
-	const gridSettingsService = accessor.get('IGridSettingsService')
-
-	const [status, setStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
-	const [statusText, setStatusText] = useState<string>('')
-	const [method, setMethod] = useState<'auto' | 'brew' | 'curl' | 'winget' | 'choco'>('auto')
-	const [currentTerminalId, setCurrentTerminalId] = useState<string | null>(null)
-	const [terminalOutput, setTerminalOutput] = useState<string>('')
-	const [modelTag, setModelTag] = useState<string>('llava') // Default to vision model for better UX
-	const [isHealthy, setIsHealthy] = useState<boolean | null>(null)
-
-	// Auto-select sensible default per OS and filter options label hints
-	useEffect(() => {
-		(async () => {
-			try {
-				const osProps = await nativeHostService.getOSProperties()
-				const t = (osProps.type + '').toLowerCase()
-				if (t.includes('windows')) setMethod('winget')
-				else if (t.includes('darwin') || t.includes('mac')) setMethod('brew')
-				else setMethod('curl')
-			} catch { }
-		})()
-	}, [nativeHostService])
-
-	const onInstall = useCallback(async () => {
-		try {
-			const osProps = await nativeHostService.getOSProperties()
-			const isWindows = (osProps.type + '').toLowerCase().includes('windows')
-			setStatus('running')
-			setStatusText('Starting Ollama installation and opening the terminal...')
-
-			// open a visible persistent terminal to show progress
-			const persistentTerminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
-			setCurrentTerminalId(persistentTerminalId)
-			// Best-effort: ensure terminal panel is visible
-			try {
-				const commandService = accessor.get('ICommandService')
-				await commandService.executeCommand('workbench.action.terminal.focus')
-			} catch { }
-			await terminalToolService.focusPersistentTerminal(persistentTerminalId)
-
-			let installCmd = ''
-			if (isWindows) {
-				const m = method === 'choco' ? 'choco install ollama -y'
-					: method === 'winget' || method === 'auto' ? 'winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements'
-						: 'winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements'
-				installCmd = `powershell -ExecutionPolicy Bypass -Command "${m}; Start-Sleep -Seconds 2; Start-Process -WindowStyle Hidden ollama serve"`
-			} else {
-				// Deterministic per-OS installers, independent of workspace cwd
-				const osName = (osProps.type + '').toLowerCase()
-				if (osName.includes('darwin') || osName.includes('mac')) {
-					// macOS: never use Linux curl. Prefer app or Homebrew cask, bootstrap brew if needed.
-					installCmd = 'bash -lc "set -e; \
-                      if [ -d /Applications/Ollama.app ]; then \\\n+                        echo [GRID] Found /Applications/Ollama.app; open -a Ollama; \\\n+                      else \\\n+                        if [ -x /opt/homebrew/bin/brew ] || [ -x /usr/local/bin/brew ]; then \\\n+                          eval \"$([ -x /opt/homebrew/bin/brew ] && /opt/homebrew/bin/brew shellenv || /usr/local/bin/brew shellenv)\"; \\\n+                        else \\\n+                          echo [GRID] Bootstrapping Homebrew...; /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"; \\\n+                          eval \"$([ -x /opt/homebrew/bin/brew ] && /opt/homebrew/bin/brew shellenv || /usr/local/bin/brew shellenv)\"; \\\n+                        fi; \\\n+                        echo [GRID] Installing Ollama via Homebrew Cask...; brew install --cask ollama || true; open -a Ollama; \\\n+                      fi; \\\n+                      echo [GRID] Health check...; sleep 2; curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1 && echo [GRID] Ollama running || echo [GRID] Ollama not reachable yet; \
-                    "'
-				} else {
-					// Linux: official script only
-					installCmd = 'bash -lc "set -e; echo [GRID] Installing Ollama (Linux); curl -fsSL https://ollama.com/install.sh | sh; (ollama serve >/dev/null 2>&1 &) || true; sleep 2; echo [GRID] Health check; curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1 && echo [GRID] Ollama running || echo [GRID] Ollama not reachable yet;"'
-				}
-			}
-
-			setStatusText('Running installer in terminal...')
-			const { resPromise } = await terminalToolService.runCommand(installCmd, { type: 'persistent', persistentTerminalId })
-			resPromise.catch(() => { /* ignore */ })
-
-			// Configure default endpoint and refresh models
-			gridSettingsService.setSettingOfProvider('ollama', 'endpoint', 'http://127.0.0.1:11434')
-			refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-			setStatus('running')
-			setStatusText('Installer launched. Detecting models...')
-			notificationService.info('Ollama install started in the integrated terminal. Models will appear when ready.')
-		} catch (e) {
-			notificationService.error('Failed to start Ollama install. Please try again or install manually.')
-			setStatus('error')
-			setStatusText('Failed to start install. See terminal or try manual install.')
-		}
-	}, [terminalToolService, nativeHostService, notificationService, refreshModelService, gridSettingsService, method])
-
-	const onOpenTerminal = useCallback(async () => {
-		if (currentTerminalId) {
-			await terminalToolService.focusPersistentTerminal(currentTerminalId)
-		} else {
-			// Fallback: just open/focus terminal panel
-			try {
-				const commandService = accessor.get('ICommandService')
-				await commandService.executeCommand('workbench.action.terminal.focus')
-			} catch { }
-		}
-	}, [currentTerminalId, terminalToolService])
-
-	// Poll terminal output to show embedded, read-only log under the button
-	useEffect(() => {
-		let tid: NodeJS.Timeout | undefined
-		const poll = async () => {
-			if (!currentTerminalId) return
-			try {
-				const output = await terminalToolService.readTerminal(currentTerminalId)
-				setTerminalOutput(output)
-			} catch { }
-		}
-		if (currentTerminalId) {
-			poll()
-			tid = setInterval(poll, 1500)
-		}
-		return () => { if (tid) clearInterval(tid) }
-	}, [currentTerminalId, terminalToolService])
-
-	// Lightweight health poller for nicer UX
-	useEffect(() => {
-		let tid: NodeJS.Timeout | undefined
-		const ping = async () => {
-			try {
-				const res = await fetch('http://127.0.0.1:11434/api/tags', { method: 'GET' })
-				setIsHealthy(res.ok)
-				if (res.ok && status === 'running') {
-					setStatus('done')
-					setStatusText('Ollama is running. Models will appear shortly.')
-				}
-			} catch {
-				setIsHealthy(false)
-			}
-		}
-		if (status === 'running' || status === 'done') {
-			ping()
-			tid = setInterval(ping, 3000)
-		}
-		return () => { if (tid) clearInterval(tid) }
-	}, [status])
-
-	return <div className='prose-p:my-0 prose-ol:list-decimal prose-p:py-0 prose-ol:my-0 prose-ol:py-0 prose-span:my-0 prose-span:py-0 text-grid-fg-3 text-sm list-decimal select-text'>
-		<div className='flex items-center gap-3'>
-			<ChatMarkdownRender string={`Ollama Setup (rev 2025-10-30-1)`} chatMessageLocation={undefined} />
-			<select
-				className='text-xs bg-grid-bg-1 text-grid-fg-1 border border-grid-border-1 rounded px-1 py-0.5'
-				value={method}
-				onChange={(e) => setMethod(e.target.value as any)}
-				title='Install method'
-			>
-				<option value='auto'>Auto</option>
-				<option value='brew'>Homebrew (macOS)</option>
-				<option value='curl'>Curl Script (macOS/Linux)</option>
-				<option value='winget'>Winget (Windows)</option>
-				<option value='choco'>Chocolatey (Windows)</option>
-			</select>
-			<button
-				className='px-2 py-1 bg-grid-bg-2 text-grid-fg-1 border border-grid-border-1 rounded hover:brightness-110 disabled:opacity-60'
-				onClick={onInstall}
-				disabled={status === 'running'}
-			>{status === 'running' ? 'Installing…' : 'Install Ollama'}</button>
-			{status === 'error' && (
-				<button
-					className='px-2 py-1 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
-					onClick={() => { setStatus('idle'); setStatusText(''); setTerminalOutput(''); setIsHealthy(null); }}
-				>Retry</button>
-			)}
-			{isHealthy !== null && (
-				<span className={`text-xs px-2 py-0.5 rounded border ${isHealthy ? 'border-green-500 text-green-500' : 'border-grid-border-2 text-grid-fg-3'}`}>
-					{isHealthy ? 'Healthy' : 'Waiting'}
-				</span>
-			)}
+	return <div className='prose-p:my-0 prose-ol:list-decimal prose-p:py-0 prose-ol:my-0 prose-ol:py-0 prose-span:my-0 prose-span:py-0 text-void-fg-3 text-sm list-decimal select-text'>
+		<div className=''><ChatMarkdownRender string={`Ollama Setup Instructions`} chatMessageLocation={undefined} /></div>
+		<div className=' pl-6'><ChatMarkdownRender string={`1. Download [Ollama](https://ollama.com/download).`} chatMessageLocation={undefined} /></div>
+		<div className=' pl-6'><ChatMarkdownRender string={`2. Open your terminal.`} chatMessageLocation={undefined} /></div>
+		<div
+			className='pl-6 flex items-center w-fit'
+			data-tooltip-id='void-tooltip-ollama-settings'
+		>
+			<ChatMarkdownRender string={`3. Run \`ollama pull your_model\` to install a model.`} chatMessageLocation={undefined} />
 		</div>
-		{/* Inline Auto-tune toggle */}
-		<div className=' pl-6 mt-2 flex items-center gap-2'>
-			<div className='flex items-center gap-2'>
-				<GridSwitch
-					size='xxs'
-					value={!!gridSettingsService.state.globalSettings.enableAutoTuneOnPull}
-					onChange={(v) => gridSettingsService.setGlobalSetting('enableAutoTuneOnPull', !!v)}
-				/>
-				<span className='text-grid-fg-3 text-xs'>Auto-tune after pull</span>
-			</div>
-			<div className='flex items-center gap-2 ml-4'>
-				<GridSwitch
-					size='xxs'
-					value={!!gridSettingsService.state.globalSettings.enableRepoIndexer}
-					onChange={(v) => gridSettingsService.setGlobalSetting('enableRepoIndexer', !!v)}
-				/>
-				<span className='text-grid-fg-3 text-xs'>Enable repo indexer</span>
-			</div>
-		</div>
-		{/* Web browsing settings */}
-		<div className=' pl-6 mt-2 flex items-center gap-2'>
-			<div className='flex items-center gap-2'>
-				<GridSwitch
-					size='xxs'
-					value={gridSettingsService.state.globalSettings.useHeadlessBrowsing !== false}
-					onChange={(v) => gridSettingsService.setGlobalSetting('useHeadlessBrowsing', v)}
-				/>
-				<span className='text-grid-fg-3 text-xs'>Use headless browsing</span>
-				<span className='text-grid-fg-4 text-xs' title='Use headless BrowserWindow for better content extraction from complex pages. Disable to use direct HTTP fetch instead.'>
-					(ℹ️)
-				</span>
-			</div>
-		</div>
-		{status !== 'idle' && (
-			<div className=' pl-6 text-grid-fg-3'>{statusText}</div>
-		)}
-		{!!terminalOutput && (
-			<div className=' pl-6 mt-2'>
-				<div className='flex items-center gap-2 mb-1'>
-					<button
-						className='px-2 py-0.5 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
-						onClick={async () => { try { await navigator.clipboard.writeText(terminalOutput) } catch { } }}
-					>Copy log</button>
-					<button
-						className='px-2 py-0.5 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
-						onClick={() => setTerminalOutput('')}
-					>Clear</button>
-				</div>
-				<div className='border border-grid-border-2 bg-grid-bg-1 rounded p-2 max-h-48 overflow-auto text-xs whitespace-pre-wrap'>
-					{terminalOutput}
-				</div>
-			</div>
-		)}
-		<div className=' pl-6 mt-2 flex items-center gap-2 whitespace-nowrap'>
-			<span className='text-grid-fg-3 text-xs'>Pull model:</span>
-			<select
-				className='text-xs bg-grid-bg-1 text-grid-fg-1 border border-grid-border-1 rounded px-1 py-0.5 shrink-0'
-				value={modelTag}
-				aria-label="Pull model"
-				onChange={(e: any) => setModelTag(e.target.value)}
-			>
-				<optgroup label="Code Models">
-					<option value='llama3.1'>llama3.1</option>
-					<option value='llama3.2'>llama3.2</option>
-					<option value='qwen2.5-coder'>qwen2.5-coder</option>
-					<option value='deepseek-coder'>deepseek-coder</option>
-				</optgroup>
-				<optgroup label="Vision Models (Image Analysis)">
-					<option value='llava'>llava (Vision)</option>
-					<option value='bakllava'>bakllava (Vision)</option>
-					<option value='llava:13b'>llava:13b (Vision, Better Quality)</option>
-					<option value='llava:7b'>llava:7b (Vision, Faster)</option>
-					<option value='bakllava:7b'>bakllava:7b (Vision)</option>
-				</optgroup>
-				<optgroup label="General Purpose">
-					<option value='llama3'>llama3</option>
-					<option value='mistral'>mistral</option>
-					<option value='mixtral'>mixtral</option>
-					<option value='qwen'>qwen</option>
-				</optgroup>
-			</select>
-			<button
-				className='px-2 py-1 bg-grid-bg-2 text-grid-fg-1 border border-grid-border-1 rounded hover:brightness-110 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
-				disabled={!modelTag || status === 'running'}
-				onClick={async () => {
-					if (!modelTag) {
-						notificationService.warn('Please select a model to pull.')
-						return
-					}
-
-					try {
-						setStatus('running')
-						setStatusText(`Pulling ${modelTag}...`)
-
-						// Check if current terminal exists, create new one if not
-						let terminalId = currentTerminalId
-						if (!terminalId || !terminalToolService.persistentTerminalExists(terminalId)) {
-							terminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
-							setCurrentTerminalId(terminalId)
-						}
-						await terminalToolService.focusPersistentTerminal(terminalId)
-
-						const { resPromise } = await terminalToolService.runCommand(`ollama pull ${modelTag}`, { type: 'persistent', persistentTerminalId: terminalId })
-
-						// Handle command result with proper error reporting
-						resPromise
-							.then(async ({ result, resolveReason }) => {
-								// Check if command completed successfully
-								if (resolveReason.type === 'done') {
-									// Check exit code - 0 means success
-									if (resolveReason.exitCode === 0) {
-										// Also check result text for error indicators (ollama pull may exit with 0 but show errors)
-										const resultText = result || ''
-										if (resultText.toLowerCase().includes('error') || resultText.toLowerCase().includes('failed')) {
-											setStatus('error')
-											setStatusText(`Failed to pull ${modelTag}. Check terminal for details.`)
-											notificationService.error(`Failed to pull model "${modelTag}". See terminal for details.`)
-											return
-										}
-
-										// Success - update status and refresh models
-										setStatus('done')
-										setStatusText(`Successfully pulled ${modelTag}`)
-										notificationService.info(`Model "${modelTag}" pulled successfully.`)
-
-										// Refresh models after a short delay
-										setTimeout(() => {
-											refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-											// Auto-tune: only if enabled in global settings
-											try {
-												if (gridSettingsService.state.globalSettings.enableAutoTuneOnPull) {
-													const mt = (modelTag || '').toLowerCase()
-													const looksFIM = mt.includes('coder') || mt.includes('starcoder') || mt.includes('code')
-													gridSettingsService.setOverridesOfModel('ollama', modelTag, {
-														supportsFIM: looksFIM,
-														contextWindow: looksFIM ? 128_000 : 64_000,
-														reservedOutputTokenSpace: 8_192,
-														supportsSystemMessage: 'system-role'
-													} as any)
-													if (looksFIM) {
-														// Autocomplete defaults to FIM model
-														gridSettingsService.setGlobalSetting('enableAutocomplete', true)
-														gridSettingsService.setModelSelectionOfFeature('Autocomplete', { providerName: 'ollama', modelName: modelTag } as any)
-														// Apply should use coder model by default
-														gridSettingsService.setModelSelectionOfFeature('Apply', { providerName: 'ollama', modelName: modelTag } as any)
-													} else {
-														// Non-coder: prefer for Chat
-														gridSettingsService.setModelSelectionOfFeature('Chat', { providerName: 'ollama', modelName: modelTag } as any)
-													}
-												}
-											} catch (e) {
-												console.error('Auto-tune error:', e)
-											}
-											// Lightweight: warm project index placeholder (runs in background)
-											try {
-												if (gridSettingsService.state.globalSettings.enableRepoIndexer) {
-													notificationService.info('Warming project index...')
-													repoIndexerService.warmIndex(undefined).then(() => {
-														notificationService.info('Project index warmed.')
-													}).catch(() => { })
-												}
-											} catch { }
-										}, 3000)
-									} else {
-										// Non-zero exit code indicates failure
-										const resultText = result || 'Unknown error'
-										setStatus('error')
-										setStatusText(`Failed to pull ${modelTag} (exit code ${resolveReason.exitCode}). Check terminal for details.`)
-										notificationService.error(`Failed to pull model "${modelTag}": ${resultText}. See terminal for details.`)
-									}
-								} else if (resolveReason.type === 'timeout') {
-									// Command timed out (pull can take a while, this is expected for large models)
-									// Still try to refresh models - the pull might be continuing in background
-									setStatus('done')
-									setStatusText(`Pulling ${modelTag}... (may take time for large models)`)
-									notificationService.info(`Started pulling "${modelTag}". This may take a while for large models. Check terminal for progress.`)
-									// Refresh models after a delay - the model might appear when ready
-									setTimeout(() => {
-										refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-									}, 5000)
-								}
-							})
-							.catch((error) => {
-								setStatus('error')
-								const errorMsg = error?.message || String(error) || 'Unknown error'
-								setStatusText(`Error pulling ${modelTag}: ${errorMsg}`)
-								notificationService.error(`Failed to pull model "${modelTag}": ${errorMsg}`)
-								console.error('Pull error:', error)
-							})
-					} catch (error) {
-						setStatus('error')
-						const errorMsg = (error as any)?.message || String(error) || 'Unknown error'
-						setStatusText(`Failed to start pull: ${errorMsg}`)
-						notificationService.error(`Failed to start pulling model "${modelTag}": ${errorMsg}`)
-						console.error('Pull setup error:', error)
-					}
-				}}
-			>Pull</button>
-			<button
-				className='px-2 py-1 bg-red-600/80 text-white border border-red-500/80 rounded hover:brightness-110 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
-				disabled={!modelTag || status === 'running'}
-				onClick={async () => {
-					if (!modelTag) {
-						notificationService.warn('Please select a model to delete.')
-						return
-					}
-
-					const ok = window.confirm(`Delete model "${modelTag}" from Ollama?`)
-					if (!ok) return
-
-					try {
-						setStatus('running')
-						setStatusText(`Deleting ${modelTag}...`)
-
-						// Check if current terminal exists, create new one if not
-						let terminalId = currentTerminalId
-						if (!terminalId || !terminalToolService.persistentTerminalExists(terminalId)) {
-							terminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
-							setCurrentTerminalId(terminalId)
-						}
-						await terminalToolService.focusPersistentTerminal(terminalId)
-
-						const { resPromise } = await terminalToolService.runCommand(`ollama rm ${modelTag}`, { type: 'persistent', persistentTerminalId: terminalId })
-
-						// Handle command result with proper error reporting
-						resPromise
-							.then(async ({ result, resolveReason }) => {
-								// Check if command completed successfully
-								if (resolveReason.type === 'done') {
-									// Check exit code - 0 means success
-									if (resolveReason.exitCode === 0) {
-										// Success - update status and refresh models
-										setStatus('done')
-										setStatusText(`Successfully deleted ${modelTag}`)
-										notificationService.info(`Model "${modelTag}" deleted successfully.`)
-
-										// Refresh models after a short delay
-										setTimeout(() => {
-											refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-										}, 2000)
-									} else {
-										// Non-zero exit code indicates failure
-										const resultText = result || 'Unknown error'
-										setStatus('error')
-										setStatusText(`Failed to delete ${modelTag} (exit code ${resolveReason.exitCode}). Check terminal for details.`)
-										notificationService.error(`Failed to delete model "${modelTag}": ${resultText}. See terminal for details.`)
-									}
-								} else if (resolveReason.type === 'timeout') {
-									// Command timed out (shouldn't happen for delete, but handle it)
-									setStatus('error')
-									setStatusText(`Delete command timed out for ${modelTag}. The command may still be running.`)
-									notificationService.warn(`Delete command for "${modelTag}" timed out. Check terminal to see if it completed.`)
-									// Still try to refresh models in case it did complete
-									setTimeout(() => {
-										refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-									}, 2000)
-								}
-							})
-							.catch((error) => {
-								setStatus('error')
-								const errorMsg = error?.message || String(error) || 'Unknown error'
-								setStatusText(`Error deleting ${modelTag}: ${errorMsg}`)
-								notificationService.error(`Failed to delete model "${modelTag}": ${errorMsg}`)
-								console.error('Delete error:', error)
-							})
-					} catch (error) {
-						setStatus('error')
-						const errorMsg = (error as any)?.message || String(error) || 'Unknown error'
-						setStatusText(`Failed to start delete: ${errorMsg}`)
-						notificationService.error(`Failed to start deleting model "${modelTag}": ${errorMsg}`)
-						console.error('Delete setup error:', error)
-					}
-				}}
-			>Delete</button>
-		</div>
-		<div className=' pl-6'><ChatMarkdownRender string={`1. If the install does not start, download Ollama manually from [ollama.com/download](https://ollama.com/download).`} chatMessageLocation={undefined} /></div>
-		<div className=' pl-6'><ChatMarkdownRender string={`2. Optionally, run \`ollama pull llama3.1\` to install a starter model.`} chatMessageLocation={undefined} /></div>
 		{sayWeAutoDetect && <div className=' pl-6'><ChatMarkdownRender string={`GRID automatically detects locally running models and enables them.`} chatMessageLocation={undefined} /></div>}
 	</div>
 }
@@ -1345,10 +838,10 @@ export const OllamaSetupInstructions = ({ sayWeAutoDetect }: { sayWeAutoDetect?:
 
 const RedoOnboardingButton = ({ className }: { className?: string }) => {
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
 	return <div
-		className={`text-grid-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer ${className}`}
-		onClick={() => { gridSettingsService.setGlobalSetting('isOnboardingComplete', false) }}
+		className={`text-void-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer ${className}`}
+		onClick={() => { GridSettingsService.setGlobalSetting('isOnboardingComplete', false) }}
 	>
 		See onboarding screen?
 	</div>
@@ -1363,25 +856,25 @@ const RedoOnboardingButton = ({ className }: { className?: string }) => {
 
 export const ToolApprovalTypeSwitch = ({ approvalType, size, desc }: { approvalType: ToolApprovalType, size: "xxs" | "xs" | "sm" | "sm+" | "md", desc: string }) => {
 	const accessor = useAccessor()
-	const gridSettingsService = accessor.get('IGridSettingsService')
-	const gridSettingsState = useSettingsState()
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsState = useSettingsState()
 	const metricsService = accessor.get('IMetricsService')
 
 	const onToggleAutoApprove = useCallback((approvalType: ToolApprovalType, newValue: boolean) => {
-		gridSettingsService.setGlobalSetting('autoApprove', {
-			...gridSettingsService.state.globalSettings.autoApprove,
+		GridSettingsService.setGlobalSetting('autoApprove', {
+			...GridSettingsService.state.globalSettings.autoApprove,
 			[approvalType]: newValue
 		})
 		metricsService.capture('Tool Auto-Accept Toggle', { enabled: newValue })
-	}, [gridSettingsService, metricsService])
+	}, [GridSettingsService, metricsService])
 
 	return <>
 		<GridSwitch
 			size={size}
-			value={gridSettingsState.globalSettings.autoApprove[approvalType] ?? false}
+			value={GridSettingsState.globalSettings.autoApprove[approvalType] ?? false}
 			onChange={(newVal) => onToggleAutoApprove(approvalType, newVal)}
 		/>
-		<span className="text-grid-fg-3 text-xs">{desc}</span>
+		<span className="text-void-fg-3 text-xs">{desc}</span>
 	</>
 }
 
@@ -1433,13 +926,13 @@ const MCPServerComponent = ({ name, server }: { name: string, server: MCPServer 
 	const accessor = useAccessor();
 	const mcpService = accessor.get('IMCPService');
 
-	const gridSettings = useSettingsState()
-	const isOn = gridSettings.mcpUserStateOfName[name]?.isOn
+	const GridSettings = useSettingsState()
+	const isOn = GridSettings.mcpUserStateOfName[name]?.isOn
 
 	const removeUniquePrefix = (name: string) => name.split('_').slice(1).join('_')
 
 	return (
-		<div className="border border-grid-border-2 bg-grid-bg-1 py-3 px-4 rounded-sm my-2">
+		<div className="border border-void-border-2 bg-void-bg-1 py-3 px-4 rounded-sm my-2">
 			<div className="flex items-center justify-between">
 				{/* Left side - status and name */}
 				<div className="flex items-center gap-2">
@@ -1448,12 +941,12 @@ const MCPServerComponent = ({ name, server }: { name: string, server: MCPServer 
 						${server.status === 'success' ? 'bg-green-500'
 							: server.status === 'error' ? 'bg-red-500'
 								: server.status === 'loading' ? 'bg-yellow-500'
-									: server.status === 'offline' ? 'bg-grid-fg-3'
+									: server.status === 'offline' ? 'bg-void-fg-3'
 										: ''}
 					`}></div>
 
 					{/* Server name */}
-					<div className="text-sm font-medium text-grid-fg-1">{name}</div>
+					<div className="text-sm font-medium text-void-fg-1">{name}</div>
 				</div>
 
 				{/* Right side - power toggle switch */}
@@ -1473,17 +966,17 @@ const MCPServerComponent = ({ name, server }: { name: string, server: MCPServer 
 							(server.tools ?? []).map((tool: { name: string; description?: string }) => (
 								<span
 									key={tool.name}
-									className="px-2 py-0.5 bg-grid-bg-2 text-grid-fg-3 rounded-sm text-xs"
+									className="px-2 py-0.5 bg-void-bg-2 text-void-fg-3 rounded-sm text-xs"
 
-									data-tooltip-id='grid-tooltip'
+									data-tooltip-id='void-tooltip'
 									data-tooltip-content={tool.description || ''}
-									data-tooltip-class-name='grid-max-w-[300px]'
+									data-tooltip-class-name='void-max-w-[300px]'
 								>
 									{removeUniquePrefix(tool.name)}
 								</span>
 							))
 						) : (
-							<span className="text-xs text-grid-fg-3">No tools available</span>
+							<span className="text-xs text-void-fg-3">No tools available</span>
 						)}
 					</div>
 				</div>
@@ -1492,8 +985,8 @@ const MCPServerComponent = ({ name, server }: { name: string, server: MCPServer 
 			{/* Command badge */}
 			{isOn && server.command && (
 				<div className="mt-3">
-					<div className="text-xs text-grid-fg-3 mb-1">Command:</div>
-					<div className="px-2 py-1 bg-grid-bg-2 text-xs font-mono overflow-x-auto whitespace-nowrap text-grid-fg-2 rounded-sm">
+					<div className="text-xs text-void-fg-3 mb-1">Command:</div>
+					<div className="px-2 py-1 bg-void-bg-2 text-xs font-mono overflow-x-auto whitespace-nowrap text-void-fg-2 rounded-sm">
 						{server.command}
 					</div>
 				</div>
@@ -1515,14 +1008,14 @@ const MCPServersList = () => {
 
 	let content: React.ReactNode
 	if (mcpServiceState.error) {
-		content = <div className="text-grid-fg-3 text-sm mt-2">
+		content = <div className="text-void-fg-3 text-sm mt-2">
 			{mcpServiceState.error}
 		</div>
 	}
 	else {
 		const entries = Object.entries(mcpServiceState.mcpServerOfName)
 		if (entries.length === 0) {
-			content = <div className="text-grid-fg-3 text-sm mt-2">
+			content = <div className="text-void-fg-3 text-sm mt-2">
 				No servers found
 			</div>
 		}
@@ -1557,7 +1050,7 @@ export const Settings = () => {
 	const environmentService = accessor.get('IEnvironmentService')
 	const nativeHostService = accessor.get('INativeHostService')
 	const settingsState = useSettingsState()
-	const gridSettingsService = accessor.get('IGridSettingsService')
+	const GridSettingsService = accessor.get('IGRIDSettingsService')
 	const chatThreadsService = accessor.get('IChatThreadService')
 	const notificationService = accessor.get('INotificationService')
 	const mcpService = accessor.get('IMCPService')
@@ -1571,12 +1064,12 @@ export const Settings = () => {
 		if (t === 'Chats') {
 			// Export chat threads
 			dataStr = JSON.stringify(chatThreadsService.state, null, 2)
-			downloadName = 'grid-chats.json'
+			downloadName = 'void-chats.json'
 		}
 		else if (t === 'Settings') {
 			// Export user settings
-			dataStr = JSON.stringify(gridSettingsService.state, null, 2)
-			downloadName = 'grid-settings.json'
+			dataStr = JSON.stringify(GridSettingsService.state, null, 2)
+			downloadName = 'void-settings.json'
 		}
 		else {
 			dataStr = ''
@@ -1614,7 +1107,7 @@ export const Settings = () => {
 					chatThreadsService.dangerousSetState(json as any)
 				}
 				else if (t === 'Settings') {
-					gridSettingsService.dangerousSetState(json as any)
+					GridSettingsService.dangerousSetState(json as any)
 				}
 
 				notificationService.info(`${t} imported successfully!`)
@@ -1630,8 +1123,8 @@ export const Settings = () => {
 
 
 	return (
-		<div className={`@@grid-scope ${isDark ? 'dark' : ''} h-full w-full overflow-auto`}>
-			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32 min-h-[80vh]">
+		<div className={`@@void-scope ${isDark ? 'dark' : ''}`} style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32" style={{ minHeight: '80vh' }}>
 				{/* ──────────────  SIDEBAR  ────────────── */}
 
 				<aside className="md:w-1/4 w-full p-6 shrink-0">
@@ -1652,7 +1145,7 @@ export const Settings = () => {
           py-2 px-4 rounded-md text-left transition-all duration-200
           ${selectedSection === tab
 										? 'bg-[#0e70c0]/80 text-white font-medium shadow-sm'
-										: 'bg-grid-bg-2 hover:bg-grid-bg-2/80 text-grid-fg-1'}
+										: 'bg-void-bg-2 hover:bg-void-bg-2/80 text-void-fg-1'}
         `}
 							>
 								{label}
@@ -1668,7 +1161,7 @@ export const Settings = () => {
 
 					<div className='max-w-3xl'>
 
-						<h1 className='text-2xl w-full'>{`GRID Settings`}</h1>
+						<h1 className='text-2xl w-full'>{`GRID's Settings`}</h1>
 
 						<div className='w-full h-[1px] my-2' />
 
@@ -1696,7 +1189,7 @@ export const Settings = () => {
 							<div className={shouldShowTab('localProviders') ? `` : 'hidden'}>
 								<ErrorBoundary>
 									<h2 className={`text-3xl mb-2`}>Local Providers</h2>
-									<h3 className={`text-grid-fg-3 mb-2`}>{`GRID can access any model that you host locally. We automatically detect your local models by default.`}</h3>
+									<h3 className={`text-void-fg-3 mb-2`}>{`GRID can access any model that you host locally. We automatically detect your local models by default.`}</h3>
 
 									<div className='opacity-80 mb-4'>
 										<OllamaSetupInstructions sayWeAutoDetect={true} />
@@ -1710,11 +1203,9 @@ export const Settings = () => {
 							<div className={shouldShowTab('providers') ? `` : 'hidden'}>
 								<ErrorBoundary>
 									<h2 className={`text-3xl mb-2`}>Main Providers</h2>
-									<h3 className={`text-grid-fg-3 mb-2`}>{`GRID can access models from Anthropic, OpenAI, OpenRouter, and more.`}</h3>
+									<h3 className={`text-void-fg-3 mb-2`}>{`GRID can access models from Anthropic, OpenAI, OpenRouter, and more.`}</h3>
 
 									<GridProviderSettings providerNames={nonlocalProviderNames} />
-									<div className='w-full h-[1px] my-4' />
-									<RefreshableRemoteCatalogs />
 								</ErrorBoundary>
 							</div>
 
@@ -1728,15 +1219,15 @@ export const Settings = () => {
 											{/* FIM */}
 											<div>
 												<h4 className={`text-base`}>{displayInfoOfFeatureName('Autocomplete')}</h4>
-												<div className='text-sm text-grid-fg-3 mt-1'>
+												<div className='text-sm text-void-fg-3 mt-1'>
 													<span>
 														Experimental.{' '}
 													</span>
 													<span
 														className='hover:brightness-110'
-														data-tooltip-id='grid-tooltip'
+														data-tooltip-id='void-tooltip'
 														data-tooltip-content='We recommend using the largest qwen2.5-coder model you can with Ollama (try qwen2.5-coder:3b).'
-														data-tooltip-class-name='grid-max-w-[20px]'
+														data-tooltip-class-name='void-max-w-[20px]'
 													>
 														Only works with FIM models.*
 													</span>
@@ -1749,75 +1240,16 @@ export const Settings = () => {
 															<GridSwitch
 																size='xs'
 																value={settingsState.globalSettings.enableAutocomplete}
-																onChange={(newVal) => gridSettingsService.setGlobalSetting('enableAutocomplete', newVal)}
+																onChange={(newVal) => GridSettingsService.setGlobalSetting('enableAutocomplete', newVal)}
 															/>
-															<span className='text-grid-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.enableAutocomplete ? 'Enabled' : 'Disabled'}</span>
+															<span className='text-void-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.enableAutocomplete ? 'Enabled' : 'Disabled'}</span>
 														</div>
 													</ErrorBoundary>
 
 													{/* Model Dropdown */}
 													<ErrorBoundary>
 														<div className={`my-2 ${!settingsState.globalSettings.enableAutocomplete ? 'hidden' : ''}`}>
-															<ModelDropdown featureName={'Autocomplete'} className='text-xs text-grid-fg-3 bg-grid-bg-1 border border-grid-border-1 rounded p-0.5 px-1' />
-														</div>
-													</ErrorBoundary>
-
-												</div>
-
-											</div>
-										</ErrorBoundary>
-
-										{/* Voice Input */}
-										<ErrorBoundary>
-											<div>
-												<h4 className={`text-base`}>Voice Input</h4>
-												<div className='text-sm text-grid-fg-3 mt-1'>
-													Enable voice-to-text input in chat using your browser's speech recognition.
-												</div>
-
-												<div className='my-2'>
-													{/* Enable Switch */}
-													<ErrorBoundary>
-														<div className='flex items-center gap-x-2 my-2'>
-															<GridSwitch
-																size='xs'
-																value={settingsState.globalSettings.enableVoiceInput ?? true}
-																onChange={(newVal) => gridSettingsService.setGlobalSetting('enableVoiceInput', newVal)}
-															/>
-															<span className='text-grid-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.enableVoiceInput !== false ? 'Enabled' : 'Disabled'}</span>
-														</div>
-													</ErrorBoundary>
-
-													{/* Language Selection */}
-													<ErrorBoundary>
-														<div className={`my-2 ${settingsState.globalSettings.enableVoiceInput === false ? 'hidden' : ''}`}>
-															<div className='flex items-center gap-x-2 my-2'>
-																<span className='text-grid-fg-3 text-xs'>Language:</span>
-																<select
-																	className='text-xs text-grid-fg-3 bg-grid-bg-1 border border-grid-border-1 rounded p-1 px-2'
-																	value={settingsState.globalSettings.voiceInputLanguage ?? 'en-US'}
-																	aria-label="Voice Input Language"
-																	onChange={(e: any) => gridSettingsService.setGlobalSetting('voiceInputLanguage', e.target.value)}
-																>
-																	<option value="en-US">English (US)</option>
-																	<option value="en-GB">English (UK)</option>
-																	<option value="es-ES">Spanish</option>
-																	<option value="fr-FR">French</option>
-																	<option value="de-DE">German</option>
-																	<option value="it-IT">Italian</option>
-																	<option value="pt-BR">Portuguese (Brazil)</option>
-																	<option value="ja-JP">Japanese</option>
-																	<option value="ko-KR">Korean</option>
-																	<option value="zh-CN">Chinese (Simplified)</option>
-																	<option value="zh-TW">Chinese (Traditional)</option>
-																	<option value="ru-RU">Russian</option>
-																	<option value="ar-SA">Arabic</option>
-																	<option value="hi-IN">Hindi</option>
-																</select>
-															</div>
-															<div className='text-xs text-grid-fg-4 mt-1'>
-																Note: Voice input requires microphone permissions and browser support (Chrome, Safari, Edge).
-															</div>
+															<ModelDropdown featureName={'Autocomplete'} className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-1 rounded p-0.5 px-1' />
 														</div>
 													</ErrorBoundary>
 
@@ -1831,7 +1263,7 @@ export const Settings = () => {
 
 											<div className='w-full'>
 												<h4 className={`text-base`}>{displayInfoOfFeatureName('Apply')}</h4>
-												<div className='text-sm text-grid-fg-3 mt-1'>Settings that control the behavior of the Apply button.</div>
+												<div className='text-sm text-void-fg-3 mt-1'>Settings that control the behavior of the Apply button.</div>
 
 												<div className='my-2'>
 													{/* Sync to Chat Switch */}
@@ -1839,14 +1271,14 @@ export const Settings = () => {
 														<GridSwitch
 															size='xs'
 															value={settingsState.globalSettings.syncApplyToChat}
-															onChange={(newVal) => gridSettingsService.setGlobalSetting('syncApplyToChat', newVal)}
+															onChange={(newVal) => GridSettingsService.setGlobalSetting('syncApplyToChat', newVal)}
 														/>
-														<span className='text-grid-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.syncApplyToChat ? 'Same as Chat model' : 'Different model'}</span>
+														<span className='text-void-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.syncApplyToChat ? 'Same as Chat model' : 'Different model'}</span>
 													</div>
 
 													{/* Model Dropdown */}
 													<div className={`my-2 ${settingsState.globalSettings.syncApplyToChat ? 'hidden' : ''}`}>
-														<ModelDropdown featureName={'Apply'} className='text-xs text-grid-fg-3 bg-grid-bg-1 border border-grid-border-1 rounded p-0.5 px-1' />
+														<ModelDropdown featureName={'Apply'} className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-1 rounded p-0.5 px-1' />
 													</div>
 												</div>
 
@@ -1867,7 +1299,7 @@ export const Settings = () => {
 										{/* Tools Section */}
 										<div>
 											<h4 className={`text-base`}>Tools</h4>
-											<div className='text-sm text-grid-fg-3 mt-1'>{`Tools are functions that LLMs can call. Some tools require user approval.`}</div>
+											<div className='text-sm text-void-fg-3 mt-1'>{`Tools are functions that LLMs can call. Some tools require user approval.`}</div>
 
 											<div className='my-2'>
 												{/* Auto Accept Switch */}
@@ -1887,9 +1319,9 @@ export const Settings = () => {
 														<GridSwitch
 															size='xs'
 															value={settingsState.globalSettings.includeToolLintErrors}
-															onChange={(newVal) => gridSettingsService.setGlobalSetting('includeToolLintErrors', newVal)}
+															onChange={(newVal) => GridSettingsService.setGlobalSetting('includeToolLintErrors', newVal)}
 														/>
-														<span className='text-grid-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.includeToolLintErrors ? 'Fix lint errors' : `Fix lint errors`}</span>
+														<span className='text-void-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.includeToolLintErrors ? 'Fix lint errors' : `Fix lint errors`}</span>
 													</div>
 												</ErrorBoundary>
 
@@ -1899,88 +1331,19 @@ export const Settings = () => {
 														<GridSwitch
 															size='xs'
 															value={settingsState.globalSettings.autoAcceptLLMChanges}
-															onChange={(newVal) => gridSettingsService.setGlobalSetting('autoAcceptLLMChanges', newVal)}
+															onChange={(newVal) => GridSettingsService.setGlobalSetting('autoAcceptLLMChanges', newVal)}
 														/>
-														<span className='text-grid-fg-3 text-xs pointer-events-none'>Auto-accept LLM changes</span>
+														<span className='text-void-fg-3 text-xs pointer-events-none'>Auto-accept LLM changes</span>
 													</div>
 												</ErrorBoundary>
 											</div>
 										</div>
 
-										{/* YOLO Mode Section */}
-										<ErrorBoundary>
-											<div>
-												<h4 className={`text-base`}>YOLO Mode</h4>
-												<div className='text-sm text-grid-fg-3 mt-1'>
-													Automatically apply low-risk edits without approval. High-risk edits always require approval.
-												</div>
-
-												<div className='my-2'>
-													{/* Enable YOLO Mode Switch */}
-													<ErrorBoundary>
-														<div className='flex items-center gap-x-2 my-2'>
-															<GridSwitch
-																size='xs'
-																value={settingsState.globalSettings.enableYOLOMode ?? false}
-																onChange={(newVal) => gridSettingsService.setGlobalSetting('enableYOLOMode', newVal)}
-															/>
-															<span className='text-grid-fg-3 text-xs pointer-events-none'>
-																{settingsState.globalSettings.enableYOLOMode ? 'Enabled' : 'Disabled'}
-															</span>
-														</div>
-													</ErrorBoundary>
-
-													{/* Risk Threshold (only show when enabled) */}
-													{settingsState.globalSettings.enableYOLOMode && (
-														<div className='my-4 space-y-3'>
-															<div>
-																<label className='text-sm text-grid-fg-2 mb-1 block'>
-																	Risk Threshold: {(settingsState.globalSettings.yoloRiskThreshold ?? 0.2).toFixed(2)}
-																</label>
-																<div className='text-xs text-grid-fg-3 mb-2'>
-																	Edits with risk below this threshold will auto-apply (0.0 = safe, 1.0 = dangerous)
-																</div>
-																<input
-																	type='range'
-																	min='0'
-																	max='1'
-																	step='0.05'
-																	value={settingsState.globalSettings.yoloRiskThreshold ?? 0.2}
-																	onChange={(e) => gridSettingsService.setGlobalSetting('yoloRiskThreshold', parseFloat(e.target.value))}
-																	className='w-full'
-																	aria-label="Risk Threshold"
-																/>
-															</div>
-
-															<div>
-																<label className='text-sm text-grid-fg-2 mb-1 block'>
-																	Confidence Threshold: {(settingsState.globalSettings.yoloConfidenceThreshold ?? 0.7).toFixed(2)}
-																</label>
-																<div className='text-xs text-grid-fg-3 mb-2'>
-																	Edits with confidence above this threshold will auto-apply (0.0 = uncertain, 1.0 = confident)
-																</div>
-																<input
-																	type='range'
-																	min='0'
-																	max='1'
-																	step='0.05'
-																	value={settingsState.globalSettings.yoloConfidenceThreshold ?? 0.7}
-																	onChange={(e) => gridSettingsService.setGlobalSetting('yoloConfidenceThreshold', parseFloat(e.target.value))}
-																	className='w-full'
-																	aria-label="Confidence Threshold"
-																/>
-															</div>
-														</div>
-													)}
-												</div>
-											</div>
-										</ErrorBoundary>
-
 
 
 										<div className='w-full'>
 											<h4 className={`text-base`}>Editor</h4>
-											<div className='text-sm text-grid-fg-3 mt-1'>{`Settings that control the visibility of GRID suggestions in the code editor.`}</div>
+											<div className='text-sm text-void-fg-3 mt-1'>{`Settings that control the visibility of GRID suggestions in the code editor.`}</div>
 
 											<div className='my-2'>
 												{/* Auto Accept Switch */}
@@ -1989,9 +1352,9 @@ export const Settings = () => {
 														<GridSwitch
 															size='xs'
 															value={settingsState.globalSettings.showInlineSuggestions}
-															onChange={(newVal) => gridSettingsService.setGlobalSetting('showInlineSuggestions', newVal)}
+															onChange={(newVal) => GridSettingsService.setGlobalSetting('showInlineSuggestions', newVal)}
 														/>
-														<span className='text-grid-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.showInlineSuggestions ? 'Show suggestions on select' : 'Show suggestions on select'}</span>
+														<span className='text-void-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.showInlineSuggestions ? 'Show suggestions on select' : 'Show suggestions on select'}</span>
 													</div>
 												</ErrorBoundary>
 											</div>
@@ -2002,7 +1365,7 @@ export const Settings = () => {
 
 											<div className='w-full'>
 												<h4 className={`text-base`}>{displayInfoOfFeatureName('SCM')}</h4>
-												<div className='text-sm text-grid-fg-3 mt-1'>Settings that control the behavior of the commit message generator.</div>
+												<div className='text-sm text-void-fg-3 mt-1'>Settings that control the behavior of the commit message generator.</div>
 
 												<div className='my-2'>
 													{/* Sync to Chat Switch */}
@@ -2010,14 +1373,14 @@ export const Settings = () => {
 														<GridSwitch
 															size='xs'
 															value={settingsState.globalSettings.syncSCMToChat}
-															onChange={(newVal) => gridSettingsService.setGlobalSetting('syncSCMToChat', newVal)}
+															onChange={(newVal) => GridSettingsService.setGlobalSetting('syncSCMToChat', newVal)}
 														/>
-														<span className='text-grid-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.syncSCMToChat ? 'Same as Chat model' : 'Different model'}</span>
+														<span className='text-void-fg-3 text-xs pointer-events-none'>{settingsState.globalSettings.syncSCMToChat ? 'Same as Chat model' : 'Different model'}</span>
 													</div>
 
 													{/* Model Dropdown */}
 													<div className={`my-2 ${settingsState.globalSettings.syncSCMToChat ? 'hidden' : ''}`}>
-														<ModelDropdown featureName={'SCM'} className='text-xs text-grid-fg-3 bg-grid-bg-1 border border-grid-border-1 rounded p-0.5 px-1' />
+														<ModelDropdown featureName={'SCM'} className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-1 rounded p-0.5 px-1' />
 													</div>
 												</div>
 
@@ -2033,7 +1396,7 @@ export const Settings = () => {
 								<div>
 									<ErrorBoundary>
 										<h2 className='text-3xl mb-2'>One-Click Switch</h2>
-										<h4 className='text-grid-fg-3 mb-4'>{`Transfer your editor settings into GRID.`}</h4>
+										<h4 className='text-void-fg-3 mb-4'>{`Transfer your editor settings into GRID.`}</h4>
 
 										<div className='flex flex-col gap-2'>
 											<OneClickSwitchButton className='w-48' fromEditor="VS Code" />
@@ -2046,25 +1409,25 @@ export const Settings = () => {
 								{/* Import/Export section */}
 								<div>
 									<h2 className='text-3xl mb-2'>Import/Export</h2>
-									<h4 className='text-grid-fg-3 mb-4'>{`Transfer GRID's settings and chats in and out of GRID.`}</h4>
+									<h4 className='text-void-fg-3 mb-4'>{`Transfer GRID's settings and chats in and out of GRID.`}</h4>
 									<div className='flex flex-col gap-8'>
 										{/* Settings Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Settings')} aria-label="Import Settings" />
+											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Settings')} />
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputSettingsRef.current?.click() }}>
 												Import Settings
 											</GridButtonBgDarken>
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => onDownload('Settings')}>
 												Export Settings
 											</GridButtonBgDarken>
-											<ConfirmButton className='px-4 py-1 w-full' onConfirm={() => { gridSettingsService.resetState(); }}>
+											<ConfirmButton className='px-4 py-1 w-full' onConfirm={() => { GridSettingsService.resetState(); }}>
 												Reset Settings
 											</ConfirmButton>
 										</div>
 
 										{/* Chats Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Chats')} aria-label="Import Chats" />
+											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Chats')} />
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputChatsRef.current?.click() }}>
 												Import Chats
 											</GridButtonBgDarken>
@@ -2083,7 +1446,7 @@ export const Settings = () => {
 								{/* Built-in Settings section */}
 								<div>
 									<h2 className={`text-3xl mb-2`}>Built-in Settings</h2>
-									<h4 className={`text-grid-fg-3 mb-4`}>{`IDE settings, keyboard settings, and theme customization.`}</h4>
+									<h4 className={`text-void-fg-3 mb-4`}>{`IDE settings, keyboard settings, and theme customization.`}</h4>
 
 									<ErrorBoundary>
 										<div className='flex flex-col gap-2 justify-center max-w-48 w-full'>
@@ -2107,7 +1470,7 @@ export const Settings = () => {
 								{/* Metrics section */}
 								<div className='max-w-[600px]'>
 									<h2 className={`text-3xl mb-2`}>Metrics</h2>
-									<h4 className={`text-grid-fg-3 mb-4`}>Very basic anonymous usage tracking helps us keep GRID running smoothly. You may opt out below. Regardless of this setting, GRID never sees your code, messages, or API keys.</h4>
+									<h4 className={`text-void-fg-3 mb-4`}>Very basic anonymous usage tracking helps us keep GRID running smoothly. You may opt out below. Regardless of this setting, GRID never sees your code, messages, or API keys.</h4>
 
 									<div className='my-2'>
 										{/* Disable All Metrics Switch */}
@@ -2121,7 +1484,7 @@ export const Settings = () => {
 														metricsService.capture(`Set metrics opt-out to ${newVal}`, {}) // this only fires if it's enabled, so it's fine to have here
 													}}
 												/>
-												<span className='text-grid-fg-3 text-xs pointer-events-none'>{'Opt-out (requires restart)'}</span>
+												<span className='text-void-fg-3 text-xs pointer-events-none'>{'Opt-out (requires restart)'}</span>
 											</div>
 										</ErrorBoundary>
 									</div>
@@ -2130,10 +1493,10 @@ export const Settings = () => {
 								{/* AI Instructions section */}
 								<div className='max-w-[600px]'>
 									<h2 className={`text-3xl mb-2`}>AI Instructions</h2>
-									<h4 className={`text-grid-fg-3 mb-4`}>
+									<h4 className={`text-void-fg-3 mb-4`}>
 										<ChatMarkdownRender inPTag={true} string={`
 System instructions to include with all AI requests.
-Alternatively, place a \`.gridrules\` file in the root of your workspace.
+Alternatively, place a \`.Gridrules\` file in the root of your workspace.
 								`} chatMessageLocation={undefined} />
 									</h4>
 									<ErrorBoundary>
@@ -2147,15 +1510,15 @@ Alternatively, place a \`.gridrules\` file in the root of your workspace.
 													size='xs'
 													value={!!settingsState.globalSettings.disableSystemMessage}
 													onChange={(newValue) => {
-														gridSettingsService.setGlobalSetting('disableSystemMessage', newValue);
+														GridSettingsService.setGlobalSetting('disableSystemMessage', newValue);
 													}}
 												/>
-												<span className='text-grid-fg-3 text-xs pointer-events-none'>
+												<span className='text-void-fg-3 text-xs pointer-events-none'>
 													{'Disable system message'}
 												</span>
 											</div>
 										</ErrorBoundary>
-										<div className='text-grid-fg-3 text-xs mt-1'>
+										<div className='text-void-fg-3 text-xs mt-1'>
 											{`When disabled, GRID will not include anything in the system message except for content you specified above.`}
 										</div>
 									</div>
@@ -2169,7 +1532,7 @@ Alternatively, place a \`.gridrules\` file in the root of your workspace.
 							<div className={shouldShowTab('mcp') ? `` : 'hidden'}>
 								<ErrorBoundary>
 									<h2 className='text-3xl mb-2'>MCP</h2>
-									<h4 className={`text-grid-fg-3 mb-4`}>
+									<h4 className={`text-void-fg-3 mb-4`}>
 										<ChatMarkdownRender inPTag={true} string={`
 Use Model Context Protocol to provide Agent mode with more tools.
 							`} chatMessageLocation={undefined} />

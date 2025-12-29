@@ -49,6 +49,45 @@ export function activate(context: vscode.ExtensionContext): void {
 		void detectAndSetupUnityProject(context);
 	});
 	context.subscriptions.push(watcher);
+
+	// Attempt to connect to Unity Editor
+	void connectToUnity(context);
+}
+
+async function connectToUnity(context: vscode.ExtensionContext): Promise<void> {
+	const outputChannel = vscode.window.createOutputChannel('Unity Log');
+	context.subscriptions.push(outputChannel);
+
+	const net = await import('net');
+
+	const connect = () => {
+		const client = new net.Socket();
+
+		client.connect(48062, '127.0.0.1', () => {
+			outputChannel.appendLine('[GRID] Connected to Unity Editor');
+			client.write('HELLO_FROM_GRID');
+		});
+
+		client.on('data', (data) => {
+			outputChannel.append(data.toString());
+		});
+
+		client.on('close', () => {
+			outputChannel.appendLine('[GRID] Connection closed');
+			// Try to reconnect after 5 seconds
+			setTimeout(connect, 5000);
+		});
+
+		client.on('error', (err) => {
+			// Squelch connection errors if Unity isn't running
+			if ((err as any).code !== 'ECONNREFUSED') {
+				console.error('Unity connection error:', err);
+			}
+			client.destroy();
+		});
+	};
+
+	connect();
 }
 
 async function detectAndSetupUnityProject(context: vscode.ExtensionContext): Promise<void> {
@@ -137,6 +176,7 @@ using UnityEditor;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Collections.Concurrent;
 
 namespace GRID.Editor
 {
@@ -145,11 +185,14 @@ namespace GRID.Editor
 	{
 		private static TcpListener listener;
 		private const int PORT = 48062;
+		private static ConcurrentQueue<string> logQueue = new ConcurrentQueue<string>();
+		private static TcpClient connectedClient;
 
 		static GRIDEditorBridge()
 		{
-			Debug.Log("[GRID] Editor Bridge initialized");
+			// Debug.Log("[GRID] Editor Bridge initialized");
 			EditorApplication.update += Update;
+			Application.logMessageReceived += HandleLog;
 			StartServer();
 		}
 
@@ -159,7 +202,7 @@ namespace GRID.Editor
 			{
 				listener = new TcpListener(IPAddress.Loopback, PORT);
 				listener.Start();
-				Debug.Log($"[GRID] Bridge server started on port {PORT}");
+				// Debug.Log($"[GRID] Bridge server started on port {PORT}");
 			}
 			catch (System.Exception e)
 			{
@@ -172,11 +215,31 @@ namespace GRID.Editor
 			// Handle incoming connections from GRID IDE
 			if (listener != null && listener.Pending())
 			{
-				TcpClient client = listener.AcceptTcpClient();
+				connectedClient = listener.AcceptTcpClient();
 				Debug.Log("[GRID] Client connected");
-				// Handle client communication here
-				client.Close();
 			}
+
+			if (connectedClient != null && connectedClient.Connected)
+			{
+				try
+				{
+					NetworkStream stream = connectedClient.GetStream();
+					while (logQueue.TryDequeue(out string log))
+					{
+						byte[] data = Encoding.UTF8.GetBytes(log + "\\n");
+						stream.Write(data, 0, data.Length);
+					}
+				}
+				catch
+				{
+					connectedClient = null;
+				}
+			}
+		}
+
+		static void HandleLog(string logString, string stackTrace, LogType type)
+		{
+			logQueue.Enqueue($"[{type}] {logString}");
 		}
 
 		[MenuItem("GRID/Open Logs")]

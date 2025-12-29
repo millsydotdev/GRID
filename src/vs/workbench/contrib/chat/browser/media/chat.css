@@ -37,8 +37,8 @@
 	color: var(--vscode-interactive-session-foreground);
 
 	cursor: default;
-	user-select: text;
 	-webkit-user-select: text;
+	user-select: text;
 }
 
 .interactive-item-container:not(:has(.chat-extensions-content-part)) .header {
@@ -127,6 +127,7 @@
 .interactive-item-container .header .avatar-container {
 	display: flex;
 	pointer-events: none;
+	-webkit-user-select: none;
 	user-select: none;
 }
 
@@ -309,6 +310,7 @@
 }
 
 .interactive-item-container .value .rendered-markdown a {
+	-webkit-user-select: text;
 	user-select: text;
 }
 
@@ -479,8 +481,11 @@
 
 		.message-wrapper {
 			/* This mask fades out the end of the second line of text so the "see more" message can be displayed over it. */
+			-webkit-mask-image:
+				linear-gradient(to right, rgba(0, 0, 0, 1) calc(100% - 95px), rgba(0, 0, 0, 0) calc(100% - 72px)), linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 20px, rgba(0, 0, 0, 1) 2px, rgba(0, 0, 0, 1) 100%);
 			mask-image:
 				linear-gradient(to right, rgba(0, 0, 0, 1) calc(100% - 95px), rgba(0, 0, 0, 0) calc(100% - 72px)), linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 20px, rgba(0, 0, 0, 1) 2px, rgba(0, 0, 0, 1) 100%);
+			-webkit-mask-repeat: no-repeat, no-repeat;
 			mask-repeat: no-repeat, no-repeat;
 			pointer-events: none;
 			max-height: 40px;
@@ -1060,7 +1065,7 @@ have to be updated for changes to the rules above, or to support more deeply nes
 .interactive-session .chat-editing-session .chat-editing-session-toolbar-actions .monaco-button,
 .interactive-session .chat-editing-session .chat-editing-session-actions .monaco-button {
 	overflow: hidden;
-	text-wrap: nowrap;
+	white-space: nowrap;
 }
 
 .interactive-session .chat-editing-session .chat-editing-session-toolbar-actions .monaco-button-dropdown.sidebyside-button {
@@ -1802,14 +1807,14 @@ have to be updated for changes to the rules above, or to support more deeply nes
 } */
 
 .interactive-session .interactive-input-part .interactive-input-followups .interactive-session-followups .monaco-button {
-	display: block;
 	color: var(--vscode-textLink-foreground);
 	font-size: 12px;
 
 	/* clamp to max 3 lines */
 	display: -webkit-box;
-	line-clamp: 3;
+	display: block;
 	-webkit-line-clamp: 3;
+	line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }

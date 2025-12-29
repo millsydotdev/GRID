@@ -6,7 +6,6 @@ node_modules/
 .build/
 .vscode/extensions/**/out/
 extensions/**/dist/
-!extensions/open-remote-ssh/dist/
 /out*/
 /extensions/**/out/
 build/node_modules
@@ -23,13 +22,13 @@ product.overrides.json
 *.snap.actual
 .vscode-test
 
-# GRID added these:
+# Void added these:
 .tmp/
 .tmp2/
 .tool-versions
-src/vs/workbench/contrib/grid/browser/react/out/**
-src/vs/workbench/contrib/grid/browser/react/src2/**
+src/vs/workbench/contrib/void/browser/react/out/**
+src/vs/workbench/contrib/void/browser/react/src2/**
+
+# Security
 .env
 .env.local
-.env.test
-*.env

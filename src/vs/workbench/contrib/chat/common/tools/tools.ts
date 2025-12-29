@@ -12,6 +12,7 @@ import { ConfirmationTool, ConfirmationToolData } from './confirmationTool.js';
 import { EditTool, EditToolData } from './editFileTool.js';
 import { createManageTodoListToolData, ManageTodoListTool, TodoListToolDescriptionFieldSettingId, TodoListToolWriteOnlySettingId } from './manageTodoListTool.js';
 import { RunSubagentTool } from './runSubagentTool.js';
+import { BrowserSubagentTool, BrowserSubagentToolData } from '../../browser/tools/browserSubagentTool.js';
 
 export class BuiltinToolsContribution extends Disposable implements IWorkbenchContribution {
 
@@ -40,6 +41,10 @@ export class BuiltinToolsContribution extends Disposable implements IWorkbenchCo
 
 		const runSubagentTool = instantiationService.createInstance(RunSubagentTool);
 		this._register(toolsService.registerTool(runSubagentTool.getToolData(), runSubagentTool));
+
+		// Register the Browser Subagent tool (Tavily/DuckDuckGo web research)
+		const browserSubagentTool = instantiationService.createInstance(BrowserSubagentTool);
+		this._register(toolsService.registerTool(BrowserSubagentToolData, browserSubagentTool));
 	}
 }
 

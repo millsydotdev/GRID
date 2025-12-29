@@ -1,14 +1,11 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
 import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../../editor/browser/editorBrowser.js';
-import {
-	EditorContributionInstantiation,
-	registerEditorContribution,
-} from '../../../../editor/browser/editorExtensions.js';
+import { EditorContributionInstantiation, registerEditorContribution } from '../../../../editor/browser/editorExtensions.js';
 import { ICursorSelectionChangedEvent } from '../../../../editor/common/cursorEvents.js';
 import { IEditorContribution } from '../../../../editor/common/editorCommon.js';
 import { Selection } from '../../../../editor/common/core/selection.js';
@@ -16,22 +13,25 @@ import { RunOnceScheduler } from '../../../../base/common/async.js';
 import * as dom from '../../../../base/browser/dom.js';
 import { mountGridSelectionHelper } from './react/out/grid-editor-widgets-tsx/index.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
-import { IGridSettingsService } from '../common/gridSettingsService.js';
+import { IGridSettingsService } from '../common/GRIDSettingsService.js';
 import { EditorOption } from '../../../../editor/common/config/editorOptions.js';
 import { getLengthOfTextPx } from './editCodeService.js';
+
 
 const minDistanceFromRightPx = 400;
 const minLeftPx = 60;
 
-export type GridSelectionHelperProps = {
-	rerenderKey: number; // alternates between 0 and 1
-};
+
+export type VoidSelectionHelperProps = {
+	rerenderKey: number // alternates between 0 and 1
+}
+
 
 export class SelectionHelperContribution extends Disposable implements IEditorContribution, IOverlayWidget {
-	public static readonly ID = 'editor.contrib.gridSelectionHelper';
+	public static readonly ID = 'editor.contrib.voidSelectionHelper';
 	// react
 	private _rootHTML: HTMLElement;
-	private _rerender: (props?: unknown) => void = () => {};
+	private _rerender: (props?: any) => void = () => { };
 	private _rerenderKey: number = 0;
 	private _reactComponentDisposable: IDisposable | null = null;
 
@@ -48,7 +48,9 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 		super();
 
 		// Create the container element for React component
-		const { root, content } = dom.h('div@root', [dom.h('div@content', [])]);
+		const { root, content } = dom.h('div@root', [
+			dom.h('div@content', [])
+		]);
 
 		// Set styles for container
 		root.style.position = 'absolute';
@@ -57,7 +59,7 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 		root.style.marginLeft = '16px';
 
 		// Initialize React component
-		this._instantiationService.invokeFunction((accessor) => {
+		this._instantiationService.invokeFunction(accessor => {
 			if (this._reactComponentDisposable) {
 				this._reactComponentDisposable.dispose();
 			}
@@ -68,6 +70,8 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 			this._rerender = res.rerender;
 
 			this._register(this._reactComponentDisposable);
+
+
 		});
 
 		this._rootHTML = root;
@@ -83,7 +87,7 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 		}, 50);
 
 		// Register event listeners
-		this._register(this._editor.onDidChangeCursorSelection((e) => this._onSelectionChange(e)));
+		this._register(this._editor.onDidChangeCursorSelection(e => this._onSelectionChange(e)));
 
 		// Add a flag to track if mouse is over the widget
 		let isMouseOverWidget = false;
@@ -95,13 +99,11 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 		});
 
 		// Only hide helper when text editor loses focus and mouse is not over the widget
-		this._register(
-			this._editor.onDidBlurEditorText(() => {
-				if (!isMouseOverWidget) {
-					this._hideHelper();
-				}
-			})
-		);
+		this._register(this._editor.onDidBlurEditorText(() => {
+			if (!isMouseOverWidget) {
+				this._hideHelper();
+			}
+		}));
 
 		this._register(this._editor.onDidScrollChange(() => this._updatePositionIfVisible()));
 		this._register(this._editor.onDidLayoutChange(() => this._updatePositionIfVisible()));
@@ -166,23 +168,22 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 		const { tabSize: numSpacesInTab } = model.getFormattingOptions();
 		const spaceWidth = this._editor.getOption(EditorOption.fontInfo).spaceWidth;
 		const tabWidth = numSpacesInTab * spaceWidth;
-		const numLinesModel = model.getLineCount();
+		const numLinesModel = model.getLineCount()
 
 		// Calculate right edge of visible editor area
 		const editorWidthPx = this._editor.getLayoutInfo().width;
-		const maxLeftPx = editorWidthPx - minDistanceFromRightPx;
+		const maxLeftPx = editorWidthPx - minDistanceFromRightPx
 
 		// returns the position where the box should go on the targetLine
-		const getBoxPosition = (targetLine: number): { top: number; left: number } => {
-			const targetPosition = this._editor.getScrolledVisiblePosition({ lineNumber: targetLine, column: 1 }) ?? {
-				left: 0,
-				top: 0,
-			};
+		const getBoxPosition = (targetLine: number): { top: number, left: number } => {
 
-			const { top: targetTop, left: targetLeft } = targetPosition;
+			const targetPosition = this._editor.getScrolledVisiblePosition({ lineNumber: targetLine, column: 1 }) ?? { left: 0, top: 0 };
+
+			const { top: targetTop, left: targetLeft } = targetPosition
 
 			let targetWidth = 0;
 			for (let i = targetLine; i <= targetLine + 1; i++) {
+
 				// if not in range, continue
 				if (!(i >= 1) || !(i <= numLinesModel)) continue;
 
@@ -190,8 +191,8 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 				const currWidth = getLengthOfTextPx({
 					tabWidth,
 					spaceWidth,
-					content,
-				});
+					content
+				})
 
 				targetWidth = Math.max(targetWidth, currWidth);
 			}
@@ -200,7 +201,9 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 				top: targetTop,
 				left: targetLeft + targetWidth,
 			};
-		};
+
+		}
+
 
 		// Calculate the middle line of the selection
 		const startLine = selection.startLineNumber;
@@ -215,16 +218,17 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 
 		if (boxPos.left > maxLeftPx) {
 			for (const lineDelta of lineDeltasToTry) {
+
 				boxPos = getBoxPosition(targetLine + lineDelta);
 				if (boxPos.left <= maxLeftPx) {
 					break;
 				}
 			}
 		}
-		if (boxPos.left > maxLeftPx) {
-			// if still not found, make it 2 lines before
-			boxPos = getBoxPosition(targetLine - 2);
+		if (boxPos.left > maxLeftPx) { // if still not found, make it 2 lines before
+			boxPos = getBoxPosition(targetLine - 2)
 		}
+
 
 		// Position the helper element at the end of the middle line but ensure it's visible
 		const xPosition = Math.max(Math.min(boxPos.left, maxLeftPx), minLeftPx);
@@ -238,13 +242,15 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 		this._isVisible = true;
 
 		// rerender
-		const enabled = this._gridSettingsService.state.globalSettings.showInlineSuggestions && this._editor.hasTextFocus(); // needed since VS Code counts unfocused selections as selections, which causes this to rerender when it shouldnt (bad ux)
+		const enabled = this._gridSettingsService.state.globalSettings.showInlineSuggestions
+			&& this._editor.hasTextFocus() // needed since VS Code counts unfocused selections as selections, which causes this to rerender when it shouldnt (bad ux)
 
 		if (enabled) {
-			this._rerender({ rerenderKey: this._rerenderKey } satisfies GridSelectionHelperProps);
+			this._rerender({ rerenderKey: this._rerenderKey } satisfies VoidSelectionHelperProps)
 			this._rerenderKey = (this._rerenderKey + 1) % 2;
 			// this._reactComponentRerender();
 		}
+
 	}
 
 	private _hideHelper(): void {
@@ -273,8 +279,4 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 }
 
 // Register the contribution
-registerEditorContribution(
-	SelectionHelperContribution.ID,
-	SelectionHelperContribution,
-	EditorContributionInstantiation.Eager
-);
+registerEditorContribution(SelectionHelperContribution.ID, SelectionHelperContribution, EditorContributionInstantiation.Eager);
