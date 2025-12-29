@@ -20,6 +20,12 @@
         "path": "./themes/dark_plus.json"
       },
       {
+        "id": "GRID Dark",
+        "label": "GRID Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/grid_dark.json"
+      },
+      {
         "id": "Default Dark Modern",
         "label": "%darkModernThemeLabel%",
         "uiTheme": "vs-dark",
