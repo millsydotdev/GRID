@@ -24,6 +24,7 @@ cd GRID
 ```
 
 **System Requirements**:
+
 - 64-bit Linux distribution
 - GLIBC 2.28 or later
 - Recommended: Ubuntu 20.04 or later, Fedora 32 or later
@@ -44,6 +45,7 @@ cd GRID
 ```
 
 **System Requirements**:
+
 - Windows 10 version 1809 or later
 - 64-bit Windows
 
@@ -63,6 +65,7 @@ open Visual\ Studio\ Code.app
 ```
 
 **System Requirements**:
+
 - macOS 10.15 (Catalina) or later
 - Universal binary (works on Intel and Apple Silicon)
 
@@ -80,7 +83,7 @@ If you prefer to build from source:
 
 ```bash
 # Clone the repository
-git clone https://github.com/GRID-NETWORK-REPO/GRID.git
+git clone https://github.com/GRID-Editor/GRID.git
 cd GRID
 
 # Install dependencies

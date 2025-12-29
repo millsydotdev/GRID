@@ -127,12 +127,12 @@ export class DashboardApiClient implements IDashboardApiClient {
 	readonly _serviceBrand: undefined;
 
 	private apiKey: string | undefined;
-	private endpoint: string = 'https://dashboard.grid.network';
+	private endpoint: string = 'https://grideditor.com';
 
 	constructor(
 		@IRequestService private readonly requestService: IRequestService,
 		@ILogService private readonly logService: ILogService
-	) {}
+	) { }
 
 	setApiKey(apiKey: string): void {
 		this.apiKey = apiKey;

@@ -46,7 +46,7 @@ const notifyUpdate = (
 				class: undefined,
 				run: () => {
 					const { window } = dom.getActiveWindow();
-					window.open('https://grid.millsy.dev/download');
+					window.open('https://grideditor.com/download');
 				},
 			});
 		}

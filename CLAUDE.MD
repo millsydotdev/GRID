@@ -7,26 +7,30 @@
 ## 1. Core Identity & Product Overview
 
 ### Product Information
+
 * **Product Name**: GRID
 * **Tagline**: Open-source Cursor alternative with privacy-first AI coding
 * **Version**: 1.106.0 (Release 0906)
 * **Base**: VSCodium / VS Code 1.96+
-* **Repository**: https://github.com/GRID-NETWORK-REPO/GRID
-* **Website**: https://grideditor.com
-* **Discord**: https://discord.gg/bP3V8FKYux
+* **Repository**: <https://github.com/GRID-Editor/GRID>
+* **Website**: <https://grideditor.com>
+* **Discord**: <https://discord.gg/bP3V8FKYux>
 * **License**: MIT
 * **Maintainer**: Millsy.dev
 * **Key Principle**: Privacy First - Direct model access, no data retention
 
 ### Repository Role
+
 This repository ("The Brain") contains:
-- All source code and business logic
-- AI agent implementations
-- React-based UI components
-- Build and packaging scripts
-- Extension integrations
+
+* All source code and business logic
+* AI agent implementations
+* React-based UI components
+* Build and packaging scripts
+* Extension integrations
 
 ### Privacy & Telemetry
+
 * **Telemetry**: Completely disabled (verified in `product.json` and patches)
 * **Data Flow**: Direct to model providers - GRID never retains user data
 * **Philosophy**: "Privacy First" - users control where their data goes
@@ -49,32 +53,32 @@ This file is the **heart of the AI system** - it defines all supported models an
 **Supported Models (45+ models across 4 categories)**:
 
 1. **Text Models**:
-   - Llama 3.1 (70B, 8B)
-   - Llama 3.2 (3B)
-   - Mistral 7B / Mixtral 8x7B
-   - Phi-3.5
-   - Google Gemma 2 (9B, 27B)
+   * Llama 3.1 (70B, 8B)
+   * Llama 3.2 (3B)
+   * Mistral 7B / Mixtral 8x7B
+   * Phi-3.5
+   * Google Gemma 2 (9B, 27B)
 
 2. **Code Models**:
-   - **Qwen 2.5 Coder** (32B, 7B) - Primary code model
-   - DeepSeek Coder V2
-   - StarCoder2 (15B)
+   * **Qwen 2.5 Coder** (32B, 7B) - Primary code model
+   * DeepSeek Coder V2
+   * StarCoder2 (15B)
 
 3. **Reasoning Models**:
-   - **DeepSeek R1** - Advanced reasoning
-   - Qwen QwQ-32B (supports `<think>` tags)
+   * **DeepSeek R1** - Advanced reasoning
+   * Qwen QwQ-32B (supports `<think>` tags)
 
 4. **Vision Models**:
-   - Llama 3.2 Vision (11B, 90B)
-   - Qwen2-VL
-   - Phi-3 Vision
+   * Llama 3.2 Vision (11B, 90B)
+   * Qwen2-VL
+   * Phi-3 Vision
 
 5. **Image Generation**:
-   - FLUX.1 (dev/schnell)
-   - Stable Diffusion XL
+   * FLUX.1 (dev/schnell)
+   * Stable Diffusion XL
 
 6. **Audio**:
-   - Whisper Large V3
+   * Whisper Large V3
 
 #### Other Provider Integrations
 
@@ -82,9 +86,9 @@ This file is the **heart of the AI system** - it defines all supported models an
 * **Anthropic**: Claude 3.5 Sonnet, Claude 3.7 Sonnet (Reasoning), Haiku 4.5
 * **Google**: Gemini 3 Pro/Flash (Previews), Gemini 2.5 Flash
 * **Local Providers**:
-  - Ollama (`http://127.0.0.1:11434`)
-  - vLLM
-  - LM Studio
+  * Ollama (`http://127.0.0.1:11434`)
+  * vLLM
+  * LM Studio
 * **MCP**: Native support via `@modelcontextprotocol/sdk` v1.11.2
 
 ### B. The "Big Three" Unique Features
@@ -94,6 +98,7 @@ This file is the **heart of the AI system** - it defines all supported models an
 **File**: `src/vs/workbench/contrib/grid/common/autoDebugService.ts`
 
 **Mechanism**:
+
 1. Listens to linter diagnostics in real-time
 2. Sends diagnostic context to LLM
 3. Receives suggested fix
@@ -107,10 +112,11 @@ This file is the **heart of the AI system** - it defines all supported models an
 **File**: `src/vs/workbench/contrib/grid/common/liveCodingService.ts`
 
 **Technology**:
-- WebSocket synchronization
-- Relative cursor tracking
-- Peer-to-peer coordination via `@peerjs` (WebRTC)
-- Custom socket service for real-time updates
+
+* WebSocket synchronization
+* Relative cursor tracking
+* Peer-to-peer coordination via `@peerjs` (WebRTC)
+* Custom socket service for real-time updates
 
 **Use Case**: Collaborative coding sessions with live cursor positions and edits
 
@@ -119,35 +125,36 @@ This file is the **heart of the AI system** - it defines all supported models an
 **File**: `src/vs/workbench/contrib/grid/common/prReviewService.ts`
 
 **Capabilities**:
-- SQL Injection detection
-- XSS vulnerability scanning
-- Time-complexity analysis
-- Security best practices validation
-- Code quality metrics
+
+* SQL Injection detection
+* XSS vulnerability scanning
+* Time-complexity analysis
+* Security best practices validation
+* Code quality metrics
 
 ### C. Agent Modes
 
 **Implementation**: Intent parser switches between 5 distinct operational modes
 
 1. **BUILD** Mode
-   - Focus: Implementation and code generation
-   - Use Case: Writing new features, implementing logic
+   * Focus: Implementation and code generation
+   * Use Case: Writing new features, implementing logic
 
 2. **PLAN** Mode
-   - Focus: Architectural reasoning and design
-   - Use Case: System design, feature planning, refactoring strategy
+   * Focus: Architectural reasoning and design
+   * Use Case: System design, feature planning, refactoring strategy
 
 3. **EXPLORE** Mode
-   - Focus: Codebase navigation and understanding
-   - Use Case: Finding code, understanding architecture, discovery
+   * Focus: Codebase navigation and understanding
+   * Use Case: Finding code, understanding architecture, discovery
 
 4. **REVIEW** Mode
-   - Focus: Quality assurance and security
-   - Use Case: Code review, security audits, best practices
+   * Focus: Quality assurance and security
+   * Use Case: Code review, security audits, best practices
 
 5. **DEBUG** Mode
-   - Focus: Error analysis and troubleshooting
-   - Use Case: Bug fixing, performance issues, logic errors
+   * Focus: Error analysis and troubleshooting
+   * Use Case: Bug fixing, performance issues, logic errors
 
 ### D. Learning Engine
 
@@ -156,33 +163,37 @@ This file is the **heart of the AI system** - it defines all supported models an
 **Purpose**: Self-improving AI that learns from conversations
 
 **Capabilities**:
-- Conversation pattern analysis
-- Success/failure tracking
-- Context optimization
-- User preference learning
+
+* Conversation pattern analysis
+* Success/failure tracking
+* Context optimization
+* User preference learning
 
 ## 3. Technical Stack & Configuration
 
 ### Dependencies (`package.json`)
 
 **Core Framework**:
-- **UI**: React 19.1.0 (`react`, `react-dom`)
-- **Build**: Gulp + Custom Scripts
-- **Runtime**: Electron 37.7.0
-- **Language**: TypeScript (with custom `tsgo` compiler)
+
+* **UI**: React 19.1.0 (`react`, `react-dom`)
+* **Build**: Gulp + Custom Scripts
+* **Runtime**: Electron 37.7.0
+* **Language**: TypeScript (with custom `tsgo` compiler)
 
 **AI SDKs**:
-- `@anthropic-ai/sdk`: ^0.40.0
-- `openai`: Latest
-- `@google/genai`: ^0.13.0
-- `@huggingface/inference`: ^2.8.1
-- `ollama`: Latest
-- `@mistralai/mistralai`: ^1.6.0
-- `@modelcontextprotocol/sdk`: ^1.11.2
+
+* `@anthropic-ai/sdk`: ^0.40.0
+* `openai`: Latest
+* `@google/genai`: ^0.13.0
+* `@huggingface/inference`: ^2.8.1
+* `ollama`: Latest
+* `@mistralai/mistralai`: ^1.6.0
+* `@modelcontextprotocol/sdk`: ^1.11.2
 
 **Key Libraries**:
-- `@floating-ui/react`: ^0.27.8 (UI tooltips/popovers)
-- `@microsoft/1ds-core-js`: Telemetry (disabled in builds)
+
+* `@floating-ui/react`: ^0.27.8 (UI tooltips/popovers)
+* `@microsoft/1ds-core-js`: Telemetry (disabled in builds)
 
 ### Product Configuration (`product.json`)
 
@@ -196,6 +207,7 @@ This file is the **heart of the AI system** - it defines all supported models an
 **Primary Build Tool**: Gulp (via `./node_modules/gulp/bin/gulp.js`)
 
 **Key Build Commands**:
+
 ```bash
 npm run compile              # Full compilation
 npm run watch                # Watch mode (client + extensions)
@@ -206,13 +218,15 @@ npm run watchreact           # Watch React components
 ```
 
 **React Build**:
-- Location: `src/vs/workbench/contrib/grid/browser/react/`
-- Build script: `build.js` (custom bundler)
-- Watch mode available: `npm run watchreact`
+
+* Location: `src/vs/workbench/contrib/grid/browser/react/`
+* Build script: `build.js` (custom bundler)
+* Watch mode available: `npm run watchreact`
 
 **Memory Limits**:
-- Compile: 12GB (`--max-old-space-size=12288`)
-- Watch: 8GB (`--max-old-space-size=8192`)
+
+* Compile: 12GB (`--max-old-space-size=12288`)
+* Watch: 8GB (`--max-old-space-size=8192`)
 
 ## 4. Codebase Architecture & Navigation
 
@@ -220,7 +234,7 @@ npm run watchreact           # Watch React components
 
 #### Core GRID Code
 
-```
+```text
 src/vs/workbench/contrib/grid/
 ├── browser/
 │   ├── react/                    # ALL React UI Components
@@ -239,7 +253,7 @@ src/vs/workbench/contrib/grid/
 
 #### Build & Configuration
 
-```
+```text
 build/                            # Build scripts and tooling
 resources/
 ├── completions/                  # Shell completions
@@ -252,7 +266,7 @@ resources/
 
 #### Scripts & Entry Points
 
-```
+```text
 scripts/
 ├── grid*.sh                      # Linux/macOS CLI wrappers
 └── grid*.bat                     # Windows CLI wrappers
@@ -269,22 +283,25 @@ All modern UI components are built with React 19.1.0. The build process is separ
 **Example File**: `resources/provider-config.example.json`
 
 Users configure API keys and endpoints for:
-- OpenAI
-- Anthropic
-- Google
-- HuggingFace
-- Local providers (Ollama, etc.)
+
+* OpenAI
+* Anthropic
+* Google
+* HuggingFace
+* Local providers (Ollama, etc.)
 
 ## 5. Development Workflow
 
 ### Getting Started
 
 1. **Install Dependencies**:
+
    ```bash
    npm install
    ```
 
 2. **Start Watch Mode**:
+
    ```bash
    npm run watch        # Full watch (client + extensions)
    # OR
@@ -292,6 +309,7 @@ Users configure API keys and endpoints for:
    ```
 
 3. **Watch React Components** (separate terminal):
+
    ```bash
    npm run watchreact   # Manual watch
    # OR
@@ -301,28 +319,33 @@ Users configure API keys and endpoints for:
 ### Common Tasks
 
 **Compile TypeScript**:
+
 ```bash
 npm run compile
 ```
 
 **Type Checking Only**:
+
 ```bash
 npm run compile-check-ts-native
 ```
 
 **Lint Code**:
+
 ```bash
 npm run eslint
 npm run stylelint
 ```
 
 **Run Tests**:
+
 ```bash
 npm run test-node          # Node tests
 npm run test-browser       # Browser tests
 ```
 
 **Build for Distribution**:
+
 ```bash
 npm run dev:build-linux    # Linux dev build
 npm run dev:build-windows  # Windows dev build
@@ -331,9 +354,10 @@ npm run dev:build-windows  # Windows dev build
 ### Development Helpers
 
 **Deemon Integration** (daemon-based watch):
-- `npm run watchd` - Auto-restart on crash
-- `npm run kill-watchd` - Stop daemon
-- `npm run restart-watchd` - Restart daemon
+
+* `npm run watchd` - Auto-restart on crash
+* `npm run kill-watchd` - Stop daemon
+* `npm run restart-watchd` - Restart daemon
 
 ### Key Files to Understand
 
@@ -355,36 +379,40 @@ npm run dev:build-windows  # Windows dev build
 
 ### Code Style & Standards
 
-- **TypeScript**: Strict mode enabled
-- **React**: Hooks-based, functional components
-- **Build**: Gulp + custom scripts
-- **Testing**: Mocha (node), Playwright (browser)
+* **TypeScript**: Strict mode enabled
+* **React**: Hooks-based, functional components
+* **Build**: Gulp + custom scripts
+* **Testing**: Mocha (node), Playwright (browser)
 
 ### Critical Paths
 
 **When modifying AI features**:
-- Check `modelCapabilities.ts` first
-- Update learning engine if behavior changes
-- Consider impact on all 5 agent modes
+
+* Check `modelCapabilities.ts` first
+* Update learning engine if behavior changes
+* Consider impact on all 5 agent modes
 
 **When modifying UI**:
-- React components in `browser/react/src/`
-- Rebuild with `npm run buildreact`
-- Settings UI in `gridSettingsPane.ts`
+
+* React components in `browser/react/src/`
+* Rebuild with `npm run buildreact`
+* Settings UI in `gridSettingsPane.ts`
 
 **When adding providers**:
-- Update `modelCapabilities.ts`
-- Add SDK to `package.json`
-- Update provider config examples
+
+* Update `modelCapabilities.ts`
+* Add SDK to `package.json`
+* Update provider config examples
 
 ## 7. Known Gaps & Opportunities
 
 ### Documentation Gaps
 
 From `gemini.md` analysis:
-- **Website** doesn't mention DeepSeek R1 or QwQ support (fully implemented in code)
-- **Website** doesn't mention learning aspect of Auto-Debug
-- **Documentation** for MCP integration could be expanded
+
+* **Website** doesn't mention DeepSeek R1 or QwQ support (fully implemented in code)
+* **Website** doesn't mention learning aspect of Auto-Debug
+* **Documentation** for MCP integration could be expanded
 
 ### Areas for Enhancement
 
@@ -395,10 +423,11 @@ From `gemini.md` analysis:
 
 ## 8. Contributing Guidelines
 
-See: [HOW_TO_CONTRIBUTE.md](https://github.com/GRID-NETWORK-REPO/GRID/blob/main/HOW_TO_CONTRIBUTE.md)
+See: [HOW_TO_CONTRIBUTE.md](https://github.com/GRID-Editor/GRID/blob/main/HOW_TO_CONTRIBUTE.md)
 
 **Quick Start**:
-1. Check the [Project Board](https://github.com/orgs/GRID-NETWORK-REPO/projects/1)
+
+1. Check the [Project Board](https://github.com/orgs/GRID-Editor/projects/1)
 2. Join [Discord](https://discord.gg/bP3V8FKYux) for weekly meetings
 3. Fork and create a feature branch
 4. Submit PR with clear description
@@ -408,9 +437,10 @@ See: [HOW_TO_CONTRIBUTE.md](https://github.com/GRID-NETWORK-REPO/GRID/blob/main/
 ### File Extensions & Language Support
 
 GRID inherits VS Code's language support plus:
-- All standard VS Code extensions work
-- Marketplace extensions compatible
-- Custom GRID extensions for AI features
+
+* All standard VS Code extensions work
+* Marketplace extensions compatible
+* Custom GRID extensions for AI features
 
 ### CLI Commands
 
@@ -425,11 +455,11 @@ Standard VS Code shortcuts apply. GRID-specific shortcuts configurable in settin
 
 ## 10. Resources
 
-- **Codebase Guide**: [GRID_CODEBASE_GUIDE.md](./GRID_CODEBASE_GUIDE.md)
-- **Comparison**: [GRID vs Other AI Editors](docs/GRID-vs-Other-AI-Editors.md)
-- **Downloads**: [DOWNLOADS.md](DOWNLOADS.md)
-- **Discord**: https://discord.gg/bP3V8FKYux
-- **Website**: https://grideditor.com
+* **Codebase Guide**: [GRID_CODEBASE_GUIDE.md](./GRID_CODEBASE_GUIDE.md)
+* **Comparison**: [GRID vs Other AI Editors](docs/GRID-vs-Other-AI-Editors.md)
+* **Downloads**: [DOWNLOADS.md](DOWNLOADS.md)
+* **Discord**: <https://discord.gg/bP3V8FKYux>
+* **Website**: <https://grideditor.com>
 
 ---
 
@@ -450,11 +480,11 @@ When working on this codebase:
 
 ### Common Pitfall Avoidance
 
-- Don't modify VS Code core without clear need
-- Don't add dependencies without checking bundle impact
-- Don't skip React rebuild when changing UI
-- Don't assume single provider - test cross-provider
-- Don't break privacy principles
+* Don't modify VS Code core without clear need
+* Don't add dependencies without checking bundle impact
+* Don't skip React rebuild when changing UI
+* Don't assume single provider - test cross-provider
+* Don't break privacy principles
 
 ### When in Doubt
 

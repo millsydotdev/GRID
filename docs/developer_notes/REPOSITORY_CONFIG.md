@@ -7,11 +7,11 @@ This document describes the complete GitHub repository configuration for GRID. A
 ## Repository Information
 
 **Name:** GRID  
-**Owner:** GRID-NETWORK-REPO  
+**Owner:** GRID-Editor  
 **Type:** Private  
-**URL:** https://github.com/GRID-NETWORK-REPO/GRID  
+**URL:** <https://github.com/GRID-Editor/GRID>  
 **Description:** GRID - AI-powered code editor built on VS Code, supporting multiple AI providers (Anthropic, OpenAI, DeepSeek, Ollama) with advanced features  
-**Homepage:** https://github.com/GRID-NETWORK-REPO/GRID
+**Homepage:** <https://github.com/GRID-Editor/GRID>
 
 ### Topics (for discoverability)
 
@@ -49,6 +49,7 @@ This document describes the complete GitHub repository configuration for GRID. A
 ✅ **Allow merge commits:** Enabled  
 ✅ **Allow squash merging:** Enabled  
 ✅ **Allow rebase merging:** Enabled  
+
 - **Squash merge commit message:** COMMIT_MESSAGES  
 - **Squash merge commit title:** COMMIT_OR_PR_TITLE  
 - **Merge commit message:** PR_TITLE  
@@ -109,6 +110,7 @@ Located in `.github/ISSUE_TEMPLATE/`:
 Located at `.github/pull_request_template.md`:
 
 Simple template that reminds contributors to:
+
 - Read contributing guidelines
 - Associate an issue with the PR
 - Ensure code is up-to-date with main
@@ -139,6 +141,7 @@ All workflows use the built-in `GITHUB_TOKEN` secret provided automatically by G
 **No additional secrets are currently configured.**
 
 To add secrets:
+
 ```bash
 gh secret set SECRET_NAME
 ```
@@ -148,6 +151,7 @@ gh secret set SECRET_NAME
 **No repository variables are currently configured.**
 
 To add variables:
+
 ```bash
 gh variable set VARIABLE_NAME --body "value"
 ```
@@ -155,14 +159,16 @@ gh variable set VARIABLE_NAME --body "value"
 ## Environments
 
 **Environment:** GRID  
+
 - Created: 2025-12-26
 - Can admins bypass: Yes
 - Protection rules: None
 - Deployment branch policy: None
 
 To create additional environments:
+
 ```bash
-gh api --method PUT repos/GRID-NETWORK-REPO/GRID/environments/ENVIRONMENT_NAME
+gh api --method PUT repos/GRID-Editor/GRID/environments/ENVIRONMENT_NAME
 ```
 
 ## Branch Protection
@@ -170,6 +176,7 @@ gh api --method PUT repos/GRID-NETWORK-REPO/GRID/environments/ENVIRONMENT_NAME
 **Status:** Not available (requires GitHub Pro for private repositories)
 
 Branch protection rules would include:
+
 - Require pull request reviews before merging
 - Require status checks to pass
 - Require branches to be up to date before merging
@@ -219,7 +226,7 @@ gh repo view
 gh browse
 
 # View settings via API
-gh api repos/GRID-NETWORK-REPO/GRID
+gh api repos/GRID-Editor/GRID
 
 # List labels
 gh label list
@@ -228,7 +235,7 @@ gh label list
 gh workflow list
 
 # List environments
-gh api repos/GRID-NETWORK-REPO/GRID/environments
+gh api repos/GRID-Editor/GRID/environments
 ```
 
 ### Manage Labels
@@ -248,13 +255,13 @@ gh label delete "label-name"
 
 ```bash
 # Update repository settings
-gh api --method PATCH repos/GRID-NETWORK-REPO/GRID -f setting=value
+gh api --method PATCH repos/GRID-Editor/GRID -f setting=value
 
 # Update topics
-echo '{"names":["topic1","topic2"]}' | gh api --method PUT repos/GRID-NETWORK-REPO/GRID/topics --input -
+echo '{"names":["topic1","topic2"]}' | gh api --method PUT repos/GRID-Editor/GRID/topics --input -
 
 # Enable/disable features
-gh api --method PATCH repos/GRID-NETWORK-REPO/GRID -F has_discussions=true
+gh api --method PATCH repos/GRID-Editor/GRID -F has_discussions=true
 ```
 
 ### Manage Secrets & Variables
@@ -279,6 +286,7 @@ gh variable set VAR_NAME --body "value"
 ## Configuration History
 
 **2025-12-26:**
+
 - ✅ Installed GitHub CLI v2.62.0
 - ✅ Configured authentication with full access token
 - ✅ Updated repository description and homepage
@@ -334,12 +342,14 @@ If/when the repository becomes public:
 ## Support
 
 For GitHub CLI help:
+
 - `gh --help` - General help
 - `gh <command> --help` - Command-specific help
-- https://cli.github.com/manual/ - Official documentation
+- <https://cli.github.com/manual/> - Official documentation
 
 For GitHub API:
-- https://docs.github.com/en/rest - REST API documentation
+
+- <https://docs.github.com/en/rest> - REST API documentation
 - `gh api --help` - API command help
 
 ## Last Updated

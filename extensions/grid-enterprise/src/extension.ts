@@ -44,6 +44,7 @@ async function connectToHub(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('GRID Enterprise: Connected Successfully');
         checkConnection(context); // Update UI
     } catch (e) {
+        console.error('Failed to store token:', e);
         vscode.window.showErrorMessage('Failed to store token');
     }
 }

@@ -7,6 +7,7 @@
 ## What's Been Done ✅
 
 ### 1. GRID Repo Fixes (This Repo)
+
 - ✅ Fixed `@electron/get` compatibility issue (package.json overrides)
 - ✅ Created comprehensive fix documentation
 - ✅ Created workflow examples for grid-builder
@@ -14,6 +15,7 @@
 - ✅ All committed to branch `claude/cli-github-builder-setup-BQCdi`
 
 ### 2. Documentation Created
+
 | File | Purpose |
 |------|---------|
 | `GRID_BUILDER_FIXES.md` | Technical fixes for grid-builder Node/ESM errors |
@@ -31,6 +33,7 @@
 ### Step 1: Fix grid-builder Workflows (5 minutes)
 
 In the **grid-builder** repo, update these 3 files:
+
 - `.github/workflows/stable-linux.yml`
 - `.github/workflows/stable-macos.yml`  
 - `.github/workflows/stable-windows.yml`
@@ -53,31 +56,33 @@ See `grid-builder-workflows/stable-linux.yml` for complete example.
 
 ```bash
 # Trigger build (install gh CLI first if needed)
-gh workflow run stable-linux.yml --repo GRID-NETWORK-REPO/grid-builder
+gh workflow run stable-linux.yml --repo GRID-Editor/grid-builder
 
 # Watch progress
-gh run watch --repo GRID-NETWORK-REPO/grid-builder
+gh run watch --repo GRID-Editor/grid-builder
 ```
 
 **Expected results:**
+
 - ✅ No "EBADENGINE" warnings
 - ✅ No "ERR_REQUIRE_ESM" errors
 - ✅ Builds complete successfully
-- ✅ Artifacts uploaded to `GRID-NETWORK-REPO/binaries`
-- ✅ Metadata updated in `GRID-NETWORK-REPO/versions`
+- ✅ Artifacts uploaded to `GRID-Editor/binaries`
+- ✅ Metadata updated in `GRID-Editor/versions`
 
 ### Step 3: Create Downloads Page on Vercel (30-60 minutes)
 
 In the **GRID-WEBSITE** repo:
 
 1. Create `app/download/page.tsx`
-2. Create `lib/github.ts` 
+2. Create `lib/github.ts`
 3. Create `lib/platform-detect.ts`
 4. Create `components/DownloadSection.tsx`
 
 See `VERCEL_DOWNLOADS_PAGE_SETUP.md` for complete code.
 
 **Then deploy:**
+
 ```bash
 git add .
 git commit -m "feat: Add downloads page"
@@ -107,9 +112,9 @@ Installs deps with @electron/get@2.0.3
          ↓
 Builds Linux/Mac/Windows successfully
          ↓
-Uploads to GRID-NETWORK-REPO/binaries
+Uploads to GRID-Editor/binaries
          ↓
-Updates GRID-NETWORK-REPO/versions metadata
+Updates GRID-Editor/versions metadata
          ↓
 Website fetches from versions (cached 5 min)
          ↓
@@ -127,10 +132,12 @@ Users can install and run GRID! 🎉
 ## Issues Fixed
 
 ### grid-builder Issues
+
 1. **Node version mismatch**: v20 used, v22 required → Fixed by reading .nvmrc
 2. **ESM module error**: @electron/get@4.0.1 incompatible → Fixed by forcing v2.0.3
 
 ### Website Issues
+
 1. **/download returns 404**: No page exists → Implementation guide provided
 
 ---
@@ -138,6 +145,7 @@ Users can install and run GRID! 🎉
 ## Files by Repository
 
 ### GRID (this repo) - Changes committed ✅
+
 - `package.json` - Added @electron/get overrides
 - `GRID_BUILDER_FIXES.md` - Technical docs
 - `BUILDER_AND_DOWNLOADS_SETUP.md` - Overview
@@ -145,11 +153,13 @@ Users can install and run GRID! 🎉
 - `grid-builder-workflows/` - Example workflows
 
 ### grid-builder - Needs updates ⏳
+
 - `.github/workflows/stable-linux.yml` - Add dynamic Node version
 - `.github/workflows/stable-macos.yml` - Add dynamic Node version
 - `.github/workflows/stable-windows.yml` - Add dynamic Node version
 
 ### GRID-WEBSITE - Needs new page ⏳
+
 - `app/download/page.tsx` - Download page
 - `lib/github.ts` - Fetch releases
 - `lib/platform-detect.ts` - Detect OS
@@ -168,8 +178,8 @@ git commit -m "fix: Use dynamic Node version from GRID"
 git push
 
 # 2. Test builder
-gh workflow run stable-linux.yml --repo GRID-NETWORK-REPO/grid-builder
-gh run watch --repo GRID-NETWORK-REPO/grid-builder
+gh workflow run stable-linux.yml --repo GRID-Editor/grid-builder
+gh run watch --repo GRID-Editor/grid-builder
 
 # 3. Add downloads page to website
 cd /path/to/GRID-WEBSITE
@@ -188,6 +198,7 @@ open https://grid-website-millsydotdev-grid-editor.vercel.app/download
 ## Success Criteria
 
 You'll know it's working when:
+
 - ✅ Builder completes without errors
 - ✅ Binaries appear in binaries repo
 - ✅ Metadata updated in versions repo  

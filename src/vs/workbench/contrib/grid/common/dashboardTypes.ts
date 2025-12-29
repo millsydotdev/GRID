@@ -51,7 +51,7 @@ export interface DashboardSettings {
 export const defaultDashboardSettings: DashboardSettings = {
 	tier: 'community',
 	dashboardApiKey: undefined,
-	dashboardEndpoint: 'https://dashboard.grid.network',
+	dashboardEndpoint: 'https://grideditor.com',
 	autoSyncConfig: true,
 	configSource: 'local',
 	lastSyncTimestamp: undefined,

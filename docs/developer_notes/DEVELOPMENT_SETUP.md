@@ -6,6 +6,7 @@ Complete guide for setting up your development environment for GRID.
 > To **build the GRID IDE for distribution**, see [BUILDING_GRID_IDE.md](./BUILDING_GRID_IDE.md).
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [System Requirements](#system-requirements)
 3. [Environment Variables & API Keys](#environment-variables--api-keys)
@@ -22,27 +23,33 @@ Complete guide for setting up your development environment for GRID.
 ### Required Software
 
 #### All Platforms
+
 - **Node.js**: Version `22.20.0` (exact version - see `.nvmrc`)
   - Use [nvm](https://github.com/nvm-sh/nvm) for easy version management:
+
     ```bash
     nvm install
     nvm use
     ```
+
 - **npm**: Comes with Node.js
 - **Git**: For version control
 - **Rust & Cargo**: Required for CLI builds
-  - Install from: https://rustup.rs/
+  - Install from: <https://rustup.rs/>
 
 #### macOS
+
 - **Python**: Usually pre-installed
 - **Xcode Command Line Tools**:
+
   ```bash
   xcode-select --install
   ```
 
 #### Windows
+
 - **Visual Studio 2022** (Community Edition) or **VS Build Tools**
-  - Download from: https://visualstudio.microsoft.com/
+  - Download from: <https://visualstudio.microsoft.com/>
   - Required Workloads:
     - `Desktop development with C++`
     - `Node.js build tools`
@@ -52,21 +59,25 @@ Complete guide for setting up your development environment for GRID.
     - `C++ MFC for latest build tools with Spectre Mitigations`
 
 #### Linux
+
 - **Build tools and libraries**:
 
   **Debian/Ubuntu:**
+
   ```bash
   sudo apt-get install build-essential g++ libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev python-is-python3
   npm install -g node-gyp
   ```
 
   **Fedora/Red Hat:**
+
   ```bash
   sudo dnf install @development-tools gcc gcc-c++ make libsecret-devel krb5-devel libX11-devel libxkbfile-devel
   npm install -g node-gyp
   ```
 
   **openSUSE/SUSE:**
+
   ```bash
   sudo zypper install patterns-devel-C-C++-devel_C_C++ krb5-devel libsecret-devel libxkbfile-devel libX11-devel
   npm install -g node-gyp
@@ -91,39 +102,39 @@ GRID supports multiple AI providers. You'll configure these through the GRID set
 #### Cloud Providers (Require API Keys)
 
 1. **Anthropic (Claude)**
-   - Get API key: https://console.anthropic.com/
+   - Get API key: <https://console.anthropic.com/>
    - Models: claude-opus-4-5, claude-sonnet-4-5, claude-haiku-4-5, etc.
 
 2. **OpenAI (GPT)**
-   - Get API key: https://platform.openai.com/api-keys
+   - Get API key: <https://platform.openai.com/api-keys>
    - Models: gpt-5.1, gpt-4.1, gpt-4o, o3, o1, etc.
 
 3. **DeepSeek**
-   - Get API key: https://platform.deepseek.com/
+   - Get API key: <https://platform.deepseek.com/>
    - Cost-effective alternative
 
 4. **OpenRouter**
-   - Get API key: https://openrouter.ai/
+   - Get API key: <https://openrouter.ai/>
    - Access to multiple models through one API
 
 5. **Gemini (Google)**
-   - Get API key: https://makersuite.google.com/app/apikey
+   - Get API key: <https://makersuite.google.com/app/apikey>
    - Google's AI models
 
 6. **Groq**
-   - Get API key: https://console.groq.com/
+   - Get API key: <https://console.groq.com/>
    - Fast inference platform
 
 7. **xAI (Grok)**
-   - Get API key: https://x.ai/
+   - Get API key: <https://x.ai/>
    - Grok models
 
 8. **Mistral**
-   - Get API key: https://console.mistral.ai/
+   - Get API key: <https://console.mistral.ai/>
    - European AI provider
 
 9. **HuggingFace**
-   - Get API key: https://huggingface.co/settings/tokens
+   - Get API key: <https://huggingface.co/settings/tokens>
    - Access to HF models
 
 10. **Microsoft Azure**
@@ -164,6 +175,7 @@ GRID supports multiple AI providers. You'll configure these through the GRID set
 ### Configuration
 
 API keys and endpoints are configured through:
+
 - **GRID Settings UI**: Open GRID → Settings → AI Providers
 - Settings are stored in: `~/.grid/` (Linux/macOS) or `%APPDATA%\.grid\` (Windows)
 
@@ -174,19 +186,21 @@ API keys and endpoints are configured through:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/GRID-NETWORK-REPO/GRID.git
+git clone https://github.com/GRID-Editor/GRID.git
 cd GRID
 ```
 
 ### 2. Install Node.js (Correct Version)
 
 Using nvm (recommended):
+
 ```bash
 nvm install
 nvm use
 ```
 
 Verify:
+
 ```bash
 node --version  # Should output: v22.20.0
 ```
@@ -209,6 +223,7 @@ npm install
 ```
 
 This will:
+
 - Install all Node.js dependencies
 - Run post-install scripts
 - Set up the development environment
@@ -238,11 +253,13 @@ ollama pull llama3.1
    - Select "npm: watch"
 
    **From Terminal:**
+
    ```bash
    npm run watch
    ```
 
    Wait until you see:
+
    ```
    [watch-extensions] Finished compilation extensions with 0 errors
    [watch-client] Finished compilation with 0 errors
@@ -259,6 +276,7 @@ ollama pull llama3.1
    ```
 
    **Pro tip**: Add these flags to use isolated settings:
+
    ```bash
    ./scripts/code.sh --user-data-dir ./.tmp/user-data --extensions-dir ./.tmp/extensions
    ```
@@ -322,6 +340,7 @@ Output: `dev-builds/linux/code` or `dev-builds/windows/code.exe`
 ### Production Builds (Slow, ~25 minutes)
 
 **macOS:**
+
 ```bash
 # Apple Silicon
 npm run gulp vscode-darwin-arm64
@@ -331,6 +350,7 @@ npm run gulp vscode-darwin-x64
 ```
 
 **Windows:**
+
 ```bash
 # x64 (most common)
 npm run gulp vscode-win32-x64
@@ -340,6 +360,7 @@ npm run gulp vscode-win32-arm64
 ```
 
 **Linux:**
+
 ```bash
 # x64 (most common)
 npm run gulp vscode-linux-x64
@@ -349,6 +370,7 @@ npm run gulp vscode-linux-arm64
 ```
 
 **Output Location**: The executable will be in a folder outside the repo:
+
 ```
 workspace/
 ├── GRID/          # Your repo
@@ -422,6 +444,7 @@ GRID uses GitHub Actions for CI/CD. See `.github/workflows/` for pipeline config
 ### Building for Release
 
 Production releases are built using GitHub Actions workflows:
+
 - `pr.yml` - Pull request validation
 - `pr-linux-test.yml` - Linux tests
 - `pr-darwin-test.yml` - macOS tests
@@ -447,34 +470,45 @@ npm run minify-vscode
 ### Common Issues
 
 #### "TypeError: Failed to fetch dynamically imported module"
+
 - **Fix**: Make sure all imports end with `.js`
 
 #### React/Style Issues
+
 - **Fix**:
+
   ```bash
   NODE_OPTIONS="--max-old-space-size=8192" npm run buildreact
   ```
+
 - Wait a few seconds and reload the window
 
 #### Node Version Mismatch
+
 - **Fix**: Use the exact version in `.nvmrc`:
+
   ```bash
   nvm install
   nvm use
   ```
 
 #### Path with Spaces
+
 - **Fix**: Make sure the path to your GRID folder has no spaces
 - Move to a path like `/home/user/projects/GRID` instead of `/home/user/My Projects/GRID`
 
 #### Linux: "libtool: error: unrecognised option: '-static'"
+
 - **Fix**: Install GNU libtool (macOS uses BSD libtool by default)
+
   ```bash
   brew install libtool
   ```
 
 #### Linux: "SUID sandbox helper binary error"
+
 - **Fix**:
+
   ```bash
   sudo chown root:root .build/electron/chrome-sandbox
   sudo chmod 4755 .build/electron/chrome-sandbox
@@ -482,19 +516,21 @@ npm run minify-vscode
   ```
 
 #### Build Fails on npm install
+
 - **Fix**: Make sure you have platform-specific build tools installed (see Prerequisites)
 - On Windows: Verify Visual Studio components are installed
 - On Linux: Run the `apt-get install` / `dnf install` / `zypper install` commands above
 
 #### Watchers Won't Stop
+
 - **Fix**: Press `Ctrl+D` in the terminal running the watcher
 - Don't use `Ctrl+C` as it leaves processes running in background
 
 ### Getting Help
 
-- **Discord**: https://discord.gg/bP3V8FKYux
-- **GitHub Issues**: https://github.com/GRID-NETWORK-REPO/GRID/issues
-- **Discussions**: https://github.com/GRID-NETWORK-REPO/GRID/discussions
+- **Discord**: <https://discord.gg/bP3V8FKYux>
+- **GitHub Issues**: <https://github.com/GRID-Editor/GRID/issues>
+- **Discussions**: <https://github.com/GRID-Editor/GRID/discussions>
 
 ---
 
@@ -547,9 +583,9 @@ npm run gulp vscode-linux-x64   # Build Linux executable
 ## Next Steps
 
 1. **Configure AI Providers**: Open GRID → Settings → Add your API keys
-2. **Join Community**: https://discord.gg/bP3V8FKYux
+2. **Join Community**: <https://discord.gg/bP3V8FKYux>
 3. **Read Codebase Guide**: See `GRID_CODEBASE_GUIDE.md`
-4. **Check Roadmap**: https://github.com/orgs/GRID-NETWORK-REPO/projects/1
+4. **Check Roadmap**: <https://github.com/orgs/GRID-Editor/projects/1>
 5. **Start Contributing**: See `HOW_TO_CONTRIBUTE.md`
 
 Happy coding! 🚀

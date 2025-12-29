@@ -1,9 +1,11 @@
 # Grid-Builder Workflow Fixes - CORRECTED
 
 ## Issue Found
+
 The initial fix I pushed had a critical error: the workflow steps were in the wrong order. The "Setup Node.js environment" step was running BEFORE "Clone VSCode repo", which meant it couldn't read the Node version from vscode/.nvmrc.
 
 ## Root Cause
+
 GitHub Actions workflows have multiple JOBS (check, compile, build, etc.), and each job runs independently. The fix needed to be applied to EACH job separately, ensuring the correct step order:
 
 1. Clone VSCode repo (or Download vscode artifact)
@@ -15,16 +17,19 @@ GitHub Actions workflows have multiple JOBS (check, compile, build, etc.), and e
 ## Corrected Fixes Applied
 
 ### stable-linux.yml
+
 - ✅ Removed orphaned "Get Node version" step that tried to read .nvmrc before cloning
 - ✅ Fixed step order in ALL jobs (check, compile, build, reh_linux, reh_alpine)
 - ✅ Added artifact extraction step before reading .nvmrc in download jobs
 
 ### stable-macos.yml
+
 - ✅ Fixed step order in build job
 - ✅ Removed duplicate "Get Node version" step
 - ✅ Ensured "Setup Node" comes immediately after "Get Node version"
 
 ### stable-windows.yml
+
 - ✅ Fixed step order in ALL jobs (check, compile, build)
 - ✅ Added artifact extraction step for build job
 - ✅ Used PowerShell syntax for Windows: `>> $Env:GITHUB_OUTPUT`
@@ -32,20 +37,26 @@ GitHub Actions workflows have multiple JOBS (check, compile, build, etc.), and e
 ## Verification
 
 ### Old Builds (Failed)
+
 The initial builds failed because they were still using Node v20.19.6:
+
 ```
 current: { node: 'v20.19.6', npm: '10.8.2' }
 *** Please use Node.js v22.15.1 or later for development.
 ```
 
 ### New Builds (Running)
+
 Triggered at 2025-12-27T03:05:21-24Z with corrected workflows:
+
 - stable-linux: in_progress
 - stable-macos: in_progress
 - stable-windows: in_progress
 
 ## Expected Outcome
+
 The builds should now:
+
 1. Clone the GRID repository
 2. Read the Node version from `.nvmrc` (currently 22.15.1)
 3. Set up Node.js v22.15.1 (or whatever version is in .nvmrc)
@@ -57,25 +68,30 @@ The builds should now:
 
 ## Files Modified
 
-### GRID-NETWORK-REPO/grid-builder
+### GRID-Editor/grid-builder
+
 - `.github/workflows/stable-linux.yml` - Corrected step order (commit: a2869f0...)
 - `.github/workflows/stable-macos.yml` - Corrected step order (commit: 976122d...)
 - `.github/workflows/stable-windows.yml` - Corrected step order (commit: 74ee080...)
 
-### GRID-NETWORK-REPO/GRID-WEBSITE
+### GRID-Editor/GRID-WEBSITE
+
 - `app/download/page.tsx` - Downloads page (unchanged, already created)
 
-### GRID-NETWORK-REPO/GRID
+### GRID-Editor/GRID
+
 - `package.json` - @electron/get override (unchanged, already applied)
 
 ## Monitoring
 
 Check build progress:
-- https://github.com/GRID-NETWORK-REPO/grid-builder/actions
+
+- <https://github.com/GRID-Editor/grid-builder/actions>
 
 Once builds complete successfully:
-- Binaries will appear at: https://github.com/GRID-NETWORK-REPO/binaries/releases
-- Downloads page will update: https://grid-website-millsydotdev-grid-editor.vercel.app/download
+
+- Binaries will appear at: <https://github.com/GRID-Editor/binaries/releases>
+- Downloads page will update: <https://grid-website-millsydotdev-grid-editor.vercel.app/download>
 
 ## Lessons Learned
 

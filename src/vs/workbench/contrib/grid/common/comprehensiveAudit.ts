@@ -206,10 +206,10 @@ export function printComprehensiveAuditReport(): void {
 
 	// Startup
 	if (report.startup) {
-		console.group('🚀 Startup');
+		console.group('[STARTUP]');
 		console.log(`Cold Start: ${report.startup.coldStartTime.toFixed(1)}ms`);
 		console.log(
-			`Warm Start: ${report.startup.warmStartTime.toFixed(1)}ms (target: ≤1200ms) ${report.targets.startup.met ? '✅' : '❌'}`
+			`Warm Start: ${report.startup.warmStartTime.toFixed(1)}ms (target: ≤1200ms) ${report.targets.startup.met ? '[PASS]' : '[FAIL]'}`
 		);
 		console.log(`Ready to Type: ${report.startup.readyToType.toFixed(1)}ms`);
 		console.log(`Extension Activation: ${report.startup.extensionActivationTime.toFixed(1)}ms`);
@@ -226,17 +226,17 @@ export function printComprehensiveAuditReport(): void {
 	}
 
 	// Chat
-	console.group('💬 Chat Performance');
+	console.group('[CHAT Performance]');
 	console.log(`Sample Size: ${report.chat.count} requests`);
 	console.log(
-		`TTFS: ${report.chat.ttfs.p50.toFixed(1)}ms / ${report.chat.ttfs.p95.toFixed(1)}ms (target: ≤400ms) ${report.targets.ttfs.met ? '✅' : '❌'}`
+		`TTFS: ${report.chat.ttfs.p50.toFixed(1)}ms / ${report.chat.ttfs.p95.toFixed(1)}ms (target: ≤400ms) ${report.targets.ttfs.met ? '[PASS]' : '[FAIL]'}`
 	);
 	console.log(
-		`TTS: ${report.chat.tts.p50.toFixed(1)}ms / ${report.chat.tts.p95.toFixed(1)}ms (target: ≤3000ms) ${report.targets.tts.met ? '✅' : '❌'}`
+		`TTS: ${report.chat.tts.p50.toFixed(1)}ms / ${report.chat.tts.p95.toFixed(1)}ms (target: ≤3000ms) ${report.targets.tts.met ? '[PASS]' : '[FAIL]'}`
 	);
 	if (report.chat.routerDecisionTime.p50 > 0) {
 		console.log(
-			`Router Decision: ${report.chat.routerDecisionTime.p50.toFixed(1)}ms / ${report.chat.routerDecisionTime.p95.toFixed(1)}ms (target: ≤10ms) ${report.targets.routerDecision.met ? '✅' : '❌'}`
+			`Router Decision: ${report.chat.routerDecisionTime.p50.toFixed(1)}ms / ${report.chat.routerDecisionTime.p95.toFixed(1)}ms (target: ≤10ms) ${report.targets.routerDecision.met ? '[PASS]' : '[FAIL]'}`
 		);
 	}
 	console.log(
@@ -254,55 +254,55 @@ export function printComprehensiveAuditReport(): void {
 
 	// Diff/Composer
 	if (report.diffComposer) {
-		console.group('📝 Diff/Composer');
+		console.group('[DIFF/Composer]');
 		console.log(
-			`Panel Open: ${report.diffComposer.panelOpenTime.toFixed(1)}ms (target: ≤250ms) ${report.targets.diffOpen.met ? '✅' : '❌'}`
+			`Panel Open: ${report.diffComposer.panelOpenTime.toFixed(1)}ms (target: ≤250ms) ${report.targets.diffOpen.met ? '[PASS]' : '[FAIL]'}`
 		);
 		console.log(
 			`Hunk Render: ${report.diffComposer.hunkRenderTime.toFixed(1)}ms (${report.diffComposer.hunkCount} hunks)`
 		);
 		console.log(
-			`Apply: ${report.diffComposer.applyTime.toFixed(1)}ms (target: ≤300ms) ${report.targets.diffApply.met ? '✅' : '❌'}`
+			`Apply: ${report.diffComposer.applyTime.toFixed(1)}ms (target: ≤300ms) ${report.targets.diffApply.met ? '[PASS]' : '[FAIL]'}`
 		);
 		console.log(`Undo: ${report.diffComposer.undoTime.toFixed(1)}ms`);
 		console.groupEnd();
 	}
 
 	// Recovery
-	console.group('🔄 Recovery');
+	console.group('[RECOVERY]');
 	console.log(
 		`Auto-Stash: ${report.recovery.autoStashCount} operations, avg ${report.recovery.autoStashTime.toFixed(1)}ms`
 	);
 	console.log(
-		`Rollback: ${report.recovery.rollbackCount} operations, avg ${report.recovery.rollbackTime.toFixed(1)}ms, success: ${report.recovery.rollbackSuccess ? '✅' : '❌'}`
+		`Rollback: ${report.recovery.rollbackCount} operations, avg ${report.recovery.rollbackTime.toFixed(1)}ms, success: ${report.recovery.rollbackSuccess ? '[PASS]' : '[FAIL]'}`
 	);
 	console.log(`Lost State: ${report.recovery.lostStateIncidents} incidents`);
 	console.log(`Recovered State: ${report.recovery.recoveredStateIncidents} incidents`);
 	console.groupEnd();
 
 	// Onboarding
-	console.group('🎓 Onboarding');
+	console.group('[ONBOARDING]');
 	console.log(
-		`First-Run Duration: ${(report.onboarding.firstRunDuration / 1000).toFixed(1)}s (target: ≤90s) ${report.targets.onboarding.met ? '✅' : '❌'}`
+		`First-Run Duration: ${(report.onboarding.firstRunDuration / 1000).toFixed(1)}s (target: ≤90s) ${report.targets.onboarding.met ? '[PASS]' : '[FAIL]'}`
 	);
 	console.log(`Time to First Chat: ${(report.onboarding.timeToFirstChat / 1000).toFixed(1)}s`);
 	console.log(`Time to First Diff Apply: ${(report.onboarding.timeToFirstDiffApply / 1000).toFixed(1)}s`);
-	console.log(`Command Palette Opened: ${report.onboarding.commandPaletteOpened ? '✅' : '❌'}`);
-	console.log(`Quick Actions Discovered: ${report.onboarding.quickActionsDiscovered ? '✅' : '❌'}`);
+	console.log(`Command Palette Opened: ${report.onboarding.commandPaletteOpened ? '[PASS]' : '[FAIL]'}`);
+	console.log(`Quick Actions Discovered: ${report.onboarding.quickActionsDiscovered ? '[PASS]' : '[FAIL]'}`);
 	console.groupEnd();
 
 	// Targets
-	console.group('🎯 Targets');
+	console.group('[TARGETS]');
 	Object.entries(report.targets).forEach(([key, target]) => {
 		const met = 'met' in target ? target.met : false;
 		const value = 'p95' in target ? target.p95 : 'actual' in target ? target.actual : 0;
 		const targetValue = 'target' in target ? target.target : 0;
-		console.log(`${key}: ${value.toFixed(1)} (target: ${targetValue}) ${met ? '✅' : '❌'}`);
+		console.log(`${key}: ${value.toFixed(1)} (target: ${targetValue}) ${met ? '[PASS]' : '[FAIL]'}`);
 	});
 	console.groupEnd();
 
 	// Bottlenecks
-	console.group('🔍 Top Bottlenecks');
+	console.group('[BOTTLENECKS]');
 	report.bottlenecks.forEach((b, i) => {
 		console.log(`${i + 1}. ${b}`);
 	});
@@ -318,3 +318,4 @@ if (typeof window !== 'undefined') {
 		print: printComprehensiveAuditReport,
 	};
 }
+

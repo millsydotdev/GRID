@@ -1110,7 +1110,7 @@ export class GettingStartedPage extends EditorPane {
 
 			if (showExtras) {
 				const branch = this.productService.quality === 'insider' ? 'insider' : 'master';
-				await fetch(`https://raw.githubusercontent.com/GRID-NETWORK-REPO/grid-binaries/${branch}/announcements-extra.json`)
+				await fetch(`https://raw.githubusercontent.com/GRID-Editor/grid-binaries/${branch}/announcements-extra.json`)
 					.then(async res => {
 						if (res.ok) {
 							const extraAnnouncements = await res.json() as AnnouncementEntry[];

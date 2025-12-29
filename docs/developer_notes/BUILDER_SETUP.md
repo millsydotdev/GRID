@@ -29,6 +29,7 @@ There are two ways to trigger a release build:
 5. Click **"Run workflow"**
 
 The workflow will:
+
 - ✅ Build for Linux, Windows, and macOS in parallel
 - ✅ Upload build artifacts
 - ✅ Create a GitHub Release (if selected)
@@ -49,6 +50,7 @@ This automatically triggers the release workflow and creates a GitHub Release.
 ### Linux Build (`ubuntu-22.04`)
 
 Steps:
+
 1. Install system dependencies (`libx11-dev`, `libxkbfile-dev`, etc.)
 2. Install Node.js dependencies
 3. Compile build scripts
@@ -63,6 +65,7 @@ Steps:
 ### Windows Build (`windows-2022`)
 
 Steps:
+
 1. Install Node.js dependencies
 2. Compile build scripts
 3. Compile application code
@@ -76,6 +79,7 @@ Steps:
 ### macOS Build (`macos-14`)
 
 Steps:
+
 1. Install Node.js dependencies
 2. Compile build scripts
 3. Compile application code
@@ -91,6 +95,7 @@ Steps:
 ### Test Without Creating a Release
 
 Run the workflow manually with:
+
 - **Version**: `test-build-<date>`
 - **Create GitHub Release**: **Unchecked**
 
@@ -143,6 +148,7 @@ Artifacts are retained for **30 days** by default.
 ### Build Fails on Linux
 
 **Common issues**:
+
 - Missing system dependencies → Check apt install step
 - Node version mismatch → Verify `.nvmrc` file
 - Compilation errors → Check TypeScript errors in logs
@@ -150,6 +156,7 @@ Artifacts are retained for **30 days** by default.
 ### Build Fails on Windows
 
 **Common issues**:
+
 - Path length limits → Use shorter paths or enable long paths
 - PowerShell execution policy → Should be unrestricted in CI
 - Native module compilation → Check node-gyp setup
@@ -157,6 +164,7 @@ Artifacts are retained for **30 days** by default.
 ### Build Fails on macOS
 
 **Common issues**:
+
 - Xcode command line tools → Should be pre-installed on runner
 - Code signing (if enabled) → Verify certificates
 - Native modules → Check for ARM64 compatibility
@@ -164,6 +172,7 @@ Artifacts are retained for **30 days** by default.
 ### Artifact Upload Fails
 
 **Common issues**:
+
 - Artifact too large → Check artifact size limits (500 MB default)
 - Network timeout → Retry the workflow
 - Path not found → Verify archive creation step succeeded
@@ -173,6 +182,7 @@ Artifacts are retained for **30 days** by default.
 ### Custom Build Scripts
 
 You can customize the build by modifying:
+
 - **Compilation**: `package.json` scripts
 - **Packaging**: `npm run minify-vscode` in `gulpfile.js`
 - **Bundling**: Modify gulp tasks in `/build/gulpfile.*.js`
@@ -201,6 +211,7 @@ Add signing steps before the "Create distribution archive" step in each job.
 ### Pull Request Builds
 
 PR builds run on `.github/workflows/pr.yml` and include:
+
 - Compilation checks
 - Hygiene checks
 - Unit tests
@@ -211,6 +222,7 @@ These do NOT create release artifacts.
 ### Release Builds
 
 Release builds run on `.github/workflows/release-build.yml` and:
+
 - Build production-ready binaries
 - Create downloadable archives
 - Publish to GitHub Releases
@@ -221,6 +233,7 @@ Release builds run on `.github/workflows/release-build.yml` and:
 ### GitHub Actions Dashboard
 
 View all workflow runs:
+
 1. Go to **Actions** tab
 2. Filter by workflow: "Release Build"
 3. Click on a run to see details
@@ -231,7 +244,7 @@ View all workflow runs:
 Add to your README:
 
 ```markdown
-[![Release Build](https://github.com/GRID-NETWORK-REPO/GRID/actions/workflows/release-build.yml/badge.svg)](https://github.com/GRID-NETWORK-REPO/GRID/actions/workflows/release-build.yml)
+[![Release Build](https://github.com/GRID-Editor/GRID/actions/workflows/release-build.yml/badge.svg)](https://github.com/GRID-Editor/GRID/actions/workflows/release-build.yml)
 ```
 
 ## Next Steps

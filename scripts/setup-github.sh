@@ -19,7 +19,7 @@ if [ -z "$1" ]; then
 fi
 
 GITHUB_TOKEN=$1
-REPO_OWNER="GRID-NETWORK-REPO"
+REPO_OWNER="GRID-Editor"
 REPO_NAME="GRID"
 
 echo "📋 Step 1/7: Checking system requirements..."

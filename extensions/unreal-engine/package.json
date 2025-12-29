@@ -9,8 +9,19 @@
     "vscode": "^1.5.0"
   },
   "icon": "media/icon.png",
-  "categories": ["Programming Languages", "Debuggers"],
-  "keywords": ["unreal", "unreal engine", "ue5", "ue4", "cpp", "c++", "gamedev"],
+  "categories": [
+    "Programming Languages",
+    "Debuggers"
+  ],
+  "keywords": [
+    "unreal",
+    "unreal engine",
+    "ue5",
+    "ue4",
+    "cpp",
+    "c++",
+    "gamedev"
+  ],
   "capabilities": {
     "virtualWorkspaces": false,
     "untrustedWorkspaces": {
@@ -31,8 +42,14 @@
     "languages": [
       {
         "id": "unreal-cpp",
-        "aliases": ["Unreal C++", "UE C++"],
-        "extensions": [".h", ".cpp"],
+        "aliases": [
+          "Unreal C++",
+          "UE C++"
+        ],
+        "extensions": [
+          ".h",
+          ".cpp"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -87,6 +104,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GRID-NETWORK-REPO/GRID.git"
+    "url": "https://github.com/GRID-Editor/GRID.git"
   }
 }

@@ -5,6 +5,7 @@
 **Status:** ❌ Not available for private repositories on free plan
 
 To enable branch protection, you need:
+
 - GitHub Pro account, OR  
 - Make repositories public
 
@@ -55,6 +56,7 @@ jobs:
 ## Repository Settings (Already Configured)
 
 ### GRID
+
 - ✅ Issues: Enabled
 - ✅ Projects: Enabled  
 - ✅ Discussions: Enabled
@@ -64,6 +66,7 @@ jobs:
 - ✅ Topics: 15 topics for discoverability
 
 ### GRID-BUILDER
+
 - ✅ Issues: Enabled
 - ✅ Projects: Enabled
 - ✅ Delete branch on merge: Enabled
@@ -73,21 +76,24 @@ jobs:
 - ✅ Secrets: STRONGER_GITHUB_TOKEN configured
 
 ### GRID-WEBSITE
+
 - ✅ Issues: Enabled
 - ✅ Projects: Enabled
 - ✅ Delete branch on merge: Enabled
 - ✅ Allow update branch: Enabled
-- ✅ Homepage: https://grid.millsy.dev
+- ✅ Homepage: <https://grid.millsy.dev>
 - ✅ Topics: 6 website-related topics
 - ✅ Labels: Frontend/design labels
 
 ### binaries
+
 - ✅ Delete branch on merge: Enabled
 - ✅ Topics: 5 release-related topics
 - ❌ Issues: Disabled (artifact storage)
 - ❌ Wiki: Disabled
 
 ### versions
+
 - ✅ Delete branch on merge: Enabled
 - ✅ Topics: 5 metadata-related topics
 - ❌ Issues: Disabled (metadata only)
@@ -96,6 +102,7 @@ jobs:
 ## Merge Settings
 
 All repositories configured with:
+
 - ✅ Allow squash merging
 - ✅ Allow merge commits
 - ✅ Allow rebase merging
@@ -105,17 +112,21 @@ All repositories configured with:
 ## Security Settings
 
 ### Available (Free Plan)
+
 - ✅ Private repository visibility
 - ✅ Dependabot alerts (if enabled on account)
 - ✅ Two-factor authentication (account level)
 
 ### Requires GitHub Advanced Security
+
 - ❌ Secret scanning
 - ❌ Code scanning
 - ❌ Dependency review
 
 ### Workarounds
+
 Use GitHub Actions for:
+
 - Code quality checks
 - Security scanning (third-party tools)
 - Dependency audits
@@ -123,10 +134,13 @@ Use GitHub Actions for:
 ## Webhook & Integration Settings
 
 ### GitHub Actions
+
 All repositories have Actions enabled with appropriate secrets.
 
 ### Vercel Integration (GRID-WEBSITE)
+
 Connected via:
+
 1. Vercel GitHub App
 2. Automatic deployments on push
 3. Preview deployments for PRs
@@ -134,13 +148,16 @@ Connected via:
 ## Recommended Manual Configurations
 
 ### 1. Enable GitHub Pro (Optional)
+
 Benefits:
+
 - Branch protection for private repos
 - Protected branches with required reviews
 - CODEOWNERS file enforcement
 - Auto-merge for PRs
 
 ### 2. Set Up CODEOWNERS
+
 ```bash
 # .github/CODEOWNERS
 * @your-username
@@ -149,6 +166,7 @@ Benefits:
 ```
 
 ### 3. Enable Security Features
+
 ```bash
 # Navigate to Settings → Code security and analysis
 - Enable Dependabot alerts
@@ -159,11 +177,13 @@ Benefits:
 ### 4. Configure Environments
 
 For GRID-BUILDER:
+
 ```bash
-gh api --method PUT repos/GRID-NETWORK-REPO/GRID-BUILDER/environments/production
+gh api --method PUT repos/GRID-Editor/GRID-BUILDER/environments/production
 ```
 
 Protection rules (requires GitHub Pro):
+
 - Required reviewers
 - Wait timer
 - Deployment branches
@@ -171,6 +191,7 @@ Protection rules (requires GitHub Pro):
 ## Automation Rules
 
 ### Stale Issues (GitHub Actions)
+
 ```yaml
 # .github/workflows/stale.yml
 name: Mark Stale Issues
@@ -189,6 +210,7 @@ jobs:
 ```
 
 ### Auto-Label PRs
+
 ```yaml
 # .github/workflows/label-pr.yml
 name: Label PRs
@@ -206,10 +228,12 @@ jobs:
 ## Monitoring & Notifications
 
 ### Configured
+
 - ✅ GitHub Actions notifications
 - ✅ Release notifications
 
 ### Recommended
+
 - Set up Slack/Discord webhooks for:
   - Build failures
   - New releases
@@ -218,19 +242,21 @@ jobs:
 ## Quick Setup Commands
 
 ### Clone All Repos
+
 ```bash
-gh repo clone GRID-NETWORK-REPO/GRID
-gh repo clone GRID-NETWORK-REPO/GRID-BUILDER
-gh repo clone GRID-NETWORK-REPO/GRID-WEBSITE
-gh repo clone GRID-NETWORK-REPO/binaries
-gh repo clone GRID-NETWORK-REPO/versions
+gh repo clone GRID-Editor/GRID
+gh repo clone GRID-Editor/GRID-BUILDER
+gh repo clone GRID-Editor/GRID-WEBSITE
+gh repo clone GRID-Editor/binaries
+gh repo clone GRID-Editor/versions
 ```
 
 ### View All Settings
+
 ```bash
 for repo in GRID GRID-BUILDER GRID-WEBSITE binaries versions; do
   echo "=== $repo ==="
-  gh api repos/GRID-NETWORK-REPO/$repo | jq '{
+  gh api repos/GRID-Editor/$repo | jq '{
     name, private, has_issues, has_projects, has_wiki,
     delete_branch_on_merge, allow_update_branch
   }'
@@ -238,9 +264,10 @@ done
 ```
 
 ### Update All Repos
+
 ```bash
 for repo in GRID GRID-BUILDER GRID-WEBSITE binaries versions; do
-  gh api --method PATCH repos/GRID-NETWORK-REPO/$repo \
+  gh api --method PATCH repos/GRID-Editor/$repo \
     -F delete_branch_on_merge=true \
     -F allow_update_branch=true
 done
@@ -249,12 +276,14 @@ done
 ## Support
 
 For advanced features requiring GitHub Pro:
-- https://github.com/pricing
+
+- <https://github.com/pricing>
 - Contact GitHub Sales for organization plans
 
 ## Current Status
 
 ✅ **Fully Configured (Free Plan):**
+
 - Repository descriptions
 - Topics for discoverability
 - Labels for organization
@@ -264,6 +293,7 @@ For advanced features requiring GitHub Pro:
 - Secrets management
 
 ⚠️ **Limited (Requires GitHub Pro):**
+
 - Branch protection rules
 - Required reviewers
 - CODEOWNERS enforcement
@@ -277,4 +307,3 @@ For advanced features requiring GitHub Pro:
 3. ⏳ Set up CI/CD workflows (already configured in GRID-BUILDER)
 4. ⏳ Deploy website to Vercel
 5. ⏳ Test complete release pipeline
-

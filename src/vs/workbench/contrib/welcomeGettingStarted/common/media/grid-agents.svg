@@ -1,0 +1,22 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Dark Background -->
+    <rect width="400" height="400" fill="#0D0D0D"/>
+    
+    <!-- Agent Brain/Chip -->
+    <rect x="140" y="140" width="120" height="120" rx="10" fill="#1A1A1A" stroke="#FF3333" stroke-width="4"/>
+    <path d="M170 180H230" stroke="#FF3333" stroke-width="2"/>
+    <path d="M170 200H230" stroke="#FF3333" stroke-width="2"/>
+    <path d="M170 220H210" stroke="#FF3333" stroke-width="2"/>
+    
+    <!-- Input/Output Streams -->
+    <path d="M100 200 H140" stroke="#FF3333" stroke-width="4" stroke-linecap="round"/>
+    <path d="M260 200 H300" stroke="#FF3333" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Particles -->
+    <circle cx="90" cy="200" r="10" fill="#FF3333"/>
+    <circle cx="310" cy="200" r="10" fill="#FF3333"/>
+    
+    <!-- Code Symbols -->
+    <text x="50" y="100" fill="#FF3333" font-family="monospace" font-size="24">&lt;/&gt;</text>
+    <text x="320" y="320" fill="#FF3333" font-family="monospace" font-size="24">{ }</text>
+</svg>

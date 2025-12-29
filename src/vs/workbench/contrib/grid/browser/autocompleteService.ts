@@ -28,7 +28,7 @@ import { IModelWarmupService } from '../common/modelWarmupService.js';
 const allLinebreakSymbols = ['\r\n', '\n'];
 const _ln = isWindows ? allLinebreakSymbols[0] : allLinebreakSymbols[1];
 
-// The extension this was called from is here - https://github.com/GRID-NETWORK-REPO/GRID/blob/main/extensions/grid/src/extension/extension.ts
+// The extension this was called from is here - https://github.com/GRID-Editor/GRID/blob/main/extensions/grid/src/extension/extension.ts
 
 /*
 A summary of autotab:
@@ -745,8 +745,8 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		const modelSelectionOptions =
 			modelSelection && !(modelSelection.providerName === 'auto' && modelSelection.modelName === 'auto')
 				? this._settingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName]?.[
-						modelSelection.modelName
-					]
+				modelSelection.modelName
+				]
 				: undefined;
 
 		// Warm up local model in background (fire-and-forget, doesn't block)
@@ -790,7 +790,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 						// Safety: If too many newlines during streaming, we could truncate, but let's wait for final
 						// The final handler will do proper truncation
-					} catch (e) {}
+					} catch (e) { }
 				},
 				onFinalMessage: ({ fullText }) => {
 					newAutocompletion.endTime = Date.now();

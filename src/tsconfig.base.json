@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"moduleDetection": "legacy",
 		"experimentalDecorators": true,
 		"noImplicitReturns": true,
@@ -13,10 +13,10 @@
 		"exactOptionalPropertyTypes": false,
 		"useUnknownInCatchVariables": false,
 		"forceConsistentCasingInFileNames": true,
-		"target": "ES2024",
+		"target": "ES2022",
 		"useDefineForClassFields": false,
 		"lib": [
-			"ES2024",
+			"ES2022",
 			"DOM",
 			"DOM.Iterable",
 			"WebWorker.ImportScripts"

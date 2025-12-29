@@ -4,16 +4,17 @@
 
 **Problem:** The `/download` page returns 404 - it doesn't exist yet!
 
-**Website:** https://grid-website-millsydotdev-grid-editor.vercel.app
+**Website:** <https://grid-website-millsydotdev-grid-editor.vercel.app>
 **Framework:** Next.js
 **Deployment:** Vercel (under team `grid-editor`)
 
 ## What Needs to Be Done
 
 Create a `/download` page that:
-1. Fetches latest release metadata from `GRID-NETWORK-REPO/versions` repository
+
+1. Fetches latest release metadata from `GRID-Editor/versions` repository
 2. Detects user's platform (Linux/Mac/Windows)
-3. Shows download buttons linking to `GRID-NETWORK-REPO/binaries` releases
+3. Shows download buttons linking to `GRID-Editor/binaries` releases
 4. Displays version information and checksums
 
 ---
@@ -22,7 +23,7 @@ Create a `/download` page that:
 
 ### File Structure
 
-```
+```text
 grid-website/
 ├── app/
 │   └── download/
@@ -85,7 +86,7 @@ function DownloadSkeleton() {
 
 ```typescript
 const GITHUB_API = 'https://api.github.com';
-const VERSIONS_REPO = 'GRID-NETWORK-REPO/versions';
+const VERSIONS_REPO = 'GRID-Editor/versions';
 
 export interface ReleaseArtifact {
   name: string;
@@ -445,16 +446,19 @@ Once grid-builder is fixed and running:
 ## Troubleshooting
 
 **404 on /download:**
+
 - Make sure `app/download/page.tsx` exists
 - Redeploy to Vercel
 - Check build logs for errors
 
 **Can't fetch releases:**
+
 - Check CORS (GitHub raw should allow)
 - Verify versions repo is public
 - Check network tab for failed requests
 
 **Wrong platform detected:**
+
 - Check user agent parsing in `platform-detect.ts`
 - Test with different browsers
 - Add console.log to debug detection

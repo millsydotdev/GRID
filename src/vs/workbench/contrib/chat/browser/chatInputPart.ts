@@ -73,7 +73,7 @@ import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from '../../../services/edit
 import { AccessibilityVerbositySettingId } from '../../accessibility/browser/accessibilityConfiguration.js';
 import { AccessibilityCommandId } from '../../accessibility/common/accessibilityCommands.js';
 import { getSimpleCodeEditorWidgetOptions, getSimpleEditorOptions, setupSimpleEditorSelectionStyling } from '../../codeEditor/browser/simpleEditorOptions.js';
-import { IChatAgentService } from '../common/chatAgents.js';
+import { IChatAgentData, IChatAgentService } from '../common/chatAgents.js';
 import { ChatContextKeys } from '../common/chatContextKeys.js';
 import { IChatEditingSession, IModifiedFileEntry, ModifiedFileEntryState } from '../common/chatEditingService.js';
 import { IChatRequestModeInfo } from '../common/chatModel.js';
@@ -105,6 +105,7 @@ import { IChatViewState } from './chatWidget.js';
 import { ChatImplicitContext } from './contrib/chatImplicitContext.js';
 import { ChatRelatedFiles } from './contrib/chatInputRelatedFilesContrib.js';
 import { resizeImage } from './imageUtils.js';
+import { AgentPickerActionItem, IAgentPickerDelegate } from './agentPicker/agentPickerActionItem.js';
 import { IModelPickerDelegate, ModelPickerActionItem } from './modelPicker/modelPickerActionItem.js';
 import { IModePickerDelegate, ModePickerActionItem } from './modelPicker/modePickerActionItem.js';
 
@@ -300,7 +301,7 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 	private filePartOfEditSessionKey: IContextKey<boolean>;
 	private chatSessionHasOptions: IContextKey<boolean>;
 	private modelWidget: ModelPickerActionItem | undefined;
-	private modeWidget: ModePickerActionItem | undefined;
+	private modeWidget: AgentPickerActionItem | undefined;
 	private chatSessionPickerWidgets: Map<string, ChatSessionPickerActionItem> = new Map();
 	private chatSessionPickerContainer: HTMLElement | undefined;
 	private _lastSessionPickerAction: MenuItemAction | undefined;
@@ -1211,6 +1212,14 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 		this.chatSessionPickerWidgets.clear();
 	}
 
+	private getCurrentAgent(): IChatAgentData | undefined {
+		const mode = this._currentModeObservable.get();
+		if (mode.kind === ChatModeKind.Agent) {
+			return this.agentService.getAgent(mode.id);
+		}
+		return undefined;
+	}
+
 	/**
 	 * Get the current option for a specific option group.
 	 * If no option is currently set, initializes with the first item as default.
@@ -1443,10 +1452,15 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 					};
 					return this.modelWidget = this.instantiationService.createInstance(ModelPickerActionItem, action, this._currentLanguageModel, undefined, itemDelegate);
 				} else if (action.id === OpenModePickerAction.ID && action instanceof MenuItemAction) {
-					const delegate: IModePickerDelegate = {
-						currentMode: this._currentModeObservable
+					const delegate: IAgentPickerDelegate = {
+						onDidChangeAgent: Event.map(this.onDidChangeCurrentChatMode, () => this.getCurrentAgent()),
+						getCurrentAgent: () => this.getCurrentAgent(),
+						setAgent: (agent) => {
+							this._widget?.input.setChatMode(agent.id);
+						},
+						getAgents: () => this.agentService.getAgents()
 					};
-					return this.modeWidget = this.instantiationService.createInstance(ModePickerActionItem, action, delegate);
+					return this.modeWidget = this.instantiationService.createInstance(AgentPickerActionItem, action, this.getCurrentAgent(), undefined, delegate);
 				} else if (action.id === ChatSessionPrimaryPickerAction.ID && action instanceof MenuItemAction) {
 					// Create all pickers and return a container action view item
 					const widgets = this.createChatSessionPickerWidgets(action);

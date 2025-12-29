@@ -37,11 +37,11 @@ echo ""
 
 # Check Repository Access
 echo "3️⃣  Checking repository access..."
-if gh repo view GRID-NETWORK-REPO/GRID --json name &> /dev/null; then
-    echo "   ✅ Access to GRID-NETWORK-REPO/GRID confirmed"
+if gh repo view GRID-Editor/GRID --json name &> /dev/null; then
+    echo "   ✅ Access to GRID-Editor/GRID confirmed"
 
     # Show repo details
-    gh repo view GRID-NETWORK-REPO/GRID --json name,isPrivate,defaultBranchRef,hasIssuesEnabled,hasProjectsEnabled \
+    gh repo view GRID-Editor/GRID --json name,isPrivate,defaultBranchRef,hasIssuesEnabled,hasProjectsEnabled \
         --jq '"   Repository: \(.name)\n   Private: \(.isPrivate)\n   Default branch: \(.defaultBranchRef.name)\n   Issues enabled: \(.hasIssuesEnabled)\n   Projects enabled: \(.hasProjectsEnabled)"'
 else
     echo "   ❌ Cannot access repository"
@@ -52,13 +52,13 @@ echo ""
 # Check Git Remote
 echo "4️⃣  Checking git remote configuration..."
 REMOTE_URL=$(git remote get-url origin 2>/dev/null)
-if [[ "$REMOTE_URL" == *"github.com/GRID-NETWORK-REPO/GRID"* ]]; then
+if [[ "$REMOTE_URL" == *"github.com/GRID-Editor/GRID"* ]]; then
     echo "   ✅ Git remote configured correctly"
     echo "   Remote URL: $REMOTE_URL"
 else
     echo "   ❌ Git remote not configured for GitHub"
     echo "   Current: $REMOTE_URL"
-    echo "   Expected: https://github.com/GRID-NETWORK-REPO/GRID.git"
+    echo "   Expected: https://github.com/GRID-Editor/GRID.git"
     EXIT_CODE=1
 fi
 echo ""

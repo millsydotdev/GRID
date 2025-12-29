@@ -16,7 +16,7 @@ cd "$TEMP_DIR"
 # PART 1: Fix grid-builder workflows
 # ============================================
 echo -e "${YELLOW}📦 Cloning grid-builder...${NC}"
-git clone https://github.com/GRID-NETWORK-REPO/grid-builder.git
+git clone https://github.com/GRID-Editor/grid-builder.git
 cd grid-builder
 
 echo -e "${YELLOW}📝 Updating workflows...${NC}"
@@ -40,7 +40,7 @@ jobs:
       - name: Checkout GRID
         uses: actions/checkout@v4
         with:
-          repository: GRID-NETWORK-REPO/GRID
+          repository: GRID-Editor/GRID
           token: ${{ secrets.STRONGER_GITHUB_TOKEN }}
           path: vscode
 
@@ -88,7 +88,7 @@ echo -e "${GREEN}✅ grid-builder workflows fixed!${NC}"
 # ============================================
 cd "$TEMP_DIR"
 echo -e "${YELLOW}📦 Cloning GRID-WEBSITE...${NC}"
-git clone https://github.com/GRID-NETWORK-REPO/GRID-WEBSITE.git
+git clone https://github.com/GRID-Editor/GRID-WEBSITE.git
 cd GRID-WEBSITE
 
 echo -e "${YELLOW}📄 Creating downloads page...${NC}"
@@ -121,7 +121,7 @@ TSX_EOF
 mkdir -p lib
 cat > lib/github.ts << 'TS_EOF'
 export async function getLatestRelease(platform: string, arch: string) {
-  const url = `https://raw.githubusercontent.com/GRID-NETWORK-REPO/versions/main/stable/${platform}/${arch}/latest.json`;
+  const url = `https://raw.githubusercontent.com/GRID-Editor/versions/main/stable/${platform}/${arch}/latest.json`;
   const response = await fetch(url, { next: { revalidate: 300 } });
   if (!response.ok) return null;
   return response.json();
@@ -194,9 +194,9 @@ echo -e "${YELLOW}💾 Committing changes...${NC}"
 git add .
 git commit -m "feat: Add downloads page with GitHub releases integration
 
-- Fetches latest releases from GRID-NETWORK-REPO/versions
+- Fetches latest releases from GRID-Editor/versions
 - Auto-detects user platform
-- Links to binaries in GRID-NETWORK-REPO/binaries
+- Links to binaries in GRID-Editor/binaries
 - Responsive design matching site theme"
 
 echo -e "${YELLOW}🚀 Pushing to GRID-WEBSITE...${NC}"

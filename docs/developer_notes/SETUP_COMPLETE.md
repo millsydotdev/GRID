@@ -1,4 +1,4 @@
-# ✅ GitHub Setup Complete!
+# ✅ GitHub Setup Complete
 
 ## Summary
 
@@ -7,18 +7,21 @@ Your GRID repository is now fully configured and ready to use with GitHub CLI!
 ### What Was Configured
 
 #### 1. GitHub CLI Installation ✅
+
 - **Version:** 2.62.0
 - **Location:** `/usr/local/bin/gh`
 - **Status:** Installed and authenticated
 
 #### 2. Authentication ✅
-- **Account:** GRID-NETWORK-REPO
+
+- **Account:** GRID-Editor
 - **Token:** Configured with full access
 - **Scopes:** repo, workflow, admin:org, admin:repo_hook, and more
 - **Storage:** `/root/.config/gh/hosts.yml`
 
 #### 3. Repository Configuration ✅
-- **Repository:** https://github.com/GRID-NETWORK-REPO/GRID
+
+- **Repository:** <https://github.com/GRID-Editor/GRID>
 - **Remote URL:** Configured for GitHub
 - **Settings:**
   - Delete branch on merge: ✅ Enabled
@@ -28,11 +31,13 @@ Your GRID repository is now fully configured and ready to use with GitHub CLI!
   - Private repository: ✅ Yes
 
 #### 4. Local Environment ✅
+
 - **`.env` file:** Created with GITHUB_TOKEN and dev settings
 - **Git config:** Credential helper, push/pull strategies configured
 - **Security:** `.env` is in `.gitignore`
 
 #### 5. Documentation Created ✅
+
 - **`GITHUB_SETUP.md`** - Complete setup guide
 - **`.github/QUICK_REFERENCE.md`** - Quick command reference
 - **`scripts/setup-github.sh`** - Automated setup script
@@ -81,6 +86,7 @@ gh run list
 ## What You Can Do Now
 
 ### 1. Development Workflow
+
 ```bash
 # Start working on a feature
 git checkout -b feature/my-feature
@@ -95,6 +101,7 @@ gh pr create --fill
 ```
 
 ### 2. Repository Management
+
 ```bash
 # View repository details
 gh repo view
@@ -103,10 +110,11 @@ gh repo view
 gh browse
 
 # View repository settings
-gh api repos/GRID-NETWORK-REPO/GRID
+gh api repos/GRID-Editor/GRID
 ```
 
 ### 3. Pull Request Management
+
 ```bash
 # List all PRs
 gh pr list
@@ -123,6 +131,7 @@ gh pr merge 123
 ```
 
 ### 4. Issue Management
+
 ```bash
 # List issues
 gh issue list
@@ -135,6 +144,7 @@ gh issue close 42
 ```
 
 ### 5. GitHub Actions
+
 ```bash
 # List workflows
 gh workflow list
@@ -153,13 +163,14 @@ gh run view --log
 
 ## Repository Information
 
-**URL:** https://github.com/GRID-NETWORK-REPO/GRID
+**URL:** <https://github.com/GRID-Editor/GRID>
 
 **Type:** Private repository
 
 **Default Branch:** main
 
 **Active Workflows:**
+
 1. Copilot Setup Steps
 2. Monaco Editor checks
 3. Prevent package-lock.json changes in PRs
@@ -177,10 +188,12 @@ gh run view --log
 ## Security Notes
 
 ✅ **GitHub token is stored securely in:**
+
 - GitHub CLI config: `/root/.config/gh/hosts.yml`
 - Local environment: `.env` (in `.gitignore`)
 
 ⚠️ **Important reminders:**
+
 - Never commit `.env` to git
 - Rotate your token regularly (every 90 days)
 - Keep your token private
@@ -191,16 +204,19 @@ gh run view --log
 ## Next Steps
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Build the project:**
+
    ```bash
    npm run build
    ```
 
 3. **Start developing:**
+
    ```bash
    npm start
    ```
@@ -216,23 +232,27 @@ gh run view --log
 If you encounter any issues:
 
 1. **Run verification script:**
+
    ```bash
    ./scripts/verify-setup.sh
    ```
 
 2. **Check authentication:**
+
    ```bash
    gh auth status
    ```
 
 3. **Re-authenticate if needed:**
+
    ```bash
    echo "YOUR_TOKEN" | gh auth login --with-token
    ```
 
 4. **Check repository access:**
+
    ```bash
-   gh repo view GRID-NETWORK-REPO/GRID
+   gh repo view GRID-Editor/GRID
    ```
 
 ---
@@ -240,7 +260,7 @@ If you encounter any issues:
 ## Files Created
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `.env` | Local environment variables (with your token) |
 | `GITHUB_SETUP.md` | Complete setup documentation |
 | `.github/QUICK_REFERENCE.md` | Quick command reference |
@@ -255,7 +275,7 @@ If you encounter any issues:
 - **GitHub CLI Help:** `gh --help`
 - **Command-specific help:** `gh pr --help`, `gh issue --help`, etc.
 - **Documentation:** See `GITHUB_SETUP.md`
-- **GitHub Docs:** https://cli.github.com/manual/
+- **GitHub Docs:** <https://cli.github.com/manual/>
 
 ---
 

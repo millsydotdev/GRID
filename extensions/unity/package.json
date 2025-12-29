@@ -9,8 +9,17 @@
     "vscode": "^1.5.0"
   },
   "icon": "media/icon.png",
-  "categories": ["Programming Languages", "Debuggers"],
-  "keywords": ["unity", "unity3d", "c#", "csharp", "gamedev"],
+  "categories": [
+    "Programming Languages",
+    "Debuggers"
+  ],
+  "keywords": [
+    "unity",
+    "unity3d",
+    "c#",
+    "csharp",
+    "gamedev"
+  ],
   "capabilities": {
     "virtualWorkspaces": false,
     "untrustedWorkspaces": {
@@ -32,8 +41,12 @@
     "languages": [
       {
         "id": "unity-csharp",
-        "aliases": ["Unity C#"],
-        "extensions": [".cs"],
+        "aliases": [
+          "Unity C#"
+        ],
+        "extensions": [
+          ".cs"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -88,6 +101,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GRID-NETWORK-REPO/GRID.git"
+    "url": "https://github.com/GRID-Editor/GRID.git"
   }
 }

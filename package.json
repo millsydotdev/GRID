@@ -3,7 +3,8 @@
   "version": "1.106.0",
   "distro": "21c8d8ea1e46d97c5639a7cabda6c0e063cc8dd5",
   "author": {
-    "name": "GRID"
+    "name": "Millsy",
+    "url": "https://millsy.dev"
   },
   "license": "MIT",
   "main": "./out/main.js",
@@ -288,10 +289,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GRID-NETWORK-REPO/GRID.git"
+    "url": "https://github.com/GRID-Editor/GRID.git"
   },
   "bugs": {
-    "url": "https://github.com/GRID-NETWORK-REPO/GRID/issues"
+    "url": "https://github.com/GRID-Editor/GRID/issues"
   },
   "optionalDependencies": {
     "windows-foreground-love": "0.5.0"

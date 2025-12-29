@@ -19,6 +19,10 @@
 			"wicg-file-system-access",
 			"node"
 		],
+		"typeRoots": [
+			"../node_modules/@types",
+			"../node_modules"
+		],
 		"plugins": [
 			{
 				"name": "tsec",

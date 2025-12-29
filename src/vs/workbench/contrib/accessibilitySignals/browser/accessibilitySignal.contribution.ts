@@ -10,13 +10,17 @@ import { registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/
 import { AccessibilitySignalLineDebuggerContribution } from './accessibilitySignalDebuggerContribution.js';
 import { ShowAccessibilityAnnouncementHelp, ShowSignalSoundHelp } from './commands.js';
 import { EditorTextPropertySignalsContribution } from './editorTextPropertySignalsContribution.js';
+import { SoundMuteStatusBarContribution } from './soundMuteStatusBar.js';
+import { ToggleSoundMuteAction } from './soundMuteActions.js';
 import { wrapInReloadableClass0 } from '../../../../platform/observable/common/wrapInReloadableClass.js';
 
 registerSingleton(IAccessibilitySignalService, AccessibilitySignalService, InstantiationType.Delayed);
 
 registerWorkbenchContribution2('EditorTextPropertySignalsContribution', wrapInReloadableClass0(() => EditorTextPropertySignalsContribution), WorkbenchPhase.AfterRestored);
 registerWorkbenchContribution2('AccessibilitySignalLineDebuggerContribution', AccessibilitySignalLineDebuggerContribution, WorkbenchPhase.AfterRestored);
+registerWorkbenchContribution2('SoundMuteStatusBarContribution', SoundMuteStatusBarContribution, WorkbenchPhase.AfterRestored);
 
 registerAction2(ShowSignalSoundHelp);
 registerAction2(ShowAccessibilityAnnouncementHelp);
+registerAction2(ToggleSoundMuteAction);
 

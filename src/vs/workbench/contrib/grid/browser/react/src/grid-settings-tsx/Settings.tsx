@@ -57,9 +57,9 @@ const RefreshModelButton = ({ providerName }: { providerName: RefreshableProvide
 	const [justFinished, setJustFinished] = useState<null | 'finished' | 'error'>(null)
 
 	useRefreshModelListener(
-		useCallback((providerName2, refreshModelState) => {
+		useCallback((providerName2: ProviderName, newRefreshModelState: any) => {
 			if (providerName2 !== providerName) return
-			const { state } = refreshModelState[providerName]
+			const { state } = newRefreshModelState[providerName]
 			if (!(state === 'finished' || state === 'error')) return
 			// now we know we just entered 'finished' state for this providerName
 			setJustFinished(state)
@@ -77,6 +77,7 @@ const RefreshModelButton = ({ providerName }: { providerName: RefreshableProvide
 		leftButton={
 			<button
 				className='flex items-center'
+				aria-label="Manually refresh models"
 				disabled={state === 'refreshing' || justFinished !== null}
 				onClick={() => {
 					refreshModelService.startRefreshingModels(providerName, { enableProviderOnSuccess: false, doNotFire: false })
@@ -144,6 +145,7 @@ const RefreshRemoteCatalogButton = ({ providerName }: { providerName: ProviderNa
 		leftButton={
 			<button
 				className='flex items-center'
+				aria-label="Refresh remote catalog"
 				disabled={isRefreshing || justFinished !== null}
 				onClick={handleRefresh}
 			>
@@ -214,6 +216,7 @@ export const AnimatedCheckmarkButton = ({ text, className }: { text?: string, cl
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+				// eslint-disable-next-line
 				style={{
 					strokeDasharray: 40,
 					strokeDashoffset: dashOffset
@@ -350,7 +353,7 @@ const SimpleModelSettingsDialog = ({
 		onClose();
 	};
 
-	const sourcecodeOverridesLink = `https://github.com/GRID-NETWORK-REPO/GRID/blob/main/src/vs/workbench/contrib/grid/common/modelCapabilities.ts#L146-L172`
+	const sourcecodeOverridesLink = `https://github.com/GRID-Editor/GRID/blob/main/src/vs/workbench/contrib/grid/common/modelCapabilities.ts#L146-L172`
 
 	return (
 		<div // Backdrop
@@ -368,8 +371,8 @@ const SimpleModelSettingsDialog = ({
 			{/* MODAL */}
 			<div
 				className="bg-grid-bg-1 rounded-md p-4 max-w-xl w-full shadow-xl overflow-y-auto max-h-[90vh]"
-				onClick={(e) => e.stopPropagation()} // Keep stopping propagation for normal clicks inside
-				onMouseDown={(e) => {
+				onClick={(e: any) => e.stopPropagation()} // Keep stopping propagation for normal clicks inside
+				onMouseDown={(e: any) => {
 					mouseDownInsideModal.current = true;
 					e.stopPropagation();
 				}}
@@ -380,6 +383,7 @@ const SimpleModelSettingsDialog = ({
 					</h3>
 					<button
 						onClick={onClose}
+						title="Close"
 						className="text-grid-fg-3 hover:text-grid-fg-1"
 					>
 						<X className="size-5" />
@@ -390,8 +394,8 @@ const SimpleModelSettingsDialog = ({
 				<div className="text-sm text-grid-fg-3 mb-4">
 					{type === 'default' ? `${modelName} comes packaged with GRID, so you shouldn't need to change these settings.`
 						: isUnrecognizedModel
-						? `Model not recognized by GRID.`
-						: `GRID recognizes ${modelName} ("${recognizedModelName}").`}
+							? `Model not recognized by GRID.`
+							: `GRID recognizes ${modelName} ("${recognizedModelName}").`}
 				</div>
 
 
@@ -550,6 +554,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 								data-tooltip-place='right'
 								data-tooltip-content='Advanced Settings'
 								className={`${hasOverrides ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+								aria-label="Advanced Settings"
 							>
 								<Plus size={12} className="text-grid-fg-3 opacity-50" />
 							</button>
@@ -580,6 +585,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 							data-tooltip-place='right'
 							data-tooltip-content='Delete'
 							className={`${hasOverrides ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+							aria-label="Delete model"
 						>
 							<X size={12} className="text-grid-fg-3 opacity-50" />
 						</button>}
@@ -641,6 +647,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 							setUserChosenProviderName(null);
 						}}
 						className='text-grid-fg-4'
+						title="Cancel"
 					>
 						<X className='size-4' />
 					</button>
@@ -888,450 +895,451 @@ const FastApplyMethodDropdown = () => {
 
 
 export const OllamaSetupInstructions = ({ sayWeAutoDetect }: { sayWeAutoDetect?: boolean }) => {
-    const accessor = useAccessor()
-    const terminalToolService = accessor.get('ITerminalToolService')
-    const nativeHostService = accessor.get('INativeHostService')
-    const notificationService = accessor.get('INotificationService')
-    const refreshModelService = accessor.get('IRefreshModelService')
-    const repoIndexerService = accessor.get('IRepoIndexerService')
-    const gridSettingsService = accessor.get('IGridSettingsService')
+	const accessor = useAccessor()
+	const terminalToolService = accessor.get('ITerminalToolService')
+	const nativeHostService = accessor.get('INativeHostService')
+	const notificationService = accessor.get('INotificationService')
+	const refreshModelService = accessor.get('IRefreshModelService')
+	const repoIndexerService = accessor.get('IRepoIndexerService')
+	const gridSettingsService = accessor.get('IGridSettingsService')
 
-    const [status, setStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
-    const [statusText, setStatusText] = useState<string>('')
-    const [method, setMethod] = useState<'auto' | 'brew' | 'curl' | 'winget' | 'choco'>('auto')
-    const [currentTerminalId, setCurrentTerminalId] = useState<string | null>(null)
-    const [terminalOutput, setTerminalOutput] = useState<string>('')
-    const [modelTag, setModelTag] = useState<string>('llava') // Default to vision model for better UX
-    const [isHealthy, setIsHealthy] = useState<boolean | null>(null)
+	const [status, setStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
+	const [statusText, setStatusText] = useState<string>('')
+	const [method, setMethod] = useState<'auto' | 'brew' | 'curl' | 'winget' | 'choco'>('auto')
+	const [currentTerminalId, setCurrentTerminalId] = useState<string | null>(null)
+	const [terminalOutput, setTerminalOutput] = useState<string>('')
+	const [modelTag, setModelTag] = useState<string>('llava') // Default to vision model for better UX
+	const [isHealthy, setIsHealthy] = useState<boolean | null>(null)
 
-    // Auto-select sensible default per OS and filter options label hints
-    useEffect(() => {
-        (async () => {
-            try {
-                const osProps = await nativeHostService.getOSProperties()
-                const t = (osProps.type + '').toLowerCase()
-                if (t.includes('windows')) setMethod('winget')
-                else if (t.includes('darwin') || t.includes('mac')) setMethod('brew')
-                else setMethod('curl')
-            } catch {}
-        })()
-    }, [nativeHostService])
+	// Auto-select sensible default per OS and filter options label hints
+	useEffect(() => {
+		(async () => {
+			try {
+				const osProps = await nativeHostService.getOSProperties()
+				const t = (osProps.type + '').toLowerCase()
+				if (t.includes('windows')) setMethod('winget')
+				else if (t.includes('darwin') || t.includes('mac')) setMethod('brew')
+				else setMethod('curl')
+			} catch { }
+		})()
+	}, [nativeHostService])
 
-    const onInstall = useCallback(async () => {
-        try {
-            const osProps = await nativeHostService.getOSProperties()
-            const isWindows = (osProps.type + '').toLowerCase().includes('windows')
-            setStatus('running')
-            setStatusText('Starting Ollama installation and opening the terminal...')
+	const onInstall = useCallback(async () => {
+		try {
+			const osProps = await nativeHostService.getOSProperties()
+			const isWindows = (osProps.type + '').toLowerCase().includes('windows')
+			setStatus('running')
+			setStatusText('Starting Ollama installation and opening the terminal...')
 
-            // open a visible persistent terminal to show progress
-            const persistentTerminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
-            setCurrentTerminalId(persistentTerminalId)
-            // Best-effort: ensure terminal panel is visible
-            try {
-                const commandService = accessor.get('ICommandService')
-                await commandService.executeCommand('workbench.action.terminal.focus')
-            } catch { }
-            await terminalToolService.focusPersistentTerminal(persistentTerminalId)
+			// open a visible persistent terminal to show progress
+			const persistentTerminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
+			setCurrentTerminalId(persistentTerminalId)
+			// Best-effort: ensure terminal panel is visible
+			try {
+				const commandService = accessor.get('ICommandService')
+				await commandService.executeCommand('workbench.action.terminal.focus')
+			} catch { }
+			await terminalToolService.focusPersistentTerminal(persistentTerminalId)
 
-            let installCmd = ''
-            if (isWindows) {
-                const m = method === 'choco' ? 'choco install ollama -y'
-                    : method === 'winget' || method === 'auto' ? 'winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements'
-                        : 'winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements'
-                installCmd = `powershell -ExecutionPolicy Bypass -Command "${m}; Start-Sleep -Seconds 2; Start-Process -WindowStyle Hidden ollama serve"`
-            } else {
-                // Deterministic per-OS installers, independent of workspace cwd
-                const osName = (osProps.type + '').toLowerCase()
-                if (osName.includes('darwin') || osName.includes('mac')) {
-                    // macOS: never use Linux curl. Prefer app or Homebrew cask, bootstrap brew if needed.
-                    installCmd = 'bash -lc "set -e; \
+			let installCmd = ''
+			if (isWindows) {
+				const m = method === 'choco' ? 'choco install ollama -y'
+					: method === 'winget' || method === 'auto' ? 'winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements'
+						: 'winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements'
+				installCmd = `powershell -ExecutionPolicy Bypass -Command "${m}; Start-Sleep -Seconds 2; Start-Process -WindowStyle Hidden ollama serve"`
+			} else {
+				// Deterministic per-OS installers, independent of workspace cwd
+				const osName = (osProps.type + '').toLowerCase()
+				if (osName.includes('darwin') || osName.includes('mac')) {
+					// macOS: never use Linux curl. Prefer app or Homebrew cask, bootstrap brew if needed.
+					installCmd = 'bash -lc "set -e; \
                       if [ -d /Applications/Ollama.app ]; then \\\n+                        echo [GRID] Found /Applications/Ollama.app; open -a Ollama; \\\n+                      else \\\n+                        if [ -x /opt/homebrew/bin/brew ] || [ -x /usr/local/bin/brew ]; then \\\n+                          eval \"$([ -x /opt/homebrew/bin/brew ] && /opt/homebrew/bin/brew shellenv || /usr/local/bin/brew shellenv)\"; \\\n+                        else \\\n+                          echo [GRID] Bootstrapping Homebrew...; /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"; \\\n+                          eval \"$([ -x /opt/homebrew/bin/brew ] && /opt/homebrew/bin/brew shellenv || /usr/local/bin/brew shellenv)\"; \\\n+                        fi; \\\n+                        echo [GRID] Installing Ollama via Homebrew Cask...; brew install --cask ollama || true; open -a Ollama; \\\n+                      fi; \\\n+                      echo [GRID] Health check...; sleep 2; curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1 && echo [GRID] Ollama running || echo [GRID] Ollama not reachable yet; \
                     "'
-                } else {
-                    // Linux: official script only
-                    installCmd = 'bash -lc "set -e; echo [GRID] Installing Ollama (Linux); curl -fsSL https://ollama.com/install.sh | sh; (ollama serve >/dev/null 2>&1 &) || true; sleep 2; echo [GRID] Health check; curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1 && echo [GRID] Ollama running || echo [GRID] Ollama not reachable yet;"'
-                }
-            }
+				} else {
+					// Linux: official script only
+					installCmd = 'bash -lc "set -e; echo [GRID] Installing Ollama (Linux); curl -fsSL https://ollama.com/install.sh | sh; (ollama serve >/dev/null 2>&1 &) || true; sleep 2; echo [GRID] Health check; curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1 && echo [GRID] Ollama running || echo [GRID] Ollama not reachable yet;"'
+				}
+			}
 
-            setStatusText('Running installer in terminal...')
-            const { resPromise } = await terminalToolService.runCommand(installCmd, { type: 'persistent', persistentTerminalId })
-            resPromise.catch(() => { /* ignore */ })
+			setStatusText('Running installer in terminal...')
+			const { resPromise } = await terminalToolService.runCommand(installCmd, { type: 'persistent', persistentTerminalId })
+			resPromise.catch(() => { /* ignore */ })
 
-            // Configure default endpoint and refresh models
-            gridSettingsService.setSettingOfProvider('ollama', 'endpoint', 'http://127.0.0.1:11434')
-            refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-            setStatus('running')
-            setStatusText('Installer launched. Detecting models...')
-            notificationService.info('Ollama install started in the integrated terminal. Models will appear when ready.')
-        } catch (e) {
-            notificationService.error('Failed to start Ollama install. Please try again or install manually.')
-            setStatus('error')
-            setStatusText('Failed to start install. See terminal or try manual install.')
-        }
-    }, [terminalToolService, nativeHostService, notificationService, refreshModelService, gridSettingsService, method])
+			// Configure default endpoint and refresh models
+			gridSettingsService.setSettingOfProvider('ollama', 'endpoint', 'http://127.0.0.1:11434')
+			refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
+			setStatus('running')
+			setStatusText('Installer launched. Detecting models...')
+			notificationService.info('Ollama install started in the integrated terminal. Models will appear when ready.')
+		} catch (e) {
+			notificationService.error('Failed to start Ollama install. Please try again or install manually.')
+			setStatus('error')
+			setStatusText('Failed to start install. See terminal or try manual install.')
+		}
+	}, [terminalToolService, nativeHostService, notificationService, refreshModelService, gridSettingsService, method])
 
-    const onOpenTerminal = useCallback(async () => {
-        if (currentTerminalId) {
-            await terminalToolService.focusPersistentTerminal(currentTerminalId)
-        } else {
-            // Fallback: just open/focus terminal panel
-            try {
-                const commandService = accessor.get('ICommandService')
-                await commandService.executeCommand('workbench.action.terminal.focus')
-            } catch { }
-        }
-    }, [currentTerminalId, terminalToolService])
+	const onOpenTerminal = useCallback(async () => {
+		if (currentTerminalId) {
+			await terminalToolService.focusPersistentTerminal(currentTerminalId)
+		} else {
+			// Fallback: just open/focus terminal panel
+			try {
+				const commandService = accessor.get('ICommandService')
+				await commandService.executeCommand('workbench.action.terminal.focus')
+			} catch { }
+		}
+	}, [currentTerminalId, terminalToolService])
 
-    // Poll terminal output to show embedded, read-only log under the button
-    useEffect(() => {
-        let tid: NodeJS.Timeout | undefined
-        const poll = async () => {
-            if (!currentTerminalId) return
-            try {
-                const output = await terminalToolService.readTerminal(currentTerminalId)
-                setTerminalOutput(output)
-            } catch { }
-        }
-        if (currentTerminalId) {
-            poll()
-            tid = setInterval(poll, 1500)
-        }
-        return () => { if (tid) clearInterval(tid) }
-    }, [currentTerminalId, terminalToolService])
+	// Poll terminal output to show embedded, read-only log under the button
+	useEffect(() => {
+		let tid: NodeJS.Timeout | undefined
+		const poll = async () => {
+			if (!currentTerminalId) return
+			try {
+				const output = await terminalToolService.readTerminal(currentTerminalId)
+				setTerminalOutput(output)
+			} catch { }
+		}
+		if (currentTerminalId) {
+			poll()
+			tid = setInterval(poll, 1500)
+		}
+		return () => { if (tid) clearInterval(tid) }
+	}, [currentTerminalId, terminalToolService])
 
-    // Lightweight health poller for nicer UX
-    useEffect(() => {
-        let tid: NodeJS.Timeout | undefined
-        const ping = async () => {
-            try {
-                const res = await fetch('http://127.0.0.1:11434/api/tags', { method: 'GET' })
-                setIsHealthy(res.ok)
-                if (res.ok && status === 'running') {
-                    setStatus('done')
-                    setStatusText('Ollama is running. Models will appear shortly.')
-                }
-            } catch {
-                setIsHealthy(false)
-            }
-        }
-        if (status === 'running' || status === 'done') {
-            ping()
-            tid = setInterval(ping, 3000)
-        }
-        return () => { if (tid) clearInterval(tid) }
-    }, [status])
+	// Lightweight health poller for nicer UX
+	useEffect(() => {
+		let tid: NodeJS.Timeout | undefined
+		const ping = async () => {
+			try {
+				const res = await fetch('http://127.0.0.1:11434/api/tags', { method: 'GET' })
+				setIsHealthy(res.ok)
+				if (res.ok && status === 'running') {
+					setStatus('done')
+					setStatusText('Ollama is running. Models will appear shortly.')
+				}
+			} catch {
+				setIsHealthy(false)
+			}
+		}
+		if (status === 'running' || status === 'done') {
+			ping()
+			tid = setInterval(ping, 3000)
+		}
+		return () => { if (tid) clearInterval(tid) }
+	}, [status])
 
-    return <div className='prose-p:my-0 prose-ol:list-decimal prose-p:py-0 prose-ol:my-0 prose-ol:py-0 prose-span:my-0 prose-span:py-0 text-grid-fg-3 text-sm list-decimal select-text'>
-        <div className='flex items-center gap-3'>
-            <ChatMarkdownRender string={`Ollama Setup (rev 2025-10-30-1)`} chatMessageLocation={undefined} />
-            <select
-                className='text-xs bg-grid-bg-1 text-grid-fg-1 border border-grid-border-1 rounded px-1 py-0.5'
-                value={method}
-                onChange={(e) => setMethod(e.target.value as any)}
-                title='Install method'
-            >
-                <option value='auto'>Auto</option>
-                <option value='brew'>Homebrew (macOS)</option>
-                <option value='curl'>Curl Script (macOS/Linux)</option>
-                <option value='winget'>Winget (Windows)</option>
-                <option value='choco'>Chocolatey (Windows)</option>
-            </select>
-            <button
-                className='px-2 py-1 bg-grid-bg-2 text-grid-fg-1 border border-grid-border-1 rounded hover:brightness-110 disabled:opacity-60'
-                onClick={onInstall}
-                disabled={status === 'running'}
-            >{status === 'running' ? 'Installing…' : 'Install Ollama'}</button>
-            {status === 'error' && (
-                <button
-                    className='px-2 py-1 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
-                    onClick={() => { setStatus('idle'); setStatusText(''); setTerminalOutput(''); setIsHealthy(null); }}
-                >Retry</button>
-            )}
-            {isHealthy !== null && (
-                <span className={`text-xs px-2 py-0.5 rounded border ${isHealthy ? 'border-green-500 text-green-500' : 'border-grid-border-2 text-grid-fg-3'}`}>
-                    {isHealthy ? 'Healthy' : 'Waiting'}
-                </span>
-            )}
-        </div>
-        {/* Inline Auto-tune toggle */}
-        <div className=' pl-6 mt-2 flex items-center gap-2'>
-            <div className='flex items-center gap-2'>
-                <GridSwitch
-                    size='xxs'
-                    value={!!gridSettingsService.state.globalSettings.enableAutoTuneOnPull}
-                    onChange={(v) => gridSettingsService.setGlobalSetting('enableAutoTuneOnPull', !!v)}
-                />
-                <span className='text-grid-fg-3 text-xs'>Auto-tune after pull</span>
-            </div>
-            <div className='flex items-center gap-2 ml-4'>
-                <GridSwitch
-                    size='xxs'
-                    value={!!gridSettingsService.state.globalSettings.enableRepoIndexer}
-                    onChange={(v) => gridSettingsService.setGlobalSetting('enableRepoIndexer', !!v)}
-                />
-                <span className='text-grid-fg-3 text-xs'>Enable repo indexer</span>
-            </div>
-        </div>
-        {/* Web browsing settings */}
-        <div className=' pl-6 mt-2 flex items-center gap-2'>
-            <div className='flex items-center gap-2'>
-                <GridSwitch
-                    size='xxs'
-                    value={gridSettingsService.state.globalSettings.useHeadlessBrowsing !== false}
-                    onChange={(v) => gridSettingsService.setGlobalSetting('useHeadlessBrowsing', v)}
-                />
-                <span className='text-grid-fg-3 text-xs'>Use headless browsing</span>
-                <span className='text-grid-fg-4 text-xs' title='Use headless BrowserWindow for better content extraction from complex pages. Disable to use direct HTTP fetch instead.'>
-                    (ℹ️)
-                </span>
-            </div>
-        </div>
-        {status !== 'idle' && (
-            <div className=' pl-6 text-grid-fg-3'>{statusText}</div>
-        )}
-        {!!terminalOutput && (
-            <div className=' pl-6 mt-2'>
-                <div className='flex items-center gap-2 mb-1'>
-                    <button
-                        className='px-2 py-0.5 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
-                        onClick={async () => { try { await navigator.clipboard.writeText(terminalOutput) } catch {} }}
-                    >Copy log</button>
-                    <button
-                        className='px-2 py-0.5 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
-                        onClick={() => setTerminalOutput('')}
-                    >Clear</button>
-                </div>
-                <div className='border border-grid-border-2 bg-grid-bg-1 rounded p-2 max-h-48 overflow-auto text-xs whitespace-pre-wrap'>
-                    {terminalOutput}
-                </div>
-            </div>
-        )}
-        <div className=' pl-6 mt-2 flex items-center gap-2 whitespace-nowrap'>
-            <span className='text-grid-fg-3 text-xs'>Pull model:</span>
-            <select
-                className='text-xs bg-grid-bg-1 text-grid-fg-1 border border-grid-border-1 rounded px-1 py-0.5 shrink-0'
-                value={modelTag}
-                onChange={(e) => setModelTag(e.target.value)}
-            >
-                <optgroup label="Code Models">
-                    <option value='llama3.1'>llama3.1</option>
-                    <option value='llama3.2'>llama3.2</option>
-                    <option value='qwen2.5-coder'>qwen2.5-coder</option>
-                    <option value='deepseek-coder'>deepseek-coder</option>
-                </optgroup>
-                <optgroup label="Vision Models (Image Analysis)">
-                    <option value='llava'>llava (Vision)</option>
-                    <option value='bakllava'>bakllava (Vision)</option>
-                    <option value='llava:13b'>llava:13b (Vision, Better Quality)</option>
-                    <option value='llava:7b'>llava:7b (Vision, Faster)</option>
-                    <option value='bakllava:7b'>bakllava:7b (Vision)</option>
-                </optgroup>
-                <optgroup label="General Purpose">
-                    <option value='llama3'>llama3</option>
-                    <option value='mistral'>mistral</option>
-                    <option value='mixtral'>mixtral</option>
-                    <option value='qwen'>qwen</option>
-                </optgroup>
-            </select>
-            <button
-                className='px-2 py-1 bg-grid-bg-2 text-grid-fg-1 border border-grid-border-1 rounded hover:brightness-110 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
-                disabled={!modelTag || status === 'running'}
-                onClick={async () => {
-                    if (!modelTag) {
-                        notificationService.warn('Please select a model to pull.')
-                        return
-                    }
+	return <div className='prose-p:my-0 prose-ol:list-decimal prose-p:py-0 prose-ol:my-0 prose-ol:py-0 prose-span:my-0 prose-span:py-0 text-grid-fg-3 text-sm list-decimal select-text'>
+		<div className='flex items-center gap-3'>
+			<ChatMarkdownRender string={`Ollama Setup (rev 2025-10-30-1)`} chatMessageLocation={undefined} />
+			<select
+				className='text-xs bg-grid-bg-1 text-grid-fg-1 border border-grid-border-1 rounded px-1 py-0.5'
+				value={method}
+				onChange={(e) => setMethod(e.target.value as any)}
+				title='Install method'
+			>
+				<option value='auto'>Auto</option>
+				<option value='brew'>Homebrew (macOS)</option>
+				<option value='curl'>Curl Script (macOS/Linux)</option>
+				<option value='winget'>Winget (Windows)</option>
+				<option value='choco'>Chocolatey (Windows)</option>
+			</select>
+			<button
+				className='px-2 py-1 bg-grid-bg-2 text-grid-fg-1 border border-grid-border-1 rounded hover:brightness-110 disabled:opacity-60'
+				onClick={onInstall}
+				disabled={status === 'running'}
+			>{status === 'running' ? 'Installing…' : 'Install Ollama'}</button>
+			{status === 'error' && (
+				<button
+					className='px-2 py-1 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
+					onClick={() => { setStatus('idle'); setStatusText(''); setTerminalOutput(''); setIsHealthy(null); }}
+				>Retry</button>
+			)}
+			{isHealthy !== null && (
+				<span className={`text-xs px-2 py-0.5 rounded border ${isHealthy ? 'border-green-500 text-green-500' : 'border-grid-border-2 text-grid-fg-3'}`}>
+					{isHealthy ? 'Healthy' : 'Waiting'}
+				</span>
+			)}
+		</div>
+		{/* Inline Auto-tune toggle */}
+		<div className=' pl-6 mt-2 flex items-center gap-2'>
+			<div className='flex items-center gap-2'>
+				<GridSwitch
+					size='xxs'
+					value={!!gridSettingsService.state.globalSettings.enableAutoTuneOnPull}
+					onChange={(v) => gridSettingsService.setGlobalSetting('enableAutoTuneOnPull', !!v)}
+				/>
+				<span className='text-grid-fg-3 text-xs'>Auto-tune after pull</span>
+			</div>
+			<div className='flex items-center gap-2 ml-4'>
+				<GridSwitch
+					size='xxs'
+					value={!!gridSettingsService.state.globalSettings.enableRepoIndexer}
+					onChange={(v) => gridSettingsService.setGlobalSetting('enableRepoIndexer', !!v)}
+				/>
+				<span className='text-grid-fg-3 text-xs'>Enable repo indexer</span>
+			</div>
+		</div>
+		{/* Web browsing settings */}
+		<div className=' pl-6 mt-2 flex items-center gap-2'>
+			<div className='flex items-center gap-2'>
+				<GridSwitch
+					size='xxs'
+					value={gridSettingsService.state.globalSettings.useHeadlessBrowsing !== false}
+					onChange={(v) => gridSettingsService.setGlobalSetting('useHeadlessBrowsing', v)}
+				/>
+				<span className='text-grid-fg-3 text-xs'>Use headless browsing</span>
+				<span className='text-grid-fg-4 text-xs' title='Use headless BrowserWindow for better content extraction from complex pages. Disable to use direct HTTP fetch instead.'>
+					(ℹ️)
+				</span>
+			</div>
+		</div>
+		{status !== 'idle' && (
+			<div className=' pl-6 text-grid-fg-3'>{statusText}</div>
+		)}
+		{!!terminalOutput && (
+			<div className=' pl-6 mt-2'>
+				<div className='flex items-center gap-2 mb-1'>
+					<button
+						className='px-2 py-0.5 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
+						onClick={async () => { try { await navigator.clipboard.writeText(terminalOutput) } catch { } }}
+					>Copy log</button>
+					<button
+						className='px-2 py-0.5 bg-grid-bg-1 text-grid-fg-3 border border-grid-border-2 rounded hover:brightness-110'
+						onClick={() => setTerminalOutput('')}
+					>Clear</button>
+				</div>
+				<div className='border border-grid-border-2 bg-grid-bg-1 rounded p-2 max-h-48 overflow-auto text-xs whitespace-pre-wrap'>
+					{terminalOutput}
+				</div>
+			</div>
+		)}
+		<div className=' pl-6 mt-2 flex items-center gap-2 whitespace-nowrap'>
+			<span className='text-grid-fg-3 text-xs'>Pull model:</span>
+			<select
+				className='text-xs bg-grid-bg-1 text-grid-fg-1 border border-grid-border-1 rounded px-1 py-0.5 shrink-0'
+				value={modelTag}
+				aria-label="Pull model"
+				onChange={(e: any) => setModelTag(e.target.value)}
+			>
+				<optgroup label="Code Models">
+					<option value='llama3.1'>llama3.1</option>
+					<option value='llama3.2'>llama3.2</option>
+					<option value='qwen2.5-coder'>qwen2.5-coder</option>
+					<option value='deepseek-coder'>deepseek-coder</option>
+				</optgroup>
+				<optgroup label="Vision Models (Image Analysis)">
+					<option value='llava'>llava (Vision)</option>
+					<option value='bakllava'>bakllava (Vision)</option>
+					<option value='llava:13b'>llava:13b (Vision, Better Quality)</option>
+					<option value='llava:7b'>llava:7b (Vision, Faster)</option>
+					<option value='bakllava:7b'>bakllava:7b (Vision)</option>
+				</optgroup>
+				<optgroup label="General Purpose">
+					<option value='llama3'>llama3</option>
+					<option value='mistral'>mistral</option>
+					<option value='mixtral'>mixtral</option>
+					<option value='qwen'>qwen</option>
+				</optgroup>
+			</select>
+			<button
+				className='px-2 py-1 bg-grid-bg-2 text-grid-fg-1 border border-grid-border-1 rounded hover:brightness-110 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
+				disabled={!modelTag || status === 'running'}
+				onClick={async () => {
+					if (!modelTag) {
+						notificationService.warn('Please select a model to pull.')
+						return
+					}
 
-                    try {
-                        setStatus('running')
-                        setStatusText(`Pulling ${modelTag}...`)
+					try {
+						setStatus('running')
+						setStatusText(`Pulling ${modelTag}...`)
 
-                        // Check if current terminal exists, create new one if not
-                        let terminalId = currentTerminalId
-                        if (!terminalId || !terminalToolService.persistentTerminalExists(terminalId)) {
-                            terminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
-                            setCurrentTerminalId(terminalId)
-                        }
-                        await terminalToolService.focusPersistentTerminal(terminalId)
+						// Check if current terminal exists, create new one if not
+						let terminalId = currentTerminalId
+						if (!terminalId || !terminalToolService.persistentTerminalExists(terminalId)) {
+							terminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
+							setCurrentTerminalId(terminalId)
+						}
+						await terminalToolService.focusPersistentTerminal(terminalId)
 
-                        const { resPromise } = await terminalToolService.runCommand(`ollama pull ${modelTag}`, { type: 'persistent', persistentTerminalId: terminalId })
+						const { resPromise } = await terminalToolService.runCommand(`ollama pull ${modelTag}`, { type: 'persistent', persistentTerminalId: terminalId })
 
-                        // Handle command result with proper error reporting
-                        resPromise
-                            .then(async ({ result, resolveReason }) => {
-                                // Check if command completed successfully
-                                if (resolveReason.type === 'done') {
-                                    // Check exit code - 0 means success
-                                    if (resolveReason.exitCode === 0) {
-                                        // Also check result text for error indicators (ollama pull may exit with 0 but show errors)
-                                        const resultText = result || ''
-                                        if (resultText.toLowerCase().includes('error') || resultText.toLowerCase().includes('failed')) {
-                                            setStatus('error')
-                                            setStatusText(`Failed to pull ${modelTag}. Check terminal for details.`)
-                                            notificationService.error(`Failed to pull model "${modelTag}". See terminal for details.`)
-                                            return
-                                        }
+						// Handle command result with proper error reporting
+						resPromise
+							.then(async ({ result, resolveReason }) => {
+								// Check if command completed successfully
+								if (resolveReason.type === 'done') {
+									// Check exit code - 0 means success
+									if (resolveReason.exitCode === 0) {
+										// Also check result text for error indicators (ollama pull may exit with 0 but show errors)
+										const resultText = result || ''
+										if (resultText.toLowerCase().includes('error') || resultText.toLowerCase().includes('failed')) {
+											setStatus('error')
+											setStatusText(`Failed to pull ${modelTag}. Check terminal for details.`)
+											notificationService.error(`Failed to pull model "${modelTag}". See terminal for details.`)
+											return
+										}
 
-                                        // Success - update status and refresh models
-                                        setStatus('done')
-                                        setStatusText(`Successfully pulled ${modelTag}`)
-                                        notificationService.info(`Model "${modelTag}" pulled successfully.`)
+										// Success - update status and refresh models
+										setStatus('done')
+										setStatusText(`Successfully pulled ${modelTag}`)
+										notificationService.info(`Model "${modelTag}" pulled successfully.`)
 
-                                        // Refresh models after a short delay
-                                        setTimeout(() => {
-                                            refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-                                            // Auto-tune: only if enabled in global settings
-                                            try {
-                                                if (gridSettingsService.state.globalSettings.enableAutoTuneOnPull) {
-                                                    const mt = (modelTag || '').toLowerCase()
-                                                    const looksFIM = mt.includes('coder') || mt.includes('starcoder') || mt.includes('code')
-                                                    gridSettingsService.setOverridesOfModel('ollama', modelTag, {
-                                                        supportsFIM: looksFIM,
-                                                        contextWindow: looksFIM ? 128_000 : 64_000,
-                                                        reservedOutputTokenSpace: 8_192,
-                                                        supportsSystemMessage: 'system-role'
-                                                    } as any)
-                                                    if (looksFIM) {
-                                                        // Autocomplete defaults to FIM model
-                                                        gridSettingsService.setGlobalSetting('enableAutocomplete', true)
-                                                        gridSettingsService.setModelSelectionOfFeature('Autocomplete', { providerName: 'ollama', modelName: modelTag } as any)
-                                                        // Apply should use coder model by default
-                                                        gridSettingsService.setModelSelectionOfFeature('Apply', { providerName: 'ollama', modelName: modelTag } as any)
-                                                    } else {
-                                                        // Non-coder: prefer for Chat
-                                                        gridSettingsService.setModelSelectionOfFeature('Chat', { providerName: 'ollama', modelName: modelTag } as any)
-                                                    }
-                                                }
-                                            } catch (e) {
-                                                console.error('Auto-tune error:', e)
-                                            }
-                                            // Lightweight: warm project index placeholder (runs in background)
-                                            try {
-                                                if (gridSettingsService.state.globalSettings.enableRepoIndexer) {
-                                                    notificationService.info('Warming project index...')
-                                                    repoIndexerService.warmIndex(undefined).then(() => {
-                                                        notificationService.info('Project index warmed.')
-                                                    }).catch(() => { })
-                                                }
-                                            } catch { }
-                                        }, 3000)
-                                    } else {
-                                        // Non-zero exit code indicates failure
-                                        const resultText = result || 'Unknown error'
-                                        setStatus('error')
-                                        setStatusText(`Failed to pull ${modelTag} (exit code ${resolveReason.exitCode}). Check terminal for details.`)
-                                        notificationService.error(`Failed to pull model "${modelTag}": ${resultText}. See terminal for details.`)
-                                    }
-                                } else if (resolveReason.type === 'timeout') {
-                                    // Command timed out (pull can take a while, this is expected for large models)
-                                    // Still try to refresh models - the pull might be continuing in background
-                                    setStatus('done')
-                                    setStatusText(`Pulling ${modelTag}... (may take time for large models)`)
-                                    notificationService.info(`Started pulling "${modelTag}". This may take a while for large models. Check terminal for progress.`)
-                                    // Refresh models after a delay - the model might appear when ready
-                                    setTimeout(() => {
-                                        refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-                                    }, 5000)
-                                }
-                            })
-                            .catch((error) => {
-                                setStatus('error')
-                                const errorMsg = error?.message || String(error) || 'Unknown error'
-                                setStatusText(`Error pulling ${modelTag}: ${errorMsg}`)
-                                notificationService.error(`Failed to pull model "${modelTag}": ${errorMsg}`)
-                                console.error('Pull error:', error)
-                            })
-                    } catch (error) {
-                        setStatus('error')
-                        const errorMsg = error?.message || String(error) || 'Unknown error'
-                        setStatusText(`Failed to start pull: ${errorMsg}`)
-                        notificationService.error(`Failed to start pulling model "${modelTag}": ${errorMsg}`)
-                        console.error('Pull setup error:', error)
-                    }
-                }}
-            >Pull</button>
-            <button
-                className='px-2 py-1 bg-red-600/80 text-white border border-red-500/80 rounded hover:brightness-110 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
-                disabled={!modelTag || status === 'running'}
-                onClick={async () => {
-                    if (!modelTag) {
-                        notificationService.warn('Please select a model to delete.')
-                        return
-                    }
+										// Refresh models after a short delay
+										setTimeout(() => {
+											refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
+											// Auto-tune: only if enabled in global settings
+											try {
+												if (gridSettingsService.state.globalSettings.enableAutoTuneOnPull) {
+													const mt = (modelTag || '').toLowerCase()
+													const looksFIM = mt.includes('coder') || mt.includes('starcoder') || mt.includes('code')
+													gridSettingsService.setOverridesOfModel('ollama', modelTag, {
+														supportsFIM: looksFIM,
+														contextWindow: looksFIM ? 128_000 : 64_000,
+														reservedOutputTokenSpace: 8_192,
+														supportsSystemMessage: 'system-role'
+													} as any)
+													if (looksFIM) {
+														// Autocomplete defaults to FIM model
+														gridSettingsService.setGlobalSetting('enableAutocomplete', true)
+														gridSettingsService.setModelSelectionOfFeature('Autocomplete', { providerName: 'ollama', modelName: modelTag } as any)
+														// Apply should use coder model by default
+														gridSettingsService.setModelSelectionOfFeature('Apply', { providerName: 'ollama', modelName: modelTag } as any)
+													} else {
+														// Non-coder: prefer for Chat
+														gridSettingsService.setModelSelectionOfFeature('Chat', { providerName: 'ollama', modelName: modelTag } as any)
+													}
+												}
+											} catch (e) {
+												console.error('Auto-tune error:', e)
+											}
+											// Lightweight: warm project index placeholder (runs in background)
+											try {
+												if (gridSettingsService.state.globalSettings.enableRepoIndexer) {
+													notificationService.info('Warming project index...')
+													repoIndexerService.warmIndex(undefined).then(() => {
+														notificationService.info('Project index warmed.')
+													}).catch(() => { })
+												}
+											} catch { }
+										}, 3000)
+									} else {
+										// Non-zero exit code indicates failure
+										const resultText = result || 'Unknown error'
+										setStatus('error')
+										setStatusText(`Failed to pull ${modelTag} (exit code ${resolveReason.exitCode}). Check terminal for details.`)
+										notificationService.error(`Failed to pull model "${modelTag}": ${resultText}. See terminal for details.`)
+									}
+								} else if (resolveReason.type === 'timeout') {
+									// Command timed out (pull can take a while, this is expected for large models)
+									// Still try to refresh models - the pull might be continuing in background
+									setStatus('done')
+									setStatusText(`Pulling ${modelTag}... (may take time for large models)`)
+									notificationService.info(`Started pulling "${modelTag}". This may take a while for large models. Check terminal for progress.`)
+									// Refresh models after a delay - the model might appear when ready
+									setTimeout(() => {
+										refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
+									}, 5000)
+								}
+							})
+							.catch((error) => {
+								setStatus('error')
+								const errorMsg = error?.message || String(error) || 'Unknown error'
+								setStatusText(`Error pulling ${modelTag}: ${errorMsg}`)
+								notificationService.error(`Failed to pull model "${modelTag}": ${errorMsg}`)
+								console.error('Pull error:', error)
+							})
+					} catch (error) {
+						setStatus('error')
+						const errorMsg = (error as any)?.message || String(error) || 'Unknown error'
+						setStatusText(`Failed to start pull: ${errorMsg}`)
+						notificationService.error(`Failed to start pulling model "${modelTag}": ${errorMsg}`)
+						console.error('Pull setup error:', error)
+					}
+				}}
+			>Pull</button>
+			<button
+				className='px-2 py-1 bg-red-600/80 text-white border border-red-500/80 rounded hover:brightness-110 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
+				disabled={!modelTag || status === 'running'}
+				onClick={async () => {
+					if (!modelTag) {
+						notificationService.warn('Please select a model to delete.')
+						return
+					}
 
-                    const ok = window.confirm(`Delete model "${modelTag}" from Ollama?`)
-                    if (!ok) return
+					const ok = window.confirm(`Delete model "${modelTag}" from Ollama?`)
+					if (!ok) return
 
-                    try {
-                        setStatus('running')
-                        setStatusText(`Deleting ${modelTag}...`)
+					try {
+						setStatus('running')
+						setStatusText(`Deleting ${modelTag}...`)
 
-                        // Check if current terminal exists, create new one if not
-                        let terminalId = currentTerminalId
-                        if (!terminalId || !terminalToolService.persistentTerminalExists(terminalId)) {
-                            terminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
-                            setCurrentTerminalId(terminalId)
-                        }
-                        await terminalToolService.focusPersistentTerminal(terminalId)
+						// Check if current terminal exists, create new one if not
+						let terminalId = currentTerminalId
+						if (!terminalId || !terminalToolService.persistentTerminalExists(terminalId)) {
+							terminalId = await terminalToolService.createPersistentTerminal({ cwd: null })
+							setCurrentTerminalId(terminalId)
+						}
+						await terminalToolService.focusPersistentTerminal(terminalId)
 
-                        const { resPromise } = await terminalToolService.runCommand(`ollama rm ${modelTag}`, { type: 'persistent', persistentTerminalId: terminalId })
+						const { resPromise } = await terminalToolService.runCommand(`ollama rm ${modelTag}`, { type: 'persistent', persistentTerminalId: terminalId })
 
-                        // Handle command result with proper error reporting
-                        resPromise
-                            .then(async ({ result, resolveReason }) => {
-                                // Check if command completed successfully
-                                if (resolveReason.type === 'done') {
-                                    // Check exit code - 0 means success
-                                    if (resolveReason.exitCode === 0) {
-                                        // Success - update status and refresh models
-                                        setStatus('done')
-                                        setStatusText(`Successfully deleted ${modelTag}`)
-                                        notificationService.info(`Model "${modelTag}" deleted successfully.`)
+						// Handle command result with proper error reporting
+						resPromise
+							.then(async ({ result, resolveReason }) => {
+								// Check if command completed successfully
+								if (resolveReason.type === 'done') {
+									// Check exit code - 0 means success
+									if (resolveReason.exitCode === 0) {
+										// Success - update status and refresh models
+										setStatus('done')
+										setStatusText(`Successfully deleted ${modelTag}`)
+										notificationService.info(`Model "${modelTag}" deleted successfully.`)
 
-                                        // Refresh models after a short delay
-                                        setTimeout(() => {
-                                            refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-                                        }, 2000)
-                                    } else {
-                                        // Non-zero exit code indicates failure
-                                        const resultText = result || 'Unknown error'
-                                        setStatus('error')
-                                        setStatusText(`Failed to delete ${modelTag} (exit code ${resolveReason.exitCode}). Check terminal for details.`)
-                                        notificationService.error(`Failed to delete model "${modelTag}": ${resultText}. See terminal for details.`)
-                                    }
-                                } else if (resolveReason.type === 'timeout') {
-                                    // Command timed out (shouldn't happen for delete, but handle it)
-                                    setStatus('error')
-                                    setStatusText(`Delete command timed out for ${modelTag}. The command may still be running.`)
-                                    notificationService.warn(`Delete command for "${modelTag}" timed out. Check terminal to see if it completed.`)
-                                    // Still try to refresh models in case it did complete
-                                    setTimeout(() => {
-                                        refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
-                                    }, 2000)
-                                }
-                            })
-                            .catch((error) => {
-                                setStatus('error')
-                                const errorMsg = error?.message || String(error) || 'Unknown error'
-                                setStatusText(`Error deleting ${modelTag}: ${errorMsg}`)
-                                notificationService.error(`Failed to delete model "${modelTag}": ${errorMsg}`)
-                                console.error('Delete error:', error)
-                            })
-                    } catch (error) {
-                        setStatus('error')
-                        const errorMsg = error?.message || String(error) || 'Unknown error'
-                        setStatusText(`Failed to start delete: ${errorMsg}`)
-                        notificationService.error(`Failed to start deleting model "${modelTag}": ${errorMsg}`)
-                        console.error('Delete setup error:', error)
-                    }
-                }}
-            >Delete</button>
-        </div>
-        <div className=' pl-6'><ChatMarkdownRender string={`1. If the install does not start, download Ollama manually from [ollama.com/download](https://ollama.com/download).`} chatMessageLocation={undefined} /></div>
-        <div className=' pl-6'><ChatMarkdownRender string={`2. Optionally, run \`ollama pull llama3.1\` to install a starter model.`} chatMessageLocation={undefined} /></div>
-        {sayWeAutoDetect && <div className=' pl-6'><ChatMarkdownRender string={`GRID automatically detects locally running models and enables them.`} chatMessageLocation={undefined} /></div>}
-    </div>
+										// Refresh models after a short delay
+										setTimeout(() => {
+											refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
+										}, 2000)
+									} else {
+										// Non-zero exit code indicates failure
+										const resultText = result || 'Unknown error'
+										setStatus('error')
+										setStatusText(`Failed to delete ${modelTag} (exit code ${resolveReason.exitCode}). Check terminal for details.`)
+										notificationService.error(`Failed to delete model "${modelTag}": ${resultText}. See terminal for details.`)
+									}
+								} else if (resolveReason.type === 'timeout') {
+									// Command timed out (shouldn't happen for delete, but handle it)
+									setStatus('error')
+									setStatusText(`Delete command timed out for ${modelTag}. The command may still be running.`)
+									notificationService.warn(`Delete command for "${modelTag}" timed out. Check terminal to see if it completed.`)
+									// Still try to refresh models in case it did complete
+									setTimeout(() => {
+										refreshModelService.startRefreshingModels('ollama', { enableProviderOnSuccess: true, doNotFire: false })
+									}, 2000)
+								}
+							})
+							.catch((error) => {
+								setStatus('error')
+								const errorMsg = error?.message || String(error) || 'Unknown error'
+								setStatusText(`Error deleting ${modelTag}: ${errorMsg}`)
+								notificationService.error(`Failed to delete model "${modelTag}": ${errorMsg}`)
+								console.error('Delete error:', error)
+							})
+					} catch (error) {
+						setStatus('error')
+						const errorMsg = (error as any)?.message || String(error) || 'Unknown error'
+						setStatusText(`Failed to start delete: ${errorMsg}`)
+						notificationService.error(`Failed to start deleting model "${modelTag}": ${errorMsg}`)
+						console.error('Delete setup error:', error)
+					}
+				}}
+			>Delete</button>
+		</div>
+		<div className=' pl-6'><ChatMarkdownRender string={`1. If the install does not start, download Ollama manually from [ollama.com/download](https://ollama.com/download).`} chatMessageLocation={undefined} /></div>
+		<div className=' pl-6'><ChatMarkdownRender string={`2. Optionally, run \`ollama pull llama3.1\` to install a starter model.`} chatMessageLocation={undefined} /></div>
+		{sayWeAutoDetect && <div className=' pl-6'><ChatMarkdownRender string={`GRID automatically detects locally running models and enables them.`} chatMessageLocation={undefined} /></div>}
+	</div>
 }
 
 
@@ -1622,8 +1630,8 @@ export const Settings = () => {
 
 
 	return (
-		<div className={`@@grid-scope ${isDark ? 'dark' : ''}`} style={{ height: '100%', width: '100%', overflow: 'auto' }}>
-			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32" style={{ minHeight: '80vh' }}>
+		<div className={`@@grid-scope ${isDark ? 'dark' : ''} h-full w-full overflow-auto`}>
+			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32 min-h-[80vh]">
 				{/* ──────────────  SIDEBAR  ────────────── */}
 
 				<aside className="md:w-1/4 w-full p-6 shrink-0">
@@ -1688,7 +1696,7 @@ export const Settings = () => {
 							<div className={shouldShowTab('localProviders') ? `` : 'hidden'}>
 								<ErrorBoundary>
 									<h2 className={`text-3xl mb-2`}>Local Providers</h2>
-							<h3 className={`text-grid-fg-3 mb-2`}>{`GRID can access any model that you host locally. We automatically detect your local models by default.`}</h3>
+									<h3 className={`text-grid-fg-3 mb-2`}>{`GRID can access any model that you host locally. We automatically detect your local models by default.`}</h3>
 
 									<div className='opacity-80 mb-4'>
 										<OllamaSetupInstructions sayWeAutoDetect={true} />
@@ -1702,7 +1710,7 @@ export const Settings = () => {
 							<div className={shouldShowTab('providers') ? `` : 'hidden'}>
 								<ErrorBoundary>
 									<h2 className={`text-3xl mb-2`}>Main Providers</h2>
-							<h3 className={`text-grid-fg-3 mb-2`}>{`GRID can access models from Anthropic, OpenAI, OpenRouter, and more.`}</h3>
+									<h3 className={`text-grid-fg-3 mb-2`}>{`GRID can access models from Anthropic, OpenAI, OpenRouter, and more.`}</h3>
 
 									<GridProviderSettings providerNames={nonlocalProviderNames} />
 									<div className='w-full h-[1px] my-4' />
@@ -1788,7 +1796,8 @@ export const Settings = () => {
 																<select
 																	className='text-xs text-grid-fg-3 bg-grid-bg-1 border border-grid-border-1 rounded p-1 px-2'
 																	value={settingsState.globalSettings.voiceInputLanguage ?? 'en-US'}
-																	onChange={(e) => gridSettingsService.setGlobalSetting('voiceInputLanguage', e.target.value)}
+																	aria-label="Voice Input Language"
+																	onChange={(e: any) => gridSettingsService.setGlobalSetting('voiceInputLanguage', e.target.value)}
 																>
 																	<option value="en-US">English (US)</option>
 																	<option value="en-GB">English (UK)</option>
@@ -1939,6 +1948,7 @@ export const Settings = () => {
 																	value={settingsState.globalSettings.yoloRiskThreshold ?? 0.2}
 																	onChange={(e) => gridSettingsService.setGlobalSetting('yoloRiskThreshold', parseFloat(e.target.value))}
 																	className='w-full'
+																	aria-label="Risk Threshold"
 																/>
 															</div>
 
@@ -1957,6 +1967,7 @@ export const Settings = () => {
 																	value={settingsState.globalSettings.yoloConfidenceThreshold ?? 0.7}
 																	onChange={(e) => gridSettingsService.setGlobalSetting('yoloConfidenceThreshold', parseFloat(e.target.value))}
 																	className='w-full'
+																	aria-label="Confidence Threshold"
 																/>
 															</div>
 														</div>
@@ -1969,7 +1980,7 @@ export const Settings = () => {
 
 										<div className='w-full'>
 											<h4 className={`text-base`}>Editor</h4>
-								<div className='text-sm text-grid-fg-3 mt-1'>{`Settings that control the visibility of GRID suggestions in the code editor.`}</div>
+											<div className='text-sm text-grid-fg-3 mt-1'>{`Settings that control the visibility of GRID suggestions in the code editor.`}</div>
 
 											<div className='my-2'>
 												{/* Auto Accept Switch */}
@@ -2022,7 +2033,7 @@ export const Settings = () => {
 								<div>
 									<ErrorBoundary>
 										<h2 className='text-3xl mb-2'>One-Click Switch</h2>
-						<h4 className='text-grid-fg-3 mb-4'>{`Transfer your editor settings into GRID.`}</h4>
+										<h4 className='text-grid-fg-3 mb-4'>{`Transfer your editor settings into GRID.`}</h4>
 
 										<div className='flex flex-col gap-2'>
 											<OneClickSwitchButton className='w-48' fromEditor="VS Code" />
@@ -2035,11 +2046,11 @@ export const Settings = () => {
 								{/* Import/Export section */}
 								<div>
 									<h2 className='text-3xl mb-2'>Import/Export</h2>
-							<h4 className='text-grid-fg-3 mb-4'>{`Transfer GRID's settings and chats in and out of GRID.`}</h4>
+									<h4 className='text-grid-fg-3 mb-4'>{`Transfer GRID's settings and chats in and out of GRID.`}</h4>
 									<div className='flex flex-col gap-8'>
 										{/* Settings Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Settings')} />
+											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Settings')} aria-label="Import Settings" />
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputSettingsRef.current?.click() }}>
 												Import Settings
 											</GridButtonBgDarken>
@@ -2053,7 +2064,7 @@ export const Settings = () => {
 
 										{/* Chats Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Chats')} />
+											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Chats')} aria-label="Import Chats" />
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputChatsRef.current?.click() }}>
 												Import Chats
 											</GridButtonBgDarken>
@@ -2096,7 +2107,7 @@ export const Settings = () => {
 								{/* Metrics section */}
 								<div className='max-w-[600px]'>
 									<h2 className={`text-3xl mb-2`}>Metrics</h2>
-							<h4 className={`text-grid-fg-3 mb-4`}>Very basic anonymous usage tracking helps us keep GRID running smoothly. You may opt out below. Regardless of this setting, GRID never sees your code, messages, or API keys.</h4>
+									<h4 className={`text-grid-fg-3 mb-4`}>Very basic anonymous usage tracking helps us keep GRID running smoothly. You may opt out below. Regardless of this setting, GRID never sees your code, messages, or API keys.</h4>
 
 									<div className='my-2'>
 										{/* Disable All Metrics Switch */}
@@ -2145,7 +2156,7 @@ Alternatively, place a \`.gridrules\` file in the root of your workspace.
 											</div>
 										</ErrorBoundary>
 										<div className='text-grid-fg-3 text-xs mt-1'>
-								{`When disabled, GRID will not include anything in the system message except for content you specified above.`}
+											{`When disabled, GRID will not include anything in the system message except for content you specified above.`}
 										</div>
 									</div>
 								</div>

@@ -250,10 +250,60 @@ function createCopilotSetupStep(id: string, button: string, when: string, includ
 
 export const walkthroughs: GettingStartedWalkthroughContent = [
 	{
-		id: 'Setup',
-		title: localize('gettingStarted.setup.title', "Get started with VS Code"),
-		description: localize('gettingStarted.setup.description', "Customize your editor, learn the basics, and start coding"),
+		id: 'GridSetup',
+		title: localize('gettingStarted.gridsetup.title', "Get Started with GRID"),
+		description: localize('gettingStarted.gridsetup.description', "Configure your AI-powered development platform. Set up agents, workspaces, and game engines."),
 		isFeatured: true,
+		icon: setupIcon,
+		when: '!isWeb',
+		walkthroughPageTitle: localize('gettingStarted.gridsetup.walkthroughPageTitle', 'Welcome to GRID'),
+		next: 'Setup',
+		content: {
+			type: 'steps',
+			steps: [
+				{
+					id: 'connectHub',
+					title: localize('gettingStarted.connectHub.title', "Connect to GRID Hub"),
+					description: localize('gettingStarted.connectHub.description', "Link your workspace to GRID Hub for cloud sync, team orchestration, and remote agent management.\n{0}", Button(localize('connectHubBtn', "Connect Hub"), 'command:workbench.action.grid.connectHub')),
+					media: { type: 'svg', altText: 'GRID Hub Connection', path: 'grid-hub.svg' }
+				},
+				{
+					id: 'configureAgents',
+					title: localize('gettingStarted.configureAgents.title', "Configure AI Agents"),
+					description: localize('gettingStarted.configureAgents.description', "Set up your autonomous coding agents. GRID supports Gemini, OpenAI, Anthropic, and local LLMs via Ollama.\n{0}", Button(localize('configureAgentsBtn', "Manage Agents"), 'command:workbench.action.grid.manageAgents')),
+					media: { type: 'svg', altText: 'AI Agents Configuration', path: 'grid-agents.svg' }
+				},
+				{
+					id: 'workspaceOrchestration',
+					title: localize('gettingStarted.workspace.title', "Workspace Orchestration"),
+					description: localize('gettingStarted.workspace.description', "Manage multiple specialized environments (Web, Game Dev, Backend) in a single unified interface.\n{0}", Button(localize('newWorkspaceBtn', "New Workspace"), 'command:welcome.newWorkspaceChat')),
+					media: { type: 'svg', altText: 'Workspace Orchestration', path: 'grid-workspaces.svg' }
+				},
+				{
+					id: 'gameEngines',
+					title: localize('gettingStarted.gameEngines.title', "Game Engine Integration"),
+					description: localize('gettingStarted.gameEngines.description', "GRID deeply integrates with Unreal Engine, Unity, and Godot. Enable plugins for your engine of choice.\n{0}", Button(localize('enableGamePlugins', "Browse Game Extensions"), 'command:workbench.extensions.action.showRecommendedExtensions')),
+					media: { type: 'svg', altText: 'Game Engine Integration', path: 'grid-game-engines.svg' }
+				},
+				createCopilotSetupStep('CopilotSetupAnonymous', CopilotAnonymousButton, 'chatAnonymous && !chatSetupInstalled', true),
+				{
+					id: 'pickColorTheme',
+					title: localize('gettingStarted.pickColor.title', "Choose your theme"),
+					description: localize('gettingStarted.pickColor.description.interpolated', "The right theme helps you focus on your code, is easy on your eyes, and is simply more fun to use.\n{0}", Button(localize('titleID', "Browse Color Themes"), 'command:workbench.action.selectTheme')),
+					completionEvents: [
+						'onSettingChanged:workbench.colorTheme',
+						'onCommand:workbench.action.selectTheme'
+					],
+					media: { type: 'markdown', path: 'theme_picker', }
+				}
+			]
+		}
+	},
+	{
+		id: 'Setup',
+		title: localize('gettingStarted.setup.title', "VS Code Essentials"),
+		description: localize('gettingStarted.setup.description', "Customize your editor, learn the basics, and start coding"),
+		isFeatured: false,
 		icon: setupIcon,
 		when: '!isWeb',
 		walkthroughPageTitle: localize('gettingStarted.setup.walkthroughPageTitle', 'Setup VS Code'),

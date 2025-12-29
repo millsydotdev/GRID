@@ -39,6 +39,8 @@
 	"licenseFileName": "LICENSE.txt",
 	"reportIssueUrl": "https://github.com/GRID-Editor/GRID/issues/new",
 	"nodejsRepository": "https://nodejs.org",
+	"updateUrl": "https://grideditor.com/api/update",
+	"downloadUrl": "https://grideditor.com",
 	"urlProtocol": "grid",
 	"extensionsGallery": {
 		"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
@@ -46,11 +48,11 @@
 	},
 	"builtInExtensions": [],
 	"linkProtectionTrustedDomains": [
-		"https://grid-website-one.vercel.app",
+		"https://grideditor.com",
+		"https://millsy.dev",
 		"https://github.com/GRID-Editor/GRID",
 		"https://ollama.com"
-	]
-	,
+	],
 	"extensionEnabledApiProposals": {
 		"open-remote-ssh": [
 			"resolvers",

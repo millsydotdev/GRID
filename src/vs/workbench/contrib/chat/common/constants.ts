@@ -25,7 +25,31 @@ export enum ChatConfiguration {
 	EmptyStateHistoryEnabled = 'chat.emptyState.history.enabled',
 	NotifyWindowOnResponseReceived = 'chat.notifyWindowOnResponseReceived',
 	SubagentToolCustomAgents = 'chat.customAgentInSubagent.enabled',
+
+	// Web Content Extraction Settings
+	WebContentEnabled = 'chat.webContent.enabled',
+	WebContentCacheDuration = 'chat.webContent.cacheDuration',
+	WebContentMaxConcurrent = 'chat.webContent.maxConcurrent',
+	WebContentTimeout = 'chat.webContent.timeout',
+	WebContentFollowRedirects = 'chat.webContent.followRedirects',
+
+	// Web Search Settings
+	WebSearchEnabled = 'chat.webSearch.enabled',
+	WebSearchProvider = 'chat.webSearch.provider',
+	WebSearchMaxResults = 'chat.webSearch.maxResults',
+
+	// Agent Behavior Settings
+	AgentMaxIterations = 'chat.agent.maxIterations',
+	AgentVerboseLogging = 'chat.agent.verboseLogging',
+	AgentConfirmDestructiveActions = 'chat.agent.confirmDestructiveActions',
+
+	// Tool Permissions Settings
+	ToolsFileSystemEnabled = 'chat.tools.fileSystem.enabled',
+	ToolsTerminalEnabled = 'chat.tools.terminal.enabled',
+	ToolsBrowserEnabled = 'chat.tools.browser.enabled',
+	ToolsNetworkEnabled = 'chat.tools.network.enabled',
 }
+
 
 /**
  * The "kind" of agents for custom agents.

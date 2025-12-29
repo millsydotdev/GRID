@@ -191,6 +191,10 @@ export class AccessibilitySignalService extends Disposable implements IAccessibi
 	private readonly playingSounds;
 
 	public async playSound(sound: Sound, allowManyInParallel = false): Promise<void> {
+		if (this.configurationService.getValue('accessibility.signals.globalMute')) {
+			return;
+		}
+
 		if (!allowManyInParallel && this.playingSounds.has(sound)) {
 			return;
 		}

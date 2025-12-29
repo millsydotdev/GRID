@@ -162,7 +162,7 @@ async function copyPluginFiles(source: string, destination: string): Promise<voi
 			Description: 'Enables communication between GRID IDE and Unreal Editor',
 			Category: 'Developer Tools',
 			CreatedBy: 'GRID',
-			CreatedByURL: 'https://grid.millsy.dev',
+			CreatedByURL: 'https://grideditor.com',
 			DocsURL: '',
 			MarketplaceURL: '',
 			SupportURL: '',

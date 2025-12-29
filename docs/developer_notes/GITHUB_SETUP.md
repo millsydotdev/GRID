@@ -9,6 +9,7 @@ The fastest way to set up the GRID repository is using the automated setup scrip
 ```
 
 This script will:
+
 - ✅ Install GitHub CLI
 - ✅ Authenticate with your GitHub token
 - ✅ Configure git remote for GitHub
@@ -25,6 +26,7 @@ If you prefer to set things up manually, follow these steps:
 ### 1. Install GitHub CLI
 
 **On Ubuntu/Debian:**
+
 ```bash
 curl -L https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz -o /tmp/gh.tar.gz
 cd /tmp && tar -xzf gh.tar.gz
@@ -33,6 +35,7 @@ sudo chmod +x /usr/local/bin/gh
 ```
 
 **Verify installation:**
+
 ```bash
 gh --version
 ```
@@ -44,6 +47,7 @@ echo "YOUR_GITHUB_TOKEN" | gh auth login --with-token
 ```
 
 **Verify authentication:**
+
 ```bash
 gh auth status
 ```
@@ -51,7 +55,7 @@ gh auth status
 ### 3. Configure Git Remote
 
 ```bash
-git remote set-url origin https://github.com/GRID-NETWORK-REPO/GRID.git
+git remote set-url origin https://github.com/GRID-Editor/GRID.git
 git remote -v  # Verify
 ```
 
@@ -79,8 +83,8 @@ git config push.default current
 
 ## Repository Information
 
-**Repository:** https://github.com/GRID-NETWORK-REPO/GRID
-**Owner:** GRID-NETWORK-REPO
+**Repository:** <https://github.com/GRID-Editor/GRID>
+**Owner:** GRID-Editor
 **Type:** Private
 **Default Branch:** main
 
@@ -122,7 +126,7 @@ gh repo view
 gh browse
 
 # Clone the repository
-gh repo clone GRID-NETWORK-REPO/GRID
+gh repo clone GRID-Editor/GRID
 
 # Fork the repository
 gh repo fork
@@ -210,13 +214,13 @@ gh variable set VARIABLE_NAME --body "value"
 
 ```bash
 # View repository API response
-gh api repos/GRID-NETWORK-REPO/GRID
+gh api repos/GRID-Editor/GRID
 
 # List collaborators
-gh api repos/GRID-NETWORK-REPO/GRID/collaborators
+gh api repos/GRID-Editor/GRID/collaborators
 
 # View branch protection rules (requires GitHub Pro)
-gh api repos/GRID-NETWORK-REPO/GRID/branches/main/protection
+gh api repos/GRID-Editor/GRID/branches/main/protection
 
 # Trigger a workflow dispatch
 gh workflow run WORKFLOW_NAME
@@ -252,7 +256,7 @@ VSCODE_QUALITY=oss
 
 ## Getting Your GitHub Token
 
-1. Go to https://github.com/settings/tokens
+1. Go to <https://github.com/settings/tokens>
 2. Click "Generate new token" → "Generate new token (classic)"
 3. Give it a descriptive name (e.g., "GRID Development")
 4. Select scopes:
@@ -283,14 +287,16 @@ Run the installation script again or install manually following the steps in sec
 ### "Could not resolve to a Repository"
 
 Make sure you're authenticated and have access to the repository:
+
 ```bash
 gh auth status
-gh repo view GRID-NETWORK-REPO/GRID
+gh repo view GRID-Editor/GRID
 ```
 
 ### Git operations ask for username/password
 
 Configure credential helper:
+
 ```bash
 git config credential.helper store
 ```
@@ -305,7 +311,7 @@ Then perform a git operation (push/pull) and enter your credentials once.
 2. **Rotate tokens regularly** - Generate new tokens every 90 days
 3. **Use minimal scopes** - Only grant permissions you need
 4. **Store tokens securely** - Use password managers
-5. **Revoke unused tokens** - Clean up old tokens at https://github.com/settings/tokens
+5. **Revoke unused tokens** - Clean up old tokens at <https://github.com/settings/tokens>
 
 ---
 
@@ -321,9 +327,10 @@ Then perform a git operation (push/pull) and enter your credentials once.
 ## Support
 
 For issues or questions:
+
 1. Check this documentation
 2. Run `gh --help` for CLI help
 3. Check GitHub Actions logs: `gh run list`
 4. View repository settings: `gh repo view`
 
-**Repository URL:** https://github.com/GRID-NETWORK-REPO/GRID
+**Repository URL:** <https://github.com/GRID-Editor/GRID>

@@ -1,0 +1,39 @@
+name: Publish Unreal Engine Extension
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "extensions/unreal-engine/**"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Build Extension
+        # This runs the gulp task defined in the root package.json/gulpfile.js structure
+        run: npx gulp compile-extension:unreal-engine
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Package and Publish
+        working-directory: extensions/unreal-engine
+        run: vsce publish -p ${{ secrets.VSCE_PAT }} --no-dependencies
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

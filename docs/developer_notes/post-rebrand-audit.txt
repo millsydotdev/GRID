@@ -1,7 +1,7 @@
 GRID audit complete. All rebrand issues fixed. Builds and runs successfully. No legacy references remain.
 
 Audit Summary:
-- Fixed voideditor.com URLs to GRID-NETWORK-REPO/GRID and grid.millsy.dev
+- Fixed voideditor.com URLs to GRID-Editor/GRID and grid.millsy.dev
 - Fixed AppImage build script with full GRID branding
 - Renamed void.png to grid.png for AppImage
 - Updated readme.md documentation for AppImage

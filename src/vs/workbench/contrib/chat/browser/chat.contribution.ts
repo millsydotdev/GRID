@@ -128,6 +128,8 @@ import './promptSyntax/promptToolsCodeLensProvider.js';
 import { PromptUrlHandler } from './promptSyntax/promptUrlHandler.js';
 import { ConfigureToolSets, UserToolSetsContributions } from './tools/toolSetsContribution.js';
 import { ChatViewsWelcomeHandler } from './viewsWelcome/chatViewsWelcomeHandler.js';
+import { WebSearchTool } from './tools/webSearchTool.js';
+import { GridRulesContribution } from './contrib/gridRulesContribution.js';
 
 // Register configuration
 const configurationRegistry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
@@ -746,8 +748,115 @@ configurationRegistry.registerConfiguration({
 			description: nls.localize('chat.subagentTool.customAgents', "Whether the runSubagent tool is able to use custom agents. When enabled, the tool can take the name of a custom agent, but it must be given the exact name of the agent."),
 			default: false,
 			tags: ['experimental'],
-		}
+		},
+
+		// =====================================================
+		// Web Content Extraction Settings
+		// =====================================================
+		[ChatConfiguration.WebContentEnabled]: {
+			type: 'boolean',
+			description: nls.localize('chat.webContent.enabled', "Enable web content extraction for AI agents. When enabled, agents can fetch and read content from web pages."),
+			default: true,
+		},
+		[ChatConfiguration.WebContentCacheDuration]: {
+			type: 'number',
+			description: nls.localize('chat.webContent.cacheDuration', "How long to cache extracted web content, in hours. Set to 0 to disable caching."),
+			default: 24,
+			minimum: 0,
+			maximum: 168, // 1 week
+		},
+		[ChatConfiguration.WebContentMaxConcurrent]: {
+			type: 'number',
+			description: nls.localize('chat.webContent.maxConcurrent', "Maximum number of concurrent web content extraction requests."),
+			default: 3,
+			minimum: 1,
+			maximum: 10,
+		},
+		[ChatConfiguration.WebContentTimeout]: {
+			type: 'number',
+			description: nls.localize('chat.webContent.timeout', "Timeout for web content extraction requests, in seconds."),
+			default: 8,
+			minimum: 1,
+			maximum: 60,
+		},
+		[ChatConfiguration.WebContentFollowRedirects]: {
+			type: 'boolean',
+			description: nls.localize('chat.webContent.followRedirects', "Whether to automatically follow redirects when extracting web content."),
+			default: true,
+		},
+
+		// =====================================================
+		// Web Search Settings
+		// =====================================================
+		[ChatConfiguration.WebSearchEnabled]: {
+			type: 'boolean',
+			description: nls.localize('chat.webSearch.enabled', "Enable web search for AI agents. When enabled, agents can search the web for information."),
+			default: true,
+		},
+		[ChatConfiguration.WebSearchProvider]: {
+			type: 'string',
+			description: nls.localize('chat.webSearch.provider', "The web search provider to use."),
+			default: 'duckduckgo',
+			enum: ['duckduckgo', 'none'],
+			enumDescriptions: [
+				nls.localize('chat.webSearch.provider.duckduckgo', "Use DuckDuckGo for web searches (privacy-focused)."),
+				nls.localize('chat.webSearch.provider.none', "Disable web search.")
+			],
+		},
+		[ChatConfiguration.WebSearchMaxResults]: {
+			type: 'number',
+			description: nls.localize('chat.webSearch.maxResults', "Maximum number of search results to return."),
+			default: 5,
+			minimum: 1,
+			maximum: 20,
+		},
+
+		// =====================================================
+		// Agent Behavior Settings
+		// =====================================================
+		[ChatConfiguration.AgentMaxIterations]: {
+			type: 'number',
+			description: nls.localize('chat.agent.maxIterations', "Maximum number of tool iterations the agent can perform per request. Higher values allow more complex tasks but may take longer."),
+			default: 50,
+			minimum: 1,
+			maximum: 200,
+		},
+		[ChatConfiguration.AgentVerboseLogging]: {
+			type: 'boolean',
+			description: nls.localize('chat.agent.verboseLogging', "Enable verbose logging for agent operations. Useful for debugging agent behavior."),
+			default: false,
+		},
+		[ChatConfiguration.AgentConfirmDestructiveActions]: {
+			type: 'boolean',
+			description: nls.localize('chat.agent.confirmDestructiveActions', "Require confirmation before the agent performs potentially destructive actions like deleting files or running dangerous commands."),
+			default: true,
+		},
+
+		// =====================================================
+		// Tool Permissions Settings
+		// =====================================================
+		[ChatConfiguration.ToolsFileSystemEnabled]: {
+			type: 'boolean',
+			description: nls.localize('chat.tools.fileSystem.enabled', "Allow AI agents to use file system tools (read, write, delete files)."),
+			default: true,
+		},
+		[ChatConfiguration.ToolsTerminalEnabled]: {
+			type: 'boolean',
+			description: nls.localize('chat.tools.terminal.enabled', "Allow AI agents to run terminal commands."),
+			default: true,
+		},
+		[ChatConfiguration.ToolsBrowserEnabled]: {
+			type: 'boolean',
+			description: nls.localize('chat.tools.browser.enabled', "Allow AI agents to use browser automation tools (navigate, click, screenshot)."),
+			default: true,
+		},
+		[ChatConfiguration.ToolsNetworkEnabled]: {
+			type: 'boolean',
+			description: nls.localize('chat.tools.network.enabled', "Allow AI agents to make network requests (fetch URLs, call APIs)."),
+			default: true,
+		},
 	}
+
 });
 Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
 	EditorPaneDescriptor.create(
@@ -873,6 +982,17 @@ class ChatAgentSettingContribution extends Disposable implements IWorkbenchContr
 	}
 }
 
+class WebSearchToolContribution extends Disposable implements IWorkbenchContribution {
+	static readonly ID = 'workbench.contrib.chat.webSearchTool';
+
+	constructor(
+		@ILanguageModelToolsService toolsService: ILanguageModelToolsService,
+	) {
+		super();
+		this._register(toolsService.registerTool(new WebSearchTool()));
+	}
+}
+
 AccessibleViewRegistry.register(new ChatResponseAccessibleView());
 AccessibleViewRegistry.register(new PanelChatAccessibilityHelp());
 AccessibleViewRegistry.register(new QuickChatAccessibilityHelp());
@@ -977,6 +1097,8 @@ registerWorkbenchContribution2(ChatTeardownContribution.ID, ChatTeardownContribu
 registerWorkbenchContribution2(ChatStatusBarEntry.ID, ChatStatusBarEntry, WorkbenchPhase.BlockRestore);
 registerWorkbenchContribution2(BuiltinToolsContribution.ID, BuiltinToolsContribution, WorkbenchPhase.Eventually);
 registerWorkbenchContribution2(ChatAgentSettingContribution.ID, ChatAgentSettingContribution, WorkbenchPhase.AfterRestored);
+registerWorkbenchContribution2(WebSearchToolContribution.ID, WebSearchToolContribution, WorkbenchPhase.Eventually);
+registerWorkbenchContribution2(GridRulesContribution.ID, GridRulesContribution, WorkbenchPhase.Eventually);
 registerWorkbenchContribution2(ChatEditingEditorAccessibility.ID, ChatEditingEditorAccessibility, WorkbenchPhase.AfterRestored);
 registerWorkbenchContribution2(ChatEditingEditorOverlay.ID, ChatEditingEditorOverlay, WorkbenchPhase.AfterRestored);
 registerWorkbenchContribution2(SimpleBrowserOverlay.ID, SimpleBrowserOverlay, WorkbenchPhase.AfterRestored);
