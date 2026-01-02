@@ -123,14 +123,14 @@ async function connectToHub(context: vscode.ExtensionContext) {
 }
 
 async function logout(context: vscode.ExtensionContext) {
-    await context.secrets.delete(TOKEN_KEY);
+    await context.secrets.delete(getTokenKey());
     currentTier = 'community';
     vscode.commands.executeCommand('setContext', 'grid.tier', 'community');
     vscode.window.showInformationMessage('GRID: Signed out. Now using Community tier.');
 }
 
 async function checkConnection(context: vscode.ExtensionContext) {
-    const token = await context.secrets.get(TOKEN_KEY);
+    const token = await context.secrets.get(getTokenKey());
 
     if (!token) {
         // Community mode - no token needed, no blocking
@@ -159,7 +159,7 @@ async function sendTelemetry(context: vscode.ExtensionContext) {
     const enabled = vscode.workspace.getConfiguration().get(TELEMETRY_CONFIG);
     if (!enabled) {return;}
 
-    const token = await context.secrets.get(TOKEN_KEY);
+    const token = await context.secrets.get(getTokenKey());
     if (!token) {return;} // Only track authenticated users
 
     const hubUrl = vscode.workspace.getConfiguration().get<string>(HUB_URL_CONFIG, 'https://grideditor.com');

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable, ExtensionContext, LogOutputChannel, window, l10n, env, LogLevel } from 'vscode';
+import { Disposable, ExtensionContext, LogOutputChannel, window, l10n, env, LogLevel, Uri } from 'vscode';
 import { startClient, LanguageClientConstructor, SchemaRequestService, languageServerDescription, AsyncDisposable } from '../jsonClient';
 import { ServerOptions, TransportKind, LanguageClientOptions, LanguageClient } from 'vscode-languageclient/node';
 
@@ -168,7 +168,7 @@ async function getSchemaRequestService(context: ExtensionContext, log: LogOutput
 					return content;
 				}
 			}
-			const scheme = vscode.Uri.parse(uri).scheme;
+			const scheme = Uri.parse(uri).scheme;
 			if (scheme !== 'http' && scheme !== 'https') {
 				return Promise.reject(new Error('Schema request must be http or https'));
 			}

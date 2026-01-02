@@ -67,7 +67,7 @@ export class ExtensionLinter {
 	private packageJsonQ = new Set<TextDocument>();
 	private readmeQ = new Set<TextDocument>();
 	private timer: NodeJS.Timeout | undefined;
-	private markdownIt: MarkdownItType.MarkdownIt | undefined;
+	private markdownIt: InstanceType<typeof MarkdownItType.default> | undefined;
 	private parse5: typeof import('parse5') | undefined;
 
 	constructor() {
@@ -314,7 +314,7 @@ export class ExtensionLinter {
 				});
 				return tokensAndPositions.concat(
 					...tokensAndPositions.filter(tnp => tnp.token.children && tnp.token.children.length)
-						.map(tnp => toTokensAndPositions.call(this, tnp.token.children, tnp.begin, tnp.end))
+						.map(tnp => toTokensAndPositions.call(this, tnp.token.children!, tnp.begin, tnp.end))
 				);
 			}).call(this, tokens);
 

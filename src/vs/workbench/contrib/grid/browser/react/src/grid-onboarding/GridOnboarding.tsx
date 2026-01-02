@@ -10,8 +10,9 @@ import { displayInfoOfProviderName, ProviderName, providerNames, localProviderNa
 import { ChatMarkdownRender } from '../markdown/ChatMarkdownRender.js';
 import { IGridSettingsService } from '../../../../common/gridSettingsService.js';
 
-// ...
+type WantToUseOption = 'smart' | 'private' | 'cheap' | 'all';
 
+export function GridOnboarding() {
 const accessor = useAccessor()
 const gridSettingsService = accessor.get('IGridSettingsService')
 const GridMetricsService = accessor.get('IMetricsService')
@@ -190,5 +191,4 @@ return <div key={pageIndex} className="w-full h-[80vh] text-left mx-auto flex fl
 		{contentOfIdx[pageIndex]}
 	</ErrorBoundary>
 </div>
-
 }

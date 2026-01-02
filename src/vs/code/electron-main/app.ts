@@ -50,7 +50,7 @@ import { DiskFileSystemProvider } from '../../platform/files/node/diskFileSystem
 import { SyncDescriptor } from '../../platform/instantiation/common/descriptors.js';
 import { IInstantiationService, ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
 import { ServiceCollection } from '../../platform/instantiation/common/serviceCollection.js';
-import { IProcessMainService } from '../../platform/process/common/process.js';
+import { IProcessService } from '../../platform/process/common/process.js';
 import { ProcessMainService } from '../../platform/process/electron-main/processMainService.js';
 import { IKeyboardLayoutMainService, KeyboardLayoutMainService } from '../../platform/keyboardLayout/electron-main/keyboardLayoutMainService.js';
 import { ILaunchMainService, LaunchMainService } from '../../platform/launch/electron-main/launchMainService.js';
@@ -101,7 +101,7 @@ import { ExtensionsScannerService } from '../../platform/extensionManagement/nod
 import { UserDataProfilesHandler } from '../../platform/userDataProfile/electron-main/userDataProfilesHandler.js';
 import { ProfileStorageChangesListenerChannel } from '../../platform/userDataProfile/electron-main/userDataProfileStorageIpc.js';
 import { Promises, RunOnceScheduler, runWhenGlobalIdle } from '../../base/common/async.js';
-import { resolveMachineId, resolveSqmId, resolvedevDeviceId, validatedevDeviceId } from '../../platform/telemetry/electron-main/telemetryUtils.js';
+import { resolveMachineId, resolveSqmId, resolveDevDeviceId, validateDevDeviceId } from '../../platform/telemetry/electron-main/telemetryUtils.js';
 import { ExtensionsProfileScannerService } from '../../platform/extensionManagement/node/extensionsProfileScannerService.js';
 import { LoggerChannel } from '../../platform/log/electron-main/logIpc.js';
 import { ILoggerMainService } from '../../platform/log/electron-main/loggerService.js';
@@ -1101,10 +1101,10 @@ export class CodeApplication extends Disposable {
 			services.set(ITelemetryService, NullTelemetryService);
 		}
 
-		// Void main process services (required for services with a channel for comm between browser and electron-main (node))
+		// Grid main process services (required for services with a channel for comm between browser and electron-main (node))
 		services.set(IMetricsService, new SyncDescriptor(MetricsMainService, undefined, false));
-		services.set(IVoidUpdateService, new SyncDescriptor(VoidMainUpdateService, undefined, false));
-		services.set(IVoidSCMService, new SyncDescriptor(VoidSCMService, undefined, false));
+		services.set(IGridUpdateService, new SyncDescriptor(GridMainUpdateService, undefined, false));
+		services.set(IGridSCMService, new SyncDescriptor(GridSCMService, undefined, false));
 
 		// Default Extensions Profile Init
 		services.set(IExtensionsProfileScannerService, new SyncDescriptor(ExtensionsProfileScannerService, undefined, true));
@@ -1240,14 +1240,14 @@ export class CodeApplication extends Disposable {
 		const metricsChannel = ProxyChannel.fromService(accessor.get(IMetricsService), disposables);
 		mainProcessElectronServer.registerChannel('void-channel-metrics', metricsChannel);
 
-		const voidUpdatesChannel = ProxyChannel.fromService(accessor.get(IVoidUpdateService), disposables);
+		const voidUpdatesChannel = ProxyChannel.fromService(accessor.get(IGridUpdateService), disposables);
 		mainProcessElectronServer.registerChannel('void-channel-update', voidUpdatesChannel);
 
 		const sendLLMMessageChannel = new LLMMessageChannel(accessor.get(IMetricsService));
 		mainProcessElectronServer.registerChannel('void-channel-llmMessage', sendLLMMessageChannel);
 
-		// Void added this
-		const voidSCMChannel = ProxyChannel.fromService(accessor.get(IVoidSCMService), disposables);
+		// Grid added this
+		const voidSCMChannel = ProxyChannel.fromService(accessor.get(IGridSCMService), disposables);
 		mainProcessElectronServer.registerChannel('void-channel-scm', voidSCMChannel);
 
 		// Void added this
