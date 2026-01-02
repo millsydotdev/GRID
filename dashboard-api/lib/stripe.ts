@@ -1,3 +1,13 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) 2025 Millsy.dev. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *--------------------------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 import Stripe from 'stripe';
 
 if (!process.env.STRIPE_SECRET_KEY) {

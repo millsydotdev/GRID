@@ -431,5 +431,5 @@ import './contrib/editTelemetry/browser/editTelemetry.contribution.js';
 import './contrib/opener/browser/opener.contribution.js';
 
 //#endregion
-i m p o r t   ' v s / w o r k b e n c h / s e r v i c e s / l o c a l C o n t e x t / b r o w s e r / l o c a l C o n t e x t S e r v i c e ' ;  
+import 'vs/workbench/services/localContext/browser/localContextService';
  
