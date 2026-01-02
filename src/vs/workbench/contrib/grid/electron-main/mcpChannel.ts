@@ -54,7 +54,7 @@ type InfoOfClientId = {
 	[clientId: string]: ClientInfo;
 };
 
-export class MCPChannel implements IServerChannel {
+export class MCPChannel implements IServerChannel<string> {
 	private readonly infoOfClientId: InfoOfClientId = {};
 	private readonly _refreshingServerNames: Set<string> = new Set();
 

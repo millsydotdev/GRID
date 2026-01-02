@@ -29,7 +29,7 @@ import { sendLLMMessageToProviderImplementation } from './llmMessage/sendLLMMess
 
 // NODE IMPLEMENTATION - calls actual sendLLMMessage() and returns listeners to it
 
-export class LLMMessageChannel implements IServerChannel {
+export class LLMMessageChannel implements IServerChannel<string> {
 	// sendLLMMessage
 	private readonly llmMessageEmitters = {
 		onText: new Emitter<EventLLMMessageOnTextParams>(),
