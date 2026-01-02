@@ -31,8 +31,8 @@ export class OllamaInstallerService implements IOllamaInstallerService {
 
 	constructor(@IMainProcessService private readonly mainProcessService: IMainProcessService) {
 		const channel = this.mainProcessService.getChannel('grid-channel-ollamaInstaller');
-		channel.listen('onLog')((e: unknown) => this._onLog.fire((e as { text: string }).text));
-		channel.listen('onDone')((e: unknown) => this._onDone.fire((e as { ok: boolean }).ok));
+		channel.listen('onLog')((e: any) => this._onLog.fire((e as { text: string }).text));
+		channel.listen('onDone')((e: any) => this._onDone.fire((e as { ok: boolean }).ok));
 	}
 
 	install(options: InstallOptions) {

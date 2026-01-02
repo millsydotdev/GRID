@@ -571,7 +571,7 @@ function getMetricsReport(): string {
 
 // Expose performance audit functions globally for console access
 if (typeof window !== 'undefined') {
-	(window as unknown).gridPerformanceAudit = {
+	(window as any).gridPerformanceAudit = {
 		printReport: (mode: 'auto' | 'single' = 'auto') => {
 			import('./performanceAudit.js').then((m) => m.printPerformanceAuditReport(mode));
 		},

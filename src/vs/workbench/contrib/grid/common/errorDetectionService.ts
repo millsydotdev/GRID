@@ -344,7 +344,7 @@ class ErrorDetectionService extends Disposable implements IErrorDetectionService
 						const models = providerSettings.models || [];
 						const firstModel = models.find((m) => !m.isHidden);
 						if (firstModel) {
-							modelSelection = { providerName, modelName: firstModel.modelName } as unknown;
+							modelSelection = { providerName, modelName: firstModel.modelName } as any;
 							break;
 						}
 					}

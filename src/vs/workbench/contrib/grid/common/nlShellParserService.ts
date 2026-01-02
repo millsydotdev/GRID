@@ -112,7 +112,7 @@ class NLShellParserService implements INLShellParserService {
 			}
 
 			if (fallbackModel) {
-				modelSelection = fallbackModel as unknown;
+				modelSelection = fallbackModel as any;
 			} else {
 				throw new Error('No model provider configured. Please configure a model provider in GRID Settings.');
 			}

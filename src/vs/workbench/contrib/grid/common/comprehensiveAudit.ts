@@ -313,7 +313,7 @@ export function printComprehensiveAuditReport(): void {
 
 // Expose globally
 if (typeof window !== 'undefined') {
-	(window as unknown).gridComprehensiveAudit = {
+	(window as any).gridComprehensiveAudit = {
 		generate: generateComprehensiveAuditReport,
 		print: printComprehensiveAuditReport,
 	};
