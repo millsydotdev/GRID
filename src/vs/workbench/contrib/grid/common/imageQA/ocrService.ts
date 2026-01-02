@@ -8,6 +8,27 @@
  * Uses Tesseract.js for browser-based OCR
  */
 
+// Tesseract.js types (minimal interface for what we use)
+interface TesseractWord {
+	text: string;
+	confidence: number;
+	bbox: { x0: number; y0: number; x1: number; y1: number };
+}
+
+interface TesseractData {
+	text: string;
+	words?: TesseractWord[];
+}
+
+interface TesseractResult {
+	data: TesseractData;
+}
+
+interface TesseractWorker {
+	recognize(image: Uint8Array): Promise<TesseractResult>;
+	terminate(): Promise<void>;
+}
+
 export interface OCRBlock {
 	bbox: { x: number; y: number; width: number; height: number };
 	text: string;
@@ -61,7 +82,7 @@ export interface IOCRService {
  * Dynamically loaded to avoid bundle size bloat
  */
 export class TesseractOCRService implements IOCRService {
-	private tesseractWorker: unknown = null;
+	private tesseractWorker: TesseractWorker | null = null;
 	private workerInitialized = false;
 
 	private async ensureWorker(): Promise<void> {
@@ -80,7 +101,7 @@ export class TesseractOCRService implements IOCRService {
 			this.workerInitialized = true;
 		} catch (error: unknown) {
 			console.error('Failed to initialize Tesseract worker:', error);
-			throw new Error(`OCR service unavailable: ${error.message || 'Tesseract.js failed to load'}`);
+			throw new Error(`OCR service unavailable: ${error instanceof Error ? error.message : 'Tesseract.js failed to load'}`);
 		}
 	}
 
@@ -162,7 +183,7 @@ export class TesseractOCRService implements IOCRService {
 				blocks: [],
 				tables: [],
 				code_blocks: [],
-				errors: [error.message || 'OCR failed'],
+				errors: [error instanceof Error ? error.message : 'OCR failed'],
 				fullText: '',
 				totalChars: 0,
 			};
