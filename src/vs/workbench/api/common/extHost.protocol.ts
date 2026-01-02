@@ -520,6 +520,15 @@ export interface MainThreadLanguagesShape extends IDisposable {
 	$removeLanguageStatus(handle: number): void;
 }
 
+export interface MainThreadCustomLanguagesShape extends IDisposable {
+	$registerCustomLanguage(definition: any): Promise<void>;
+	$updateCustomLanguage(languageId: string, definition: any): Promise<void>;
+	$removeCustomLanguage(languageId: string): Promise<void>;
+	$getCustomLanguages(): Promise<any[]>;
+	$getCustomLanguage(languageId: string): Promise<any | undefined>;
+	$isCustomLanguage(languageId: string): Promise<boolean>;
+}
+
 export interface MainThreadMessageOptions {
 	source?: { identifier: ExtensionIdentifier; label: string };
 	modal?: boolean;
@@ -3291,6 +3300,7 @@ export const MainContext = {
 	MainThreadDownloadService: createProxyIdentifier<MainThreadDownloadServiceShape>('MainThreadDownloadService'),
 	MainThreadLanguageFeatures: createProxyIdentifier<MainThreadLanguageFeaturesShape>('MainThreadLanguageFeatures'),
 	MainThreadLanguages: createProxyIdentifier<MainThreadLanguagesShape>('MainThreadLanguages'),
+	MainThreadCustomLanguages: createProxyIdentifier<MainThreadCustomLanguagesShape>('MainThreadCustomLanguages'),
 	MainThreadLogger: createProxyIdentifier<MainThreadLoggerShape>('MainThreadLogger'),
 	MainThreadMessageService: createProxyIdentifier<MainThreadMessageServiceShape>('MainThreadMessageService'),
 	MainThreadOutputService: createProxyIdentifier<MainThreadOutputServiceShape>('MainThreadOutputService'),
