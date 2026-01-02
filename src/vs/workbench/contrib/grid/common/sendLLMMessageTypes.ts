@@ -27,7 +27,7 @@ export const errorDetails = (fullError: Error | null): string | null => {
 	return null;
 };
 
-export const getErrorMessage: (error: unknown) => string = (error) => {
+export const getErrorMessage: (error: any) => string = (error) => {
 	if (error instanceof Error) {return `${error.name}: ${error.message}`;}
 	return error + '';
 };
@@ -107,8 +107,8 @@ export type RawToolCallObj = {
 };
 
 export type AnthropicReasoning =
-	| { type: 'thinking'; thinking: unknown; signature: string }
-	| { type: 'redacted_thinking'; data: unknown };
+	| { type: 'thinking'; thinking: any; signature: string }
+	| { type: 'redacted_thinking'; data: any };
 
 export type OnText = (p: { fullText: string; fullReasoning: string; toolCall?: RawToolCallObj }) => void;
 export type OnFinalMessage = (p: {
@@ -216,7 +216,7 @@ export type ModelListParams<ModelResponse> = {
 export type ServiceModelListParams<modelResponse> = {
 	providerName: RefreshableProviderName;
 	onSuccess: (param: { models: modelResponse[] }) => void;
-	onError: (param: { error: unknown }) => void;
+	onError: (param: { error: any }) => void;
 };
 
 type BlockedMainModelListParams = 'onSuccess' | 'onError';

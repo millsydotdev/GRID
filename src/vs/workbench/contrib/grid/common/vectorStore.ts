@@ -165,7 +165,7 @@ class QdrantVectorStore implements IVectorStore {
 			}
 
 			const data = await response.json();
-			return (data.result || []).map((point: unknown) => ({
+			return (data.result || []).map((point: any) => ({
 				id: point.id?.toString() || '',
 				text: point.payload?.text || '',
 				score: point.score || 0,

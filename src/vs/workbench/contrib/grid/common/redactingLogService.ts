@@ -43,7 +43,7 @@ export class RedactingLogService extends Disposable implements ILogService {
 		return result.hasSecrets ? result.redactedText : message;
 	}
 
-	private redactArgs(args: unknown[]): unknown[] {
+	private redactArgs(args: any[]): any[] {
 		const config = this.secretDetectionService.getConfig();
 		if (!config.enabled) {
 			return args;
@@ -61,23 +61,23 @@ export class RedactingLogService extends Disposable implements ILogService {
 		});
 	}
 
-	trace(message: string, ...args: unknown[]): void {
+	trace(message: string, ...args: any[]): void {
 		this.logService.trace(this.redactMessage(message), ...this.redactArgs(args));
 	}
 
-	debug(message: string, ...args: unknown[]): void {
+	debug(message: string, ...args: any[]): void {
 		this.logService.debug(this.redactMessage(message), ...this.redactArgs(args));
 	}
 
-	info(message: string, ...args: unknown[]): void {
+	info(message: string, ...args: any[]): void {
 		this.logService.info(this.redactMessage(message), ...this.redactArgs(args));
 	}
 
-	warn(message: string, ...args: unknown[]): void {
+	warn(message: string, ...args: any[]): void {
 		this.logService.warn(this.redactMessage(message), ...this.redactArgs(args));
 	}
 
-	error(message: string | Error, ...args: unknown[]): void {
+	error(message: string | Error, ...args: any[]): void {
 		if (message instanceof Error) {
 			// Redact error message
 			const redactedMessage = this.redactMessage(message.message);
