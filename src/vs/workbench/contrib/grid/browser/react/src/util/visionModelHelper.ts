@@ -5,6 +5,18 @@
 
 import { SettingsOfProvider, ModelSelection, ProviderName } from '../../../../common/gridSettingsTypes.js';
 
+// Ollama API response types
+interface OllamaModel {
+	name: string;
+	modified_at?: string;
+	size?: number;
+	digest?: string;
+}
+
+interface OllamaTagsResponse {
+	models: OllamaModel[];
+}
+
 /**
  * Vision-capable providers that require API keys
  */
@@ -60,11 +72,11 @@ export async function hasOllamaVisionModel(): Promise<boolean> {
 	try {
 		const res = await fetch('http://127.0.0.1:11434/api/tags', { method: 'GET' });
 		if (!res.ok) {return false;}
-		const data = await res.json();
+		const data = await res.json() as OllamaTagsResponse;
 		const models = data.models || [];
 		// Check for common vision model names
 		// Ollama API returns models with 'name' field
-		return models.some((m: unknown) => {
+		return models.some((m: OllamaModel) => {
 			const name = (m.name || '').toLowerCase();
 			return isVisionModelName(name);
 		});
