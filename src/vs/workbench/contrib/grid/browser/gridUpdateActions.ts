@@ -14,13 +14,13 @@ import { IGridUpdateService } from '../common/gridUpdateService.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import * as dom from '../../../../base/browser/dom.js';
 import { IUpdateService } from '../../../../platform/update/common/update.js';
-import { GridCheckUpdateRespose } from '../common/gridUpdateServiceTypes.js';
+import { GridCheckUpdateResponse } from '../common/gridUpdateServiceTypes.js';
 import { IAction } from '../../../../base/common/actions.js';
 
 
 
 
-const notifyUpdate = (res: GridCheckUpdateRespose & { message: string }, notifService: INotificationService, updateService: IUpdateService): INotificationHandle => {
+const notifyUpdate = (res: GridCheckUpdateResponse & { message: string }, notifService: INotificationService, updateService: IUpdateService): INotificationHandle => {
 	const message = res?.message || 'This is a very old version of GRID, please download the latest version! [GRID](https://grid.millsy.dev/download-beta)!';
 
 	let actions: INotificationActions | undefined;

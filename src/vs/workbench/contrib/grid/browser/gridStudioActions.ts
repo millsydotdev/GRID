@@ -7,7 +7,7 @@ import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
 import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
 import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
 import { KeybindingWeight } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
-import { GRID_STUDIO_OPEN_ACTION_ID, GRID_STUDIO_VIEW_CONTAINER_ID } from './gridStudioPane.js';
+import { GRID_STUDIO_VIEW_CONTAINER_ID } from './gridStudioPane.js';
 import { IViewsService } from '../../../services/views/common/viewsService.js';
 import { localize2 } from '../../../../nls.js';
 

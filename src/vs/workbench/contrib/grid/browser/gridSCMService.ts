@@ -19,7 +19,6 @@ import {
 	gitCommitMessage_systemMessage,
 	gitCommitMessage_userMessage,
 } from '../common/prompt/prompts.js';
-import { isLocalProvider } from './convertToLLMMessageService.js';
 import { LLMChatMessage } from '../common/sendLLMMessageTypes.js';
 import { generateUuid } from '../../../../base/common/uuid.js';
 import { ThrottledDelayer } from '../../../../base/common/async.js';
