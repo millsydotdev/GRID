@@ -74,7 +74,7 @@ export interface IPDFService {
  * Dynamically loads PDF.js to avoid bundle bloat
  */
 export class PDFService implements IPDFService {
-	private pdfjsLib: unknown = null;
+	private pdfjsLib: any = null;
 	private initialized = false;
 
 	private async ensureInitialized(): Promise<void> {
@@ -82,8 +82,8 @@ export class PDFService implements IPDFService {
 
 		try {
 			// Try multiple approaches to load PDF.js (ESM module)
-			let pdfjs: unknown = null;
-			let lastError: unknown = null;
+			let pdfjs: any = null;
+			let lastError: any = null;
 
 			// Approach 1: Try dynamic import with file URI
 			try {
@@ -136,7 +136,7 @@ export class PDFService implements IPDFService {
 
 			this.pdfjsLib = pdfjs;
 			this.initialized = true;
-		} catch (error: unknown) {
+		} catch (error: any) {
 			console.error('Failed to initialize PDF.js:', error);
 			throw new Error(`PDF.js failed to load: ${error?.message || error || 'Unknown error'}`);
 		}
@@ -229,7 +229,7 @@ export class PDFService implements IPDFService {
 
 				// Extract text
 				const textItems = textContent.items
-					.filter((item: unknown) => item.str)
+					.filter((item: any) => item.str)
 					.map((item: { str: string }) => item.str);
 				const text = textItems.join(' ');
 
@@ -363,7 +363,7 @@ export class PDFService implements IPDFService {
 
 				// Extract text
 				const textItems = textContent.items
-					.filter((item: unknown) => item.str)
+					.filter((item: any) => item.str)
 					.map((item: { str: string }) => item.str);
 				const text = textItems.join(' ');
 
