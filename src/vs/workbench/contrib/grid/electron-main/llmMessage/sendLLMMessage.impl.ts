@@ -371,7 +371,7 @@ const newOpenAICompatibleSDK = async ({
 			// If user specifies endpoint in settings (overriding registry), use it.
 			// Casting to any because not all settings types explicitly declare 'endpoint',
 			// but we want to support it if present in the config object at runtime.
-			const configEndpoint = (thisConfig as unknown)?.endpoint;
+			const configEndpoint = (thisConfig as any)?.endpoint;
 			const baseURL = configEndpoint || registryEntry.endpoint;
 
 			return new OpenAI({ baseURL, apiKey: thisConfig.apiKey, ...commonPayloadOpts });
@@ -551,7 +551,7 @@ const openAITools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | u
 
 // convert LLM tool call to our tool format
 const rawToolCallObjOfParamsStr = (name: string, toolParamsStr: string, id: string): RawToolCallObj | null => {
-	let input: unknown;
+	let input: any;
 	try {
 		input = JSON.parse(toolParamsStr);
 	} catch (e) {
@@ -672,7 +672,7 @@ const _sendOpenAICompatibleChat = async ({
 	const isLocalChat = isExplicitLocalProviderChat || isLocalhostEndpointChat;
 
 	// Helper function to process streaming response
-	const processStreamingResponse = async (response: unknown) => {
+	const processStreamingResponse = async (response: any) => {
 		_setAborter(() => response.controller.abort());
 
 		// For local models, add hard timeout with partial results
@@ -757,7 +757,7 @@ const _sendOpenAICompatibleChat = async ({
 				// reasoning
 				let newReasoning = '';
 				if (nameOfReasoningFieldInDelta) {
-					newReasoning = ((chunk.choices[0]?.delta as unknown)?.[nameOfReasoningFieldInDelta] || '') + '';
+					newReasoning = ((chunk.choices[0]?.delta as any)?.[nameOfReasoningFieldInDelta] || '') + '';
 					fullReasoningSoFar += newReasoning;
 				}
 
@@ -797,7 +797,7 @@ const _sendOpenAICompatibleChat = async ({
 	};
 
 	// Helper function to process non-streaming response
-	const processNonStreamingResponse = async (response: unknown) => {
+	const processNonStreamingResponse = async (response: any) => {
 		const choice = response.choices[0];
 		if (!choice) {
 			onError({ message: 'GRID: Response from model was empty.', fullError: null });
@@ -830,7 +830,7 @@ const _sendOpenAICompatibleChat = async ({
 	// Try streaming first
 	const options: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
 		model: modelName,
-		messages: messages as unknown,
+		messages: messages as any,
 		stream: true,
 		...nativeToolsObj,
 		...additionalOpenAIPayload,
@@ -840,7 +840,7 @@ const _sendOpenAICompatibleChat = async ({
 	// Flag to ensure we only process one response (prevent duplicate processing)
 	// Use object reference to ensure atomic updates across async operations
 	const processingState = { responseProcessed: false, isProcessing: false };
-	let streamingResponse: unknown = null;
+	let streamingResponse: any = null;
 
 	openai.chat.completions
 		.create(options)
@@ -891,7 +891,7 @@ const _sendOpenAICompatibleChat = async ({
 				// Silently retry - don't show error notification for organization verification issues
 				const nonStreamingOptions: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
 					model: modelName,
-					messages: messages as unknown,
+					messages: messages as any,
 					stream: false,
 					...nativeToolsObj,
 					...additionalOpenAIPayload,
@@ -950,7 +950,7 @@ const _sendOpenAICompatibleChat = async ({
 				// CRITICAL: Retry immediately without delay for tool support errors (they're fast to detect)
 				const optionsWithoutTools: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
 					model: modelName,
-					messages: messages as unknown,
+					messages: messages as any,
 					stream: true,
 					// Explicitly omit tools - don't include nativeToolsObj
 					...additionalOpenAIPayload,
@@ -1122,7 +1122,7 @@ const sendAnthropicChat = async ({
 
 	const stream = anthropic.messages.stream({
 		system: separateSystemMessage ?? undefined,
-		messages: messages as unknown, // AnthropicLLMChatMessage type may not exactly match SDK's MessageParam, but is compatible at runtime
+		messages: messages as any, // AnthropicLLMChatMessage type may not exactly match SDK's MessageParam, but is compatible at runtime
 		model: modelName,
 		max_tokens: maxTokens ?? 4_096, // anthropic requires this
 		...includeInPayload,
@@ -1514,7 +1514,7 @@ const sendGeminiChat = async ({
 
 					try {
 						// Try to parse the error message which may contain JSON
-						let errorData: unknown = null;
+						let errorData: any = null;
 
 						// First, try to parse the error message as JSON (it might be a JSON string)
 						try {
@@ -1536,7 +1536,7 @@ const sendGeminiChat = async ({
 									rateLimitMessage = innerError.error.message;
 									// Extract retry delay if available
 									const retryInfo = innerError.error.details?.find(
-										(d: unknown) => d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo'
+										(d: any) => d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo'
 									);
 									if (retryInfo?.retryDelay) {
 										retryDelay = retryInfo.retryDelay;
