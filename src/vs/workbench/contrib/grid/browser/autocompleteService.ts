@@ -18,8 +18,8 @@ import { extractCodeFromRegular } from '../common/helpers/extractCodeFromResult.
 import { registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import { ILLMMessageService } from '../common/sendLLMMessageService.js';
 import { isWindows } from '../../../../base/common/platform.js';
-import { IGridSettingsService } from '../common/GRIDSettingsService.js';
-import { FeatureName } from '../common/GRIDSettingsTypes.js';
+import { IGridSettingsService } from '../common/gridSettingsService.js';
+import { FeatureName, ProviderName } from '../common/gridSettingsTypes.js';
 import { IConvertToLLMMessageService } from './convertToLLMMessageService.js';
 // import { IContextGatheringService } from './contextGatheringService.js';
 
@@ -792,7 +792,9 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		const featureName: FeatureName = 'Autocomplete'
 		const overridesOfModel = this._settingsService.state.overridesOfModel
 		const modelSelection = this._settingsService.state.modelSelectionOfFeature[featureName]
-		const modelSelectionOptions = modelSelection ? this._settingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName] : undefined
+		const modelSelectionOptions = modelSelection && modelSelection.providerName !== 'auto'
+			? this._settingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName as ProviderName]?.[modelSelection.modelName]
+			: undefined
 
 		// set parameters of `newAutocompletion` appropriately
 		newAutocompletion.llmPromise = new Promise((resolve, reject) => {
@@ -804,7 +806,9 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 						prefix: llmPrefix,
 						suffix: llmSuffix,
 						stopTokens: stopTokens,
-					}
+					},
+					modelSelection,
+					featureName,
 				}),
 				modelSelection,
 				modelSelectionOptions,
@@ -906,7 +910,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 				// console.log('item: ', items?.[0]?.insertText)
 				return { items: items, }
 			},
-			freeInlineCompletions: (completions) => {
+			disposeInlineCompletions: (completions) => {
 				// get the `docUriStr` and the `position` of the cursor
 				const activePane = this._editorService.activeEditorPane;
 				if (!activePane) return;

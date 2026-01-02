@@ -3,6 +3,8 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------------*/
 
+import { parse, ParsedPattern, IExpression } from '../../../../../base/common/glob.js';
+
 /**
  * AI-Powered Auto-Debug Service
  *
@@ -124,6 +126,7 @@ export class AutoDebugService implements IAutoDebugService {
 	private monitoredFiles: Set<string> = new Set();
 	private detectedBugs: Map<string, DetectedBug[]> = new Map(); // filePath -> bugs
 	private errorPatterns: ErrorPattern[] = [];
+	private ignorePattern: ParsedPattern | undefined;
 	private stats: AutoDebugStats = {
 		totalBugsDetected: 0,
 		totalBugsFixed: 0,
@@ -135,9 +138,11 @@ export class AutoDebugService implements IAutoDebugService {
 	constructor(
 		private llmService: unknown, // Inject LLM service for AI-powered suggestions
 		private fileService: unknown, // For reading/writing files
-		private diagnosticsService: unknown // For getting compiler errors
+		private diagnosticsService: unknown, // For getting compiler errors
+		private workspaceContextService: any // Inject workspace service
 	) {
 		this.initializeErrorPatterns();
+		this.loadGridIgnore();
 	}
 
 	private initializeErrorPatterns(): void {
@@ -186,7 +191,47 @@ export class AutoDebugService implements IAutoDebugService {
 		];
 	}
 
+	private async loadGridIgnore(): Promise<void> {
+		try {
+			if (!this.workspaceContextService) return;
+			const workspace = (this.workspaceContextService as any).getWorkspace();
+			if (!workspace.folders.length) return;
+
+			const rootPath = workspace.folders[0].uri.fsPath || workspace.folders[0].uri.path;
+			const sep = rootPath.includes('\\') ? '\\' : '/';
+			const ignorePath = rootPath.endsWith(sep) ? `${rootPath}.gridignore` : `${rootPath}${sep}.gridignore`;
+
+			try {
+				const content = await (this.fileService as any).readFile(ignorePath);
+				const expression: IExpression = {};
+				content.split('\n').forEach((line: string) => {
+					const trimmed = line.trim();
+					if (trimmed && !trimmed.startsWith('#')) {
+						expression[trimmed] = true;
+					}
+				});
+				this.ignorePattern = parse(expression);
+
+				// Cleanup currently monitored files
+				this.monitoredFiles.forEach((file) => {
+					if (this.isIgnored(file)) {
+						this.stopMonitoring(file);
+					}
+				});
+			} catch (e) {
+				// .gridignore likely doesn't exist, which is fine
+			}
+		} catch (e) {
+			console.error('Error loading .gridignore:', e);
+		}
+	}
+
+	private isIgnored(filePath: string): boolean {
+		return this.ignorePattern ? this.ignorePattern(filePath) : false;
+	}
+
 	public startMonitoring(filePath: string): void {
+		if (this.isIgnored(filePath)) return;
 		this.monitoredFiles.add(filePath);
 		// Set up file watcher and diagnostic listener
 		this.setupFileWatcher(filePath);
@@ -197,6 +242,8 @@ export class AutoDebugService implements IAutoDebugService {
 	}
 
 	public async detectBugs(filePath: string, code: string): Promise<DetectedBug[]> {
+		if (this.isIgnored(filePath)) return [];
+
 		// Get compiler/linter errors
 		const diagnostics: any[] = await this.diagnosticsService.getDiagnostics(filePath);
 

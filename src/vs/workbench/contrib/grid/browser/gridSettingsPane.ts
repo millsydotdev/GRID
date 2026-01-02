@@ -45,7 +45,7 @@ class GridSettingsInput extends EditorInput {
 	}
 
 	override get typeId(): string {
-		return VoidSettingsInput.ID;
+		return GridSettingsInput.ID;
 	}
 
 	override getName(): string {
@@ -146,7 +146,7 @@ registerAction2(class extends Action2 {
 		const instantiationService = accessor.get(IInstantiationService);
 
 		// if is open, close it
-		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE); // should only have 0 or 1 elements...
+		const openEditors = editorService.findEditors(GridSettingsInput.RESOURCE); // should only have 0 or 1 elements...
 		if (openEditors.length !== 0) {
 			const openEditor = openEditors[0].editor
 			const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath
@@ -159,7 +159,7 @@ registerAction2(class extends Action2 {
 
 
 		// else open it
-		const input = instantiationService.createInstance(VoidSettingsInput);
+		const input = instantiationService.createInstance(GridSettingsInput);
 
 		await editorGroupService.activeGroup.openEditor(input);
 	}
@@ -167,8 +167,7 @@ registerAction2(class extends Action2 {
 
 
 
-export const GRID_OPEN_SETTINGS_ACTION_ID = 'workbench.action.openGridSettings'
-export const VOID_OPEN_SETTINGS_ACTION_ID = GRID_OPEN_SETTINGS_ACTION_ID // Alias for backwards compatibility
+export const GRID_OPEN_SETTINGS_ACTION_ID = 'grid.settings.open'
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
@@ -183,13 +182,13 @@ registerAction2(class extends Action2 {
 		const instantiationService = accessor.get(IInstantiationService);
 
 		// close all instances if found
-		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE);
+		const openEditors = editorService.findEditors(GridSettingsInput.RESOURCE);
 		if (openEditors.length > 0) {
 			await editorService.closeEditors(openEditors);
 		}
 
 		// then, open one single editor
-		const input = instantiationService.createInstance(VoidSettingsInput);
+		const input = instantiationService.createInstance(GridSettingsInput);
 		await editorService.openEditor(input);
 	}
 })

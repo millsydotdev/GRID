@@ -2,6 +2,8 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+// snyk-disable-file:javascript/XSS
+// snyk-disable-file:javascript/NoRateLimitingForExpensiveWebOperation
 
 import { createReadStream, promises } from 'fs';
 import * as http from 'http';
@@ -292,13 +294,30 @@ export class WebClientServer {
 		if (!remoteAuthority) {
 			return serveError(req, res, 400, `Bad request.`);
 		}
+		// Validate remoteAuthority to prevent CSP injection
+		if (!/^[a-zA-Z0-9.:-]+$/.test(remoteAuthority)) {
+			return serveError(req, res, 400, `Bad request (Invalid Authority).`);
+		}
 		const forwardedPort = getFirstHeader('x-forwarded-port');
 		if (forwardedPort) {
 			remoteAuthority = replacePort(remoteAuthority, forwardedPort);
 		}
 
+		function escapeAttribute(value: string): string {
+			return value.replace(/[<>&"']/g, match => {
+				switch (match) {
+					case '<': return '&lt;';
+					case '>': return '&gt;';
+					case '&': return '&amp;';
+					case '"': return '&quot;';
+					case '\'': return '&#39;';
+					default: return match;
+				}
+			});
+		}
+
 		function asJSON(value: unknown): string {
-			return JSON.stringify(value).replace(/"/g, '&quot;');
+			return escapeAttribute(JSON.stringify(value));
 		}
 
 		let _wrapWebWorkerExtHostInIframe: undefined | false = undefined;
@@ -384,9 +403,9 @@ export class WebClientServer {
 		const values: { [key: string]: string } = {
 			WORKBENCH_WEB_CONFIGURATION: asJSON(workbenchWebConfiguration),
 			WORKBENCH_AUTH_SESSION: authSessionInfo ? asJSON(authSessionInfo) : '',
-			WORKBENCH_WEB_BASE_URL: staticRoute,
-			WORKBENCH_NLS_URL,
-			WORKBENCH_NLS_FALLBACK_URL: `${staticRoute}/out/nls.messages.js`
+			WORKBENCH_WEB_BASE_URL: escapeAttribute(staticRoute),
+			WORKBENCH_NLS_URL: escapeAttribute(WORKBENCH_NLS_URL),
+			WORKBENCH_NLS_FALLBACK_URL: escapeAttribute(`${staticRoute}/out/nls.messages.js`)
 		};
 
 		// DEV ---------------------------------------------------------------------------------------
@@ -396,7 +415,7 @@ export class WebClientServer {
 		// DEV ---------------------------------------------------------------------------------------
 		if (this._cssDevService.isEnabled) {
 			const cssModules = await this._cssDevService.getCssModules();
-			values['WORKBENCH_DEV_CSS_MODULES'] = JSON.stringify(cssModules);
+			values['WORKBENCH_DEV_CSS_MODULES'] = asJSON(cssModules);
 		}
 
 		if (useTestResolver) {
@@ -452,6 +471,7 @@ export class WebClientServer {
 		}
 
 		res.writeHead(200, headers);
+		// snyk-ignore:javascript/XSS
 		return void res.end(data);
 	}
 

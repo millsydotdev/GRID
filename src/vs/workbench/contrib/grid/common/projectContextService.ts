@@ -158,6 +158,11 @@ export interface TechStack {
 	libraries: string[];
 	tools: string[];
 	services: string[];
+	// Extended fields for project planning
+	packageManager?: 'npm' | 'yarn' | 'pnpm' | 'bun' | 'pip' | 'cargo' | 'go' | 'maven' | 'gradle';
+	buildTool?: string;
+	testingStrategy?: string[];
+	deploymentTarget?: ('vercel' | 'aws' | 'gcp' | 'azure' | 'docker' | 'kubernetes' | 'local' | 'edge')[];
 }
 
 export interface ArchitectureDecision {
@@ -167,6 +172,45 @@ export interface ArchitectureDecision {
 	alternatives: string[];
 	tradeoffs: string[];
 	status: 'proposed' | 'accepted' | 'rejected';
+}
+
+/**
+ * Project Planning Wizard Types
+ * These types power the Plan mode's project scaffolding guidance
+ */
+
+export type ProjectCategory = 'web' | 'mobile' | 'cli' | 'library' | 'api' | 'desktop' | 'game' | 'ai-ml' | 'data';
+
+export interface FileFormatRecommendation {
+	purpose: 'config' | 'data' | 'style' | 'test' | 'doc' | 'schema' | 'state';
+	format: string;
+	extension: string;
+	rationale: string;
+	alternatives: string[];
+}
+
+export interface ProjectIntent {
+	description: string;
+	category: ProjectCategory;
+	scale: 'prototype' | 'small' | 'medium' | 'large' | 'enterprise';
+	teamSize: 'solo' | 'small-team' | 'large-team' | 'enterprise';
+	platforms: string[];
+	constraints: string[];
+	priorities: ('speed' | 'scalability' | 'maintainability' | 'security' | 'cost')[];
+}
+
+export interface ProjectTemplate {
+	id: string;
+	name: string;
+	description: string;
+	category: ProjectCategory;
+	techStack: TechStack;
+	recommendedArchitecture: string[];
+	fileFormats: FileFormatRecommendation[];
+	scaffoldCommands: string[];
+	estimatedSetupTime: string;
+	difficulty: 'beginner' | 'intermediate' | 'advanced';
+	complexity?: number;
 }
 
 export interface Risk {

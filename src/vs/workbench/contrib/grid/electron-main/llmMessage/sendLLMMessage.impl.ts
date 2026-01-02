@@ -45,6 +45,7 @@ import {
 import { extractReasoningWrapper, extractXMLToolsWrapper } from './extractGrammar.js';
 import { availableTools, InternalToolInfo } from '../../common/prompt/prompts.js';
 import { generateUuid } from '../../../../../base/common/uuid.js';
+import { PROVIDER_REGISTRY } from '../../common/providerRegistry.js';
 
 const getGoogleApiKey = async () => {
 	// module‑level singleton
@@ -361,7 +362,23 @@ const newOpenAICompatibleSDK = async ({
 	} else if (providerName === 'huggingFace') {
 		const thisConfig = settingsOfProvider[providerName];
 		return new OpenAI({ baseURL: 'https://router.huggingface.co/v1', apiKey: thisConfig.apiKey, ...commonPayloadOpts });
-	} else throw new Error(`GRID providerName was invalid: ${providerName}.`);
+	} else {
+		// Fallback: Check registry for generic OpenAI compatible providers
+		// This supports the 50+ providers defined in PROVIDER_REGISTRY without explicit headers here
+		const registryEntry = PROVIDER_REGISTRY.find((p) => p.id === providerName);
+		if (registryEntry && registryEntry.endpoint) {
+			const thisConfig = settingsOfProvider[providerName];
+			// If user specifies endpoint in settings (overriding registry), use it.
+			// Casting to any because not all settings types explicitly declare 'endpoint',
+			// but we want to support it if present in the config object at runtime.
+			const configEndpoint = (thisConfig as any)?.endpoint;
+			const baseURL = configEndpoint || registryEntry.endpoint;
+
+			return new OpenAI({ baseURL, apiKey: thisConfig.apiKey, ...commonPayloadOpts });
+		}
+
+		throw new Error(`GRID providerName was invalid: ${providerName}.`);
+	}
 };
 
 const _sendOpenAICompatibleFIM = async ({

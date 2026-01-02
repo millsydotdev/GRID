@@ -17,7 +17,8 @@ import { generateUuid } from '../../../../base/common/uuid.js';
 import { IStoredWorkspace, IStoredWorkspaceFolder } from '../../../../platform/workspaces/common/workspaces.js';
 import { IEditorService } from '../../../../workbench/services/editor/common/editorService.js';
 import { IViewsService } from '../../../../workbench/services/views/common/viewsService.js';
-import { ILayoutService, Parts } from '../../../../platform/layout/browser/layoutService.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { IWorkbenchLayoutService, Parts } from '../../layout/browser/layoutService.js';
 
 const WORKSPACES_STORAGE_KEY = 'workspaceManager.workspaces';
 const WORKSPACE_STATE_FILE = '.workspace-state.json';
@@ -27,6 +28,12 @@ const TEMPLATES_STORAGE_KEY = 'workspaceManager.templates';
 interface IStoredWorkspaceMetadata extends Omit<IWorkspaceMetadata, 'rootUri' | 'workspaceFile'> {
 	rootUri: string;
 	workspaceFile: string;
+}
+
+interface IStoredWorkspaceConfiguration extends IStoredWorkspace {
+	settings?: { [key: string]: any };
+	extensions?: { recommendations?: string[] };
+	tasks?: { version: string; tasks: any[] };
 }
 
 export class WorkspaceManagerService extends Disposable implements IWorkspaceManagerService {
@@ -54,7 +61,7 @@ export class WorkspaceManagerService extends Disposable implements IWorkspaceMan
 		@IHostService private readonly hostService: IHostService,
 		@IEditorService private readonly editorService: IEditorService,
 		@IViewsService private readonly viewsService: IViewsService,
-		@ILayoutService private readonly layoutService: ILayoutService
+		@ILayoutService private readonly layoutService: IWorkbenchLayoutService
 	) {
 		super();
 		this._registerDefaultTemplates();
@@ -117,7 +124,7 @@ export class WorkspaceManagerService extends Disposable implements IWorkspaceMan
 		const workspaceFileName = `${workspaceFolderName}.code-workspace`;
 		const workspaceFile = joinPath(workspaceRoot, workspaceFileName);
 
-		const workspaceConfig: IStoredWorkspace = {
+		const workspaceConfig: IStoredWorkspaceConfiguration = {
 			folders: options.folders?.map(uri => ({
 				path: uri.path
 			} as IStoredWorkspaceFolder)) ?? [],
@@ -261,11 +268,11 @@ export class WorkspaceManagerService extends Disposable implements IWorkspaceMan
 			activeEditor: this.editorService.activeEditor?.resource,
 			sidebarState: {
 				visible: this.layoutService.isVisible(Parts.SIDEBAR_PART),
-				width: this.layoutService.getPartSize(Parts.SIDEBAR_PART).width
+				width: this.layoutService.getSize(Parts.SIDEBAR_PART).width
 			},
 			panelState: {
 				visible: this.layoutService.isVisible(Parts.PANEL_PART),
-				height: this.layoutService.getPartSize(Parts.PANEL_PART).height
+				height: this.layoutService.getSize(Parts.PANEL_PART).height
 			}
 		};
 
@@ -415,7 +422,7 @@ export class WorkspaceManagerService extends Disposable implements IWorkspaceMan
 		return templates.find(t => t.id === templateId);
 	}
 
-	private async _applyTemplate(template: IWorkspaceTemplate, workspaceRoot: URI, workspaceConfig: IStoredWorkspace): Promise<void> {
+	private async _applyTemplate(template: IWorkspaceTemplate, workspaceRoot: URI, workspaceConfig: IStoredWorkspaceConfiguration): Promise<void> {
 		// Create folders
 		if (template.folders) {
 			for (const folder of template.folders) {

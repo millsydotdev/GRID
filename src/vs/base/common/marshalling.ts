@@ -11,9 +11,9 @@ export function stringify(obj: unknown): string {
 	return JSON.stringify(obj, replacer);
 }
 
-export function parse(text: string): any {
+export function parse(text: string, allowRegExp = true): any {
 	let data = JSON.parse(text);
-	data = revive(data);
+	data = revive(data, 0, allowRegExp);
 	return data;
 }
 
@@ -42,7 +42,7 @@ type Deserialize<T> = T extends UriComponents ? URI
 
 export type Revived<T> = { [K in keyof T]: Deserialize<T[K]> };
 
-export function revive<T = any>(obj: any, depth = 0): Revived<T> {
+export function revive<T = any>(obj: any, depth = 0, allowRegExp = true): Revived<T> {
 	if (!obj || depth > 200) {
 		return obj;
 	}
@@ -54,6 +54,9 @@ export function revive<T = any>(obj: any, depth = 0): Revived<T> {
 			case MarshalledId.Uri: return <any>URI.revive(obj);
 			// eslint-disable-next-line local/code-no-any-casts
 			case MarshalledId.Regexp: {
+				if (!allowRegExp) {
+					return <any>obj;
+				}
 				// Validate flags to prevent regex injection
 				const validFlags = /^[gimsuy]*$/;
 				const flags = typeof obj.flags === 'string' && validFlags.test(obj.flags) ? obj.flags : '';
@@ -78,13 +81,13 @@ export function revive<T = any>(obj: any, depth = 0): Revived<T> {
 
 		if (Array.isArray(obj)) {
 			for (let i = 0; i < obj.length; ++i) {
-				obj[i] = revive(obj[i], depth + 1);
+				obj[i] = revive(obj[i], depth + 1, allowRegExp);
 			}
 		} else {
 			// walk object
 			for (const key in obj) {
 				if (Object.hasOwnProperty.call(obj, key)) {
-					obj[key] = revive(obj[key], depth + 1);
+					obj[key] = revive(obj[key], depth + 1, allowRegExp);
 				}
 			}
 		}

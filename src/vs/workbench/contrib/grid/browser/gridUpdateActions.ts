@@ -10,11 +10,11 @@ import { localize2 } from '../../../../nls.js';
 import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
 import { INotificationActions, INotificationHandle, INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IMetricsService } from '../common/metricsService.js';
-import { IGridUpdateService } from '../common/GRIDUpdateService.js';
+import { IGridUpdateService } from '../common/gridUpdateService.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import * as dom from '../../../../base/browser/dom.js';
 import { IUpdateService } from '../../../../platform/update/common/update.js';
-import { GridCheckUpdateRespose } from '../common/GRIDUpdateServiceTypes.js';
+import { GridCheckUpdateRespose } from '../common/gridUpdateServiceTypes.js';
 import { IAction } from '../../../../base/common/actions.js';
 
 
@@ -85,7 +85,7 @@ const notifyUpdate = (res: GridCheckUpdateRespose & { message: string }, notifSe
 		primary.push({
 			id: 'void.updater.site',
 			enabled: true,
-			label: `Void Site`,
+			label: `GRID Site`,
 			tooltip: '',
 			class: undefined,
 			run: () => {
@@ -137,7 +137,7 @@ const notifyErrChecking = (notifService: INotificationService): INotificationHan
 }
 
 
-const performVoidCheck = async (
+const performGridCheck = async (
 	explicit: boolean,
 	notifService: INotificationService,
 	gridUpdateService: IGridUpdateService,
@@ -147,21 +147,21 @@ const performVoidCheck = async (
 
 	const metricsTag = explicit ? 'Manual' : 'Auto'
 
-	metricsService.capture(`Void Update ${metricsTag}: Checking...`, {})
+	metricsService.capture(`GRID Update ${metricsTag}: Checking...`, {})
 	const res = await gridUpdateService.check(explicit)
 	if (!res) {
 		const notifController = notifyErrChecking(notifService);
-		metricsService.capture(`Void Update ${metricsTag}: Error`, { res })
+		metricsService.capture(`GRID Update ${metricsTag}: Error`, { res })
 		return notifController
 	}
 	else {
 		if (res.message) {
 			const notifController = notifyUpdate(res, notifService, updateService)
-			metricsService.capture(`Void Update ${metricsTag}: Yes`, { res })
+			metricsService.capture(`GRID Update ${metricsTag}: Yes`, { res })
 			return notifController
 		}
 		else {
-			metricsService.capture(`Void Update ${metricsTag}: No`, { res })
+			metricsService.capture(`GRID Update ${metricsTag}: No`, { res })
 			return null
 		}
 	}
@@ -188,7 +188,7 @@ registerAction2(class extends Action2 {
 
 		const currNotifController = lastNotifController
 
-		const newController = await performVoidCheck(true, notifService, gridUpdateService, metricsService, updateService)
+		const newController = await performGridCheck(true, notifService, gridUpdateService, metricsService, updateService)
 
 		if (newController) {
 			currNotifController?.close()
@@ -198,7 +198,7 @@ registerAction2(class extends Action2 {
 })
 
 // on mount
-class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchContribution {
+class GridUpdateWorkbenchContribution extends Disposable implements IWorkbenchContribution {
 	static readonly ID = 'workbench.contrib.void.voidUpdate'
 	constructor(
 		@IGridUpdateService gridUpdateService: IGridUpdateService,
@@ -209,7 +209,7 @@ class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchCo
 		super()
 
 		const autoCheck = () => {
-			performVoidCheck(false, notifService, gridUpdateService, metricsService, updateService)
+			performGridCheck(false, notifService, gridUpdateService, metricsService, updateService)
 		}
 
 		// check once 5 seconds after mount
@@ -225,4 +225,4 @@ class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchCo
 
 	}
 }
-registerWorkbenchContribution2(VoidUpdateWorkbenchContribution.ID, VoidUpdateWorkbenchContribution, WorkbenchPhase.BlockRestore);
+registerWorkbenchContribution2(GridUpdateWorkbenchContribution.ID, GridUpdateWorkbenchContribution, WorkbenchPhase.BlockRestore);

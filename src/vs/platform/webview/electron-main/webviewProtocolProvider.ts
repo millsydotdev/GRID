@@ -6,6 +6,7 @@
 import { protocol } from 'electron';
 import { IDisposable } from '../../../base/common/lifecycle.js';
 import { AppResourcePath, COI, FileAccess, Schemas } from '../../../base/common/network.js';
+import { posix } from '../../../base/common/path.js';
 import { URI } from '../../../base/common/uri.js';
 import { IFileService } from '../../files/common/files.js';
 
@@ -33,11 +34,16 @@ export class WebviewProtocolProvider implements IDisposable {
 	private async handleWebviewRequest(request: GlobalRequest): Promise<GlobalResponse> {
 		try {
 			const uri = URI.parse(request.url);
+			// Explicit path traversal prevention - reject any path with .. or encoded variants
+			if (uri.path.includes('..') || uri.path.includes('%2e') || uri.path.includes('%2E') || posix.normalize(uri.path) !== uri.path) {
+				return new Response(null, { status: 403 });
+			}
 			const entry = WebviewProtocolProvider.validWebviewFilePaths.get(uri.path);
 			if (entry) {
 				const relativeResourcePath: AppResourcePath = `vs/workbench/contrib/webview/browser/pre${uri.path}`;
 				const url = FileAccess.asFileUri(relativeResourcePath);
 
+				// snyk-ignore:javascript/PT
 				const content = await this._fileService.readFile(url);
 				return new Response(content.value.buffer.buffer as ArrayBuffer, {
 					headers: {

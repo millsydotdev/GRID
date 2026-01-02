@@ -125,14 +125,14 @@ import ErrorTelemetry from '../../platform/telemetry/electron-main/errorTelemetr
 
 // in theory this is not allowed
 // ignore the eslint errors below
-import { IMetricsService } from '../../workbench/contrib/GRID/common/metricsService.js';
-import { IGridUpdateService } from '../../workbench/contrib/GRID/common/GRIDUpdateService.js';
-import { MetricsMainService } from '../../workbench/contrib/GRID/electron-main/metricsMainService.js';
-import { GridMainUpdateService } from '../../workbench/contrib/GRID/electron-main/GRIDUpdateMainService.js';
-import { LLMMessageChannel } from '../../workbench/contrib/GRID/electron-main/sendLLMMessageChannel.js';
-import { GridSCMService } from '../../workbench/contrib/GRID/electron-main/GRIDSCMMainService.js';
-import { IGridSCMService } from '../../workbench/contrib/GRID/common/GRIDSCMTypes.js';
-import { MCPChannel } from '../../workbench/contrib/GRID/electron-main/mcpChannel.js';
+import { IMetricsService } from '../../workbench/contrib/grid/common/metricsService.js';
+import { IGridUpdateService } from '../../workbench/contrib/grid/common/gridUpdateService.js';
+import { MetricsMainService } from '../../workbench/contrib/grid/electron-main/metricsMainService.js';
+import { GridMainUpdateService } from '../../workbench/contrib/grid/electron-main/gridUpdateMainService.js';
+import { LLMMessageChannel } from '../../workbench/contrib/grid/electron-main/sendLLMMessageChannel.js';
+import { GridSCMService } from '../../workbench/contrib/grid/electron-main/gridSCMMainService.js';
+import { IGridSCMService } from '../../workbench/contrib/grid/common/gridSCMTypes.js';
+import { MCPChannel } from '../../workbench/contrib/grid/electron-main/mcpChannel.js';
 /**
  * The main VS Code application. There will only ever be one instance,
  * even if the user starts many instances (e.g. from the command line).

@@ -10,6 +10,7 @@ import { IWorkspaceContextService } from '../../../../platform/workspace/common/
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { URI } from '../../../../base/common/uri.js';
 import { IGridSettingsService } from './gridSettingsService.js';
+import { AgentMode } from './gridLearningEngine.js';
 
 export const IMemoriesService = createDecorator<IMemoriesService>('memoriesService');
 
@@ -81,6 +82,12 @@ export interface IMemoriesService {
 	 * Check if memories are enabled
 	 */
 	isEnabled(): boolean;
+
+	/**
+	 * Get formatted context string for an agent mode
+	 * Returns relevant memories formatted for injection into system prompt
+	 */
+	getContextForAgent(mode: AgentMode, currentQuery?: string): Promise<string>;
 }
 
 /**
@@ -486,6 +493,70 @@ class MemoriesService extends Disposable implements IMemoriesService {
 		memories.context = memories.context.filter((e) => e.id !== id);
 
 		await this._saveMemories();
+	}
+
+	async getContextForAgent(mode: AgentMode, currentQuery?: string): Promise<string> {
+		if (!this.isEnabled()) {
+			return '';
+		}
+
+		const memories = await this._loadMemories();
+		const parts: string[] = [];
+
+		// Get relevant memories if there's a query
+		let relevantMemories: RelevantMemory[] = [];
+		if (currentQuery) {
+			relevantMemories = await this.getRelevantMemories(currentQuery, 5);
+		}
+
+		// Add key decisions (always include for Build/Review/Debug modes)
+		if (['build', 'review', 'debug'].includes(mode) && memories.decisions.size > 0) {
+			const decisions = Array.from(memories.decisions.values())
+				.sort((a, b) => b.timestamp - a.timestamp)
+				.slice(0, 5);
+			if (decisions.length > 0) {
+				parts.push('## Recent Decisions');
+				for (const d of decisions) {
+					parts.push(`- **${d.key}**: ${d.value}`);
+				}
+			}
+		}
+
+		// Add preferences for Plan mode
+		if (mode === 'plan' && memories.preferences.size > 0) {
+			const prefs = Array.from(memories.preferences.values())
+				.sort((a, b) => b.timestamp - a.timestamp)
+				.slice(0, 5);
+			if (prefs.length > 0) {
+				parts.push('## User Preferences');
+				for (const p of prefs) {
+					parts.push(`- **${p.key}**: ${p.value}`);
+				}
+			}
+		}
+
+		// Add relevant context if query-matched
+		if (relevantMemories.length > 0) {
+			parts.push('## Relevant Context');
+			for (const rm of relevantMemories) {
+				parts.push(`- [${rm.entry.type}] ${rm.entry.key}: ${rm.entry.value}`);
+			}
+		}
+
+		// Add recent files for Explore mode
+		if (mode === 'explore' && memories.recentFiles.length > 0) {
+			const recent = memories.recentFiles.slice(0, 5);
+			parts.push('## Recently Accessed Files');
+			for (const f of recent) {
+				parts.push(`- ${f.key}`);
+			}
+		}
+
+		if (parts.length === 0) {
+			return '';
+		}
+
+		return '\n---\n## Project Memory\n' + parts.join('\n') + '\n---\n';
 	}
 }
 

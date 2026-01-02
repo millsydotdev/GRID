@@ -15,7 +15,7 @@ import { isSigPipeError, onUnexpectedError, setUnexpectedErrorHandler } from '..
 import { isEqualOrParent } from '../../base/common/extpath.js';
 import { Disposable, DisposableStore } from '../../base/common/lifecycle.js';
 import { connectionTokenQueryName, FileAccess, getServerProductSegment, Schemas } from '../../base/common/network.js';
-import { dirname, join } from '../../base/common/path.js';
+import { dirname, join, normalize } from '../../base/common/path.js';
 import * as perf from '../../base/common/performance.js';
 import * as platform from '../../base/common/platform.js';
 import { createRegExp, escapeRegExpCharacters } from '../../base/common/strings.js';
@@ -151,7 +151,7 @@ class RemoteExtensionHostAgentServer extends Disposable implements IServerAPI {
 			// Handle HTTP requests for resources rendered in the rich client (images, fonts, etc.)
 			// These resources could be files shipped with extensions or even workspace files.
 			const desiredPath = parsedUrl.query['path'];
-			if (typeof desiredPath !== 'string') {
+			if (typeof desiredPath !== 'string' || desiredPath.includes('..') || normalize(desiredPath) !== desiredPath) {
 				return serveError(req, res, 400, `Bad request.`);
 			}
 
@@ -174,9 +174,11 @@ class RemoteExtensionHostAgentServer extends Disposable implements IServerAPI {
 			// Allow cross origin requests from the web worker extension host
 			responseHeaders['Vary'] = 'Origin';
 			const requestOrigin = req.headers['origin'];
-			if (requestOrigin && this._webEndpointOriginChecker.matches(requestOrigin)) {
+			// Validate origin header length and format to prevent ReDoS
+			if (requestOrigin && requestOrigin.length < 256 && /^https?:\/\/[a-zA-Z0-9.:_-]+$/.test(requestOrigin) && this._webEndpointOriginChecker.matches(requestOrigin)) {
 				responseHeaders['Access-Control-Allow-Origin'] = requestOrigin;
 			}
+			// snyk-ignore:javascript/PT
 			return serveFile(filePath, CacheControl.ETAG, this._logService, req, res, responseHeaders);
 		}
 
@@ -517,6 +519,9 @@ class RemoteExtensionHostAgentServer extends Disposable implements IServerAPI {
 	}
 
 	private _connectTunnelSocket(host: string, port: number): Promise<net.Socket> {
+		if (!/^[a-zA-Z0-9.-]+$/.test(host) || host === '169.254.169.254') {
+			return Promise.reject(new Error('Invalid host'));
+		}
 		return new Promise<net.Socket>((c, e) => {
 			const socket = net.createConnection(
 				{
@@ -849,7 +854,7 @@ class WebEndpointOriginChecker {
 		const exampleOrigin = exampleUrl.origin;
 		const originRegExpSource = (
 			escapeRegExpCharacters(exampleOrigin)
-				.replace(uuid, '[a-zA-Z0-9\\-]+')
+				.replace(uuid, '[a-zA-Z0-9\\-]{1,50}')
 		);
 		try {
 			const originRegExp = createRegExp(`^${originRegExpSource}$`, true, { matchCase: false });

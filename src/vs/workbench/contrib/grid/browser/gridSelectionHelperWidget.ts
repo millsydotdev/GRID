@@ -13,7 +13,7 @@ import { RunOnceScheduler } from '../../../../base/common/async.js';
 import * as dom from '../../../../base/browser/dom.js';
 import { mountGridSelectionHelper } from './react/out/grid-editor-widgets-tsx/index.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
-import { IGridSettingsService } from '../common/GRIDSettingsService.js';
+import { IGridSettingsService } from '../common/gridSettingsService.js';
 import { EditorOption } from '../../../../editor/common/config/editorOptions.js';
 import { getLengthOfTextPx } from './editCodeService.js';
 
@@ -22,7 +22,7 @@ const minDistanceFromRightPx = 400;
 const minLeftPx = 60;
 
 
-export type VoidSelectionHelperProps = {
+export type GridSelectionHelperProps = {
 	rerenderKey: number // alternates between 0 and 1
 }
 
@@ -246,7 +246,7 @@ export class SelectionHelperContribution extends Disposable implements IEditorCo
 			&& this._editor.hasTextFocus() // needed since VS Code counts unfocused selections as selections, which causes this to rerender when it shouldnt (bad ux)
 
 		if (enabled) {
-			this._rerender({ rerenderKey: this._rerenderKey } satisfies VoidSelectionHelperProps)
+			this._rerender({ rerenderKey: this._rerenderKey } satisfies GridSelectionHelperProps)
 			this._rerenderKey = (this._rerenderKey + 1) % 2;
 			// this._reactComponentRerender();
 		}

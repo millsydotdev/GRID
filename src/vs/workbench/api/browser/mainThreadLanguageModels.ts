@@ -278,7 +278,7 @@ class LanguageModelAccessAuthProvider implements IAuthenticationProvider {
 				id: this.id,
 				label: this._accountLabel,
 			},
-			accessToken: 'fake-access-token',
+			accessToken: crypto.randomUUID(), // Generate unique token per session
 			scopes,
 		};
 	}

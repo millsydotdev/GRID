@@ -491,7 +491,7 @@ export class GridCommandBarService extends Disposable implements IGridCommandBar
 registerSingleton(IGridCommandBarService, GridCommandBarService, InstantiationType.Delayed); // delayed is needed here :(
 
 
-export type VoidCommandBarProps = {
+export type GridCommandBarProps = {
 	uri: URI | null;
 	editor: ICodeEditor;
 }
@@ -535,12 +535,12 @@ class AcceptRejectAllFloatingWidget extends Widget implements IOverlayWidget {
 
 		this.instantiationService.invokeFunction(accessor => {
 			const uri = editor.getModel()?.uri || null
-			const res = mountVoidCommandBar(root, accessor, { uri, editor } satisfies VoidCommandBarProps)
+			const res = mountGridCommandBar(root, accessor, { uri, editor } satisfies GridCommandBarProps)
 			if (!res) return
 			this._register(toDisposable(() => res.dispose?.()))
 			this._register(editor.onWillChangeModel((model) => {
 				const uri = model.newModelUrl
-				res.rerender({ uri, editor } satisfies VoidCommandBarProps)
+				res.rerender({ uri, editor } satisfies GridCommandBarProps)
 			}))
 		})
 	}

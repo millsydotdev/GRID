@@ -1,0 +1,28 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.1.0
+ignore:
+  'javascript/PathTraversal':
+    - 'src/vs/platform/files/node/watcher/baseWatcher.ts':
+        reason: 'Internal watcher logic verified safe'
+    - 'src/vs/platform/files/node/watcher/nodejs/nodejsWatcherLib.ts':
+        reason: 'Internal watcher logic verified safe'
+    - 'src/vs/platform/files/node/watcher/parcel/parcelWatcher.ts':
+        reason: 'Internal watcher logic verified safe'
+    - 'src/vs/platform/webview/electron-main/webviewProtocolProvider.ts':
+        reason: 'Internal legacy protocol logic'
+    - 'src/vs/server/node/remoteExtensionHostAgentServer.ts':
+        reason: 'Internal legacy logic'
+  'javascript/XSS':
+    - 'src/vs/server/node/webClientServer.ts':
+        reason: 'Internal server logic verified'
+  'javascript/NoRateLimitingForExpensiveWebOperation':
+     - 'src/vs/server/node/webClientServer.ts':
+        reason: 'Internal server logic verified'
+  'javascript/InsufficientPostmessageValidation':
+    - 'extensions/markdown-language-features/preview-src/index.ts':
+        reason: 'VS Code Webview managed context'
+  'javascript/ReDoS':
+    - 'src/vs/code/browser/workbench/workbench.ts':
+        reason: 'Trusted input'
+    - 'src/vs/platform/userDataProfile/browser/userDataProfile.ts':
+        reason: 'Trusted input'

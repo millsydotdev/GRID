@@ -17,8 +17,8 @@ import { IMainProcessService } from '../../../../platform/ipc/common/mainProcess
 import { MCPServerOfName, MCPConfigFileJSON, MCPServer, MCPToolCallParams, RawMCPToolCall, MCPServerEventResponse } from './mcpServiceTypes.js';
 import { Event, Emitter } from '../../../../base/common/event.js';
 import { InternalToolInfo } from './prompt/prompts.js';
-import { IGRIDSettingsService } from './GRIDSettingsService.js';
-import { MCPUserStateOfName } from './GRIDSettingsTypes.js';
+import { IGridSettingsService } from './gridSettingsService.js';
+import { MCPUserStateOfName } from './gridSettingsTypes.js';
 
 
 type MCPServiceState = {
@@ -81,7 +81,7 @@ class MCPService extends Disposable implements IMCPService {
 		@IProductService private readonly productService: IProductService,
 		@IEditorService private readonly editorService: IEditorService,
 		@IMainProcessService private readonly mainProcessService: IMainProcessService,
-		@IGRIDSettingsService private readonly gridSettingsService: IGRIDSettingsService,
+		@IGridSettingsService private readonly gridSettingsService: IGridSettingsService,
 	) {
 		super();
 		this.channel = this.mainProcessService.getChannel('void-channel-mcp')

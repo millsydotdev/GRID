@@ -74,6 +74,39 @@ export function checkEarlyTokenQuality(text: string, reasoning: string, tokenCou
 		reasons.push('Incomplete code block');
 	}
 
+	// Confidence/hedging language (potential uncertainty)
+	const hedgingPhrases = [
+		'i think',
+		'i believe',
+		'probably',
+		'maybe',
+		'might be',
+		'possibly',
+		'i\'m not sure',
+		'not certain',
+		'could be',
+	];
+	const hedgingCount = hedgingPhrases.filter((phrase) => lowerText.includes(phrase)).length;
+	if (hedgingCount >= 2) {
+		score -= 0.15;
+		reasons.push('Multiple hedging phrases detected (low confidence)');
+	}
+
+	// Self-contradiction indicators
+	const contradictionPhrases = [
+		['yes', 'no'],
+		['should', 'should not'],
+		['can', 'cannot'],
+		['will work', 'won\'t work'],
+	];
+	for (const [phrase1, phrase2] of contradictionPhrases) {
+		if (lowerText.includes(phrase1) && lowerText.includes(phrase2)) {
+			score -= 0.25;
+			reasons.push('Potential self-contradiction detected');
+			break;
+		}
+	}
+
 	// Very low confidence score
 	score = Math.max(0, Math.min(1, score));
 

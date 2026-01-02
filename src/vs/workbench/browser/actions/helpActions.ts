@@ -309,6 +309,38 @@ class OpenPrivacyStatementUrlAction extends Action2 {
 	}
 }
 
+class OpenTermsOfServiceUrlAction extends Action2 {
+
+	static readonly ID = 'workbench.action.openTermsOfServiceUrl';
+	static readonly AVAILABLE = !!product.termsOfServiceUrl;
+
+	constructor() {
+		super({
+			id: OpenTermsOfServiceUrlAction.ID,
+			title: {
+				...localize2('openTermsOfService', "Terms of Service"),
+				mnemonicTitle: localize({ key: 'miTermsOfService', comment: ['&& denotes a mnemonic'] }, "&&Terms of Service"),
+			},
+			category: Categories.Help,
+			f1: true,
+			menu: {
+				id: MenuId.MenubarHelpMenu,
+				group: '4_legal',
+				order: 3
+			}
+		});
+	}
+
+	run(accessor: ServicesAccessor): void {
+		const productService = accessor.get(IProductService);
+		const openerService = accessor.get(IOpenerService);
+
+		if (productService.termsOfServiceUrl) {
+			openerService.open(URI.parse(productService.termsOfServiceUrl));
+		}
+	}
+}
+
 class GetStartedWithAccessibilityFeatures extends Action2 {
 
 	static readonly ID = 'workbench.action.getStartedWithAccessibilityFeatures';
@@ -397,6 +429,10 @@ if (OpenLicenseUrlAction.AVAILABLE) {
 
 if (OpenPrivacyStatementUrlAction.AVAILABLE) {
 	registerAction2(OpenPrivacyStatementUrlAction);
+}
+
+if (OpenTermsOfServiceUrlAction.AVAILABLE) {
+	registerAction2(OpenTermsOfServiceUrlAction);
 }
 
 registerAction2(GetStartedWithAccessibilityFeatures);

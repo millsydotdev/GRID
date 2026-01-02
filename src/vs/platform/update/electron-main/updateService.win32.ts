@@ -129,6 +129,13 @@ export class Win32UpdateService extends AbstractUpdateService implements IRelaun
 					return Promise.resolve(null);
 				}
 
+				// Validate version to prevent Path Traversal and Command Injection
+				if (!/^[a-zA-Z0-9.-]+$/.test(update.version)) {
+					this.logService.error(`Invalid update version: ${update.version}`);
+					this.setState(State.Idle(updateType));
+					return Promise.resolve(null);
+				}
+
 				if (updateType === UpdateType.Archive) {
 					this.setState(State.AvailableForDownload(update));
 					return Promise.resolve(null);
@@ -184,6 +191,11 @@ export class Win32UpdateService extends AbstractUpdateService implements IRelaun
 	}
 
 	private async getUpdatePackagePath(version: string): Promise<string> {
+		// Validate version format to prevent path traversal/command injection
+		// Valid formats: 1.0.0, 1.0.0-insider, 1.0.0-alpha.1, etc.
+		if (!/^[a-zA-Z0-9.\-]+$/.test(version) || version.includes('..')) {
+			throw new Error(`Invalid version format: ${version}`);
+		}
 		const cachePath = await this.cachePath;
 		return path.join(cachePath, `CodeSetup-${this.productService.quality}-${version}.exe`);
 	}

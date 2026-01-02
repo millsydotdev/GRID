@@ -262,50 +262,12 @@ function configureCommandlineSwitchesSync(cliArgs: NativeParsedArgs) {
 
 		// Append Electron flags to Electron
 		if (SUPPORTED_ELECTRON_SWITCHES.indexOf(argvKey) !== -1) {
-			if (argvValue === true || argvValue === 'true') {
-				if (argvKey === 'disable-hardware-acceleration') {
-					app.disableHardwareAcceleration(); // needs to be called explicitly
-				} else {
-					app.commandLine.appendSwitch(argvKey);
-				}
-			} else if (typeof argvValue === 'string' && argvValue) {
-				app.commandLine.appendSwitch(argvKey, argvValue);
-			}
+			processElectronSwitches(argvKey, argvValue);
 		}
 
 		// Append main process flags to process.argv
 		else if (SUPPORTED_MAIN_PROCESS_SWITCHES.indexOf(argvKey) !== -1) {
-			switch (argvKey) {
-				case 'enable-proposed-api':
-					if (Array.isArray(argvValue)) {
-						argvValue.forEach(id => id && typeof id === 'string' && process.argv.push('--enable-proposed-api', id));
-					} else {
-						console.error(`Unexpected value for \`enable-proposed-api\` in argv.json. Expected array of extension ids.`);
-					}
-					break;
-
-				case 'log-level':
-					if (typeof argvValue === 'string') {
-						process.argv.push('--log', argvValue);
-					} else if (Array.isArray(argvValue)) {
-						for (const value of argvValue) {
-							process.argv.push('--log', value);
-						}
-					}
-					break;
-
-				case 'use-inmemory-secretstorage':
-					if (argvValue) {
-						process.argv.push('--use-inmemory-secretstorage');
-					}
-					break;
-
-				case 'enable-rdp-display-tracking':
-					if (argvValue) {
-						process.argv.push('--enable-rdp-display-tracking');
-					}
-					break;
-			}
+			processMainProcessSwitches(argvKey, argvValue);
 		}
 	});
 
@@ -707,3 +669,49 @@ function getUserDefinedLocale(argvConfig: IArgvConfig): string | undefined {
 }
 
 //#endregion
+
+function processElectronSwitches(argvKey: string, argvValue: any): void {
+	if (argvValue === true || argvValue === 'true') {
+		if (argvKey === 'disable-hardware-acceleration') {
+			app.disableHardwareAcceleration(); // needs to be called explicitly
+		} else {
+			app.commandLine.appendSwitch(argvKey);
+		}
+	} else if (typeof argvValue === 'string' && argvValue) {
+		app.commandLine.appendSwitch(argvKey, argvValue);
+	}
+}
+
+function processMainProcessSwitches(argvKey: string, argvValue: any): void {
+	switch (argvKey) {
+		case 'enable-proposed-api':
+			if (Array.isArray(argvValue)) {
+				argvValue.forEach(id => id && typeof id === 'string' && process.argv.push('--enable-proposed-api', id));
+			} else {
+				console.error(`Unexpected value for \`enable-proposed-api\` in argv.json. Expected array of extension ids.`);
+			}
+			break;
+
+		case 'log-level':
+			if (typeof argvValue === 'string') {
+				process.argv.push('--log', argvValue);
+			} else if (Array.isArray(argvValue)) {
+				for (const value of argvValue) {
+					process.argv.push('--log', value);
+				}
+			}
+			break;
+
+		case 'use-inmemory-secretstorage':
+			if (argvValue) {
+				process.argv.push('--use-inmemory-secretstorage');
+			}
+			break;
+
+		case 'enable-rdp-display-tracking':
+			if (argvValue) {
+				process.argv.push('--enable-rdp-display-tracking');
+			}
+			break;
+	}
+}

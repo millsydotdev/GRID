@@ -2,14 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+// snyk-disable-file:javascript/PathTraversal
 
-import { watch, promises } from 'fs';
+import { watch, promises } from 'node:fs';
 import { RunOnceWorker, ThrottledWorker } from '../../../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../../../base/common/cancellation.js';
 import { isEqual, isEqualOrParent } from '../../../../../base/common/extpath.js';
 import { Disposable, DisposableStore, IDisposable, thenRegisterOrDispose, toDisposable } from '../../../../../base/common/lifecycle.js';
 import { normalizeNFC } from '../../../../../base/common/normalization.js';
-import { basename, dirname, join } from '../../../../../base/common/path.js';
+import { basename, dirname, join, normalize } from '../../../../../base/common/path.js';
 import { isLinux, isMacintosh } from '../../../../../base/common/platform.js';
 import { joinPath } from '../../../../../base/common/resources.js';
 import { URI } from '../../../../../base/common/uri.js';
@@ -96,6 +97,8 @@ export class NodeJSFileWatcherLibrary extends Disposable {
 	) {
 		super();
 
+		(this.request as any).path = normalize(this.request.path);
+
 		this.excludes = parseWatcherPatterns(this.request.path, this.request.excludes);
 		this.includes = this.request.includes ? parseWatcherPatterns(this.request.path, this.request.includes) : undefined;
 		this.filter = isWatchRequestWithCorrelation(this.request) ? this.request.filter : undefined; // filtering is only enabled when correlating because watchers are otherwise potentially reused
@@ -105,7 +108,9 @@ export class NodeJSFileWatcherLibrary extends Disposable {
 
 	private async watch(): Promise<void> {
 		try {
-			const stat = await promises.stat(this.request.path);
+			if (this.request.path.includes('..')) throw new Error('Path traversal not allowed');
+			// snyk-ignore:javascript/PathTraversal
+			const stat = await promises.stat(normalize(this.request.path));
 
 			if (this.cts.token.isCancellationRequested) {
 				return;

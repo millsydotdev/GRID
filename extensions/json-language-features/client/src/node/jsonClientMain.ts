@@ -7,8 +7,8 @@ import { Disposable, ExtensionContext, LogOutputChannel, window, l10n, env, LogL
 import { startClient, LanguageClientConstructor, SchemaRequestService, languageServerDescription, AsyncDisposable } from '../jsonClient';
 import { ServerOptions, TransportKind, LanguageClientOptions, LanguageClient } from 'vscode-languageclient/node';
 
-import { promises as fs } from 'fs';
-import * as path from 'path';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
 import { xhr, XHRResponse, getErrorStatusDescription, Headers } from 'request-light';
 
 import TelemetryReporter from '@vscode/extension-telemetry';
@@ -167,6 +167,10 @@ async function getSchemaRequestService(context: ExtensionContext, log: LogOutput
 
 					return content;
 				}
+			}
+			const scheme = vscode.Uri.parse(uri).scheme;
+			if (scheme !== 'http' && scheme !== 'https') {
+				return Promise.reject(new Error('Schema request must be http or https'));
 			}
 			return request(uri, cache?.getETag(uri));
 		},

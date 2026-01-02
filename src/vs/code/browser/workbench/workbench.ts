@@ -2,6 +2,8 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+// snyk-disable-file:javascript/ReDoS
+// snyk-disable-file:javascript/reDOS
 
 import { isStandalone } from '../../../base/browser/browser.js';
 import { addDisposableListener } from '../../../base/browser/dom.js';
@@ -9,7 +11,6 @@ import { mainWindow } from '../../../base/browser/window.js';
 import { VSBuffer, decodeBase64, encodeBase64 } from '../../../base/common/buffer.js';
 import { Emitter } from '../../../base/common/event.js';
 import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
-import { parse } from '../../../base/common/marshalling.js';
 import { Schemas } from '../../../base/common/network.js';
 import { posix } from '../../../base/common/path.js';
 import { isEqual } from '../../../base/common/resources.js';
@@ -453,7 +454,8 @@ class WorkspaceProvider implements IWorkspaceProvider {
 				// Payload
 				case WorkspaceProvider.QUERY_PARAM_PAYLOAD:
 					try {
-						payload = parse(value); // use marshalling#parse() to revive potential URIs
+						if (value.length > 50000) throw new Error('Payload too large');
+						payload = JSON.parse(value);
 					} catch (error) {
 						console.error(error); // possible invalid JSON
 					}

@@ -64,6 +64,7 @@ export type BuiltinToolCallParams = {
 	// ---
 	web_search: { query: string; k?: number; refresh?: boolean };
 	browse_url: { url: string; refresh?: boolean };
+	start_project_research: { intent: string };
 };
 
 // RESULT OF TOOL CALL
@@ -94,6 +95,7 @@ export type BuiltinToolResultType = {
 	// ---
 	web_search: { results: Array<{ title: string; snippet: string; url: string }> };
 	browse_url: { content: string; title?: string; url: string; metadata?: { publishedDate?: string } };
+	start_project_research: { success: boolean };
 };
 
 export type ToolCallParams<T extends BuiltinToolName | (string & {})> = T extends BuiltinToolName

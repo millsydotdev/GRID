@@ -15,6 +15,7 @@ import { InstantiationType, registerSingleton } from '../../../../platform/insta
 import { IModelService } from '../../../../editor/common/services/model.js';
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 import { URI } from '../../../../base/common/uri.js';
+import { IMemoriesService, RelevantMemory } from '../common/memoriesService.js';
 
 // make sure snippet logic works
 // change logic for `visited` to intervals
@@ -31,6 +32,8 @@ export interface IContextGatheringService {
 	readonly _serviceBrand: undefined;
 	updateCache(model: ITextModel, pos: Position): Promise<void>;
 	getCachedSnippets(): string[];
+	/** Get relevant memories for the current context query */
+	getRelevantMemoriesForContext(query: string): Promise<RelevantMemory[]>;
 }
 
 export const IContextGatheringService = createDecorator<IContextGatheringService>('contextGatheringService');
@@ -46,7 +49,8 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 	constructor(
 		@ILanguageFeaturesService private readonly _langFeaturesService: ILanguageFeaturesService,
 		@IModelService private readonly _modelService: IModelService,
-		@ICodeEditorService private readonly _codeEditorService: ICodeEditorService
+		@ICodeEditorService private readonly _codeEditorService: ICodeEditorService,
+		@IMemoriesService private readonly _memoriesService: IMemoriesService
 	) {
 		super();
 		this._modelService.getModels().forEach((model) => this._subscribeToModel(model));
@@ -80,6 +84,16 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 
 	public getCachedSnippets(): string[] {
 		return this._cache;
+	}
+
+	/** Get relevant memories based on current context */
+	public async getRelevantMemoriesForContext(query: string): Promise<RelevantMemory[]> {
+		if (!this._memoriesService.isEnabled()) {
+			return [];
+		}
+		// Include current file and cached snippets in the query for better relevance
+		const enrichedQuery = [query, ...this._cache.slice(0, 3)].join(' ');
+		return this._memoriesService.getRelevantMemories(enrichedQuery, 5);
 	}
 
 	// Basic snippet extraction.

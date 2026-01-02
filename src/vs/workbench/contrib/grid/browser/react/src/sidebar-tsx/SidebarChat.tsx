@@ -16,13 +16,15 @@ import { ErrorDisplay } from './ErrorDisplay.js';
 import { BlockCode, TextAreaFns, GridCustomDropdownBox, GridInputBox2, GridSlider, GridSwitch, GridDiffEditor } from '../util/inputs.js';
 import { ModelDropdown, } from '../grid-settings-tsx/ModelDropdown.js';
 import { PastThreadsList } from './SidebarThreadSelector.js';
-import { VOID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
+import { GRID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
 import { GRID_OPEN_SETTINGS_ACTION_ID } from '../../../gridSettingsPane.js';
-import { ChatMode, displayInfoOfProviderName, FeatureName, isFeatureNameDisabled } from '../../../../common/GRIDSettingsTypes.js';
+import { ChatMode, displayInfoOfProviderName, FeatureName, isFeatureNameDisabled } from '../../../../common/gridSettingsTypes.js';
 import { ICommandService } from '../../../../../../../platform/commands/common/commands.js';
 import { WarningBox } from '../grid-settings-tsx/WarningBox.js';
 import { getModelCapabilities, getIsReasoningEnabledState } from '../../../../common/modelCapabilities.js';
 import { AlertTriangle, File, Ban, Check, ChevronRight, Dot, FileIcon, Pencil, Undo, Undo2, X, Flag, Copy as CopyIcon, Info, CirclePlus, Ellipsis, CircleEllipsis, Folder, ALargeSmall, TypeOutline, Text } from 'lucide-react';
+import { IEditorService } from '../../../../../../../workbench/services/editor/common/editorService.js';
+import { ServicesAccessor } from '../../../../../../../platform/instantiation/common/instantiation.js';
 import { ChatMessage, CheckpointEntry, StagingSelectionItem, ToolMessage } from '../../../../common/chatThreadServiceTypes.js';
 import { approvalTypeOfBuiltinToolName, BuiltinToolCallParams, BuiltinToolName, ToolName, LintErrorItem, ToolApprovalType, toolApprovalTypes } from '../../../../common/toolsServiceTypes.js';
 import { CopyButton, EditToolAcceptRejectButtonsHTML, IconShell1, JumpToFileButton, JumpToTerminalButton, StatusIndicator, StatusIndicatorForApplyButton, useApplyStreamState, useEditToolStreamState } from '../markdown/ApplyBlockHoverButtons.js';
@@ -37,7 +39,10 @@ import { persistentTerminalNameOfId } from '../../../terminalToolService.js';
 import { removeMCPToolNamePrefix } from '../../../../common/mcpServiceTypes.js';
 
 
-
+import { projectResearchService, ResearchSession } from '../../../../common/projectResearchService.js';
+import { QuestionBox } from './QuestionBox.js';
+import { FeedbackButtons } from './FeedbackButtons.js';
+import { CustomAgentSelector } from './CustomAgentSelector.js';
 export const IconX = ({ size, className = '', ...props }: { size: number, className?: string } & React.SVGProps<SVGSVGElement>) => {
 	return (
 		<svg
@@ -388,6 +393,7 @@ export const GridChatArea: React.FC<GridChatAreaProps> = ({
 
 						<div className='flex items-center flex-wrap gap-x-2 gap-y-1 text-nowrap '>
 							{featureName === 'Chat' && <ChatModeDropdown className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-2 rounded py-0.5 px-1' />}
+							{featureName === 'Chat' && <CustomAgentSelector className='shrink-0' />}
 							<ModelDropdown featureName={featureName} className='text-xs text-void-fg-3 bg-void-bg-1 rounded' />
 						</div>
 					</div>
@@ -1368,6 +1374,13 @@ const AssistantMessageComponent = ({ chatMessage, isCheckpointGhost, isCommitted
 						isLinkDetectionEnabled={true}
 					/>
 				</ProseWrapper>
+				{/* Feedback buttons */}
+				{isCommitted && <div className="flex justify-end mt-1">
+					<FeedbackButtons
+						responseId={`${thread.id}-${messageIdx}`}
+						agentMode="build"
+					/>
+				</div>}
 			</div>
 		}
 	</>
@@ -1420,6 +1433,10 @@ const titleOfBuiltinToolName = {
 
 	'read_lint_errors': { done: `Read lint errors`, proposed: 'Read lint errors', running: loadingTitleWrapper('Reading lint errors') },
 	'search_in_file': { done: 'Searched in file', proposed: 'Search in file', running: loadingTitleWrapper('Searching in file') },
+	'run_nl_command': { done: 'Ran natural language command', proposed: 'Run natural language command', running: loadingTitleWrapper('Running natural language command') },
+	'web_search': { done: 'Searched web', proposed: 'Search web', running: loadingTitleWrapper('Searching web') },
+	'browse_url': { done: 'Browsed URL', proposed: 'Browse URL', running: loadingTitleWrapper('Browsing URL') },
+	'start_project_research': { done: 'Started project research', proposed: 'Start project research', running: loadingTitleWrapper('Starting project research') },
 } as const satisfies Record<BuiltinToolName, { done: any, proposed: any, running: any }>
 
 
@@ -1559,6 +1576,22 @@ const toolNameToDesc = (toolName: BuiltinToolName, _toolParams: BuiltinToolCallP
 				desc1: getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			}
+		},
+		'run_nl_command': () => {
+			const toolParams = _toolParams as BuiltinToolCallParams['run_nl_command']
+			return { desc1: toolParams.nlInput }
+		},
+		'web_search': () => {
+			const toolParams = _toolParams as BuiltinToolCallParams['web_search']
+			return { desc1: toolParams.query }
+		},
+		'browse_url': () => {
+			const toolParams = _toolParams as BuiltinToolCallParams['browse_url']
+			return { desc1: toolParams.url }
+		},
+		'start_project_research': () => {
+			const toolParams = _toolParams as BuiltinToolCallParams['start_project_research']
+			return { desc1: toolParams.intent }
 		}
 	}
 
@@ -2909,6 +2942,22 @@ export const SidebarChat = () => {
 
 	// ----- SIDEBAR CHAT state (local) -----
 
+	// Research Service State
+	const [researchSession, setResearchSession] = useState<ResearchSession | null>(null);
+
+	useEffect(() => {
+		return projectResearchService.subscribe((session) => {
+			setResearchSession({ ...session });
+		});
+	}, []);
+
+	const handleResearchAnswer = useCallback((answer: string) => {
+		if (researchSession) {
+			projectResearchService.answerQuestion(researchSession.id, answer);
+		}
+	}, [researchSession]);
+
+
 	// state of current message
 	const initVal = ''
 	const [instructionsAreEmpty, setInstructionsAreEmpty] = useState(!initVal)
@@ -2944,7 +2993,7 @@ export const SidebarChat = () => {
 		await chatThreadsService.abortRunning(threadId)
 	}
 
-	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(VOID_CTRL_L_ACTION_ID)?.getLabel()
+	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(GRID_CTRL_L_ACTION_ID)?.getLabel()
 
 	const threadId = currentThread.id
 	const currCheckpointIdx = chatThreadsState.allThreads[threadId]?.state?.currCheckpointIdx ?? undefined  // if not exist, treat like checkpoint is last message (infinity)
@@ -3046,7 +3095,7 @@ export const SidebarChat = () => {
 					showDismiss={true}
 				/>
 
-				<WarningBox className='text-sm my-2 mx-4' onClick={() => { commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID) }} text='Open settings' />
+				<WarningBox className='text-sm my-2 mx-4' onClick={() => { commandService.executeCommand(GRID_OPEN_SETTINGS_ACTION_ID) }} text='Open settings' />
 			</div>
 		}
 	</ScrollToBottomContainer>
@@ -3115,6 +3164,18 @@ export const SidebarChat = () => {
 		<div className='px-4'>
 			<CommandBarInChat />
 		</div>
+		{/* Research Question Box */}
+		{researchSession?.currentPhase === 'clarification' && researchSession.questions.length > 0 && !researchSession.questions[researchSession.questions.length - 1].answer && (
+			<div className='px-2 pb-2'>
+				<QuestionBox
+					question={researchSession.questions[researchSession.questions.length - 1].text}
+					options={researchSession.questions[researchSession.questions.length - 1].options}
+					allowFreeText={researchSession.questions[researchSession.questions.length - 1].allowFreeText}
+					onAnswer={handleResearchAnswer}
+					isSubmitting={false}
+				/>
+			</div>
+		)}
 		<div className='px-2 pb-2'>
 			{inputChatArea}
 		</div>
@@ -3184,3 +3245,8 @@ export const SidebarChat = () => {
 		</Fragment>
 	)
 }
+export const GridOpenFileFn = async (uri: URI | 'current', accessor: ServicesAccessor) => {
+	if (uri === 'current') return;
+	const editorService = accessor.get(IEditorService);
+	await editorService.openEditor({ resource: uri });
+};

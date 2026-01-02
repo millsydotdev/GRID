@@ -50,7 +50,7 @@ export const Sidebar = ({ className }: { className: string }) => {
 						/>
 					</div>
 					<span className="text-[10px] text-void-fg-3 uppercase tracking-[0.18em]">
-						GRID PANEL
+						GRID CHAT
 					</span>
 				</div>
 
@@ -80,11 +80,10 @@ const GridTab = ({
 	<button
 		type="button"
 		onClick={onClick}
-		className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-colors ${
-			active
+		className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-colors ${active
 				? 'bg-void-bg-3 text-void-fg-0'
 				: 'text-void-fg-3 hover:text-void-fg-1 hover:bg-void-bg-3/60'
-		}`}
+			}`}
 	>
 		{label}
 	</button>

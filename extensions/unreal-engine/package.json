@@ -100,7 +100,8 @@
     }
   },
   "devDependencies": {
-    "@types/node": "22.x"
+    "@types/node": "22.x",
+    "@types/vscode": "^1.5.0"
   },
   "repository": {
     "type": "git",

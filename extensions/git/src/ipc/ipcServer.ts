@@ -6,19 +6,19 @@
 import { Disposable } from 'vscode';
 import { ITerminalEnvironmentProvider } from '../terminal';
 import { toDisposable } from '../util';
-import * as path from 'path';
-import * as http from 'http';
-import * as os from 'os';
-import * as fs from 'fs';
-import * as crypto from 'crypto';
+import * as path from 'node:path';
+import * as http from 'node:http';
+import * as os from 'node:os';
+import * as fs from 'node:fs';
+import * as crypto from 'node:crypto';
 
 function getIPCHandlePath(id: string): string {
 	if (process.platform === 'win32') {
-		return `\\\\.\\pipe\\vscode-git-${id}-sock`;
+		return String.raw`\\.\pipe\vscode-git-${id}-sock`;
 	}
 
 	if (process.platform !== 'darwin' && process.env['XDG_RUNTIME_DIR']) {
-		return path.join(process.env['XDG_RUNTIME_DIR'] as string, `vscode-git-${id}.sock`);
+		return path.join(process.env['XDG_RUNTIME_DIR'], `vscode-git-${id}.sock`);
 	}
 
 	return path.join(os.tmpdir(), `vscode-git-${id}.sock`);
@@ -32,11 +32,11 @@ export async function createIPCServer(context?: string): Promise<IPCServer> {
 	const server = http.createServer();
 	const hash = crypto.createHash('sha256');
 
-	if (!context) {
+	if (context) {
+		hash.update(context);
+	} else {
 		const buffer = await new Promise<Buffer>((c, e) => crypto.randomBytes(20, (err, buf) => err ? e(err) : c(buf)));
 		hash.update(buffer);
-	} else {
-		hash.update(context);
 	}
 
 	const ipcHandlePath = getIPCHandlePath(hash.digest('hex').substring(0, 10));
@@ -68,10 +68,10 @@ export interface IIPCServer extends Disposable {
 
 export class IPCServer implements IIPCServer, ITerminalEnvironmentProvider, Disposable {
 
-	private handlers = new Map<string, IIPCHandler>();
+	private readonly handlers = new Map<string, IIPCHandler>();
 	get ipcHandlePath(): string { return this._ipcHandlePath; }
 
-	constructor(private server: http.Server, private _ipcHandlePath: string) {
+	constructor(private readonly server: http.Server, private readonly _ipcHandlePath: string) {
 		this.server.on('request', this.onRequest.bind(this));
 	}
 
@@ -96,9 +96,17 @@ export class IPCServer implements IIPCServer, ITerminalEnvironmentProvider, Disp
 		const chunks: Buffer[] = [];
 		req.on('data', d => chunks.push(d));
 		req.on('end', () => {
-			const request = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+			let request: any;
+			try {
+				request = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+			} catch (e) {
+				res.writeHead(400);
+				res.end(`Invalid JSON: ${e}`);
+				return;
+			}
+
 			handler.handle(request).then(result => {
-				res.writeHead(200);
+				res.writeHead(200, { 'Content-Type': 'application/json' });
 				res.end(JSON.stringify(result));
 			}, () => {
 				res.writeHead(500);

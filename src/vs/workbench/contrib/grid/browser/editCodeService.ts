@@ -28,10 +28,8 @@ import {
 	gridPrefixAndSuffix,
 	ctrlKStream_userMessage,
 	ctrlKStream_systemMessage,
-	ctrlKStream_systemMessage_local,
 	defaultQuickEditFimTags,
 	rewriteCode_systemMessage,
-	rewriteCode_systemMessage_local,
 	rewriteCode_userMessage,
 	searchReplaceGivenDescription_systemMessage,
 	searchReplaceGivenDescription_userMessage,
@@ -666,11 +664,11 @@ class EditCodeService extends Disposable implements IEditCodeService {
 		const range: IRange =
 			range_ === 'wholeFileRange'
 				? {
-						startLineNumber: 1,
-						startColumn: 1,
-						endLineNumber: model.getLineCount(),
-						endColumn: Number.MAX_SAFE_INTEGER,
-					} // whole file
+					startLineNumber: 1,
+					startColumn: 1,
+					endLineNumber: model.getLineCount(),
+					endColumn: Number.MAX_SAFE_INTEGER,
+				} // whole file
 				: range_;
 
 		// realign is 100% independent from written text (diffareas are nonphysical), can do this first
@@ -1151,8 +1149,17 @@ class EditCodeService extends Disposable implements IEditCodeService {
 		return;
 	}
 
-	public async callBeforeApplyOrEdit(givenURI: URI | 'current') {
-		const uri = this._uriOfGivenURI(givenURI);
+	public async callBeforeApplyOrEdit(givenURI: URI | 'current' | CallBeforeStartApplyingOpts) {
+		let uri: URI | null | undefined = null
+		if ((givenURI as any).from === 'QuickEdit') {
+			const diffArea = this.diffAreaOfId[(givenURI as any).diffareaid]
+			uri = diffArea ? diffArea._URI : null
+		} else if ((givenURI as any).from === 'ClickApply') {
+			uri = this._uriOfGivenURI((givenURI as any).uri);
+		} else {
+			uri = this._uriOfGivenURI(givenURI as URI | 'current');
+		}
+
 		if (!uri) return;
 		await this._gridModelService.initializeModel(uri);
 		await this._gridModelService.saveModel(uri); // save the URI
@@ -1191,7 +1198,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			streamRequestIdRef: { current: null },
 			startBehavior: 'keep-conflicts',
 			linkedCtrlKZone: null,
-			onWillUndo: () => {},
+			onWillUndo: () => { },
 		});
 		if (!res) return;
 		const { diffZone, onFinishEdit } = res;
@@ -1231,7 +1238,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			streamRequestIdRef: { current: null },
 			startBehavior: 'keep-conflicts',
 			linkedCtrlKZone: null,
-			onWillUndo: () => {},
+			onWillUndo: () => { },
 		});
 		if (!res) return;
 		const { diffZone, onFinishEdit } = res;
@@ -1374,8 +1381,8 @@ class EditCodeService extends Disposable implements IEditCodeService {
 		const modelSelectionOptions =
 			modelSelection && !(modelSelection.providerName === 'auto' && modelSelection.modelName === 'auto')
 				? this._settingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName]?.[
-						modelSelection.modelName
-					]
+				modelSelection.modelName
+				]
 				: undefined;
 
 		const uri = this._getURIBeforeStartApplying(opts);
@@ -1415,9 +1422,9 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			startRange === 'fullFile'
 				? originalFileCode
 				: originalFileCode
-						.split('\n')
-						.slice(startRange[0] - 1, startRange[1] - 1 + 1)
-						.join('\n');
+					.split('\n')
+					.slice(startRange[0] - 1, startRange[1] - 1 + 1)
+					.join('\n');
 		const language = model.getLanguageId();
 		let messages: LLMChatMessage[];
 		let separateSystemMessage: string | undefined;
@@ -1444,7 +1451,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 		}
 
 		if (from === 'ClickApply') {
-			const systemMsg = isLocal ? rewriteCode_systemMessage_local : rewriteCode_systemMessage;
+			const systemMsg = rewriteCode_systemMessage;
 			// For local models, prune code to reduce token usage
 			const prunedOriginalCode = isLocal ? pruneCodeForLocalModel(originalCode, language) : originalCode;
 			const { messages: a, separateSystemMessage: b } = this._convertToLLMMessageService.prepareLLMSimpleMessages({
@@ -1481,9 +1488,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 				language,
 			});
 
-			const systemMsg = isLocal
-				? ctrlKStream_systemMessage_local({ quickEditFIMTags: quickEditFIMTags })
-				: ctrlKStream_systemMessage({ quickEditFIMTags: quickEditFIMTags });
+			const systemMsg = ctrlKStream_systemMessage({ quickEditFIMTags: quickEditFIMTags });
 			const { messages: a, separateSystemMessage: b } = this._convertToLLMMessageService.prepareLLMSimpleMessages({
 				systemMessage: systemMsg,
 				simpleMessages: [{ role: 'user', content: userContent }],
@@ -1568,7 +1573,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			while (shouldSendAnotherMessage) {
 				shouldSendAnotherMessage = false;
 
-				let resMessageDonePromise: () => void = () => {};
+				let resMessageDonePromise: () => void = () => { };
 				const messageDonePromise = new Promise<void>((res_) => {
 					resMessageDonePromise = res_;
 				});
@@ -1754,8 +1759,8 @@ class EditCodeService extends Disposable implements IEditCodeService {
 		const modelSelectionOptions =
 			modelSelection && !(modelSelection.providerName === 'auto' && modelSelection.modelName === 'auto')
 				? this._settingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName]?.[
-						modelSelection.modelName
-					]
+				modelSelection.modelName
+				]
 				: undefined;
 
 		const uri = this._getURIBeforeStartApplying(opts);
@@ -1903,8 +1908,8 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			// Resume from last processed block if available
 			let currStreamingBlockNum =
 				hasCachedBlocks &&
-				diffZone._streamState.isStreaming &&
-				diffZone._streamState.lastProcessedBlockNum !== undefined
+					diffZone._streamState.isStreaming &&
+					diffZone._streamState.lastProcessedBlockNum !== undefined
 					? diffZone._streamState.lastProcessedBlockNum
 					: 0;
 			let aborted = false;
@@ -1921,7 +1926,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 					break;
 				}
 
-				let resMessageDonePromise: () => void = () => {};
+				let resMessageDonePromise: () => void = () => { };
 				const messageDonePromise = new Promise<void>((res, rej) => {
 					resMessageDonePromise = res;
 				});
@@ -2237,7 +2242,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 		const diffareaids = this.diffAreasOfURI[uri.fsPath];
 		if ((diffareaids?.size ?? 0) === 0) return; // do nothing
 
-		const { onFinishEdit } = _addToHistory === false ? { onFinishEdit: () => {} } : this._addToHistory(uri);
+		const { onFinishEdit } = _addToHistory === false ? { onFinishEdit: () => { } } : this._addToHistory(uri);
 
 		for (const diffareaid of diffareaids ?? []) {
 			const diffArea = this.diffAreaOfId[diffareaid];

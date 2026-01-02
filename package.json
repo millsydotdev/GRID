@@ -18,7 +18,9 @@
     "@electron/get": "2.0.3",
     "gulp-untar": {
       "tar": "^6.2.1"
-    }
+    },
+    "qs": "^6.14.1",
+    "dagre-d3-es": "^7.0.14"
   },
   "resolutions": {
     "@electron/get": "2.0.3"
@@ -255,6 +257,7 @@
     "mocha-junit-reporter": "^2.2.1",
     "mocha-multi-reporters": "^1.5.1",
     "next": "^15.3.1",
+    "node-gyp": "^12.1.0",
     "nodemon": "^3.1.10",
     "npm-run-all": "^4.1.5",
     "original-fs": "^1.2.0",
@@ -297,6 +300,7 @@
     "url": "https://github.com/GRID-Editor/GRID/issues"
   },
   "optionalDependencies": {
+    "@img/sharp-win32-x64": "^0.34.5",
     "windows-foreground-love": "0.5.0"
   }
 }

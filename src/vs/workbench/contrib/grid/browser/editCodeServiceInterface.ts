@@ -13,26 +13,26 @@ export type StartBehavior = 'accept-conflicts' | 'reject-conflicts' | 'keep-conf
 
 export type CallBeforeStartApplyingOpts =
 	| {
-			from: 'QuickEdit';
-			diffareaid: number; // id of the CtrlK area (contains text selection)
-	  }
+		from: 'QuickEdit';
+		diffareaid: number; // id of the CtrlK area (contains text selection)
+	}
 	| {
-			from: 'ClickApply';
-			uri: 'current' | URI;
-	  };
+		from: 'ClickApply';
+		uri: 'current' | URI;
+	};
 
 export type StartApplyingOpts =
 	| {
-			from: 'QuickEdit';
-			diffareaid: number; // id of the CtrlK area (contains text selection)
-			startBehavior: StartBehavior;
-	  }
+		from: 'QuickEdit';
+		diffareaid: number; // id of the CtrlK area (contains text selection)
+		startBehavior: StartBehavior;
+	}
 	| {
-			from: 'ClickApply';
-			applyStr: string;
-			uri: 'current' | URI;
-			startBehavior: StartBehavior;
-	  };
+		from: 'ClickApply';
+		applyStr: string;
+		uri: 'current' | URI;
+		startBehavior: StartBehavior;
+	};
 
 export type AddCtrlKOpts = {
 	startLine: number;
@@ -47,7 +47,7 @@ export interface IEditCodeService {
 
 	processRawKeybindingText(keybindingStr: string): string;
 
-	callBeforeApplyOrEdit(uri: URI | 'current'): Promise<void>;
+	callBeforeApplyOrEdit(uri: URI | 'current' | CallBeforeStartApplyingOpts): Promise<void>;
 	startApplying(opts: StartApplyingOpts): [URI, Promise<void>] | null;
 	instantlyApplySearchReplaceBlocks(opts: { uri: URI; searchReplaceBlocks: string }): void;
 	instantlyRewriteFile(opts: { uri: URI; newContent: string }): void;

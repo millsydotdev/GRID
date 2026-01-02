@@ -61,10 +61,10 @@ export const roundRangeToLines = (range: IRange | null | undefined, options: { e
 
 
 
-const VOID_OPEN_SIDEBAR_ACTION_ID = 'void.sidebar.open'
+const GRID_OPEN_SIDEBAR_ACTION_ID = 'grid.sidebar.open'
 registerAction2(class extends Action2 {
 	constructor() {
-		super({ id: VOID_OPEN_SIDEBAR_ACTION_ID, title: localize2('gridOpenSidebar', 'GRID: Open Sidebar'), f1: true });
+		super({ id: GRID_OPEN_SIDEBAR_ACTION_ID, title: localize2('gridOpenSidebar', 'GRID: Open Sidebar'), f1: true });
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
 		const viewsService = accessor.get(IViewsService)
@@ -108,7 +108,7 @@ registerAction2(class extends Action2 {
 		// open panel
 		const wasAlreadyOpen = viewsService.isViewContainerVisible(GRID_VIEW_CONTAINER_ID)
 		if (!wasAlreadyOpen) {
-			await commandService.executeCommand(VOID_OPEN_SIDEBAR_ACTION_ID)
+			await commandService.executeCommand(GRID_OPEN_SIDEBAR_ACTION_ID)
 		}
 
 		// Add selection to chat
@@ -144,11 +144,11 @@ registerAction2(class extends Action2 {
 
 
 // New chat keybind + menu button
-const VOID_CMD_SHIFT_L_ACTION_ID = 'void.cmdShiftL'
+const GRID_CMD_SHIFT_L_ACTION_ID = 'grid.cmdShiftL'
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: VOID_CMD_SHIFT_L_ACTION_ID,
+			id: GRID_CMD_SHIFT_L_ACTION_ID,
 			title: 'New Chat',
 			keybinding: {
 				primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyL,
@@ -209,7 +209,7 @@ registerAction2(class extends Action2 {
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: 'void.historyAction',
+			id: 'grid.historyAction',
 			title: 'View Past Chats',
 			icon: { id: 'history' },
 			menu: [{ id: MenuId.ViewTitle, group: 'navigation', when: ContextKeyExpr.equals('view', GRID_VIEW_ID), }]
@@ -229,7 +229,7 @@ registerAction2(class extends Action2 {
 		const commandService = accessor.get(ICommandService)
 
 		metricsService.capture('Chat Navigation', { type: 'History' })
-		commandService.executeCommand(VOID_CMD_SHIFT_L_ACTION_ID)
+		commandService.executeCommand(GRID_CMD_SHIFT_L_ACTION_ID)
 
 	}
 })
@@ -239,7 +239,7 @@ registerAction2(class extends Action2 {
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: 'void.settingsAction',
+			id: 'grid.settingsAction',
 			title: `GRID's Settings`,
 			icon: { id: 'settings-gear' },
 			menu: [{ id: MenuId.ViewTitle, group: 'navigation', when: ContextKeyExpr.equals('view', GRID_VIEW_ID), }]

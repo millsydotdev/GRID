@@ -110,8 +110,10 @@ class FileServer {
 
 		const pathName = requestedUrl.pathname;
 
-		const filePath = path.join(this.publicDir, pathName);
-		if (!filePath.startsWith(this.publicDir)) {
+		const absoluteRoot = path.resolve(this.publicDir);
+		const absolutePath = path.resolve(this.publicDir, pathName.replace(/^\/+/g, '')); // remove leading slashes before join/resolve just in case
+
+		if (!absolutePath.startsWith(absoluteRoot + path.sep) && absolutePath !== absoluteRoot) {
 			res.writeHead(403, { 'Content-Type': 'text/plain' });
 			res.end('403 Forbidden');
 			return;

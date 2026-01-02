@@ -143,10 +143,20 @@ export class LoopbackAuthServer implements ILoopbackServer {
 				case '/':
 					sendFile(res, path.join(serveRoot, 'index.html'));
 					break;
-				default:
+				default: {
 					// substring to get rid of leading '/'
-					sendFile(res, path.join(serveRoot, reqUrl.pathname.substring(1)));
+					const absoluteRoot = path.resolve(serveRoot);
+					const absolutePath = path.resolve(serveRoot, reqUrl.pathname.substring(1));
+
+					// Ensure we don't traverse out of root, handling partial matches (e.g. /root vs /root2)
+					if (!absolutePath.startsWith(absoluteRoot + path.sep) && absolutePath !== absoluteRoot) {
+						res.writeHead(400);
+						res.end();
+						return;
+					}
+					sendFile(res, absolutePath);
 					break;
+				}
 			}
 		});
 	}

@@ -62,7 +62,7 @@ async function connectToUnreal(projectRoot: string): Promise<void> {
 			sendCommand('check_connection', {}).then(response => {
 				if (response?.success) {
 					vscode.window.showInformationMessage(
-						`GRID connected to Unreal Editor (v${String(response.data?.engine_version ?? 'unknown')})`
+						`GRID connected to Unreal Editor (v${String((response.data?.engine_version as string | number) ?? 'unknown')})`
 					);
 				}
 			}).catch(() => { });
@@ -319,17 +319,20 @@ async function installGridPlugin(context: vscode.ExtensionContext, project?: UPr
  * Checks Windows registry and common installation locations.
  */
 async function findEngineInstallPath(engineVersion?: string): Promise<string | null> {
-	if (process.platform !== 'win32') {
-		// TODO: Add macOS/Linux support
-		return null;
+	if (process.platform === 'win32') {
+		return _findEnginePathWindows(engineVersion);
 	}
+	// TODO: Add macOS/Linux support
+	return null;
+}
 
+async function _findEnginePathWindows(engineVersion?: string): Promise<string | null> {
 	// Common Epic Games installation paths
 	const commonPaths = [
-		'C:\\Program Files\\Epic Games',
-		'C:\\Program Files (x86)\\Epic Games',
-		'D:\\Epic Games',
-		'E:\\Epic Games'
+		String.raw`C:\Program Files\Epic Games`,
+		String.raw`C:\Program Files (x86)\Epic Games`,
+		String.raw`D:\Epic Games`,
+		String.raw`E:\Epic Games`
 	];
 
 	// If we have a specific version, look for that
@@ -357,7 +360,7 @@ async function findEngineInstallPath(engineVersion?: string): Promise<string | n
 		try {
 			const entries = await fs.readdir(basePath);
 			for (const entry of entries) {
-				if (entry.startsWith('UE_') || entry.match(/^\d+\.\d+/)) {
+				if (entry.startsWith('UE_') || /^\d+\.\d+/.exec(entry)) {
 					const enginePath = path.join(basePath, entry);
 					try {
 						await fs.access(path.join(enginePath, 'Engine'));
@@ -375,11 +378,11 @@ async function findEngineInstallPath(engineVersion?: string): Promise<string | n
 	// Try to read from registry (Windows)
 	try {
 		const { stdout } = await execAsync(
-			'reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\EpicGames\\Unreal Engine" /s /v "InstalledDirectory"',
+			String.raw`reg query "HKEY_LOCAL_MACHINE\SOFTWARE\EpicGames\Unreal Engine" /s /v "InstalledDirectory"`,
 			{ timeout: 5000 }
 		);
 
-		const match = stdout.match(/InstalledDirectory\s+REG_SZ\s+(.+)/);
+		const match = /InstalledDirectory\s+REG_SZ\s+(.+)/.exec(stdout);
 		if (match?.[1]) {
 			const enginePath = match[1].trim();
 			try {
@@ -503,22 +506,84 @@ async function buildEditor(): Promise<void> {
 			return;
 		}
 
-		// This is a placeholder - real implementation would use UnrealBuildTool
-		const selection = await vscode.window.showInformationMessage(
-			'Editor build initiated. Use Unreal Build Tool or IDE compilation for full builds.',
-			'Open Terminal'
-		);
+		// Step 1: Generate Project Files (SLN)
+		await refreshProjectFiles();
 
-		if (selection === 'Open Terminal') {
-			const terminal = vscode.window.createTerminal('Unreal Build');
-			terminal.sendText(`cd "${project.projectRoot}"`);
-			terminal.show();
+		// Step 2: Build Editor
+		const enginePath = await findEngineInstallPath(project.engineVersion);
+		if (!enginePath) {
+			await vscode.window.showErrorMessage('Could not locate Unreal Engine installation. Cannot build.');
+			return;
 		}
+
+		// Locate UnrealBuildTool
+		const ubtRelativePaths = [
+			'Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe', // UE5
+			'Engine/Binaries/DotNET/UnrealBuildTool.exe' // UE4
+		];
+
+		let ubtPath: string | null = null;
+		for (const relativePath of ubtRelativePaths) {
+			const fullPath = path.join(enginePath, relativePath);
+			try {
+				await fs.access(fullPath);
+				ubtPath = fullPath;
+				break;
+			} catch {
+				continue;
+			}
+		}
+
+		if (!ubtPath) {
+			await vscode.window.showErrorMessage('Could not locate UnrealBuildTool.exe.');
+			return;
+		}
+
+		const projectName = project.name;
+		const projectPath = project.path;
+
+		// Command: UnrealBuildTool.exe <Target> <Platform> <Configuration> -Project="<Path>" -WaitMutex -FromMsBuild
+		// Note: -FromMsBuild is optional but often used. We'll stick to standard args.
+		const args = [
+			`${projectName}Editor`,
+			'Win64',
+			'Development',
+			`-Project="${projectPath}"`,
+			'-WaitMutex'
+		];
+
+		const command = `"${ubtPath}" ${args.join(' ')}`;
+
+		if (!unrealOutputChannel) {
+			unrealOutputChannel = vscode.window.createOutputChannel('Unreal Engine');
+		}
+		unrealOutputChannel.show();
+		unrealOutputChannel.appendLine(`[GRID] Starting Build: ${projectName}Editor Win64 Development`);
+		unrealOutputChannel.appendLine(`[GRID] Command: ${command}`);
+
+		return new Promise((resolve) => {
+			exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+				if (stdout) unrealOutputChannel?.append(stdout);
+				if (stderr) unrealOutputChannel?.append(stderr);
+
+				if (error) {
+					unrealOutputChannel?.appendLine(`[GRID] Build Failed: ${error.message}`);
+					vscode.window.showErrorMessage('Build Failed. Check "Unreal Engine" output for details.');
+					resolve(); // Resolve anyway to avoid dangling promises, user sees error
+				} else {
+					unrealOutputChannel?.appendLine('[GRID] Build Successful!');
+					vscode.window.showInformationMessage('Build Successful!');
+					resolve();
+				}
+			});
+		});
+
 	} catch (error) {
 		console.error('Error building editor:', error);
+		const message = error instanceof Error ? error.message : String(error);
+		await vscode.window.showErrorMessage(`Build error: ${message}`);
 	}
 }
-
 export function deactivate(): void {
 	console.log('Unreal Engine extension deactivated');
 

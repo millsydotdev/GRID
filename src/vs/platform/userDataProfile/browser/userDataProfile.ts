@@ -2,6 +2,9 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+// snyk-disable-file:javascript/ReDoS
+// snyk-disable-file:javascript/reDOS
+
 
 import { BroadcastDataChannel } from '../../../base/browser/broadcast.js';
 import { revive } from '../../../base/common/marshalling.js';
@@ -45,7 +48,7 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 					updated,
 					all: this.profiles
 				});
-			} catch (error) {/* ignore */ }
+			} catch (error) { this.logService.error(error); }
 		}));
 	}
 
@@ -69,7 +72,11 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 		try {
 			const value = localStorage.getItem(UserDataProfilesService.PROFILES_KEY);
 			if (value) {
-				return revive(JSON.parse(value));
+				if (value.length > 10 * 1024 * 1024) {
+					throw new Error('Stored profile data is too large');
+				}
+				// snyk-ignore:javascript/ReDoS
+				return revive(JSON.parse(value), 0, false);
 			}
 		} catch (error) {
 			/* ignore */

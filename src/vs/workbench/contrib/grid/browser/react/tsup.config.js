@@ -14,6 +14,8 @@ export default defineConfig({
 		'./src2/grid-onboarding/index.tsx',
 		'./src2/quick-edit-tsx/index.tsx',
 		'./src2/diff/index.tsx',
+		'./src2/api-client-tsx/index.tsx',
+		'./src2/composer/index.tsx',
 	],
 	outDir: './out',
 	format: ['esm'],
