@@ -63,7 +63,7 @@ import {
 	getReservedOutputTokenSpace,
 	getModelCapabilities,
 } from '../common/modelCapabilities.js';
-import { reParsedToolXMLString, chat_systemMessage, chat_systemMessage_local } from '../common/prompt/prompts.js';
+import { reParsedToolXMLString, chat_systemMessage } from '../common/prompt/prompts.js';
 import {
 	AnthropicLLMChatMessage,
 	AnthropicReasoning,
@@ -1707,7 +1707,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 				}
 			}
 
-			systemMessage = chat_systemMessage_local({
+			systemMessage = chat_systemMessage({
 				workspaceFolders,
 				openedURIs,
 				directoryStr,
@@ -1795,7 +1795,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 							.map((m) => m.content)
 							.join(' ')
 							.slice(0, 200);
-					const metricsAny = metrics as unknown;
+					const metricsAny = metrics as any;
 					console.debug('[RepoIndexer]', {
 						query: userQuery.slice(0, 50),
 						latencyMs: metricsAny.retrievalLatencyMs?.toFixed(1),
