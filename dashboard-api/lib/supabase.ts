@@ -1,60 +1,29 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-// Lazy initialization to avoid build-time errors
-let _supabaseAdmin: SupabaseClient | null = null;
-let _supabase: SupabaseClient | null = null;
-
-function getSupabaseAdmin(): SupabaseClient {
-  if (!SUPABASE_URL) {
-    throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
-  }
-  if (!SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Missing env.SUPABASE_SERVICE_ROLE_KEY');
-  }
-
-  if (!_supabaseAdmin) {
-    _supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    });
-  }
-
-  return _supabaseAdmin;
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
+}
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing env.SUPABASE_SERVICE_ROLE_KEY');
 }
 
-function getSupabase(): SupabaseClient {
-  if (!SUPABASE_URL) {
-    throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
+// Service role client (full access, use with caution)
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
   }
-  if (!SUPABASE_ANON_KEY) {
-    throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
-  }
+);
 
-  if (!_supabase) {
-    _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-
-  return _supabase;
-}
-
-// Export getters instead of instances
-export const supabaseAdmin = new Proxy({} as SupabaseClient, {
-  get(_target, prop) {
-    return getSupabaseAdmin()[prop as keyof SupabaseClient];
-  },
-});
-
-export const supabase = new Proxy({} as SupabaseClient, {
-  get(_target, prop) {
-    return getSupabase()[prop as keyof SupabaseClient];
-  },
-});
+// Anon client (RLS enforced)
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export type Database = {
   public: {
@@ -95,11 +64,8 @@ export type Database = {
       enterprise_configs: {
         Row: {
           user_id: string;
-          mcp_json: {
-            servers: Record<string, unknown>;
-            inputs: unknown[];
-          };
-          provider_settings: Record<string, unknown>;
+          mcp_json: any;
+          provider_settings: any;
           version: number;
           updated_at: string;
         };

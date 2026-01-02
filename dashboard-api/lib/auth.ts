@@ -63,21 +63,12 @@ export async function authenticateRequest(
   }
 
   // Get team info if user is in a team
-  const userData = user as unknown as {
-    id: string;
-    email: string;
-    tier: 'community' | 'pro' | 'enterprise';
-    team_members?: Array<{
-      team_id: string;
-      role: 'admin' | 'member';
-    }>;
-  };
-  const teamMember = userData.team_members?.[0];
+  const teamMember = (user as any).team_members?.[0];
 
   return {
-    id: userData.id,
-    email: userData.email,
-    tier: userData.tier,
+    id: user.id,
+    email: user.email,
+    tier: user.tier,
     teamId: teamMember?.team_id,
     isTeamAdmin: teamMember?.role === 'admin',
   };
@@ -142,7 +133,7 @@ export async function createAuditLog(params: {
   action: string;
   resourceType: string;
   resourceId?: string;
-  changes?: Record<string, unknown>;
+  changes?: any;
   request?: NextRequest;
 }) {
   const { userId, action, resourceType, resourceId, changes, request } = params;
