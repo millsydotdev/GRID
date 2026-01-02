@@ -9,6 +9,7 @@ import { ICustomLanguagesService } from '../common/customLanguages.js';
 import { ICustomLanguageDefinition, ICustomLanguageChangeEvent, ICustomLanguagesConfig } from '../common/customLanguageConfiguration.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { ILanguageConfigurationService } from '../../../../editor/common/languages/languageConfigurationRegistry.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
 import { URI } from '../../../../base/common/uri.js';
 import { ITextMateTokenizationService } from '../../../services/textMate/browser/textMateTokenizationFeature.js';
@@ -34,10 +35,11 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 	constructor(
 		@IStorageService private readonly storageService: IStorageService,
 		@ILanguageService private readonly languageService: ILanguageService,
+		@ILanguageConfigurationService private readonly languageConfigurationService: ILanguageConfigurationService,
 		@IFileService private readonly fileService: IFileService,
-		@ITextMateTokenizationService private readonly textMateService: ITextMateTokenizationService,
+		@ITextMateTokenizationService private readonly _textMateService: ITextMateTokenizationService,
 		@ILogService private readonly logService: ILogService,
-		@IConfigurationService private readonly configurationService: IConfigurationService
+		@IConfigurationService private readonly _configurationService: IConfigurationService
 	) {
 		super();
 		this.loadFromConfiguration();
@@ -287,7 +289,8 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 			// Register language configuration
 			if (definition.configuration) {
 				const config = this._convertToLanguageConfiguration(definition.configuration);
-				this.languageService.setLanguageConfiguration(definition.id, config);
+				const configDisposable = this.languageConfigurationService.register(definition.id, config);
+				disposables.push(() => configDisposable.dispose());
 			}
 
 			// Register TextMate grammar
@@ -317,39 +320,40 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 	}
 
 	private _convertToLanguageConfiguration(config: unknown): LanguageConfiguration {
+		const cfg = config as any;
 		const result: LanguageConfiguration = {};
 
-		if (config.comments) {
-			result.comments = config.comments;
+		if (cfg.comments) {
+			result.comments = cfg.comments;
 		}
 
-		if (config.brackets) {
-			result.brackets = config.brackets;
+		if (cfg.brackets) {
+			result.brackets = cfg.brackets;
 		}
 
-		if (config.autoClosingPairs) {
-			result.autoClosingPairs = config.autoClosingPairs;
+		if (cfg.autoClosingPairs) {
+			result.autoClosingPairs = cfg.autoClosingPairs;
 		}
 
-		if (config.surroundingPairs) {
-			result.surroundingPairs = config.surroundingPairs;
+		if (cfg.surroundingPairs) {
+			result.surroundingPairs = cfg.surroundingPairs;
 		}
 
-		if (config.wordPattern) {
-			result.wordPattern = new RegExp(config.wordPattern);
+		if (cfg.wordPattern) {
+			result.wordPattern = new RegExp(cfg.wordPattern);
 		}
 
-		if (config.indentationRules) {
+		if (cfg.indentationRules) {
 			result.indentationRules = {
-				increaseIndentPattern: config.indentationRules.increaseIndentPattern ? new RegExp(config.indentationRules.increaseIndentPattern) : undefined!,
-				decreaseIndentPattern: config.indentationRules.decreaseIndentPattern ? new RegExp(config.indentationRules.decreaseIndentPattern) : undefined!,
-				indentNextLinePattern: config.indentationRules.indentNextLinePattern ? new RegExp(config.indentationRules.indentNextLinePattern) : undefined,
-				unIndentedLinePattern: config.indentationRules.unIndentedLinePattern ? new RegExp(config.indentationRules.unIndentedLinePattern) : undefined
+				increaseIndentPattern: cfg.indentationRules.increaseIndentPattern ? new RegExp(cfg.indentationRules.increaseIndentPattern) : undefined!,
+				decreaseIndentPattern: cfg.indentationRules.decreaseIndentPattern ? new RegExp(cfg.indentationRules.decreaseIndentPattern) : undefined!,
+				indentNextLinePattern: cfg.indentationRules.indentNextLinePattern ? new RegExp(cfg.indentationRules.indentNextLinePattern) : undefined,
+				unIndentedLinePattern: cfg.indentationRules.unIndentedLinePattern ? new RegExp(cfg.indentationRules.unIndentedLinePattern) : undefined
 			};
 		}
 
-		if (config.onEnterRules) {
-			result.onEnterRules = config.onEnterRules.map((rule: unknown) => ({
+		if (cfg.onEnterRules) {
+			result.onEnterRules = cfg.onEnterRules.map((rule: any) => ({
 				beforeText: new RegExp(rule.beforeText),
 				afterText: rule.afterText ? new RegExp(rule.afterText) : undefined,
 				action: {
@@ -360,13 +364,13 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 			}));
 		}
 
-		if (config.folding) {
+		if (cfg.folding) {
 			result.folding = {
-				markers: config.folding.markers ? {
-					start: new RegExp(config.folding.markers.start),
-					end: new RegExp(config.folding.markers.end)
+				markers: cfg.folding.markers ? {
+					start: new RegExp(cfg.folding.markers.start),
+					end: new RegExp(cfg.folding.markers.end)
 				} : undefined,
-				offSide: config.folding.offSide
+				offSide: cfg.folding.offSide
 			};
 		}
 
