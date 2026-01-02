@@ -76,10 +76,10 @@ export async function preprocessImagesForQA(
 		const qaResponse = await imageQAPipeline.process(options);
 
 		// Handle responses that need LLM processing
-		if ((qaResponse as unknown)._needsLLM || (qaResponse as unknown)._needsVLM) {
+		if ((qaResponse as any)._needsLLM || (qaResponse as any)._needsVLM) {
 			return {
 				shouldUsePipeline: true,
-				processedText: (qaResponse as unknown)._prompt || userQuestion,
+				processedText: (qaResponse as any)._prompt || userQuestion,
 				qaResponse,
 				images: images, // Keep images for VLM/LLM processing
 			};
