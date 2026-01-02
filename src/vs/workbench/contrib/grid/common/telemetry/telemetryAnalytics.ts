@@ -5,7 +5,7 @@
 
 import { IGridTelemetryService } from './telemetryService.js';
 import { RoutingDecisionEvent, ModelRanking, RoutingPattern, TaskType } from './telemetryTypes.js';
-import { modelCapabilities } from '../modelCapabilities.js';
+import { getModelCapabilities } from '../modelCapabilities.js';
 
 /**
  * Analytics service for computing insights from telemetry data
@@ -43,7 +43,7 @@ export class TelemetryAnalyticsService {
 		const rankings: ModelRanking[] = [];
 		for (const [key, groupEvents] of groups) {
 			const [provider, modelName] = key.split(':');
-			const isLocal = (groupEvents[0].selectedModel as unknown).isLocal || false;
+			const isLocal = groupEvents[0].selectedModel.isLocal || false;
 
 			const speedScore = this._computeSpeedScore(groupEvents);
 			const qualityScore = this._computeQualityScore(groupEvents);
@@ -133,7 +133,7 @@ export class TelemetryAnalyticsService {
 
 		const firstEvent = events[0];
 		const modelName = firstEvent.selectedModel.modelName;
-		const modelCaps = modelCapabilities[modelName];
+		const modelCaps = getModelCapabilities(firstEvent.selectedModel.provider as any, modelName, undefined);
 
 		if (!modelCaps || !modelCaps.cost) {
 			// Unknown model, return neutral score
@@ -230,7 +230,7 @@ export class TelemetryAnalyticsService {
 			if (taskEvents.length > 20) {
 				const modelGroups = new Map<string, RoutingDecisionEvent[]>();
 				for (const event of taskEvents) {
-					const key = `${(event.selectedModel as unknown).provider}:${(event.selectedModel as unknown).modelName}`;
+					const key = `${event.selectedModel.provider}:${event.selectedModel.modelName}`;
 					if (!modelGroups.has(key)) {
 						modelGroups.set(key, []);
 					}
