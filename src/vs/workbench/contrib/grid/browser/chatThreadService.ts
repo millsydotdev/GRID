@@ -463,7 +463,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		@IAuditLogService private readonly _auditLogService: IAuditLogService
 	) {
 		super();
-		this.state = { allThreads: {}, currentThreadId: null as unknown as string }; // default state
+		this.state = { allThreads: {}, currentThreadId: null as any as string }; // default state
 		// When set for a thread, the next call to _shouldGeneratePlan will return false and clear the flag
 		this._suppressPlanOnceByThread = {};
 
@@ -472,7 +472,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		const allThreads = readThreads;
 		this.state = {
 			allThreads: allThreads,
-			currentThreadId: null as unknown as string, // gets set in startNewThread()
+			currentThreadId: null as any as string, // gets set in startNewThread()
 		};
 
 		// always be in a thread
@@ -508,7 +508,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		this._onDidChangeCurrentThread.fire();
 	};
 	resetState = () => {
-		this.state = { allThreads: {}, currentThreadId: null as unknown as string }; // see constructor
+		this.state = { allThreads: {}, currentThreadId: null as any as string }; // see constructor
 		this.openNewThread();
 		this._onDidChangeCurrentThread.fire();
 	};
@@ -1845,7 +1845,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		const modelKey = modelSelection ? `${modelSelection.providerName}:${modelSelection.modelName}` : 'null';
 		const messagesHash = JSON.stringify(
 			chatMessages.map((m) => {
-				const baseMsg: unknown = { role: m.role };
+				const baseMsg: any = { role: m.role };
 				// Handle different message formats
 				if ('content' in m) {
 					baseMsg.content = typeof m.content === 'string' ? m.content.substring(0, 100) : m.content;
@@ -2160,7 +2160,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 									role: 'plan',
 									type: 'agent_plan',
 									summary: planData.summary || 'Execution plan',
-									steps: (planData.steps || []).map((step: unknown, idx: number) => ({
+									steps: (planData.steps || []).map((step: any, idx: number) => ({
 										stepNumber: step.stepNumber || idx + 1,
 										description: step.description || `Step ${idx + 1}`,
 										tools: step.tools || [],
@@ -2593,7 +2593,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 				for (let i = thread.messages.length - 1; i >= 0; i--) {
 					const msg = thread.messages[i];
 					if (msg.role === 'assistant' && 'modelSelection' in msg) {
-						modelSelection = (msg as unknown).modelSelection;
+						modelSelection = (msg as any).modelSelection;
 						break;
 					}
 				}
@@ -2949,7 +2949,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 			});
 
 			if (isBuiltInTool) {
-				const { result, interruptTool } = await this._toolsService.callTool[toolName](toolParams as unknown);
+				const { result, interruptTool } = await this._toolsService.callTool[toolName](toolParams as any);
 				const interruptor = () => {
 					interrupted = true;
 					interruptTool?.();
@@ -3002,7 +3002,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		// 4. stringify the result to give to the LLM
 		try {
 			if (isBuiltInTool) {
-				toolResultStr = this._toolsService.stringOfResult[toolName](toolParams as unknown, toolResult as unknown);
+				toolResultStr = this._toolsService.stringOfResult[toolName](toolParams as any, toolResult as any);
 			}
 			// For MCP tools, handle the result based on its type
 			else {
@@ -3406,8 +3406,8 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 						if (settings.imageQADevMode && preprocessed.qaResponse) {
 							console.log('[ImageQA] Pipeline response:', {
 								confidence: preprocessed.qaResponse.confidence,
-								needsLLM: !!(preprocessed.qaResponse as unknown)._needsLLM,
-								needsVLM: !!(preprocessed.qaResponse as unknown)._needsVLM,
+								needsLLM: !!(preprocessed.qaResponse as any)._needsLLM,
+								needsVLM: !!(preprocessed.qaResponse as any)._needsVLM,
 								answer: preprocessed.qaResponse.answer?.substring(0, 100),
 							});
 						}
@@ -3675,7 +3675,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 									if ('parts' in m) {
 										return (
 											acc +
-											m.parts.reduce((sum: number, part: unknown) => {
+											m.parts.reduce((sum: number, part: any) => {
 												if ('text' in part && typeof part.text === 'string') {
 													return sum + Math.ceil(part.text.length / 4);
 												} else if ('inlineData' in part) {
@@ -3692,7 +3692,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 										} else if (Array.isArray(m.content)) {
 											return (
 												acc +
-												m.content.reduce((sum: number, part: unknown) => {
+												m.content.reduce((sum: number, part: any) => {
 													if (part.type === 'text') {
 														return sum + Math.ceil(part.text.length / 4);
 													} else if (part.type === 'image_url') {
