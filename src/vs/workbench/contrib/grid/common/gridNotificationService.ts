@@ -158,6 +158,7 @@ export class GridNotificationService extends Disposable implements IGridNotifica
                         if (notification.actionUrl) {
                             globalThis.open(notification.actionUrl, '_blank');
                         }
+                        return Promise.resolve();
                     }
                 }]
             } : undefined
@@ -229,15 +230,16 @@ export class GridNotificationService extends Disposable implements IGridNotifica
     }
 
     private transformNotification(raw: unknown): GridNotification {
+        const r = raw as any;
         return {
-            id: raw.id,
-            type: raw.type,
-            title: raw.title,
-            message: raw.message,
-            actionUrl: raw.action_url,
-            read: raw.read,
-            createdAt: new Date(raw.created_at).getTime(),
-            metadata: raw.metadata
+            id: r.id,
+            type: r.type,
+            title: r.title,
+            message: r.message,
+            actionUrl: r.action_url,
+            read: r.read,
+            createdAt: new Date(r.created_at).getTime(),
+            metadata: r.metadata
         };
     }
 }
