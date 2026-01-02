@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { stripe, PRICE_IDS } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase';

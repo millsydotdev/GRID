@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export const GET = requireAuth(async (request, user) => {
+export const GET = requireAuth(async (_request, user) => {
   try {
     // Get user with subscription info
     const { data: userData, error } = await supabaseAdmin
@@ -28,16 +28,35 @@ export const GET = requireAuth(async (request, user) => {
 
     if (error) throw error;
 
-    const subscription = (userData as any).subscriptions?.[0];
-    const teamMember = (userData as any).team_members?.[0];
+    const data = userData as unknown as {
+      id: string;
+      email: string;
+      tier: string;
+      stripe_customer_id: string | null;
+      subscriptions?: Array<{
+        status: string;
+        tier: string;
+        seats: number;
+      }>;
+      team_members?: Array<{
+        team_id: string;
+        role: string;
+        teams: {
+          id: string;
+          name: string;
+        };
+      }>;
+    };
+    const subscription = data.subscriptions?.[0];
+    const teamMember = data.team_members?.[0];
 
     return NextResponse.json({
-      id: userData.id,
-      email: userData.email,
-      tier: userData.tier,
+      id: data.id,
+      email: data.email,
+      tier: data.tier,
       teamId: teamMember?.team_id,
       isTeamAdmin: teamMember?.role === 'admin',
-      stripeCustomerId: userData.stripe_customer_id,
+      stripeCustomerId: data.stripe_customer_id,
       subscriptionStatus: subscription?.status,
     });
   } catch (error) {
