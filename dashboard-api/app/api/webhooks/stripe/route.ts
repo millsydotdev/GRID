@@ -14,9 +14,8 @@ export async function POST(request: NextRequest) {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err) {
-      const error = err as Error;
-      console.error('Webhook signature verification failed:', error.message);
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
       return NextResponse.json(
         { error: 'Webhook signature verification failed' },
         { status: 400 }
@@ -113,7 +112,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   await supabaseAdmin
     .from('subscriptions')
     .update({
-      status: status as 'active' | 'past_due' | 'canceled' | 'trialing' | 'incomplete',
+      status: status as any,
       seats,
     })
     .eq('stripe_subscription_id', subscription.id);

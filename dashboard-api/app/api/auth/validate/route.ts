@@ -41,29 +41,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userData = user as unknown as {
-      id: string;
-      email: string;
-      tier: string;
-      stripe_customer_id: string | null;
-      team_members?: Array<{
-        team_id: string;
-        role: string;
-        teams: {
-          id: string;
-          name: string;
-        };
-      }>;
-    };
-    const teamMember = userData.team_members?.[0];
+    const teamMember = (user as any).team_members?.[0];
 
     return NextResponse.json({
-      id: userData.id,
-      email: userData.email,
-      tier: userData.tier,
+      id: user.id,
+      email: user.email,
+      tier: user.tier,
       teamId: teamMember?.team_id,
       isTeamAdmin: teamMember?.role === 'admin',
-      stripeCustomerId: userData.stripe_customer_id,
+      stripeCustomerId: user.stripe_customer_id,
     });
   } catch (error) {
     console.error('Validate error:', error);

@@ -9,7 +9,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   typescript: true,
 });
 
-export const PRICE_IDS: Record<'pro' | 'enterprise', string> = {
+export const PRICE_IDS = {
   pro: process.env.STRIPE_PRO_PRICE_ID || 'price_grid_pro_monthly',
   enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_grid_enterprise_seat',
 };

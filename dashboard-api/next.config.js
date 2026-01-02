@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  outputFileTracingRoot: require('path').join(__dirname, '../'),
+  swcMinify: true,
+  experimental: {
+    serverActions: true,
+  },
   async headers() {
     return [
       {
