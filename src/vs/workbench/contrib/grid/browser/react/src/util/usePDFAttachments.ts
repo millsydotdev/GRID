@@ -181,7 +181,7 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 								? {
 										...att,
 										uploadStatus: 'failed',
-										error: error.message || 'Failed to process PDF',
+										error: error instanceof Error ? error.message : 'Failed to process PDF',
 									}
 								: att
 						)
