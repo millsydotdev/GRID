@@ -122,7 +122,7 @@ export function isLocalProvider(providerName: ProviderName, settingsOfProvider: 
 
 	// Check for localhost endpoints in openAICompatible or liteLLM
 	if (providerName === 'openAICompatible' || providerName === 'liteLLM') {
-		const endpoint = (settingsOfProvider[providerName] as unknown)?.endpoint || '';
+		const endpoint = (settingsOfProvider[providerName] as any)?.endpoint || '';
 		if (endpoint) {
 			try {
 				const url = new URL(endpoint);
@@ -264,7 +264,7 @@ const prepareMessages_openai_tools = (messages: SimpleLLMMessage[]): AnthropicOr
 					// Ensure image.data is a Uint8Array
 					// TypeScript knows image.data is Uint8Array from the type definition, but we validate at runtime
 					// Use 'any' to bypass TypeScript's type narrowing for runtime validation
-					const data: unknown = image.data;
+					const data: any = image.data;
 					let imageData: Uint8Array;
 
 					if (data instanceof Uint8Array) {
@@ -345,7 +345,7 @@ const prepareMessages_openai_tools = (messages: SimpleLLMMessage[]): AnthropicOr
 									for (let i = start; i < end; i++) {
 										// Use hasOwnProperty check to avoid getters/prototype issues
 										if (Object.prototype.hasOwnProperty.call(data, String(i))) {
-											const val = (data as unknown)[String(i)];
+											const val = (data as any)[String(i)];
 											if (typeof val === 'number' && val >= 0 && val <= 255 && Number.isInteger(val)) {
 												values.push(val);
 											} else if (val !== undefined && val !== null) {
@@ -825,7 +825,7 @@ const prepareMessages_XML_tools = (
 									},
 								});
 							}
-							lastMsg.content = contentArray as unknown;
+							lastMsg.content = contentArray as any;
 						} else {
 							// No images, just append text
 							lastMsg.content += '\n\n' + c.content;
@@ -1128,14 +1128,14 @@ const prepareOpenAIOrAnthropicMessages = ({
 		} else {
 			// Content is an array (may contain images/text parts)
 			// Prepend system message to the first text part, or add a new text part
-			const contentArray = [...firstMsg.content] as unknown[];
+			const contentArray = [...firstMsg.content] as any[];
 			const firstTextIndex = contentArray.findIndex((c: { type?: string }) => c.type === 'text');
 
 			if (firstTextIndex !== -1) {
 				// Prepend to existing text part
 				contentArray[firstTextIndex] = {
 					type: 'text',
-					text: systemMsgPrefix + (contentArray[firstTextIndex] as unknown).text,
+					text: systemMsgPrefix + (contentArray[firstTextIndex] as any).text,
 				};
 			} else {
 				// No text part exists, add one at the beginning
@@ -1167,7 +1167,7 @@ const prepareOpenAIOrAnthropicMessages = ({
 		} else {
 			// allowed to be empty if has a tool in it or following it
 			if (currMsg.content.find((c) => c.type === 'tool_result' || c.type === 'tool_use')) {
-				currMsg.content = currMsg.content.filter((c) => !(c.type === 'text' && !c.text)) as unknown;
+				currMsg.content = currMsg.content.filter((c) => !(c.type === 'text' && !c.text)) as any;
 				continue;
 			}
 			if (nextMsg?.role === 'tool') {continue;}
@@ -1184,7 +1184,7 @@ const prepareOpenAIOrAnthropicMessages = ({
 
 				if (textPartIndex === -1) {
 					// No text part exists, add one at the beginning
-					currMsg.content.unshift({ type: 'text', text: imageAnalysisPrompt } as unknown);
+					currMsg.content.unshift({ type: 'text', text: imageAnalysisPrompt } as any);
 				} else {
 					// Text part exists, ensure it's not empty
 					const textPart = currMsg.content[textPartIndex];
@@ -1193,7 +1193,7 @@ const prepareOpenAIOrAnthropicMessages = ({
 						(!textPart.text || textPart.text.trim() === '' || textPart.text === EMPTY_MESSAGE)
 					) {
 						// Replace empty text with proper image analysis prompt
-						currMsg.content[textPartIndex] = { type: 'text', text: imageAnalysisPrompt } as unknown;
+						currMsg.content[textPartIndex] = { type: 'text', text: imageAnalysisPrompt } as any;
 					}
 				}
 			} else {
@@ -1320,7 +1320,7 @@ export interface IConvertToLLMMessageService {
 		chatMessages: ChatMessage[];
 		chatMode: ChatMode;
 		modelSelection: ModelSelection | null;
-		repoIndexerPromise?: Promise<{ results: string[]; metrics: unknown } | null>;
+		repoIndexerPromise?: Promise<{ results: string[]; metrics: any } | null>;
 	}) => Promise<{ messages: LLMChatMessage[]; separateSystemMessage: string | undefined }>;
 	prepareFIMMessage(opts: {
 		messages: LLMFIMMessage;
@@ -1330,7 +1330,7 @@ export interface IConvertToLLMMessageService {
 	startRepoIndexerQuery: (
 		chatMessages: ChatMessage[],
 		chatMode: ChatMode
-	) => Promise<{ results: string[]; metrics: unknown } | null>;
+	) => Promise<{ results: string[]; metrics: any } | null>;
 }
 
 export const IConvertToLLMMessageService = createDecorator<IConvertToLLMMessageService>('ConvertToLLMMessageService');
@@ -1727,7 +1727,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		// PERFORMANCE: Use pre-started promise if available (from parallel execution), otherwise start now
 		if (this.gridSettingsService.state.globalSettings.enableRepoIndexer && !disableSystemMessage) {
 			let indexResults: string[] | null = null;
-			let metrics: unknown = null;
+			let metrics: any = null;
 
 			if (repoIndexerPromise) {
 				// Use pre-started query (from parallel execution with router)

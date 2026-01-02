@@ -235,7 +235,7 @@ class RepoIndexerService extends Disposable implements IRepoIndexerService {
 	private static readonly PROGRESSIVE_DELAY_MS = 1000; // 1 second between batches
 
 	// Memory pressure monitoring
-	private _memoryCheckInterval?: unknown;
+	private _memoryCheckInterval?: any;
 	private _isUnderMemoryPressure = false;
 	private static readonly MEMORY_CHECK_INTERVAL_MS = 30000; // Check every 30 seconds
 	private static readonly MEMORY_PRESSURE_THRESHOLD_MB = 500; // 500MB index size threshold
@@ -852,7 +852,7 @@ class RepoIndexerService extends Disposable implements IRepoIndexerService {
 				// PERFORMANCE: Process entries in chunks to avoid blocking UI for large indexes
 				const CHUNK_SIZE = 1000;
 				const filteredData = data.entries.filter(
-					(entry: unknown): entry is SerializedIndexEntry =>
+					(entry: any): entry is SerializedIndexEntry =>
 						typeof entry === 'object' &&
 						entry !== null &&
 						'uri' in entry &&
@@ -906,7 +906,7 @@ class RepoIndexerService extends Disposable implements IRepoIndexerService {
 
 				const CHUNK_SIZE = 1000;
 				const filteredData = data.filter(
-					(entry: unknown): entry is SerializedIndexEntry =>
+					(entry: any): entry is SerializedIndexEntry =>
 						typeof entry === 'object' &&
 						entry !== null &&
 						'uri' in entry &&
@@ -984,7 +984,7 @@ class RepoIndexerService extends Disposable implements IRepoIndexerService {
 				// Validate and migrate index entries (convert arrays to Sets if present)
 				this._index = data
 					.filter(
-						(entry: unknown): entry is SerializedIndexEntry =>
+						(entry: any): entry is SerializedIndexEntry =>
 							typeof entry === 'object' &&
 							entry !== null &&
 							'uri' in entry &&
@@ -3001,7 +3001,7 @@ class RepoIndexerService extends Disposable implements IRepoIndexerService {
 			// If first element is an array, it's number[][] (multiple embeddings)
 			if (typeof embeddings[0] === 'number') {
 				// Single embedding returned as number[], wrap it
-				const singleEmbedding = embeddings as unknown as number[];
+				const singleEmbedding = embeddings as any as number[];
 				return [singleEmbedding];
 			} else {
 				// Multiple embeddings returned as number[][]

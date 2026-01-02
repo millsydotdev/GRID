@@ -542,7 +542,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 				} else if (Array.isArray(value)) {
 					// Handle case where it's already an array but not Uint8Array
 					// Only convert if it looks like byte data (all numbers 0-255)
-					if (value.length > 0 && value.every((v: unknown) => typeof v === 'number' && v >= 0 && v <= 255)) {
+					if (value.length > 0 && value.every((v: any) => typeof v === 'number' && v >= 0 && v <= 255)) {
 						return new Uint8Array(value as number[]);
 					}
 				}
@@ -934,7 +934,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	 * Check if a model supports vision/image inputs
 	 * Uses the same logic as modelRouter
 	 */
-	private _isModelVisionCapable(modelSelection: ModelSelection, capabilities: unknown): boolean {
+	private _isModelVisionCapable(modelSelection: ModelSelection, capabilities: any): boolean {
 		const name = modelSelection.modelName.toLowerCase();
 		const provider = modelSelection.providerName.toLowerCase();
 
@@ -1839,7 +1839,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		chatMessages: ChatMessage[] | LLMChatMessage[],
 		modelSelection: ModelSelection | null,
 		chatMode: ChatMode,
-		repoIndexerResults: { results: string[]; metrics: unknown } | null | undefined
+		repoIndexerResults: { results: string[]; metrics: any } | null | undefined
 	): string {
 		// Create stable hash from inputs
 		const modelKey = modelSelection ? `${modelSelection.providerName}:${modelSelection.modelName}` : 'null';
@@ -2295,7 +2295,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 	private readonly toolErrMsgs = {
 		rejected: 'Tool call was rejected by the user.',
 		interrupted: 'Tool call was interrupted by the user.',
-		errWhenStringifying: (error: unknown) =>
+		errWhenStringifying: (error: any) =>
 			`Tool call succeeded, but there was an error stringifying the output.\n${getErrorMessage(error)}`,
 	};
 
@@ -3126,7 +3126,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		callThisToolFirst?: ToolMessage<ToolName> & { type: 'tool_request' };
 		earlyRequestId?: string;
 		isAutoMode?: boolean;
-		repoIndexerPromise?: Promise<{ results: string[]; metrics: unknown } | null>;
+		repoIndexerPromise?: Promise<{ results: string[]; metrics: any } | null>;
 	}) {
 		// CRITICAL: Create a flag to stop execution immediately when plan is generated
 		// NOTE: This flag is reset when plan is approved/executing to allow execution to proceed
@@ -3483,7 +3483,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 			// PERFORMANCE: Check cache for prepared messages before expensive preparation
 			// Get repoIndexer results if promise is available (for cache key)
-			let repoIndexerResults: { results: string[]; metrics: unknown } | null | undefined = undefined;
+			let repoIndexerResults: { results: string[]; metrics: any } | null | undefined = undefined;
 			if (repoIndexerPromise) {
 				try {
 					repoIndexerResults = await repoIndexerPromise;
@@ -5232,7 +5232,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 
 		// PERFORMANCE: Start prompt prep in parallel with router decision for auto mode
 		// This can save 50-200ms by doing work that doesn't need model selection
-		let repoIndexerPromise: Promise<{ results: string[]; metrics: unknown } | null> | undefined;
+		let repoIndexerPromise: Promise<{ results: string[]; metrics: any } | null> | undefined;
 		if (isAutoMode && earlyRequestId) {
 			// Update status to show model selection in progress
 			if (!preparationCancelled) {
