@@ -217,7 +217,7 @@ export class GridTelemetryService extends Disposable implements IGridTelemetrySe
 				provider,
 				modelName,
 				isLocal,
-				taskType: taskType as unknown,
+				taskType: taskType as TaskType,
 				totalRequests,
 				successRate,
 				avgLatency,

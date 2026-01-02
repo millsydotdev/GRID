@@ -8,7 +8,7 @@ import { createDecorator } from '../../../../../platform/instantiation/common/in
 import { registerSingleton, InstantiationType } from '../../../../../platform/instantiation/common/extensions.js';
 import { TaskContext, RoutingDecision, TaskType } from '../modelRouter.js';
 import { ModelSelection, ProviderName } from '../gridSettingsTypes.js';
-import { IGridSettingsService } from '../gridSettingsService.js';
+import { IGridSettingsService, GridSettingsState } from '../gridSettingsService.js';
 import { IGridTelemetryService } from '../telemetry/telemetryService.js';
 import { TelemetryAnalyticsService } from '../telemetry/telemetryAnalytics.js';
 import { getModelCapabilities } from '../modelCapabilities.js';
@@ -220,7 +220,7 @@ export class AdaptiveModelRouter extends Disposable implements IAdaptiveModelRou
 	/**
 	 * Get candidate models for routing
 	 */
-	private _getCandidateModels(context: TaskContext, settingsState: Record<string, unknown>): ModelSelection[] {
+	private _getCandidateModels(context: TaskContext, settingsState: GridSettingsState): ModelSelection[] {
 		const models: ModelSelection[] = [];
 
 		// Get all configured models from settings
@@ -247,7 +247,7 @@ export class AdaptiveModelRouter extends Disposable implements IAdaptiveModelRou
 	private _computeBaseScore(
 		model: ModelSelection,
 		context: TaskContext,
-		settingsState: Record<string, unknown>
+		settingsState: GridSettingsState
 	): number {
 		let score = 0;
 
