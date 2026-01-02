@@ -61,11 +61,11 @@ type BuiltinToolResultToString = {
 	[T in BuiltinToolName]: (p: BuiltinToolCallParams[T], result: Awaited<BuiltinToolResultType[T]>) => string;
 };
 
-const isFalsy = (u: unknown) => {
+const isFalsy = (u: any) => {
 	return !u || u === 'null' || u === 'undefined';
 };
 
-const validateStr = (argName: string, value: unknown) => {
+const validateStr = (argName: string, value: any) => {
 	if (value === null) {throw new Error(`Invalid LLM output: ${argName} was null.`);}
 	if (typeof value !== 'string')
 		{throw new Error(
@@ -79,7 +79,7 @@ const validateStr = (argName: string, value: unknown) => {
  * Now includes workspace validation for safety in Agent Mode.
  */
 const validateURI = (
-	uriStr: unknown,
+	uriStr: any,
 	workspaceContextService?: IWorkspaceContextService,
 	requireWorkspace: boolean = true
 ) => {
@@ -149,17 +149,17 @@ const validateURI = (
 	return uri;
 };
 
-const validateOptionalURI = (uriStr: unknown, workspaceContextService?: IWorkspaceContextService) => {
+const validateOptionalURI = (uriStr: any, workspaceContextService?: IWorkspaceContextService) => {
 	if (isFalsy(uriStr)) {return null;}
 	return validateURI(uriStr, workspaceContextService, true);
 };
 
-const validateOptionalStr = (argName: string, str: unknown) => {
+const validateOptionalStr = (argName: string, str: any) => {
 	if (isFalsy(str)) {return null;}
 	return validateStr(argName, str);
 };
 
-const validatePageNum = (pageNumberUnknown: unknown) => {
+const validatePageNum = (pageNumberUnknown: any) => {
 	if (!pageNumberUnknown) {return 1;}
 	const parsedInt = Number.parseInt(pageNumberUnknown + '');
 	if (!Number.isInteger(parsedInt)) {throw new Error(`Page number was not an integer: "${pageNumberUnknown}".`);}
@@ -168,7 +168,7 @@ const validatePageNum = (pageNumberUnknown: unknown) => {
 	return parsedInt;
 };
 
-const validateNumber = (numStr: unknown, opts: { default: number | null }) => {
+const validateNumber = (numStr: any, opts: { default: number | null }) => {
 	if (typeof numStr === 'number') {return numStr;}
 	if (isFalsy(numStr)) {return opts.default;}
 
@@ -181,14 +181,14 @@ const validateNumber = (numStr: unknown, opts: { default: number | null }) => {
 	return opts.default;
 };
 
-const validateProposedTerminalId = (terminalIdUnknown: unknown) => {
+const validateProposedTerminalId = (terminalIdUnknown: any) => {
 	if (!terminalIdUnknown)
 		{throw new Error(`A value for terminalID must be specified, but the value was "${terminalIdUnknown}"`);}
 	const terminalId = terminalIdUnknown + '';
 	return terminalId;
 };
 
-const validateBoolean = (b: unknown, opts: { default: boolean }) => {
+const validateBoolean = (b: any, opts: { default: boolean }) => {
 	if (typeof b === 'string') {
 		if (b === 'true') {return true;}
 		if (b === 'false') {return false;}

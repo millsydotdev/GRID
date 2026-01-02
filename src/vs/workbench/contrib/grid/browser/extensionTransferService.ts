@@ -98,8 +98,8 @@ class ExtensionTransferService extends Disposable implements IExtensionTransferS
 								if (extensionFolder.name === 'extensions.json') {
 									try {
 										const contentsStr = await fileService.readFile(from);
-										const json: unknown = JSON.parse(contentsStr.value.toString());
-										const j2 = (json as unknown[]).filter(
+										const json: any = JSON.parse(contentsStr.value.toString());
+										const j2 = (json as any[]).filter(
 											(entry: { identifier?: { id?: string } }) => !isBlacklisted(entry?.identifier?.id)
 										);
 										const jsonStr = JSON.stringify(j2);
@@ -145,8 +145,8 @@ class ExtensionTransferService extends Disposable implements IExtensionTransferS
 						console.log('Updating extensions.json', child.resource.fsPath);
 						try {
 							const contentsStr = await fileService.readFile(child.resource);
-							const json: unknown = JSON.parse(contentsStr.value.toString());
-							const j2 = (json as unknown[]).filter(
+							const json: any = JSON.parse(contentsStr.value.toString());
+							const j2 = (json as any[]).filter(
 								(entry: { identifier?: { id?: string } }) => !isBlacklisted(entry?.identifier?.id)
 							);
 							const jsonStr = JSON.stringify(j2);
