@@ -19,7 +19,7 @@ export class TelemetryStorageService {
 	private readonly storageDir: string;
 	private readonly maxStorageSize: number = 500 * 1024 * 1024; // 500MB
 	private readonly retentionDays: number = 30;
-	private readonly fs: typeof import('fs');
+	private readonly fs: typeof import('fs') | null;
 
 	constructor() {
 		// Use Node.js fs (only available in electron-main context)
@@ -29,7 +29,7 @@ export class TelemetryStorageService {
 			this.fs = require('fs');
 		} catch {
 			// Browser context - will need alternative storage
-			this.fs = null as unknown;
+			this.fs = null;
 		}
 
 		// Get storage directory from environment or use default
@@ -121,19 +121,19 @@ export class TelemetryStorageService {
 				for (const event of events) {
 					// Apply filters
 					if (query.eventType && event.type !== query.eventType) {continue;}
-					if (query.taskType && 'taskType' in event && (event as unknown).taskType !== query.taskType) {continue;}
-					if (query.provider && 'selectedModel' in event && (event as unknown).selectedModel?.provider !== query.provider)
+					if (query.taskType && 'taskType' in event && (event as any).taskType !== query.taskType) {continue;}
+					if (query.provider && 'selectedModel' in event && (event as any).selectedModel?.provider !== query.provider)
 						{continue;}
 					if (
 						query.modelName &&
 						'selectedModel' in event &&
-						(event as unknown).selectedModel?.modelName !== query.modelName
+						(event as any).selectedModel?.modelName !== query.modelName
 					)
 						{continue;}
 					if (
 						query.isLocal !== undefined &&
 						'selectedModel' in event &&
-						(event as unknown).selectedModel?.isLocal !== query.isLocal
+						(event as any).selectedModel?.isLocal !== query.isLocal
 					)
 						{continue;}
 
@@ -272,7 +272,7 @@ export class TelemetryStorageService {
 		}
 
 		// CSV export (simplified - just routing events)
-		const routingEvents = events.filter((e) => e.type === 'routing') as unknown[];
+		const routingEvents = events.filter((e) => e.type === 'routing') as any[];
 		if (routingEvents.length === 0) {return '';}
 
 		const headers = [
