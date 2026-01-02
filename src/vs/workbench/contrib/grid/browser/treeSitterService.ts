@@ -41,7 +41,7 @@ class TreeSitterService implements ITreeSitterService {
 
 	private _enabled = false;
 	private _parserCache: Map<string, unknown> = new Map(); // language -> parser instance
-	private _wasmModule: unknown = null;
+	private _wasmModule: any = null;
 	private _loadFailed = false; // Track if module loading has failed to prevent repeated warnings
 
 	constructor(
@@ -162,7 +162,7 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _traverseAST(node: unknown, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
+	private _traverseAST(node: any, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
 		if (!node) {return;}
 
 		// Extract symbol based on node type
@@ -239,7 +239,7 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _extractNameFromNode(node: unknown, content: string): string | null {
+	private _extractNameFromNode(node: any, content: string): string | null {
 		// Try common name field patterns
 		const nameFields = ['name', 'identifier', 'declaration', 'definition'];
 		for (const field of nameFields) {
@@ -326,7 +326,7 @@ class TreeSitterService implements ITreeSitterService {
 	}
 
 	private _extractTopLevelChunks(
-		rootNode: unknown,
+		rootNode: any,
 		content: string,
 		lines: string[],
 		chunks: ASTChunk[],
@@ -338,7 +338,7 @@ class TreeSitterService implements ITreeSitterService {
 			coveredRanges.add(`${symbol.startLine}-${symbol.endLine}`);
 		}
 
-		const processNode = (node: unknown) => {
+		const processNode = (node: any) => {
 			if (!node) {return;}
 
 			// Check if this is a top-level statement/declaration
