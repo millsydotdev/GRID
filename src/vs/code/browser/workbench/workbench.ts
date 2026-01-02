@@ -454,7 +454,7 @@ class WorkspaceProvider implements IWorkspaceProvider {
 				// Payload
 				case WorkspaceProvider.QUERY_PARAM_PAYLOAD:
 					try {
-						if (value.length > 50000) throw new Error('Payload too large');
+						if (value.length > 50000) {throw new Error('Payload too large');}
 						payload = JSON.parse(value);
 					} catch (error) {
 						console.error(error); // possible invalid JSON

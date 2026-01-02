@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
@@ -168,6 +168,8 @@ class MockNotificationService implements Partial<INotificationService> {
 }
 
 suite('LLMMessageService Tests', () => {
+
+	ensureNoDisposablesAreLeakedInTestSuite();
 	let service: LLMMessageService;
 	let channel: MockChannel;
 	let mainProcessService: MockMainProcessService;
@@ -451,7 +453,7 @@ suite('LLMMessageService Tests', () => {
 			service.abort(requestId!);
 
 			// After abort, hooks should be cleared, so events should not trigger
-			let called = false;
+			const called = false;
 			channel.emit('onText_sendLLMMessage', {
 				requestId,
 				fullText: 'Should not receive this',
@@ -608,7 +610,7 @@ suite('LLMMessageService Tests', () => {
 				onFinalMessage: () => {
 					// After final message, try sending another event
 					setTimeout(() => {
-						let unexpectedCall = false;
+						const unexpectedCall = false;
 						channel.emit('onText_sendLLMMessage', {
 							requestId,
 							fullText: 'Should not receive',
@@ -647,7 +649,7 @@ suite('LLMMessageService Tests', () => {
 				onFinalMessage: () => {},
 				onError: () => {
 					setTimeout(() => {
-						let unexpectedCall = false;
+						const unexpectedCall = false;
 						channel.emit('onText_sendLLMMessage', {
 							requestId,
 							fullText: 'Should not receive',

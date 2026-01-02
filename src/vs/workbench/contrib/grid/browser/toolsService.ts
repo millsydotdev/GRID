@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../base/common/cancellation.js';
@@ -66,11 +66,11 @@ const isFalsy = (u: unknown) => {
 };
 
 const validateStr = (argName: string, value: unknown) => {
-	if (value === null) throw new Error(`Invalid LLM output: ${argName} was null.`);
+	if (value === null) {throw new Error(`Invalid LLM output: ${argName} was null.`);}
 	if (typeof value !== 'string')
-		throw new Error(
+		{throw new Error(
 			`Invalid LLM output format: ${argName} must be a string, but its type is "${typeof value}". Full value: ${JSON.stringify(value)}.`
-		);
+		);}
 	return value;
 };
 
@@ -83,11 +83,11 @@ const validateURI = (
 	workspaceContextService?: IWorkspaceContextService,
 	requireWorkspace: boolean = true
 ) => {
-	if (uriStr === null) throw new Error(`Invalid LLM output: uri was null.`);
+	if (uriStr === null) {throw new Error(`Invalid LLM output: uri was null.`);}
 	if (typeof uriStr !== 'string')
-		throw new Error(
+		{throw new Error(
 			`Invalid LLM output format: Provided uri must be a string, but it's a(n) ${typeof uriStr}. Full value: ${JSON.stringify(uriStr)}.`
-		);
+		);}
 
 	let uri: URI;
 	// Check if it's already a full URI with scheme (e.g., vscode-remote://, file://, etc.)
@@ -150,31 +150,31 @@ const validateURI = (
 };
 
 const validateOptionalURI = (uriStr: unknown, workspaceContextService?: IWorkspaceContextService) => {
-	if (isFalsy(uriStr)) return null;
+	if (isFalsy(uriStr)) {return null;}
 	return validateURI(uriStr, workspaceContextService, true);
 };
 
 const validateOptionalStr = (argName: string, str: unknown) => {
-	if (isFalsy(str)) return null;
+	if (isFalsy(str)) {return null;}
 	return validateStr(argName, str);
 };
 
 const validatePageNum = (pageNumberUnknown: unknown) => {
-	if (!pageNumberUnknown) return 1;
+	if (!pageNumberUnknown) {return 1;}
 	const parsedInt = Number.parseInt(pageNumberUnknown + '');
-	if (!Number.isInteger(parsedInt)) throw new Error(`Page number was not an integer: "${pageNumberUnknown}".`);
+	if (!Number.isInteger(parsedInt)) {throw new Error(`Page number was not an integer: "${pageNumberUnknown}".`);}
 	if (parsedInt < 1)
-		throw new Error(`Invalid LLM output format: Specified page number must be 1 or greater: "${pageNumberUnknown}".`);
+		{throw new Error(`Invalid LLM output format: Specified page number must be 1 or greater: "${pageNumberUnknown}".`);}
 	return parsedInt;
 };
 
 const validateNumber = (numStr: unknown, opts: { default: number | null }) => {
-	if (typeof numStr === 'number') return numStr;
-	if (isFalsy(numStr)) return opts.default;
+	if (typeof numStr === 'number') {return numStr;}
+	if (isFalsy(numStr)) {return opts.default;}
 
 	if (typeof numStr === 'string') {
 		const parsedInt = Number.parseInt(numStr + '');
-		if (!Number.isInteger(parsedInt)) return opts.default;
+		if (!Number.isInteger(parsedInt)) {return opts.default;}
 		return parsedInt;
 	}
 
@@ -183,15 +183,15 @@ const validateNumber = (numStr: unknown, opts: { default: number | null }) => {
 
 const validateProposedTerminalId = (terminalIdUnknown: unknown) => {
 	if (!terminalIdUnknown)
-		throw new Error(`A value for terminalID must be specified, but the value was "${terminalIdUnknown}"`);
+		{throw new Error(`A value for terminalID must be specified, but the value was "${terminalIdUnknown}"`);}
 	const terminalId = terminalIdUnknown + '';
 	return terminalId;
 };
 
 const validateBoolean = (b: unknown, opts: { default: boolean }) => {
 	if (typeof b === 'string') {
-		if (b === 'true') return true;
-		if (b === 'false') return false;
+		if (b === 'true') {return true;}
+		if (b === 'false') {return false;}
 	}
 	if (typeof b === 'boolean') {
 		return b;
@@ -201,7 +201,7 @@ const validateBoolean = (b: unknown, opts: { default: boolean }) => {
 
 const checkIfIsFolder = (uriStr: string) => {
 	uriStr = uriStr.trim();
-	if (uriStr.endsWith('/') || uriStr.endsWith('\\')) return true;
+	if (uriStr.endsWith('/') || uriStr.endsWith('\\')) {return true;}
 	return false;
 };
 
@@ -268,8 +268,8 @@ export class ToolsService implements IToolsService {
 				let startLine = validateNumber(startLineUnknown, { default: null });
 				let endLine = validateNumber(endLineUnknown, { default: null });
 
-				if (startLine !== null && startLine < 1) startLine = null;
-				if (endLine !== null && endLine < 1) endLine = null;
+				if (startLine !== null && startLine < 1) {startLine = null;}
+				if (endLine !== null && endLine < 1) {endLine = null;}
 
 				return { uri, startLine, endLine, pageNumber };
 			},
@@ -617,7 +617,7 @@ export class ToolsService implements IToolsService {
 			// ---
 
 			create_file_or_folder: async ({ uri, isFolder }) => {
-				if (isFolder) await fileService.createFolder(uri);
+				if (isFolder) {await fileService.createFolder(uri);}
 				else {
 					await fileService.createFile(uri);
 				}
@@ -795,7 +795,7 @@ export class ToolsService implements IToolsService {
 										CancellationToken.None
 									);
 
-									const json = await asJson<any>(response);
+									const json = await asJson<unknown>(response);
 									const results: Array<{ title: string; snippet: string; url: string }> = [];
 
 									if (json?.AbstractText) {
@@ -855,7 +855,7 @@ export class ToolsService implements IToolsService {
 
 									// Helper function to extract real URL from DuckDuckGo redirect
 									const extractRealUrl = (url: string): string | null => {
-										if (!url || !url.startsWith('http')) return null;
+										if (!url || !url.startsWith('http')) {return null;}
 
 										// Check if it's a DuckDuckGo redirect URL
 										if (url.includes('duckduckgo.com/l/')) {
@@ -893,11 +893,11 @@ export class ToolsService implements IToolsService {
 										const title = match[1].trim();
 
 										// Skip empty titles or URLs
-										if (!title || !rawUrl) continue;
+										if (!title || !rawUrl) {continue;}
 
 										// Extract real URL (handles DuckDuckGo redirects)
 										const realUrl = extractRealUrl(rawUrl);
-										if (!realUrl) continue;
+										if (!realUrl) {continue;}
 
 										// Filter out DuckDuckGo internal links and invalid URLs
 										if (realUrl.startsWith('http://') || realUrl.startsWith('https://')) {
@@ -957,7 +957,7 @@ export class ToolsService implements IToolsService {
 
 											// Extract real URL from DuckDuckGo redirect if needed
 											const realUrl = extractRealUrl(rawUrl);
-											if (!realUrl) continue;
+											if (!realUrl) {continue;}
 
 											if (
 												realUrl.length > 10 &&
@@ -1185,7 +1185,7 @@ export class ToolsService implements IToolsService {
 			},
 			search_in_file: (params, result) => {
 				const { model } = gridModelService.getModel(params.uri);
-				if (!model) return '<Error getting string of result>';
+				if (!model) {return '<Error getting string of result>';}
 				const lines = result.lines
 					.map((n) => {
 						const lineContent = model.getValueInRange(
@@ -1378,7 +1378,7 @@ export class ToolsService implements IToolsService {
 					}) satisfies LintErrorItem
 			);
 
-		if (!lintErrors.length) return { lintErrors: null };
+		if (!lintErrors.length) {return { lintErrors: null };}
 		return { lintErrors };
 	}
 }

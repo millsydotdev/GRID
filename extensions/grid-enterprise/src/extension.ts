@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ async function connectToHub(context: vscode.ExtensionContext) {
         ignoreFocusOut: true
     });
 
-    if (!token) return;
+    if (!token) {return;}
 
     // 2. Validate token with API
     const userInfo = await vscode.window.withProgress({
@@ -157,10 +157,10 @@ async function checkConnection(context: vscode.ExtensionContext) {
 
 async function sendTelemetry(context: vscode.ExtensionContext) {
     const enabled = vscode.workspace.getConfiguration().get(TELEMETRY_CONFIG);
-    if (!enabled) return;
+    if (!enabled) {return;}
 
     const token = await context.secrets.get(TOKEN_KEY);
-    if (!token) return; // Only track authenticated users
+    if (!token) {return;} // Only track authenticated users
 
     const hubUrl = vscode.workspace.getConfiguration().get<string>(HUB_URL_CONFIG, 'https://grideditor.com');
     const url = new URL('/api/telemetry', hubUrl);

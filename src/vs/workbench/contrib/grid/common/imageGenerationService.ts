@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Emitter, Event } from '../../../../base/common/event.js';
@@ -238,7 +238,7 @@ export class ImageGenerationService {
 
 	private async generateOpenAI(options: GenerateImageOptions, model: ImageGenerationModel): Promise<GeneratedImage> {
 		const apiKey = options.providerConfig.openaiApiKey;
-		if (!apiKey) throw new Error('OpenAI API key required');
+		if (!apiKey) {throw new Error('OpenAI API key required');}
 
 		this._onProgressUpdate.fire({ status: 'processing', message: 'Generating with OpenAI...', progress: 10 });
 
@@ -289,7 +289,7 @@ export class ImageGenerationService {
 		model: ImageGenerationModel
 	): Promise<GeneratedImage> {
 		const apiKey = options.providerConfig.huggingfaceApiKey;
-		if (!apiKey) throw new Error('HuggingFace API key required');
+		if (!apiKey) {throw new Error('HuggingFace API key required');}
 
 		this._onProgressUpdate.fire({ status: 'processing', message: `Generating with ${model.name}...`, progress: 10 });
 
@@ -298,12 +298,12 @@ export class ImageGenerationService {
 			parameters: {},
 		};
 
-		if (options.width) payload.parameters.width = options.width;
-		if (options.height) payload.parameters.height = options.height;
-		if (options.steps) payload.parameters.num_inference_steps = options.steps;
-		if (options.guidance_scale) payload.parameters.guidance_scale = options.guidance_scale;
-		if (options.negative_prompt) payload.parameters.negative_prompt = options.negative_prompt;
-		if (options.num_images && options.num_images > 1) payload.parameters.num_images_per_prompt = options.num_images;
+		if (options.width) {payload.parameters.width = options.width;}
+		if (options.height) {payload.parameters.height = options.height;}
+		if (options.steps) {payload.parameters.num_inference_steps = options.steps;}
+		if (options.guidance_scale) {payload.parameters.guidance_scale = options.guidance_scale;}
+		if (options.negative_prompt) {payload.parameters.negative_prompt = options.negative_prompt;}
+		if (options.num_images && options.num_images > 1) {payload.parameters.num_images_per_prompt = options.num_images;}
 
 		const response = await fetch(`https://api-inference.huggingface.co/models/${options.modelId}`, {
 			method: 'POST',
@@ -329,7 +329,7 @@ export class ImageGenerationService {
 					}
 				}
 			} catch (e) {
-				if (e instanceof Error && e.message.includes('Model loading')) throw e;
+				if (e instanceof Error && e.message.includes('Model loading')) {throw e;}
 			}
 
 			throw new Error(errorMessage);
@@ -345,19 +345,19 @@ export class ImageGenerationService {
 
 	private async generateStability(options: GenerateImageOptions, model: ImageGenerationModel): Promise<GeneratedImage> {
 		const apiKey = options.providerConfig.stabilityApiKey;
-		if (!apiKey) throw new Error('Stability AI API key required');
+		if (!apiKey) {throw new Error('Stability AI API key required');}
 
 		this._onProgressUpdate.fire({ status: 'processing', message: 'Generating with Stability AI...', progress: 10 });
 
 		const formData = new FormData();
 		formData.append('prompt', options.prompt);
-		if (options.negative_prompt) formData.append('negative_prompt', options.negative_prompt);
+		if (options.negative_prompt) {formData.append('negative_prompt', options.negative_prompt);}
 		if (options.cfg_scale || options.guidance_scale) {
 			formData.append('cfg_scale', String(options.cfg_scale || options.guidance_scale || 7.0));
 		}
-		if (options.width) formData.append('width', String(options.width));
-		if (options.height) formData.append('height', String(options.height));
-		if (options.sampler) formData.append('sampler', options.sampler);
+		if (options.width) {formData.append('width', String(options.width));}
+		if (options.height) {formData.append('height', String(options.height));}
+		if (options.sampler) {formData.append('sampler', options.sampler);}
 		formData.append('samples', String(options.num_images || 1));
 
 		const endpoint = options.modelId.includes('ultra')
@@ -384,7 +384,7 @@ export class ImageGenerationService {
 		const data = await response.json();
 		const base64Image = data.image || data.artifacts?.[0]?.base64;
 
-		if (!base64Image) throw new Error('No image returned from Stability AI');
+		if (!base64Image) {throw new Error('No image returned from Stability AI');}
 
 		const imageData = `data:image/png;base64,${base64Image}`;
 		return this.createGeneratedImage(options, model, imageData);
@@ -397,7 +397,7 @@ export class ImageGenerationService {
 		const endpoint = options.providerConfig.openaiCompatibleEndpoint;
 		const apiKey = options.providerConfig.openaiCompatibleApiKey || 'noop';
 
-		if (!endpoint) throw new Error('OpenAI-compatible endpoint required');
+		if (!endpoint) {throw new Error('OpenAI-compatible endpoint required');}
 
 		this._onProgressUpdate.fire({ status: 'processing', message: 'Generating image...', progress: 10 });
 
@@ -443,7 +443,7 @@ export class ImageGenerationService {
 		model: ImageGenerationModel
 	): Promise<GeneratedImage> {
 		const endpoint = options.providerConfig.automatic1111Endpoint;
-		if (!endpoint) throw new Error('Automatic1111 endpoint required (e.g., http://localhost:7860)');
+		if (!endpoint) {throw new Error('Automatic1111 endpoint required (e.g., http://localhost:7860)');}
 
 		this._onProgressUpdate.fire({ status: 'processing', message: 'Generating with Automatic1111...', progress: 10 });
 
@@ -481,7 +481,7 @@ export class ImageGenerationService {
 
 	private async generateComfyUI(options: GenerateImageOptions, model: ImageGenerationModel): Promise<GeneratedImage> {
 		const endpoint = options.providerConfig.comfyuiEndpoint;
-		if (!endpoint) throw new Error('ComfyUI endpoint required (e.g., http://localhost:8188)');
+		if (!endpoint) {throw new Error('ComfyUI endpoint required (e.g., http://localhost:8188)');}
 
 		this._onProgressUpdate.fire({ status: 'processing', message: 'Generating with ComfyUI...', progress: 10 });
 
@@ -521,7 +521,7 @@ export class ImageGenerationService {
 			signal: this.currentGeneration?.signal,
 		});
 
-		if (!promptResponse.ok) throw new Error('ComfyUI prompt submission failed');
+		if (!promptResponse.ok) {throw new Error('ComfyUI prompt submission failed');}
 
 		const { prompt_id } = await promptResponse.json();
 
@@ -594,9 +594,9 @@ export class ImageGenerationService {
 	}
 
 	private getOpenAISize(width: number, height: number): string {
-		if (width === 1024 && height === 1024) return '1024x1024';
-		if (width === 1024 && height === 1792) return '1024x1792';
-		if (width === 1792 && height === 1024) return '1792x1024';
+		if (width === 1024 && height === 1024) {return '1024x1024';}
+		if (width === 1024 && height === 1792) {return '1024x1792';}
+		if (width === 1792 && height === 1024) {return '1792x1024';}
 		return '1024x1024';
 	}
 
@@ -618,7 +618,7 @@ export class ImageGenerationService {
 		apiKey: string,
 		style: 'realistic' | 'artistic' | 'technical' | 'creative' = 'creative'
 	): Promise<string> {
-		if (!originalPrompt?.trim()) throw new Error('Prompt cannot be empty');
+		if (!originalPrompt?.trim()) {throw new Error('Prompt cannot be empty');}
 
 		try {
 			const systemPrompt = this.getEnhancementSystemPrompt(style);
@@ -638,11 +638,11 @@ export class ImageGenerationService {
 				}
 			);
 
-			if (!response.ok) return this.basicPromptEnhancement(originalPrompt, style);
+			if (!response.ok) {return this.basicPromptEnhancement(originalPrompt, style);}
 
 			const data = await response.json();
 			let enhanced = data.choices?.[0]?.message?.content?.trim();
-			if (!enhanced) return this.basicPromptEnhancement(originalPrompt, style);
+			if (!enhanced) {return this.basicPromptEnhancement(originalPrompt, style);}
 
 			enhanced = enhanced
 				.replace(/^["']|["']$/g, '')

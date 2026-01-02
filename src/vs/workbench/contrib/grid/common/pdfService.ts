@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { AppResourcePath, FileAccess, nodeModulesPath } from '../../../../base/common/network.js';
@@ -78,7 +78,7 @@ export class PDFService implements IPDFService {
 	private initialized = false;
 
 	private async ensureInitialized(): Promise<void> {
-		if (this.initialized && this.pdfjsLib) return;
+		if (this.initialized && this.pdfjsLib) {return;}
 
 		try {
 			// Try multiple approaches to load PDF.js (ESM module)
@@ -90,7 +90,7 @@ export class PDFService implements IPDFService {
 				const resourcePath: AppResourcePath = `${nodeModulesPath}/pdfjs-dist/build/pdf.mjs`;
 				const fileUri = FileAccess.asBrowserUri(resourcePath).toString(true);
 				const mod = await import(fileUri);
-				pdfjs = (mod as any).default ?? mod;
+				pdfjs = (mod as unknown).default ?? mod;
 				if (pdfjs && pdfjs.getDocument) {
 					// Set worker source to disable workers (use empty string or point to worker file)
 					// PDF.js v5 requires workerSrc to be set, but we can disable workers via getDocument options
@@ -113,7 +113,7 @@ export class PDFService implements IPDFService {
 			for (const specifier of candidates) {
 				try {
 					const mod = await import(specifier);
-					pdfjs = (mod as any).default ?? mod;
+					pdfjs = (mod as unknown).default ?? mod;
 					if (pdfjs && pdfjs.getDocument) {
 						break;
 					}

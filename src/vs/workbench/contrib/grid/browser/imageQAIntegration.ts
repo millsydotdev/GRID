@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -23,7 +23,7 @@ export interface ImageQAPreprocessedMessage {
  * Check if we should use the Image QA pipeline for this message
  */
 export function shouldUseImageQAPipeline(images: ChatImageAttachment[] | undefined): boolean {
-	if (!images || images.length === 0) return false;
+	if (!images || images.length === 0) {return false;}
 
 	// Use pipeline for text-heavy images (terminal, code, documents)
 	// For now, use for all images (can be refined with heuristics)
@@ -76,10 +76,10 @@ export async function preprocessImagesForQA(
 		const qaResponse = await imageQAPipeline.process(options);
 
 		// Handle responses that need LLM processing
-		if ((qaResponse as any)._needsLLM || (qaResponse as any)._needsVLM) {
+		if ((qaResponse as unknown)._needsLLM || (qaResponse as unknown)._needsVLM) {
 			return {
 				shouldUsePipeline: true,
-				processedText: (qaResponse as any)._prompt || userQuestion,
+				processedText: (qaResponse as unknown)._prompt || userQuestion,
 				qaResponse,
 				images: images, // Keep images for VLM/LLM processing
 			};

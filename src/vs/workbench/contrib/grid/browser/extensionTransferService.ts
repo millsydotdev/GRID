@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { VSBuffer } from '../../../../base/common/buffer.js';
@@ -99,7 +99,7 @@ class ExtensionTransferService extends Disposable implements IExtensionTransferS
 									try {
 										const contentsStr = await fileService.readFile(from);
 										const json: unknown = JSON.parse(contentsStr.value.toString());
-										const j2 = (json as any[]).filter(
+										const j2 = (json as unknown[]).filter(
 											(entry: { identifier?: { id?: string } }) => !isBlacklisted(entry?.identifier?.id)
 										);
 										const jsonStr = JSON.stringify(j2);
@@ -121,14 +121,14 @@ class ExtensionTransferService extends Disposable implements IExtensionTransferS
 			}
 		}
 
-		if (errAcc) return errAcc;
+		if (errAcc) {return errAcc;}
 		return undefined;
 	}
 
 	async deleteBlacklistExtensions(os: 'mac' | 'windows' | 'linux' | null) {
 		const fileService = this._fileService;
 		const extensionsURI = getExtensionsFolder(os);
-		if (!extensionsURI) return;
+		if (!extensionsURI) {return;}
 		const eURI = await fileService.resolve(extensionsURI);
 		for (const child of eURI.children ?? []) {
 			try {
@@ -146,7 +146,7 @@ class ExtensionTransferService extends Disposable implements IExtensionTransferS
 						try {
 							const contentsStr = await fileService.readFile(child.resource);
 							const json: unknown = JSON.parse(contentsStr.value.toString());
-							const j2 = (json as any[]).filter(
+							const j2 = (json as unknown[]).filter(
 								(entry: { identifier?: { id?: string } }) => !isBlacklisted(entry?.identifier?.id)
 							);
 							const jsonStr = JSON.stringify(j2);
@@ -169,10 +169,10 @@ const transferTheseFilesOfOS = (
 	os: 'mac' | 'windows' | 'linux' | null,
 	fromEditor: TransferEditorType = 'VS Code'
 ): TransferFilesInfo => {
-	if (os === null) throw new Error(`One-click switch is not possible in this environment.`);
+	if (os === null) {throw new Error(`One-click switch is not possible in this environment.`);}
 	if (os === 'mac') {
 		const homeDir = env['HOME'];
-		if (!homeDir) throw new Error(`$HOME not found`);
+		if (!homeDir) {throw new Error(`$HOME not found`);}
 
 		if (fromEditor === 'VS Code') {
 			return [
@@ -323,7 +323,7 @@ const transferTheseFilesOfOS = (
 
 	if (os === 'linux') {
 		const homeDir = env['HOME'];
-		if (!homeDir) throw new Error(`variable for $HOME location not found`);
+		if (!homeDir) {throw new Error(`variable for $HOME location not found`);}
 
 		if (fromEditor === 'VS Code') {
 			return [
@@ -378,9 +378,9 @@ const transferTheseFilesOfOS = (
 
 	if (os === 'windows') {
 		const appdata = env['APPDATA'];
-		if (!appdata) throw new Error(`variable for %APPDATA% location not found`);
+		if (!appdata) {throw new Error(`variable for %APPDATA% location not found`);}
 		const userprofile = env['USERPROFILE'];
-		if (!userprofile) throw new Error(`variable for %USERPROFILE% location not found`);
+		if (!userprofile) {throw new Error(`variable for %USERPROFILE% location not found`);}
 
 		if (fromEditor === 'VS Code') {
 			return [

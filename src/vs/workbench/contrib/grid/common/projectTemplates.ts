@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -337,15 +337,15 @@ export function getRecommendedTemplates(intentDescription: string): ProjectTempl
         let score = 0;
 
         // Check name and description
-        if (lower.includes(template.name.toLowerCase())) score += 10;
-        if (template.description.toLowerCase().split(' ').some(word => lower.includes(word))) score += 2;
+        if (lower.includes(template.name.toLowerCase())) {score += 10;}
+        if (template.description.toLowerCase().split(' ').some(word => lower.includes(word))) {score += 2;}
 
         // Check tech stack
         for (const lang of template.techStack.languages) {
-            if (lower.includes(lang.toLowerCase())) score += 5;
+            if (lower.includes(lang.toLowerCase())) {score += 5;}
         }
         for (const framework of template.techStack.frameworks) {
-            if (lower.includes(framework.toLowerCase())) score += 5;
+            if (lower.includes(framework.toLowerCase())) {score += 5;}
         }
 
         // Check category keywords
@@ -363,7 +363,7 @@ export function getRecommendedTemplates(intentDescription: string): ProjectTempl
 
         const keywords = categoryKeywords[template.category] || [];
         for (const keyword of keywords) {
-            if (lower.includes(keyword)) score += 3;
+            if (lower.includes(keyword)) {score += 3;}
         }
 
         if (score > 0) {

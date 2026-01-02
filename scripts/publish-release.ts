@@ -86,7 +86,7 @@ async function main() {
     const date = new Date().toISOString();
 
     console.log(`🚀 Publishing Release Info for ${version} (${commit})...`);
-    if (isDryRun) console.log('🧪 DRY RUN MODE ENABLED');
+    if (isDryRun) {console.log('🧪 DRY RUN MODE ENABLED');}
 
     // 1. Publish Release Metadata (Win32 x64 example)
     // In a real scenario, this script might run per-platform or aggregate artifacts.
@@ -115,7 +115,7 @@ async function main() {
         console.log('✅ Release metadata updated.');
     } catch (e) {
         console.error('❌ Failed to update release metadata:', e);
-        if (!isDryRun) process.exit(1);
+        if (!isDryRun) {process.exit(1);}
     }
 
     // 2. Publish Changelog

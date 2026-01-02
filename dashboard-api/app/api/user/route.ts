@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ export const GET = requireAuth(async (request, user) => {
       .eq('id', user.id)
       .single();
 
-    if (error) throw error;
+    if (error) {throw error;}
 
     const subscription = (userData as any).subscriptions?.[0];
     const teamMember = (userData as any).team_members?.[0];

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -46,14 +46,14 @@ export class GridNotificationService extends Disposable implements IGridNotifica
 
         try {
             const params = new URLSearchParams();
-            if (options?.unreadOnly) params.set('unreadOnly', 'true');
-            if (options?.limit) params.set('limit', String(options.limit));
+            if (options?.unreadOnly) {params.set('unreadOnly', 'true');}
+            if (options?.limit) {params.set('limit', String(options.limit));}
 
             const response = await fetch(`${dashboardUrl}/api/notifications?${params}`, {
                 headers: { 'Authorization': `Bearer ${apiKey}` }
             });
 
-            if (!response.ok) return [];
+            if (!response.ok) {return [];}
 
             const data = await response.json();
             return (data.notifications || []).map(this.transformNotification);
@@ -67,14 +67,14 @@ export class GridNotificationService extends Disposable implements IGridNotifica
         const dashboardUrl = this.getDashboardUrl();
         const apiKey = this.getApiKey();
 
-        if (!apiKey) return 0;
+        if (!apiKey) {return 0;}
 
         try {
             const response = await fetch(`${dashboardUrl}/api/notifications?countOnly=true`, {
                 headers: { 'Authorization': `Bearer ${apiKey}` }
             });
 
-            if (!response.ok) return 0;
+            if (!response.ok) {return 0;}
 
             const data = await response.json();
             return data.count || 0;
@@ -87,7 +87,7 @@ export class GridNotificationService extends Disposable implements IGridNotifica
         const dashboardUrl = this.getDashboardUrl();
         const apiKey = this.getApiKey();
 
-        if (!apiKey) return;
+        if (!apiKey) {return;}
 
         try {
             await fetch(`${dashboardUrl}/api/notifications`, {
@@ -107,14 +107,14 @@ export class GridNotificationService extends Disposable implements IGridNotifica
         const dashboardUrl = this.getDashboardUrl();
         const apiKey = this.getApiKey();
 
-        if (!apiKey) return getDefaultNotificationPreferences();
+        if (!apiKey) {return getDefaultNotificationPreferences();}
 
         try {
             const response = await fetch(`${dashboardUrl}/api/notifications/preferences`, {
                 headers: { 'Authorization': `Bearer ${apiKey}` }
             });
 
-            if (!response.ok) return getDefaultNotificationPreferences();
+            if (!response.ok) {return getDefaultNotificationPreferences();}
 
             const data = await response.json();
             return data.preferences || getDefaultNotificationPreferences();
@@ -127,7 +127,7 @@ export class GridNotificationService extends Disposable implements IGridNotifica
         const dashboardUrl = this.getDashboardUrl();
         const apiKey = this.getApiKey();
 
-        if (!apiKey) return;
+        if (!apiKey) {return;}
 
         try {
             await fetch(`${dashboardUrl}/api/notifications/preferences`, {
@@ -165,7 +165,7 @@ export class GridNotificationService extends Disposable implements IGridNotifica
     }
 
     startPolling(): void {
-        if (this.pollInterval) return;
+        if (this.pollInterval) {return;}
 
         this.pollInterval = setInterval(async () => {
             await this.checkForNewNotifications();
@@ -192,11 +192,11 @@ export class GridNotificationService extends Disposable implements IGridNotifica
 
         for (const notification of notifications) {
             // Skip if already shown
-            if (this.lastCheckedNotificationId === notification.id) continue;
+            if (this.lastCheckedNotificationId === notification.id) {continue;}
 
             // Check if IDE notifications are enabled for this type
             const prefKey = `${notification.type}_ide` as keyof NotificationPreferences;
-            if (prefs[prefKey] === false) continue;
+            if (prefs[prefKey] === false) {continue;}
 
             // Show toast
             this.showToast(notification);
@@ -228,7 +228,7 @@ export class GridNotificationService extends Disposable implements IGridNotifica
         }
     }
 
-    private transformNotification(raw: any): GridNotification {
+    private transformNotification(raw: unknown): GridNotification {
         return {
             id: raw.id,
             type: raw.type,

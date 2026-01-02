@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -56,7 +56,7 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 		// Wrap console methods to redact secrets
 		console.log = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalLog(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
+			originalLog(...(redacted.hasSecrets ? (redacted.redacted as unknown as unknown[]) : args));
 		};
 
 		console.error = (...args: unknown[]) => {
@@ -70,12 +70,12 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 				return;
 			}
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalError(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
+			originalError(...(redacted.hasSecrets ? (redacted.redacted as unknown as unknown[]) : args));
 		};
 
 		console.warn = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalWarn(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
+			originalWarn(...(redacted.hasSecrets ? (redacted.redacted as unknown as unknown[]) : args));
 		};
 
 		console.info = (...args: unknown[]) => {

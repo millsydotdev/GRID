@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Millsy.dev All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
@@ -31,9 +31,9 @@ interface IStoredWorkspaceMetadata extends Omit<IWorkspaceMetadata, 'rootUri' | 
 }
 
 interface IStoredWorkspaceConfiguration extends IStoredWorkspace {
-	settings?: { [key: string]: any };
+	settings?: { [key: string]: unknown };
 	extensions?: { recommendations?: string[] };
-	tasks?: { version: string; tasks: any[] };
+	tasks?: { version: string; tasks: unknown[] };
 }
 
 export class WorkspaceManagerService extends Disposable implements IWorkspaceManagerService {

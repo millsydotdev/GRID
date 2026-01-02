@@ -51,7 +51,7 @@ const getGoogleApiKey = async () => {
 	// module‑level singleton
 	const auth = new GoogleAuth({ scopes: `https://www.googleapis.com/auth/cloud-platform` });
 	const key = await auth.getAccessToken();
-	if (!key) throw new Error(`Google API failed to generate a key.`);
+	if (!key) {throw new Error(`Google API failed to generate a key.`);}
 	return key;
 };
 
@@ -103,7 +103,7 @@ const ollamaClientCache = new Map<string, Ollama>();
  * Only used for local providers where security is less critical.
  */
 const hashApiKey = (apiKey: string | undefined): string => {
-	if (!apiKey) return 'noop';
+	if (!apiKey) {return 'noop';}
 	// Simple hash - just use first 8 chars for cache key (not for security)
 	return apiKey.substring(0, 8);
 };
@@ -186,9 +186,9 @@ const getOpenAICompatibleClient = async ({
  */
 const getOllamaClient = ({ endpoint }: { endpoint: string }): Ollama => {
 	if (!endpoint)
-		throw new Error(
+		{throw new Error(
 			`Ollama Endpoint was empty (please enter ${defaultProviderSettings.ollama.endpoint} in GRID Settings if you want the default url).`
-		);
+		);}
 
 	const cached = ollamaClientCache.get(endpoint);
 	if (cached) {
@@ -203,7 +203,7 @@ const getOllamaClient = ({ endpoint }: { endpoint: string }): Ollama => {
 // ------------ OPENAI-COMPATIBLE (HELPERS) ------------
 
 const parseHeadersJSON = (s: string | undefined): Record<string, string | null | undefined> | undefined => {
-	if (!s) return undefined;
+	if (!s) {return undefined;}
 	try {
 		return JSON.parse(s);
 	} catch (e) {
@@ -335,7 +335,7 @@ const newOpenAICompatibleSDK = async ({
 		let baseURL = endpoint || 'http://localhost:4000/v1';
 
 		// Normalize: make sure we end with “/v1”
-		if (!baseURL.endsWith('/v1')) baseURL = baseURL.replace(/\/+$/, '') + '/v1';
+		if (!baseURL.endsWith('/v1')) {baseURL = baseURL.replace(/\/+$/, '') + '/v1';}
 
 		return new OpenAI({ baseURL, apiKey, ...commonPayloadOpts });
 	} else if (providerName === 'deepseek') {
@@ -371,7 +371,7 @@ const newOpenAICompatibleSDK = async ({
 			// If user specifies endpoint in settings (overriding registry), use it.
 			// Casting to any because not all settings types explicitly declare 'endpoint',
 			// but we want to support it if present in the config object at runtime.
-			const configEndpoint = (thisConfig as any)?.endpoint;
+			const configEndpoint = (thisConfig as unknown)?.endpoint;
 			const baseURL = configEndpoint || registryEntry.endpoint;
 
 			return new OpenAI({ baseURL, apiKey: thisConfig.apiKey, ...commonPayloadOpts });
@@ -400,8 +400,8 @@ const _sendOpenAICompatibleFIM = async ({
 	);
 
 	if (!supportsFIM) {
-		if (modelName === modelName_) onError({ message: `Model ${modelName} does not support FIM.`, fullError: null });
-		else onError({ message: `Model ${modelName_} (${modelName}) does not support FIM.`, fullError: null });
+		if (modelName === modelName_) {onError({ message: `Model ${modelName} does not support FIM.`, fullError: null });}
+		else {onError({ message: `Model ${modelName_} (${modelName}) does not support FIM.`, fullError: null });}
 		return;
 	}
 
@@ -540,7 +540,7 @@ const toOpenAICompatibleTool = (toolInfo: InternalToolInfo) => {
 
 const openAITools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | undefined) => {
 	const allowedTools = availableTools(chatMode, mcpTools);
-	if (!allowedTools || Object.keys(allowedTools).length === 0) return null;
+	if (!allowedTools || Object.keys(allowedTools).length === 0) {return null;}
 
 	const openAITools: OpenAI.Chat.Completions.ChatCompletionTool[] = [];
 	for (const t in allowedTools ?? {}) {
@@ -558,8 +558,8 @@ const rawToolCallObjOfParamsStr = (name: string, toolParamsStr: string, id: stri
 		return null;
 	}
 
-	if (input === null) return null;
-	if (typeof input !== 'object') return null;
+	if (input === null) {return null;}
+	if (typeof input !== 'object') {return null;}
 
 	const rawParams: RawToolParamsObj = input;
 	return { id, name, rawParams, doneParams: Object.keys(rawParams), isDone: true };
@@ -568,8 +568,8 @@ const rawToolCallObjOfParamsStr = (name: string, toolParamsStr: string, id: stri
 const rawToolCallObjOfAnthropicParams = (toolBlock: Anthropic.Messages.ToolUseBlock): RawToolCallObj | null => {
 	const { id, name, input } = toolBlock;
 
-	if (input === null) return null;
-	if (typeof input !== 'object') return null;
+	if (input === null) {return null;}
+	if (typeof input !== 'object') {return null;}
 
 	const rawParams: RawToolParamsObj = input;
 	return { id, name, rawParams, doneParams: Object.keys(rawParams), isDone: true };
@@ -727,7 +727,7 @@ const _sendOpenAICompatibleChat = async ({
 				// Check if we're retrying (another response is being processed)
 				if (isRetrying) {
 					clearTimeout(timeoutId);
-					if (firstTokenTimeoutId) clearTimeout(firstTokenTimeoutId);
+					if (firstTokenTimeoutId) {clearTimeout(firstTokenTimeoutId);}
 					return; // Stop processing this streaming response, retry is in progress
 				}
 
@@ -747,7 +747,7 @@ const _sendOpenAICompatibleChat = async ({
 				// tool call
 				for (const tool of chunk.choices[0]?.delta?.tool_calls ?? []) {
 					const index = tool.index;
-					if (index !== 0) continue;
+					if (index !== 0) {continue;}
 
 					toolName += tool.function?.name ?? '';
 					toolParamsStr += tool.function?.arguments ?? '';
@@ -757,7 +757,7 @@ const _sendOpenAICompatibleChat = async ({
 				// reasoning
 				let newReasoning = '';
 				if (nameOfReasoningFieldInDelta) {
-					newReasoning = ((chunk.choices[0]?.delta as any)?.[nameOfReasoningFieldInDelta] || '') + '';
+					newReasoning = ((chunk.choices[0]?.delta as unknown)?.[nameOfReasoningFieldInDelta] || '') + '';
 					fullReasoningSoFar += newReasoning;
 				}
 
@@ -773,7 +773,7 @@ const _sendOpenAICompatibleChat = async ({
 
 			// Clear timeouts on successful completion
 			clearTimeout(timeoutId);
-			if (firstTokenTimeoutId) clearTimeout(firstTokenTimeoutId);
+			if (firstTokenTimeoutId) {clearTimeout(firstTokenTimeoutId);}
 
 			// on final
 			if (!fullTextSoFar && !fullReasoningSoFar && !toolName) {
@@ -790,7 +790,7 @@ const _sendOpenAICompatibleChat = async ({
 			}
 		} catch (streamError) {
 			clearTimeout(timeoutId);
-			if (firstTokenTimeoutId) clearTimeout(firstTokenTimeoutId);
+			if (firstTokenTimeoutId) {clearTimeout(firstTokenTimeoutId);}
 			// If error occurs during streaming, re-throw to be caught by outer catch handler
 			throw streamError;
 		}
@@ -830,7 +830,7 @@ const _sendOpenAICompatibleChat = async ({
 	// Try streaming first
 	const options: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
 		model: modelName,
-		messages: messages as any,
+		messages: messages as unknown,
 		stream: true,
 		...nativeToolsObj,
 		...additionalOpenAIPayload,
@@ -891,7 +891,7 @@ const _sendOpenAICompatibleChat = async ({
 				// Silently retry - don't show error notification for organization verification issues
 				const nonStreamingOptions: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
 					model: modelName,
-					messages: messages as any,
+					messages: messages as unknown,
 					stream: false,
 					...nativeToolsObj,
 					...additionalOpenAIPayload,
@@ -950,7 +950,7 @@ const _sendOpenAICompatibleChat = async ({
 				// CRITICAL: Retry immediately without delay for tool support errors (they're fast to detect)
 				const optionsWithoutTools: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
 					model: modelName,
-					messages: messages as any,
+					messages: messages as unknown,
 					stream: true,
 					// Explicitly omit tools - don't include nativeToolsObj
 					...additionalOpenAIPayload,
@@ -1058,7 +1058,7 @@ const toAnthropicTool = (toolInfo: InternalToolInfo) => {
 
 const anthropicTools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | undefined) => {
 	const allowedTools = availableTools(chatMode, mcpTools);
-	if (!allowedTools || Object.keys(allowedTools).length === 0) return null;
+	if (!allowedTools || Object.keys(allowedTools).length === 0) {return null;}
 
 	const anthropicTools: Anthropic.Messages.ToolUnion[] = [];
 	for (const t in allowedTools ?? {}) {
@@ -1122,7 +1122,7 @@ const sendAnthropicChat = async ({
 
 	const stream = anthropic.messages.stream({
 		system: separateSystemMessage ?? undefined,
-		messages: messages as any, // AnthropicLLMChatMessage type may not exactly match SDK's MessageParam, but is compatible at runtime
+		messages: messages as unknown, // AnthropicLLMChatMessage type may not exactly match SDK's MessageParam, but is compatible at runtime
 		model: modelName,
 		max_tokens: maxTokens ?? 4_096, // anthropic requires this
 		...includeInPayload,
@@ -1158,16 +1158,16 @@ const sendAnthropicChat = async ({
 		// start block
 		if (e.type === 'content_block_start') {
 			if (e.content_block.type === 'text') {
-				if (fullText) fullText += '\n\n'; // starting a 2nd text block
+				if (fullText) {fullText += '\n\n';} // starting a 2nd text block
 				fullText += e.content_block.text;
 				runOnText();
 			} else if (e.content_block.type === 'thinking') {
-				if (fullReasoning) fullReasoning += '\n\n'; // starting a 2nd reasoning block
+				if (fullReasoning) {fullReasoning += '\n\n';} // starting a 2nd reasoning block
 				fullReasoning += e.content_block.thinking;
 				runOnText();
 			} else if (e.content_block.type === 'redacted_thinking') {
 				console.log('delta', e.content_block.type);
-				if (fullReasoning) fullReasoning += '\n\n'; // starting a 2nd reasoning block
+				if (fullReasoning) {fullReasoning += '\n\n';} // starting a 2nd reasoning block
 				fullReasoning += '[redacted_thinking]';
 				runOnText();
 			} else if (e.content_block.type === 'tool_use') {
@@ -1228,8 +1228,8 @@ const sendMistralFIM = ({
 }: SendFIMParams_Internal) => {
 	const { modelName, supportsFIM } = getModelCapabilities(providerName, modelName_, overridesOfModel);
 	if (!supportsFIM) {
-		if (modelName === modelName_) onError({ message: `Model ${modelName} does not support FIM.`, fullError: null });
-		else onError({ message: `Model ${modelName_} (${modelName}) does not support FIM.`, fullError: null });
+		if (modelName === modelName_) {onError({ message: `Model ${modelName} does not support FIM.`, fullError: null });}
+		else {onError({ message: `Model ${modelName_} (${modelName}) does not support FIM.`, fullError: null });}
 		return;
 	}
 
@@ -1244,7 +1244,7 @@ const sendMistralFIM = ({
 	})
 		.then(async (response) => {
 			// unfortunately, _setAborter() does not exist
-			let content = response?.ok ? (response.value.choices?.[0]?.message?.content ?? '') : '';
+			const content = response?.ok ? (response.value.choices?.[0]?.message?.content ?? '') : '';
 			const fullText =
 				typeof content === 'string'
 					? content
@@ -1365,7 +1365,7 @@ const toGeminiFunctionDecl = (toolInfo: InternalToolInfo) => {
 
 const geminiTools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | undefined): GeminiTool[] | null => {
 	const allowedTools = availableTools(chatMode, mcpTools);
-	if (!allowedTools || Object.keys(allowedTools).length === 0) return null;
+	if (!allowedTools || Object.keys(allowedTools).length === 0) {return null;}
 	const functionDecls: FunctionDeclaration[] = [];
 	for (const t in allowedTools ?? {}) {
 		functionDecls.push(toGeminiFunctionDecl(allowedTools[t]));
@@ -1390,7 +1390,7 @@ const sendGeminiChat = async ({
 	chatMode,
 	mcpTools,
 }: SendChatParams_Internal) => {
-	if (providerName !== 'gemini') throw new Error(`Sending Gemini chat, but provider was ${providerName}`);
+	if (providerName !== 'gemini') {throw new Error(`Sending Gemini chat, but provider was ${providerName}`);}
 
 	const thisConfig = settingsOfProvider[providerName];
 
@@ -1434,7 +1434,7 @@ const sendGeminiChat = async ({
 	}
 
 	// when receive text
-	let fullReasoningSoFar = '';
+	const fullReasoningSoFar = '';
 	let fullTextSoFar = '';
 
 	let toolName = '';
@@ -1487,7 +1487,7 @@ const sendGeminiChat = async ({
 			if (!fullTextSoFar && !fullReasoningSoFar && !toolName) {
 				onError({ message: 'GRID: Response from model was empty.', fullError: null });
 			} else {
-				if (!toolId) toolId = generateUuid(); // ids are empty, but other providers might expect an id
+				if (!toolId) {toolId = generateUuid();} // ids are empty, but other providers might expect an id
 				const toolCall = rawToolCallObjOfParamsStr(toolName, toolParamsStr, toolId);
 				const toolCallObj = toolCall ? { toolCall } : {};
 				onFinalMessage({
@@ -1579,7 +1579,7 @@ const sendGeminiChat = async ({
 							fullError: error,
 						});
 					}
-				} else onError({ message: error + '', fullError: error });
+				} else {onError({ message: error + '', fullError: error });}
 			} else {
 				onError({ message: error + '', fullError: error });
 			}
@@ -1590,7 +1590,7 @@ type CallFnOfProvider = {
 	[providerName in ProviderName]: {
 		sendChat: (params: SendChatParams_Internal) => Promise<void>;
 		sendFIM: ((params: SendFIMParams_Internal) => void) | null;
-		list: ((params: ListParams_Internal<any>) => void) | null;
+		list: ((params: ListParams_Internal<unknown>) => void) | null;
 	};
 };
 

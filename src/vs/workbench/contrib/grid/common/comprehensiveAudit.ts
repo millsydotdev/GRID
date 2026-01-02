@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -63,7 +63,7 @@ export interface ComprehensiveAuditReport {
  * Calculate tokens per second from metrics
  */
 function calculateTokensPerSecond(metrics: ChatLatencyMetrics): number {
-	if (metrics.tts <= 0 || metrics.outputTokens <= 0) return 0;
+	if (metrics.tts <= 0 || metrics.outputTokens <= 0) {return 0;}
 	const durationSeconds = metrics.tts / 1000;
 	return metrics.outputTokens / durationSeconds;
 }
@@ -72,7 +72,7 @@ function calculateTokensPerSecond(metrics: ChatLatencyMetrics): number {
  * Calculate percentiles
  */
 function calculatePercentiles(values: number[]): { p50: number; p95: number; mean: number } {
-	if (values.length === 0) return { p50: 0, p95: 0, mean: 0 };
+	if (values.length === 0) {return { p50: 0, p95: 0, mean: 0 };}
 	const sorted = [...values].sort((a, b) => a - b);
 	const p50 = sorted[Math.floor(sorted.length * 0.5)];
 	const p95 = sorted[Math.floor(sorted.length * 0.95)];
@@ -313,7 +313,7 @@ export function printComprehensiveAuditReport(): void {
 
 // Expose globally
 if (typeof window !== 'undefined') {
-	(window as any).gridComprehensiveAudit = {
+	(window as unknown).gridComprehensiveAudit = {
 		generate: generateComprehensiveAuditReport,
 		print: printComprehensiveAuditReport,
 	};

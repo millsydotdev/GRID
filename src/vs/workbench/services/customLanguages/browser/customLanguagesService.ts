@@ -316,7 +316,7 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 		this.logService.info(`Deactivated custom language '${languageId}'`);
 	}
 
-	private _convertToLanguageConfiguration(config: any): LanguageConfiguration {
+	private _convertToLanguageConfiguration(config: unknown): LanguageConfiguration {
 		const result: LanguageConfiguration = {};
 
 		if (config.comments) {
@@ -349,7 +349,7 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 		}
 
 		if (config.onEnterRules) {
-			result.onEnterRules = config.onEnterRules.map((rule: any) => ({
+			result.onEnterRules = config.onEnterRules.map((rule: unknown) => ({
 				beforeText: new RegExp(rule.beforeText),
 				afterText: rule.afterText ? new RegExp(rule.afterText) : undefined,
 				action: {

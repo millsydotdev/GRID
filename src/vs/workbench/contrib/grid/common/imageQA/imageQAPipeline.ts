@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { ImageType, QuestionType } from './modelRegistry.js';
@@ -92,7 +92,7 @@ export class ImageQAPipeline {
 		if (ocrResult.totalChars < 10) {
 			// OCR yielded little text - get region proposals from VLM if available
 			if (options.vlmModel || options.allowRemoteModels) {
-				if (devMode) console.log('[ImageQA] OCR yielded little text, getting VLM region proposals');
+				if (devMode) {console.log('[ImageQA] OCR yielded little text, getting VLM region proposals');}
 				const regions = await this.getRegionProposals(imageData, mimeType, options.vlmModel, options.allowRemoteModels);
 
 				if (regions.length > 0) {

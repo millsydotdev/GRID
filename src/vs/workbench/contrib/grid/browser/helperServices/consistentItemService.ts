@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../../base/common/lifecycle.js';
@@ -41,14 +41,14 @@ export class ConsistentItemService extends Disposable implements IConsistentItem
 
 		const removeItemsFromEditor = (editor: ICodeEditor) => {
 			const editorId = editor.getId();
-			for (const itemId of this.itemIdsOfEditorId[editorId] ?? []) this._removeItemFromEditor(editor, itemId);
+			for (const itemId of this.itemIdsOfEditorId[editorId] ?? []) {this._removeItemFromEditor(editor, itemId);}
 		};
 
 		// put items on the editor, based on the consistent items for that URI
 		const putItemsOnEditor = (editor: ICodeEditor, uri: URI | null) => {
-			if (!uri) return;
+			if (!uri) {return;}
 			for (const consistentItemId of this.consistentItemIdsOfURI[uri.fsPath] ?? [])
-				this._putItemOnEditor(editor, consistentItemId);
+				{this._putItemOnEditor(editor, consistentItemId);}
 		};
 
 		// when editor switches tabs (models)
@@ -66,7 +66,7 @@ export class ConsistentItemService extends Disposable implements IConsistentItem
 			this._register(
 				editor.onDidDispose(() => {
 					// anything on the editor has been disposed already
-					for (const itemId of this.itemIdsOfEditorId[editor.getId()] ?? []) delete this.disposeFnOfItemId[itemId];
+					for (const itemId of this.itemIdsOfEditorId[editor.getId()] ?? []) {delete this.disposeFnOfItemId[itemId];}
 				})
 			);
 		};
@@ -79,7 +79,7 @@ export class ConsistentItemService extends Disposable implements IConsistentItem
 		};
 
 		// initialize current editors + any new editors
-		for (let editor of this._editorService.listCodeEditors()) initializeEditor(editor);
+		for (const editor of this._editorService.listCodeEditors()) {initializeEditor(editor);}
 		this._register(
 			this._editorService.onCodeEditorAdd((editor) => {
 				initializeEditor(editor);
@@ -103,7 +103,7 @@ export class ConsistentItemService extends Disposable implements IConsistentItem
 		const itemId = generateUuid();
 		const editorId = editor.getId();
 
-		if (!(editorId in this.itemIdsOfEditorId)) this.itemIdsOfEditorId[editorId] = new Set();
+		if (!(editorId in this.itemIdsOfEditorId)) {this.itemIdsOfEditorId[editorId] = new Set();}
 		this.itemIdsOfEditorId[editorId]!.add(itemId);
 
 		this.consistentItemIdOfItemId[itemId] = consistentItemId;
@@ -135,26 +135,26 @@ export class ConsistentItemService extends Disposable implements IConsistentItem
 	addConsistentItemToURI({ uri, fn }: AddItemInputs) {
 		const consistentItemId = this.consistentItemIdPool++ + '';
 
-		if (!(uri.fsPath in this.consistentItemIdsOfURI)) this.consistentItemIdsOfURI[uri.fsPath] = new Set();
+		if (!(uri.fsPath in this.consistentItemIdsOfURI)) {this.consistentItemIdsOfURI[uri.fsPath] = new Set();}
 		this.consistentItemIdsOfURI[uri.fsPath]!.add(consistentItemId);
 
 		this.infoOfConsistentItemId[consistentItemId] = { fn, uri };
 
 		const editors = this.getEditorsOnURI(uri);
-		for (const editor of editors) this._putItemOnEditor(editor, consistentItemId);
+		for (const editor of editors) {this._putItemOnEditor(editor, consistentItemId);}
 
 		return consistentItemId;
 	}
 
 	removeConsistentItemFromURI(consistentItemId: string) {
-		if (!(consistentItemId in this.infoOfConsistentItemId)) return;
+		if (!(consistentItemId in this.infoOfConsistentItemId)) {return;}
 
 		const { uri } = this.infoOfConsistentItemId[consistentItemId];
 		const editors = this.getEditorsOnURI(uri);
 
 		for (const editor of editors) {
 			for (const itemId of this.itemIdsOfEditorId[editor.getId()] ?? []) {
-				if (this.consistentItemIdOfItemId[itemId] === consistentItemId) this._removeItemFromEditor(editor, itemId);
+				if (this.consistentItemIdOfItemId[itemId] === consistentItemId) {this._removeItemFromEditor(editor, itemId);}
 			}
 		}
 

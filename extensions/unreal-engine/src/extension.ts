@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 GRID. All rights reserved.
- *  Licensed under the MIT License.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
 import * as fs from 'node:fs/promises';
@@ -563,8 +563,8 @@ async function buildEditor(): Promise<void> {
 
 		return new Promise((resolve) => {
 			exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-				if (stdout) unrealOutputChannel?.append(stdout);
-				if (stderr) unrealOutputChannel?.append(stderr);
+				if (stdout) {unrealOutputChannel?.append(stdout);}
+				if (stderr) {unrealOutputChannel?.append(stderr);}
 
 				if (error) {
 					unrealOutputChannel?.appendLine(`[GRID] Build Failed: ${error.message}`);

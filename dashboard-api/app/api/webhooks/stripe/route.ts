@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   const subscriptionId = invoice.subscription as string;
 
-  if (!subscriptionId) return;
+  if (!subscriptionId) {return;}
 
   // Ensure subscription is active
   await supabaseAdmin
@@ -170,7 +170,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const subscriptionId = invoice.subscription as string;
 
-  if (!subscriptionId) return;
+  if (!subscriptionId) {return;}
 
   // Mark subscription as past_due
   await supabaseAdmin

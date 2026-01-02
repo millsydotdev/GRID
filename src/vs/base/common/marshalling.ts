@@ -52,7 +52,7 @@ export function revive<T = any>(obj: any, depth = 0, allowRegExp = true): Revive
 		switch ((<MarshalledObject>obj).$mid) {
 			// eslint-disable-next-line local/code-no-any-casts
 			case MarshalledId.Uri: return <any>URI.revive(obj);
-			// eslint-disable-next-line local/code-no-any-casts
+			 
 			case MarshalledId.Regexp: {
 				if (!allowRegExp) {
 					return <any>obj;

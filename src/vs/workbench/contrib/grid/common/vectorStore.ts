@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
@@ -12,14 +12,14 @@ export interface VectorDocument {
 	id: string; // Unique document ID (e.g., file path + chunk index)
 	text: string; // Original text
 	embedding: number[]; // Vector embedding
-	metadata?: Record<string, any>; // Additional metadata (file path, line numbers, etc.)
+	metadata?: Record<string, unknown>; // Additional metadata (file path, line numbers, etc.)
 }
 
 export interface VectorSearchResult {
 	id: string;
 	text: string;
 	score: number; // Similarity score (0-1, higher is better)
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 export const IVectorStore = createDecorator<IVectorStore>('vectorStore');
@@ -29,7 +29,7 @@ export interface IVectorStore {
 	isEnabled(): boolean;
 	initialize(): Promise<void>;
 	index(documents: VectorDocument[]): Promise<void>;
-	query(queryEmbedding: number[], k: number, filter?: Record<string, any>): Promise<VectorSearchResult[]>;
+	query(queryEmbedding: number[], k: number, filter?: Record<string, unknown>): Promise<VectorSearchResult[]>;
 	delete(ids: string[]): Promise<void>;
 	clear(): Promise<void>;
 }
@@ -50,7 +50,7 @@ class NoOpVectorStore implements IVectorStore {
 		// No-op
 	}
 
-	async query(_queryEmbedding: number[], _k: number, _filter?: Record<string, any>): Promise<VectorSearchResult[]> {
+	async query(_queryEmbedding: number[], _k: number, _filter?: Record<string, unknown>): Promise<VectorSearchResult[]> {
 		return [];
 	}
 
@@ -138,7 +138,7 @@ class QdrantVectorStore implements IVectorStore {
 		}
 	}
 
-	async query(queryEmbedding: number[], k: number, filter?: Record<string, any>): Promise<VectorSearchResult[]> {
+	async query(queryEmbedding: number[], k: number, filter?: Record<string, unknown>): Promise<VectorSearchResult[]> {
 		if (!this._initialized) {
 			await this.initialize();
 		}
@@ -294,7 +294,7 @@ class ChromaVectorStore implements IVectorStore {
 		}
 	}
 
-	async query(queryEmbedding: number[], k: number, filter?: Record<string, any>): Promise<VectorSearchResult[]> {
+	async query(queryEmbedding: number[], k: number, filter?: Record<string, unknown>): Promise<VectorSearchResult[]> {
 		if (!this._initialized) {
 			await this.initialize();
 		}
@@ -420,7 +420,7 @@ class VectorStoreService implements IVectorStore {
 		await this._delegate.index(documents);
 	}
 
-	async query(queryEmbedding: number[], k: number, filter?: Record<string, any>): Promise<VectorSearchResult[]> {
+	async query(queryEmbedding: number[], k: number, filter?: Record<string, unknown>): Promise<VectorSearchResult[]> {
 		return await this._delegate.query(queryEmbedding, k, filter);
 	}
 

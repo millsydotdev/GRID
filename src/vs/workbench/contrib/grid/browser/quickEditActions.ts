@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
 import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
@@ -16,20 +16,20 @@ import { IMetricsService } from '../common/metricsService.js';
 import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
 
 export type QuickEditPropsType = {
-	diffareaid: number,
+	diffareaid: number;
 	textAreaRef: (ref: HTMLTextAreaElement | null) => void;
 	onChangeHeight: (height: number) => void;
 	onChangeText: (text: string) => void;
 	initText: string | null;
-}
+};
 
 export type QuickEdit = {
-	startLine: number, // 0-indexed
-	beforeCode: string,
-	afterCode?: string,
-	instructions?: string,
-	responseText?: string, // model can produce a text response too
-}
+	startLine: number; // 0-indexed
+	beforeCode: string;
+	afterCode?: string;
+	instructions?: string;
+	responseText?: string; // model can produce a text response too
+};
 
 
 registerAction2(class extends Action2 {
@@ -49,21 +49,21 @@ registerAction2(class extends Action2 {
 
 	async run(accessor: ServicesAccessor): Promise<void> {
 
-		const editorService = accessor.get(ICodeEditorService)
-		const metricsService = accessor.get(IMetricsService)
-		metricsService.capture('Ctrl+K', {})
+		const editorService = accessor.get(ICodeEditorService);
+		const metricsService = accessor.get(IMetricsService);
+		metricsService.capture('Ctrl+K', {});
 
-		const editor = editorService.getActiveCodeEditor()
-		if (!editor) return;
-		const model = editor.getModel()
-		if (!model) return;
-		const selection = roundRangeToLines(editor.getSelection(), { emptySelectionBehavior: 'line' })
-		if (!selection) return;
+		const editor = editorService.getActiveCodeEditor();
+		if (!editor) {return;}
+		const model = editor.getModel();
+		if (!model) {return;}
+		const selection = roundRangeToLines(editor.getSelection(), { emptySelectionBehavior: 'line' });
+		if (!selection) {return;}
 
 
-		const { startLineNumber: startLine, endLineNumber: endLine } = selection
+		const { startLineNumber: startLine, endLineNumber: endLine } = selection;
 
-		const editCodeService = accessor.get(IEditCodeService)
-		editCodeService.addCtrlKZone({ startLine, endLine, editor })
+		const editCodeService = accessor.get(IEditCodeService);
+		editCodeService.addCtrlKZone({ startLine, endLine, editor });
 	}
 });

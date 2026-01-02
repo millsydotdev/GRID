@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 // registered in app.ts
@@ -55,8 +55,8 @@ export class LLMMessageChannel implements IServerChannel {
 		},
 	} satisfies {
 		[providerName in 'ollama' | 'openaiCompat']: {
-			success: Emitter<EventModelListOnSuccessParams<any>>;
-			error: Emitter<EventModelListOnErrorParams<any>>;
+			success: Emitter<EventModelListOnSuccessParams<unknown>>;
+			error: Emitter<EventModelListOnErrorParams<unknown>>;
 		};
 	};
 
@@ -64,17 +64,17 @@ export class LLMMessageChannel implements IServerChannel {
 	constructor(private readonly metricsService: IMetricsService) {}
 
 	// browser uses this to listen for changes
-	listen(_: unknown, event: string): Event<any> {
+	listen(_: unknown, event: string): Event<unknown> {
 		// text
-		if (event === 'onText_sendLLMMessage') return this.llmMessageEmitters.onText.event;
-		else if (event === 'onFinalMessage_sendLLMMessage') return this.llmMessageEmitters.onFinalMessage.event;
-		else if (event === 'onError_sendLLMMessage') return this.llmMessageEmitters.onError.event;
+		if (event === 'onText_sendLLMMessage') {return this.llmMessageEmitters.onText.event;}
+		else if (event === 'onFinalMessage_sendLLMMessage') {return this.llmMessageEmitters.onFinalMessage.event;}
+		else if (event === 'onError_sendLLMMessage') {return this.llmMessageEmitters.onError.event;}
 		// list
-		else if (event === 'onSuccess_list_ollama') return this.listEmitters.ollama.success.event;
-		else if (event === 'onError_list_ollama') return this.listEmitters.ollama.error.event;
-		else if (event === 'onSuccess_list_openAICompatible') return this.listEmitters.openaiCompat.success.event;
-		else if (event === 'onError_list_openAICompatible') return this.listEmitters.openaiCompat.error.event;
-		else throw new Error(`Event not found: ${event}`);
+		else if (event === 'onSuccess_list_ollama') {return this.listEmitters.ollama.success.event;}
+		else if (event === 'onError_list_ollama') {return this.listEmitters.ollama.error.event;}
+		else if (event === 'onSuccess_list_openAICompatible') {return this.listEmitters.openaiCompat.success.event;}
+		else if (event === 'onError_list_openAICompatible') {return this.listEmitters.openaiCompat.error.event;}
+		else {throw new Error(`Event not found: ${event}`);}
 	}
 
 	// browser uses this to call (see this.channel.call() in llmMessageService.ts for all usages)
@@ -101,7 +101,7 @@ export class LLMMessageChannel implements IServerChannel {
 		const { requestId } = params;
 
 		if (!(requestId in this._infoOfRunningRequest))
-			this._infoOfRunningRequest[requestId] = { waitForSend: undefined, abortRef: { current: null } };
+			{this._infoOfRunningRequest[requestId] = { waitForSend: undefined, abortRef: { current: null } };}
 
 		const mainThreadParams: SendLLMMessageParams = {
 			...params,
@@ -123,7 +123,7 @@ export class LLMMessageChannel implements IServerChannel {
 
 	private async _callAbort(params: MainLLMMessageAbortParams) {
 		const { requestId } = params;
-		if (!(requestId in this._infoOfRunningRequest)) return;
+		if (!(requestId in this._infoOfRunningRequest)) {return;}
 		const { waitForSend, abortRef } = this._infoOfRunningRequest[requestId];
 		await waitForSend; // wait for the send to finish so we know abortRef was set
 		abortRef?.current?.();

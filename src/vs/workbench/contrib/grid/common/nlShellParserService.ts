@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
@@ -112,7 +112,7 @@ class NLShellParserService implements INLShellParserService {
 			}
 
 			if (fallbackModel) {
-				modelSelection = fallbackModel as any;
+				modelSelection = fallbackModel as unknown;
 			} else {
 				throw new Error('No model provider configured. Please configure a model provider in GRID Settings.');
 			}

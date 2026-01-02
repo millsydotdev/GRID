@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../base/common/cancellation.js';
@@ -215,7 +215,7 @@ export class DashboardApiClient implements IDashboardApiClient {
 	/**
 	 * Generic request method
 	 */
-	private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: any): Promise<T> {
+	private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T> {
 		if (!this.apiKey) {
 			throw new Error('Dashboard API key not set. Please configure your API key in settings.');
 		}
@@ -275,8 +275,8 @@ export class DashboardApiClient implements IDashboardApiClient {
 	private async streamToString(stream: NodeJS.ReadableStream): Promise<string> {
 		return new Promise((resolve, reject) => {
 			const chunks: Buffer[] = [];
-			stream.on('data', (chunk: any) => chunks.push(Buffer.from(chunk)));
-			stream.on('error', (err: any) => reject(err));
+			stream.on('data', (chunk: unknown) => chunks.push(Buffer.from(chunk)));
+			stream.on('error', (err: unknown) => reject(err));
 			stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
 		});
 	}

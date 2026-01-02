@@ -431,5 +431,4 @@ import './contrib/editTelemetry/browser/editTelemetry.contribution.js';
 import './contrib/opener/browser/opener.contribution.js';
 
 //#endregion
-import 'vs/workbench/services/localContext/browser/localContextService';
- 
+import './services/localContext/browser/localContextService.js';

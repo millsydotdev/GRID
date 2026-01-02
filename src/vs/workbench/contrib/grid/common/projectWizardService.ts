@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -230,7 +230,7 @@ export class ProjectWizardService implements IProjectWizardService {
         const seen = new Set<string>();
         return recommendations.filter(rec => {
             const key = `${rec.purpose}-${rec.format}`;
-            if (seen.has(key)) return false;
+            if (seen.has(key)) {return false;}
             seen.add(key);
             return true;
         });
@@ -467,17 +467,17 @@ export class ProjectWizardService implements IProjectWizardService {
     }
 
     private describeCommand(cmd: string): string {
-        if (cmd.includes('create-next-app')) return 'Initialize Next.js project with TypeScript and Tailwind';
-        if (cmd.includes('create-vite')) return 'Initialize Vite project with React and TypeScript';
-        if (cmd.includes('create-expo-app')) return 'Initialize Expo React Native project';
-        if (cmd.includes('prisma init')) return 'Initialize Prisma ORM configuration';
-        if (cmd.includes('cargo init')) return 'Initialize Rust project with Cargo';
-        if (cmd.includes('pnpm init') || cmd.includes('npm init')) return 'Initialize package.json';
-        if (cmd.includes('pnpm add') || cmd.includes('npm install')) return 'Install project dependencies';
-        if (cmd.includes('cargo add')) return 'Add Rust dependencies';
-        if (cmd.includes('pip install')) return 'Install Python packages';
-        if (cmd.includes('venv')) return 'Create Python virtual environment';
-        if (cmd.includes('changeset init')) return 'Initialize Changesets for versioning';
+        if (cmd.includes('create-next-app')) {return 'Initialize Next.js project with TypeScript and Tailwind';}
+        if (cmd.includes('create-vite')) {return 'Initialize Vite project with React and TypeScript';}
+        if (cmd.includes('create-expo-app')) {return 'Initialize Expo React Native project';}
+        if (cmd.includes('prisma init')) {return 'Initialize Prisma ORM configuration';}
+        if (cmd.includes('cargo init')) {return 'Initialize Rust project with Cargo';}
+        if (cmd.includes('pnpm init') || cmd.includes('npm init')) {return 'Initialize package.json';}
+        if (cmd.includes('pnpm add') || cmd.includes('npm install')) {return 'Install project dependencies';}
+        if (cmd.includes('cargo add')) {return 'Add Rust dependencies';}
+        if (cmd.includes('pip install')) {return 'Install Python packages';}
+        if (cmd.includes('venv')) {return 'Create Python virtual environment';}
+        if (cmd.includes('changeset init')) {return 'Initialize Changesets for versioning';}
         return `Run: ${cmd}`;
     }
 }

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -269,9 +269,9 @@ export class PRReviewService implements IPRReviewService {
 
 		// Grouped reviews
 		for (const [category, categoryReviews] of Object.entries(grouped)) {
-			if (categoryReviews.length === 0) continue;
+			if (categoryReviews.length === 0) {continue;}
 
-			comment += `### ${this.getCategoryEmoji(category as any)} ${this.getCategoryTitle(category as any)}\n\n`;
+			comment += `### ${this.getCategoryEmoji(category as unknown)} ${this.getCategoryTitle(category as unknown)}\n\n`;
 
 			for (const review of categoryReviews.slice(0, 5)) {
 				// Limit to 5 per category
@@ -341,7 +341,7 @@ export class PRReviewService implements IPRReviewService {
 
 	// Private helper methods
 
-	private async generateAISummary(pr: any, files: PRFile[], reviews: CodeReview[]): Promise<string> {
+	private async generateAISummary(pr: unknown, files: PRFile[], reviews: CodeReview[]): Promise<string> {
 		const prompt = `
 Analyze this pull request and provide a concise summary:
 

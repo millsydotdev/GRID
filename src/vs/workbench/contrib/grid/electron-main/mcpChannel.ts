@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 // registered in app.ts
@@ -76,15 +76,15 @@ export class MCPChannel implements IServerChannel {
 	constructor() {}
 
 	// browser uses this to listen for changes
-	listen(_: unknown, event: string): Event<any> {
+	listen(_: unknown, event: string): Event<unknown> {
 		// server events
-		if (event === 'onAdd_server') return this.mcpEmitters.serverEvent.onAdd.event;
-		else if (event === 'onUpdate_server') return this.mcpEmitters.serverEvent.onUpdate.event;
-		else if (event === 'onDelete_server') return this.mcpEmitters.serverEvent.onDelete.event;
+		if (event === 'onAdd_server') {return this.mcpEmitters.serverEvent.onAdd.event;}
+		else if (event === 'onUpdate_server') {return this.mcpEmitters.serverEvent.onUpdate.event;}
+		else if (event === 'onDelete_server') {return this.mcpEmitters.serverEvent.onDelete.event;}
 		// else if (event === 'onLoading_server') return this.mcpEmitters.serverEvent.onChangeLoading.event;
 		// tool call events
 		// handle unknown events
-		else throw new Error(`Event not found: ${event}`);
+		else {throw new Error(`Event not found: ${event}`);}
 	}
 
 	// browser uses this to call (see this.channel.call() in mcpConfigService.ts for all usages)
@@ -130,7 +130,7 @@ export class MCPChannel implements IServerChannel {
 		await Promise.all(
 			allChanges.map(async ({ serverName, type }) => {
 				// check if already refreshing
-				if (this._refreshingServerNames.has(serverName)) return;
+				if (this._refreshingServerNames.has(serverName)) {return;}
 				this._refreshingServerNames.add(serverName);
 
 				const prevServer = this.infoOfClientId[serverName]?.mcpServer;

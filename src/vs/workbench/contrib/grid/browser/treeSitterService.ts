@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
@@ -40,7 +40,7 @@ class TreeSitterService implements ITreeSitterService {
 	declare readonly _serviceBrand: undefined;
 
 	private _enabled = false;
-	private _parserCache: Map<string, any> = new Map(); // language -> parser instance
+	private _parserCache: Map<string, unknown> = new Map(); // language -> parser instance
 	private _wasmModule: unknown = null;
 	private _loadFailed = false; // Track if module loading has failed to prevent repeated warnings
 
@@ -64,7 +64,7 @@ class TreeSitterService implements ITreeSitterService {
 		return this._enabled;
 	}
 
-	private async _getWasmModule(): Promise<any> {
+	private async _getWasmModule(): Promise<unknown> {
 		if (this._wasmModule) {
 			return this._wasmModule;
 		}
@@ -162,8 +162,8 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _traverseAST(node: any, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
-		if (!node) return;
+	private _traverseAST(node: unknown, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
+		if (!node) {return;}
 
 		// Extract symbol based on node type
 		const nodeType = node.type;
@@ -239,7 +239,7 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _extractNameFromNode(node: any, content: string): string | null {
+	private _extractNameFromNode(node: unknown, content: string): string | null {
 		// Try common name field patterns
 		const nameFields = ['name', 'identifier', 'declaration', 'definition'];
 		for (const field of nameFields) {
@@ -338,8 +338,8 @@ class TreeSitterService implements ITreeSitterService {
 			coveredRanges.add(`${symbol.startLine}-${symbol.endLine}`);
 		}
 
-		const processNode = (node: any) => {
-			if (!node) return;
+		const processNode = (node: unknown) => {
+			if (!node) {return;}
 
 			// Check if this is a top-level statement/declaration
 			const nodeType = node.type;

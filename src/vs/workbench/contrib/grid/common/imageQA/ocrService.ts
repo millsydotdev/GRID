@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -65,7 +65,7 @@ export class TesseractOCRService implements IOCRService {
 	private workerInitialized = false;
 
 	private async ensureWorker(): Promise<void> {
-		if (this.workerInitialized && this.tesseractWorker) return;
+		if (this.workerInitialized && this.tesseractWorker) {return;}
 
 		try {
 			// Dynamic import to avoid bundle bloat
@@ -125,7 +125,7 @@ export class TesseractOCRService implements IOCRService {
 
 					// Simple grouping: merge words on same line
 					if (!currentBlock || Math.abs(bbox.y - currentBlock.bbox.y) > bbox.height * 0.5) {
-						if (currentBlock) blocks.push(currentBlock);
+						if (currentBlock) {blocks.push(currentBlock);}
 						currentBlock = { ...block };
 					} else {
 						currentBlock.text += ' ' + block.text;
@@ -143,7 +143,7 @@ export class TesseractOCRService implements IOCRService {
 					}
 				}
 
-				if (currentBlock) blocks.push(currentBlock);
+				if (currentBlock) {blocks.push(currentBlock);}
 			}
 
 			// Extract full text
@@ -200,8 +200,8 @@ export class TesseractOCRService implements IOCRService {
 					// Convert canvas to blob then to Uint8Array
 					const croppedBlob = await new Promise<Blob>((res, rej) => {
 						canvas.toBlob((blob) => {
-							if (blob) res(blob);
-							else rej(new Error('Failed to create blob'));
+							if (blob) {res(blob);}
+							else {rej(new Error('Failed to create blob'));}
 						}, mimeType);
 					});
 

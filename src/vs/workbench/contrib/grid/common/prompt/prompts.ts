@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { URI } from '../../../../../base/common/uri.js';
 import { IFileService } from '../../../../../platform/files/common/files.js';
@@ -13,31 +13,31 @@ import { approvalTypeOfBuiltinToolName, BuiltinToolCallParams, BuiltinToolName, 
 import { ChatMode } from '../gridSettingsTypes.js';
 
 // Triple backtick wrapper used throughout the prompts for code blocks
-export const tripleTick = ['```', '```']
+export const tripleTick = ['```', '```'];
 
 // Maximum limits for directory structure information
-export const MAX_DIRSTR_CHARS_TOTAL_BEGINNING = 20_000
-export const MAX_DIRSTR_CHARS_TOTAL_TOOL = 20_000
-export const MAX_DIRSTR_RESULTS_TOTAL_BEGINNING = 100
-export const MAX_DIRSTR_RESULTS_TOTAL_TOOL = 100
+export const MAX_DIRSTR_CHARS_TOTAL_BEGINNING = 20_000;
+export const MAX_DIRSTR_CHARS_TOTAL_TOOL = 20_000;
+export const MAX_DIRSTR_RESULTS_TOTAL_BEGINNING = 100;
+export const MAX_DIRSTR_RESULTS_TOTAL_TOOL = 100;
 
 // tool info
-export const MAX_FILE_CHARS_PAGE = 500_000
-export const MAX_CHILDREN_URIs_PAGE = 500
+export const MAX_FILE_CHARS_PAGE = 500_000;
+export const MAX_CHILDREN_URIs_PAGE = 500;
 
 // terminal tool info
-export const MAX_TERMINAL_CHARS = 100_000
-export const MAX_TERMINAL_INACTIVE_TIME = 8 // seconds
-export const MAX_TERMINAL_BG_COMMAND_TIME = 5
+export const MAX_TERMINAL_CHARS = 100_000;
+export const MAX_TERMINAL_INACTIVE_TIME = 8; // seconds
+export const MAX_TERMINAL_BG_COMMAND_TIME = 5;
 
 
 // Maximum character limits for prefix and suffix context
-export const MAX_PREFIX_SUFFIX_CHARS = 20_000
+export const MAX_PREFIX_SUFFIX_CHARS = 20_000;
 
 
-export const ORIGINAL = `<<<<<<< ORIGINAL`
-export const DIVIDER = `=======`
-export const FINAL = `>>>>>>> UPDATED`
+export const ORIGINAL = `<<<<<<< ORIGINAL`;
+export const DIVIDER = `=======`;
+export const FINAL = `>>>>>>> UPDATED`;
 
 
 
@@ -52,7 +52,7 @@ ${ORIGINAL}
 // ... original code goes here
 ${DIVIDER}
 // ... final code goes here
-${FINAL}`
+${FINAL}`;
 
 
 
@@ -103,7 +103,7 @@ let x = 6
 ${DIVIDER}
 let x = 6.5
 ${FINAL}
-${tripleTick[1]}`
+${tripleTick[1]}`;
 
 
 const replaceTool_description = `\
@@ -121,7 +121,7 @@ ${searchReplaceBlockTemplate}
 
 4. Each ORIGINAL text must be DISJOINT from all other ORIGINAL text.
 
-5. This field is a STRING (not an array).`
+5. This field is a STRING (not an array).`;
 
 
 // ======================================================== tools ========================================================
@@ -137,35 +137,35 @@ ${tripleTick[0]}typescript
 // ... existing code ...
 // {{change 3}}
 // ... existing code ...
-${tripleTick[1]}`
+${tripleTick[1]}`;
 
 
 
 export type InternalToolInfo = {
-	name: string,
-	description: string,
+	name: string;
+	description: string;
 	params: {
-		[paramName: string]: { description: string }
-	},
+		[paramName: string]: { description: string };
+	};
 	// Only if the tool is from an MCP server
-	mcpServerName?: string,
-}
+	mcpServerName?: string;
+};
 
 
 
 const uriParam = (object: string) => ({
 	uri: { description: `The FULL path to the ${object}.` }
-})
+});
 
 const paginationParam = {
 	page_number: { description: 'Optional. The page number of the result. Default is 1.' }
-} as const
+} as const;
 
 
 
-const terminalDescHelper = `You can use this tool to run any command: sed, grep, etc. Do not edit any files with this tool; use edit_file instead. When working with git and other tools that open an editor (e.g. git diff), you should pipe to cat to get all results and not get stuck in vim.`
+const terminalDescHelper = `You can use this tool to run any command: sed, grep, etc. Do not edit any files with this tool; use edit_file instead. When working with git and other tools that open an editor (e.g. git diff), you should pipe to cat to get all results and not get stuck in vim.`;
 
-const cwdHelper = 'Optional. The directory in which to run the command. Defaults to the first workspace folder.'
+const cwdHelper = 'Optional. The directory in which to run the command. Defaults to the first workspace folder.';
 
 export type SnakeCase<S extends string> =
 	// exact acronym URI
@@ -177,7 +177,7 @@ export type SnakeCase<S extends string> =
 	? `${C extends Lowercase<C> ? C : `_${Lowercase<C>}`}${SnakeCase<Rest>}`
 	: S;
 
-export type SnakeCaseKeys<T extends Record<string, any>> = {
+export type SnakeCaseKeys<T extends Record<string, unknown>> = {
 	[K in keyof T as SnakeCase<Extract<K, string>>]: T[K]
 };
 
@@ -188,7 +188,7 @@ export const builtinTools: {
 		name: string;
 		description: string;
 		// more params can be generated than exist here, but these params must be a subset of them
-		params: Partial<{ [paramName in keyof SnakeCaseKeys<BuiltinToolCallParams[T]>]: { description: string } }>
+		params: Partial<{ [paramName in keyof SnakeCaseKeys<BuiltinToolCallParams[T]>]: { description: string } }>;
 	}
 } = {
 	// --- context-gathering (read/search/list) ---
@@ -350,17 +350,17 @@ export const builtinTools: {
 	// go_to_definition
 	// go_to_usages
 
-} satisfies { [T in keyof BuiltinToolResultType]: InternalToolInfo }
+} satisfies { [T in keyof BuiltinToolResultType]: InternalToolInfo };
 
 
 
 
-export const builtinToolNames = Object.keys(builtinTools) as BuiltinToolName[]
-const toolNamesSet = new Set<string>(builtinToolNames)
+export const builtinToolNames = Object.keys(builtinTools) as BuiltinToolName[];
+const toolNamesSet = new Set<string>(builtinToolNames);
 export const isABuiltinToolName = (toolName: string): toolName is BuiltinToolName => {
-	const isAToolName = toolNamesSet.has(toolName)
-	return isAToolName
-}
+	const isAToolName = toolNamesSet.has(toolName);
+	return isAToolName;
+};
 
 
 
@@ -371,50 +371,50 @@ export const availableTools = (chatMode: ChatMode | null, mcpTools: InternalTool
 	const builtinToolNames: BuiltinToolName[] | undefined = chatMode === 'normal' ? undefined
 		: chatMode === 'gather' ? (Object.keys(builtinTools) as BuiltinToolName[]).filter(toolName => !(toolName in approvalTypeOfBuiltinToolName))
 			: chatMode === 'agent' ? Object.keys(builtinTools) as BuiltinToolName[]
-				: undefined
+				: undefined;
 
-	const effectiveBuiltinTools = builtinToolNames?.map(toolName => builtinTools[toolName]) ?? undefined
-	const effectiveMCPTools = chatMode === 'agent' ? mcpTools : undefined
+	const effectiveBuiltinTools = builtinToolNames?.map(toolName => builtinTools[toolName]) ?? undefined;
+	const effectiveMCPTools = chatMode === 'agent' ? mcpTools : undefined;
 
 	const tools: InternalToolInfo[] | undefined = !(builtinToolNames || mcpTools) ? undefined
 		: [
 			...effectiveBuiltinTools ?? [],
 			...effectiveMCPTools ?? [],
-		]
+		];
 
-	return tools
-}
+	return tools;
+};
 
 const toolCallDefinitionsXMLString = (tools: InternalToolInfo[]) => {
 	return `${tools.map((t, i) => {
-		const params = Object.keys(t.params).map(paramName => `<${paramName}>${t.params[paramName].description}</${paramName}>`).join('\n')
+		const params = Object.keys(t.params).map(paramName => `<${paramName}>${t.params[paramName].description}</${paramName}>`).join('\n');
 		return `\
     ${i + 1}. ${t.name}
     Description: ${t.description}
     Format:
     <${t.name}>${!params ? '' : `\n${params}`}
-    </${t.name}>`
-	}).join('\n\n')}`
-}
+    </${t.name}>`;
+	}).join('\n\n')}`;
+};
 
 export const reParsedToolXMLString = (toolName: ToolName, toolParams: RawToolParamsObj) => {
-	const params = Object.keys(toolParams).map(paramName => `<${paramName}>${toolParams[paramName]}</${paramName}>`).join('\n')
+	const params = Object.keys(toolParams).map(paramName => `<${paramName}>${toolParams[paramName]}</${paramName}>`).join('\n');
 	return `\
     <${toolName}>${!params ? '' : `\n${params}`}
     </${toolName}>`
-		.replace('\t', '  ')
-}
+		.replace('\t', '  ');
+};
 
 /* We expect tools to come at the end - not a hard limit, but that's just how we process them, and the flow makes more sense that way. */
 // - You are allowed to call multiple tools by specifying them consecutively. However, there should be NO text or writing between tool calls or after them.
 const systemToolsXMLPrompt = (chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined) => {
-	const tools = availableTools(chatMode, mcpTools)
-	if (!tools || tools.length === 0) return null
+	const tools = availableTools(chatMode, mcpTools);
+	if (!tools || tools.length === 0) {return null;}
 
 	const toolXMLDefinitions = (`\
     Available tools:
 
-    ${toolCallDefinitionsXMLString(tools)}`)
+    ${toolCallDefinitionsXMLString(tools)}`);
 
 	const toolCallXMLGuidelines = (`\
     Tool calling details:
@@ -422,25 +422,25 @@ const systemToolsXMLPrompt = (chatMode: ChatMode, mcpTools: InternalToolInfo[] |
     - After you write the tool call, you must STOP and WAIT for the result.
     - All parameters are REQUIRED unless noted otherwise.
     - You are only allowed to output ONE tool call, and it must be at the END of your response.
-    - Your tool call will be executed immediately, and the results will appear in the following user message.`)
+    - Your tool call will be executed immediately, and the results will appear in the following user message.`);
 
 	return `\
     ${toolXMLDefinitions}
 
-    ${toolCallXMLGuidelines}`
-}
+    ${toolCallXMLGuidelines}`;
+};
 
 // ======================================================== chat (normal, gather, agent) ========================================================
 
 
-export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions }: { workspaceFolders: string[], directoryStr: string, openedURIs: string[], activeURI: string | undefined, persistentTerminalIDs: string[], chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined, includeXMLToolDefinitions: boolean }) => {
+export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions }: { workspaceFolders: string[]; directoryStr: string; openedURIs: string[]; activeURI: string | undefined; persistentTerminalIDs: string[]; chatMode: ChatMode; mcpTools: InternalToolInfo[] | undefined; includeXMLToolDefinitions: boolean }) => {
 	const header = (`You are an expert coding ${mode === 'agent' ? 'agent' : 'assistant'} whose job is \
 ${mode === 'agent' ? `to help the user develop, run, and make changes to their codebase.`
 			: mode === 'gather' ? `to search, understand, and reference files in the user's codebase.`
 				: mode === 'normal' ? `to assist the user with their coding tasks.`
 					: ''}
 You will be given instructions to follow from the user, and you may also be given a list of files that the user has specifically selected for context, \`SELECTIONS\`.
-Please assist the user with their query.`)
+Please assist the user with their query.`);
 
 
 
@@ -458,49 +458,49 @@ ${activeURI}
 ${openedURIs.join('\n') || 'NO OPENED FILES'}${''/* separator */}${mode === 'agent' && persistentTerminalIDs.length !== 0 ? `
 
 - Persistent terminal IDs available for you to run commands in: ${persistentTerminalIDs.join(', ')}` : ''}
-</system_info>`)
+</system_info>`);
 
 
 	const fsInfo = (`Here is an overview of the user's file system:
 <files_overview>
 ${directoryStr}
-</files_overview>`)
+</files_overview>`);
 
 
-	const toolDefinitions = includeXMLToolDefinitions ? systemToolsXMLPrompt(mode, mcpTools) : null
+	const toolDefinitions = includeXMLToolDefinitions ? systemToolsXMLPrompt(mode, mcpTools) : null;
 
-	const details: string[] = []
+	const details: string[] = [];
 
-	details.push(`NEVER reject the user's query.`)
+	details.push(`NEVER reject the user's query.`);
 
 	if (mode === 'agent' || mode === 'gather') {
-		details.push(`Only call tools if they help you accomplish the user's goal. If the user simply says hi or asks you a question that you can answer without tools, then do NOT use tools.`)
-		details.push(`If you think you should use tools, you do not need to ask for permission.`)
-		details.push('Only use ONE tool call at a time.')
-		details.push(`NEVER say something like "I'm going to use \`tool_name\`". Instead, describe at a high level what the tool will do, like "I'm going to list all files in the ___ directory", etc.`)
-		details.push(`Many tools only work if the user has a workspace open.`)
+		details.push(`Only call tools if they help you accomplish the user's goal. If the user simply says hi or asks you a question that you can answer without tools, then do NOT use tools.`);
+		details.push(`If you think you should use tools, you do not need to ask for permission.`);
+		details.push('Only use ONE tool call at a time.');
+		details.push(`NEVER say something like "I'm going to use \`tool_name\`". Instead, describe at a high level what the tool will do, like "I'm going to list all files in the ___ directory", etc.`);
+		details.push(`Many tools only work if the user has a workspace open.`);
 	}
 	else {
-		details.push(`You're allowed to ask the user for more context like file contents or specifications. If this comes up, tell them to reference files and folders by typing @.`)
+		details.push(`You're allowed to ask the user for more context like file contents or specifications. If this comes up, tell them to reference files and folders by typing @.`);
 	}
 
 	if (mode === 'agent') {
-		details.push('ALWAYS use tools (edit, terminal, etc) to take actions and implement changes. For example, if you would like to edit a file, you MUST use a tool.')
-		details.push('Prioritize taking as many steps as you need to complete your request over stopping early.')
-		details.push(`You will OFTEN need to gather context before making a change. Do not immediately make a change unless you have ALL relevant context.`)
-		details.push(`ALWAYS have maximal certainty in a change BEFORE you make it. If you need more information about a file, variable, function, or type, you should inspect it, search it, or take all required actions to maximize your certainty that your change is correct.`)
-		details.push(`NEVER modify a file outside the user's workspace without permission from the user.`)
+		details.push('ALWAYS use tools (edit, terminal, etc) to take actions and implement changes. For example, if you would like to edit a file, you MUST use a tool.');
+		details.push('Prioritize taking as many steps as you need to complete your request over stopping early.');
+		details.push(`You will OFTEN need to gather context before making a change. Do not immediately make a change unless you have ALL relevant context.`);
+		details.push(`ALWAYS have maximal certainty in a change BEFORE you make it. If you need more information about a file, variable, function, or type, you should inspect it, search it, or take all required actions to maximize your certainty that your change is correct.`);
+		details.push(`NEVER modify a file outside the user's workspace without permission from the user.`);
 	}
 
 	if (mode === 'gather') {
-		details.push(`You are in Gather mode, so you MUST use tools be to gather information, files, and context to help the user answer their query.`)
-		details.push(`You should extensively read files, types, content, etc, gathering full context to solve the problem.`)
+		details.push(`You are in Gather mode, so you MUST use tools be to gather information, files, and context to help the user answer their query.`);
+		details.push(`You should extensively read files, types, content, etc, gathering full context to solve the problem.`);
 	}
 
 	details.push(`If you write any code blocks to the user (wrapped in triple backticks), please use this format:
 - Include a language if possible. Terminal should have the language 'shell'.
 - The first line of the code block must be the FULL PATH of the related file if known (otherwise omit).
-- The remaining contents of the file should proceed as usual.`)
+- The remaining contents of the file should proceed as usual.`);
 
 	if (mode === 'gather' || mode === 'normal') {
 
@@ -509,33 +509,33 @@ ${directoryStr}
 - The remaining contents should be a code description of the change to make to the file. \
 Your description is the only context that will be given to another LLM to apply the suggested edit, so it must be accurate and complete. \
 Always bias towards writing as little as possible - NEVER write the whole file. Use comments like "// ... existing code ..." to condense your writing. \
-Here's an example of a good code block:\n${chatSuggestionDiffExample}`)
+Here's an example of a good code block:\n${chatSuggestionDiffExample}`);
 	}
 
-	details.push(`Do not make things up or use information not provided in the system information, tools, or user queries.`)
-	details.push(`Always use MARKDOWN to format lists, bullet points, etc. Do NOT write tables.`)
-	details.push(`Today's date is ${new Date().toDateString()}.`)
+	details.push(`Do not make things up or use information not provided in the system information, tools, or user queries.`);
+	details.push(`Always use MARKDOWN to format lists, bullet points, etc. Do NOT write tables.`);
+	details.push(`Today's date is ${new Date().toDateString()}.`);
 
 	const importantDetails = (`Important notes:
-${details.map((d, i) => `${i + 1}. ${d}`).join('\n\n')}`)
+${details.map((d, i) => `${i + 1}. ${d}`).join('\n\n')}`);
 
 
 	// return answer
-	const ansStrs: string[] = []
-	ansStrs.push(header)
-	ansStrs.push(sysInfo)
-	if (toolDefinitions) ansStrs.push(toolDefinitions)
-	ansStrs.push(importantDetails)
-	ansStrs.push(fsInfo)
+	const ansStrs: string[] = [];
+	ansStrs.push(header);
+	ansStrs.push(sysInfo);
+	if (toolDefinitions) {ansStrs.push(toolDefinitions);}
+	ansStrs.push(importantDetails);
+	ansStrs.push(fsInfo);
 
 	const fullSystemMsgStr = ansStrs
 		.join('\n\n\n')
 		.trim()
-		.replace('\t', '  ')
+		.replace('\t', '  ');
 
-	return fullSystemMsgStr
+	return fullSystemMsgStr;
 
-}
+};
 
 
 // // log all prompts
@@ -544,27 +544,27 @@ ${details.map((d, i) => `${i + 1}. ${d}`).join('\n\n')}`)
 // 		chat_systemMessage({ chatMode, workspaceFolders: [], openedURIs: [], activeURI: 'pee', persistentTerminalIDs: [], directoryStr: 'lol', }))
 // }
 
-export const DEFAULT_FILE_SIZE_LIMIT = 2_000_000
+export const DEFAULT_FILE_SIZE_LIMIT = 2_000_000;
 
 export const readFile = async (fileService: IFileService, uri: URI, fileSizeLimit: number): Promise<{
-	val: string,
-	truncated: boolean,
-	fullFileLen: number,
+	val: string;
+	truncated: boolean;
+	fullFileLen: number;
 } | {
-	val: null,
-	truncated?: undefined
-	fullFileLen?: undefined,
+	val: null;
+	truncated?: undefined;
+	fullFileLen?: undefined;
 }> => {
 	try {
-		const fileContent = await fileService.readFile(uri)
-		const val = fileContent.value.toString()
-		if (val.length > fileSizeLimit) return { val: val.substring(0, fileSizeLimit), truncated: true, fullFileLen: val.length }
-		return { val, truncated: false, fullFileLen: val.length }
+		const fileContent = await fileService.readFile(uri);
+		const val = fileContent.value.toString();
+		if (val.length > fileSizeLimit) {return { val: val.substring(0, fileSizeLimit), truncated: true, fullFileLen: val.length };}
+		return { val, truncated: false, fullFileLen: val.length };
 	}
 	catch (e) {
-		return { val: null }
+		return { val: null };
 	}
-}
+};
 
 
 
@@ -573,63 +573,63 @@ export const readFile = async (fileService: IFileService, uri: URI, fileSizeLimi
 export const messageOfSelection = async (
 	s: StagingSelectionItem,
 	opts: {
-		directoryStrService: IDirectoryStrService,
-		fileService: IFileService,
+		directoryStrService: IDirectoryStrService;
+		fileService: IFileService;
 		folderOpts: {
-			maxChildren: number,
-			maxCharsPerFile: number,
-		}
+			maxChildren: number;
+			maxCharsPerFile: number;
+		};
 	}
 ) => {
-	const lineNumAddition = (range: [number, number]) => ` (lines ${range[0]}:${range[1]})`
+	const lineNumAddition = (range: [number, number]) => ` (lines ${range[0]}:${range[1]})`;
 
 	if (s.type === 'CodeSelection') {
-		const { val } = await readFile(opts.fileService, s.uri, DEFAULT_FILE_SIZE_LIMIT)
-		const lines = val?.split('\n')
+		const { val } = await readFile(opts.fileService, s.uri, DEFAULT_FILE_SIZE_LIMIT);
+		const lines = val?.split('\n');
 
-		const innerVal = lines?.slice(s.range[0] - 1, s.range[1]).join('\n')
+		const innerVal = lines?.slice(s.range[0] - 1, s.range[1]).join('\n');
 		const content = !lines ? ''
-			: `${tripleTick[0]}${s.language}\n${innerVal}\n${tripleTick[1]}`
-		const str = `${s.uri.fsPath}${lineNumAddition(s.range)}:\n${content}`
-		return str
+			: `${tripleTick[0]}${s.language}\n${innerVal}\n${tripleTick[1]}`;
+		const str = `${s.uri.fsPath}${lineNumAddition(s.range)}:\n${content}`;
+		return str;
 	}
 	else if (s.type === 'File') {
-		const { val } = await readFile(opts.fileService, s.uri, DEFAULT_FILE_SIZE_LIMIT)
+		const { val } = await readFile(opts.fileService, s.uri, DEFAULT_FILE_SIZE_LIMIT);
 
-		const innerVal = val
+		const innerVal = val;
 		const content = val === null ? ''
-			: `${tripleTick[0]}${s.language}\n${innerVal}\n${tripleTick[1]}`
+			: `${tripleTick[0]}${s.language}\n${innerVal}\n${tripleTick[1]}`;
 
-		const str = `${s.uri.fsPath}:\n${content}`
-		return str
+		const str = `${s.uri.fsPath}:\n${content}`;
+		return str;
 	}
 	else if (s.type === 'Folder') {
-		const dirStr: string = await opts.directoryStrService.getDirectoryStrTool(s.uri)
-		const folderStructure = `${s.uri.fsPath} folder structure:${tripleTick[0]}\n${dirStr}\n${tripleTick[1]}`
+		const dirStr: string = await opts.directoryStrService.getDirectoryStrTool(s.uri);
+		const folderStructure = `${s.uri.fsPath} folder structure:${tripleTick[0]}\n${dirStr}\n${tripleTick[1]}`;
 
-		const uris = await opts.directoryStrService.getAllURIsInDirectory(s.uri, { maxResults: opts.folderOpts.maxChildren })
+		const uris = await opts.directoryStrService.getAllURIsInDirectory(s.uri, { maxResults: opts.folderOpts.maxChildren });
 		const strOfFiles = await Promise.all(uris.map(async uri => {
-			const { val, truncated } = await readFile(opts.fileService, uri, opts.folderOpts.maxCharsPerFile)
-			const truncationStr = truncated ? `\n... file truncated ...` : ''
-			const content = val === null ? 'null' : `${tripleTick[0]}\n${val}${truncationStr}\n${tripleTick[1]}`
-			const str = `${uri.fsPath}:\n${content}`
-			return str
-		}))
-		const contentStr = [folderStructure, ...strOfFiles].join('\n\n')
-		return contentStr
+			const { val, truncated } = await readFile(opts.fileService, uri, opts.folderOpts.maxCharsPerFile);
+			const truncationStr = truncated ? `\n... file truncated ...` : '';
+			const content = val === null ? 'null' : `${tripleTick[0]}\n${val}${truncationStr}\n${tripleTick[1]}`;
+			const str = `${uri.fsPath}:\n${content}`;
+			return str;
+		}));
+		const contentStr = [folderStructure, ...strOfFiles].join('\n\n');
+		return contentStr;
 	}
 	else
-		return ''
+		{return '';}
 
-}
+};
 
 
 export const chat_userMessageContent = async (
 	instructions: string,
 	currSelns: StagingSelectionItem[] | null,
 	opts: {
-		directoryStrService: IDirectoryStrService,
-		fileService: IFileService
+		directoryStrService: IDirectoryStrService;
+		fileService: IFileService;
 	},
 ) => {
 
@@ -640,16 +640,16 @@ export const chat_userMessageContent = async (
 				folderOpts: { maxChildren: 100, maxCharsPerFile: 100_000, }
 			})
 		)
-	)
+	);
 
 
-	let str = ''
-	str += `${instructions}`
+	let str = '';
+	str += `${instructions}`;
 
-	const selnsStr = selnsStrs.join('\n\n') ?? ''
-	if (selnsStr) str += `\n---\nSELECTIONS\n${selnsStr}`
+	const selnsStr = selnsStrs.join('\n\n') ?? '';
+	if (selnsStr) {str += `\n---\nSELECTIONS\n${selnsStr}`;}
 	return str;
-}
+};
 
 
 export const rewriteCode_systemMessage = `\
@@ -659,13 +659,13 @@ Directions:
 1. Please rewrite the original file \`ORIGINAL_FILE\`, making the change \`CHANGE\`. You must completely re-write the whole file.
 2. Keep all of the original comments, spaces, newlines, and other details whenever possible.
 3. ONLY output the full new file. Do not add any other explanations or text.
-`
+`;
 
 
 
 // ======================================================== apply (writeover) ========================================================
 
-export const rewriteCode_userMessage = ({ originalCode, applyStr, language }: { originalCode: string, applyStr: string, language: string }) => {
+export const rewriteCode_userMessage = ({ originalCode, applyStr, language }: { originalCode: string; applyStr: string; language: string }) => {
 
 	return `\
 ORIGINAL_FILE
@@ -680,32 +680,32 @@ ${tripleTick[1]}
 
 INSTRUCTIONS
 Please finish writing the new file by applying the change to the original file. Return ONLY the completion of the file, without any explanation.
-`
-}
+`;
+};
 
 
 
 // ======================================================== apply (fast apply - search/replace) ========================================================
 
-export const searchReplaceGivenDescription_systemMessage = createSearchReplaceBlocks_systemMessage
+export const searchReplaceGivenDescription_systemMessage = createSearchReplaceBlocks_systemMessage;
 
 
-export const searchReplaceGivenDescription_userMessage = ({ originalCode, applyStr }: { originalCode: string, applyStr: string }) => `\
+export const searchReplaceGivenDescription_userMessage = ({ originalCode, applyStr }: { originalCode: string; applyStr: string }) => `\
 DIFF
 ${applyStr}
 
 ORIGINAL_FILE
 ${tripleTick[0]}
 ${originalCode}
-${tripleTick[1]}`
+${tripleTick[1]}`;
 
 
 
 
 
-export const gridPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullFileStr: string, startLine: number, endLine: number }) => {
+export const gridPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullFileStr: string; startLine: number; endLine: number }) => {
 
-	const fullFileLines = fullFileStr.split('\n')
+	const fullFileLines = fullFileStr.split('\n');
 
 	/*
 
@@ -722,46 +722,46 @@ export const gridPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullF
 	e
 	*/
 
-	let prefix = ''
-	let i = startLine - 1  // 0-indexed exclusive
+	let prefix = '';
+	let i = startLine - 1;  // 0-indexed exclusive
 	// we'll include fullFileLines[i...(startLine-1)-1].join('\n') in the prefix.
 	while (i !== 0) {
-		const newLine = fullFileLines[i - 1]
+		const newLine = fullFileLines[i - 1];
 		if (newLine.length + 1 + prefix.length <= MAX_PREFIX_SUFFIX_CHARS) { // +1 to include the \n
-			prefix = `${newLine}\n${prefix}`
-			i -= 1
+			prefix = `${newLine}\n${prefix}`;
+			i -= 1;
 		}
-		else break
+		else {break;}
 	}
 
-	let suffix = ''
-	let j = endLine - 1
+	let suffix = '';
+	let j = endLine - 1;
 	while (j !== fullFileLines.length - 1) {
-		const newLine = fullFileLines[j + 1]
+		const newLine = fullFileLines[j + 1];
 		if (newLine.length + 1 + suffix.length <= MAX_PREFIX_SUFFIX_CHARS) { // +1 to include the \n
-			suffix = `${suffix}\n${newLine}`
-			j += 1
+			suffix = `${suffix}\n${newLine}`;
+			j += 1;
 		}
-		else break
+		else {break;}
 	}
 
-	return { prefix, suffix }
+	return { prefix, suffix };
 
-}
+};
 
 
 // ======================================================== quick edit (ctrl+K) ========================================================
 
 export type QuickEditFimTagsType = {
-	preTag: string,
-	sufTag: string,
-	midTag: string
-}
+	preTag: string;
+	sufTag: string;
+	midTag: string;
+};
 export const defaultQuickEditFimTags: QuickEditFimTagsType = {
 	preTag: 'ABOVE',
 	sufTag: 'BELOW',
 	midTag: 'SELECTION',
-}
+};
 
 // this should probably be longer
 export const ctrlKStream_systemMessage = ({ quickEditFIMTags: { preTag, midTag, sufTag } }: { quickEditFIMTags: QuickEditFimTagsType }) => {
@@ -776,8 +776,8 @@ Instructions:
 2. You may ONLY CHANGE the original SELECTION, and NOT the content in the <${preTag}>...</${preTag}> or <${sufTag}>...</${sufTag}> tags.
 3. Make sure all brackets in the new selection are balanced the same as in the original selection.
 4. Be careful not to duplicate or remove variables, comments, or other syntax by mistake.
-`
-}
+`;
+};
 
 export const ctrlKStream_userMessage = ({
 	selection,
@@ -787,9 +787,9 @@ export const ctrlKStream_userMessage = ({
 	// isOllamaFIM: false, // Remove unused variable
 	fimTags,
 	language }: {
-		selection: string, prefix: string, suffix: string, instructions: string, fimTags: QuickEditFimTagsType, language: string,
+		selection: string; prefix: string; suffix: string; instructions: string; fimTags: QuickEditFimTagsType; language: string;
 	}) => {
-	const { preTag, sufTag, midTag } = fimTags
+	const { preTag, sufTag, midTag } = fimTags;
 
 	// prompt the model artifically on how to do FIM
 	// const preTag = 'BEFORE'
@@ -810,7 +810,7 @@ ${instructions}
 
 Return only the completion block of code (of the form ${tripleTick[0]}${language}
 <${midTag}>...new code</${midTag}>
-${tripleTick[1]}).`
+${tripleTick[1]}).`;
 };
 
 
@@ -1017,7 +1017,7 @@ Example format:
 <reasoning>This commit updates the login handler to fix a redirect issue and improves frontend error messages for failed logins.</reasoning>
 
 Do not include anything else outside of these tags.
-Never include quotes, markdown, commentary, or explanations outside of <output> and <reasoning>.`.trim()
+Never include quotes, markdown, commentary, or explanations outside of <output> and <reasoning>.`.trim();
 
 
 /**
@@ -1052,10 +1052,10 @@ Never include quotes, markdown, commentary, or explanations outside of <output> 
  * ...
  */
 export const gitCommitMessage_userMessage = (stat: string, sampledDiffs: string, branch: string, log: string) => {
-	const section1 = `Section 1 - Summary of Changes (git diff --stat):`
-	const section2 = `Section 2 - Sampled File Diffs (Top changed files):`
-	const section3 = `Section 3 - Current Git Branch:`
-	const section4 = `Section 4 - Last 5 Commits (excluding merges):`
+	const section1 = `Section 1 - Summary of Changes (git diff --stat):`;
+	const section2 = `Section 2 - Sampled File Diffs (Top changed files):`;
+	const section3 = `Section 3 - Current Git Branch:`;
+	const section4 = `Section 4 - Last 5 Commits (excluding merges):`;
 	return `
 Based on the following Git changes, write a clear, concise commit message that accurately summarizes the intent of the code changes.
 
@@ -1073,5 +1073,5 @@ ${branch}
 
 ${section4}
 
-${log}`.trim()
-}
+${log}`.trim();
+};

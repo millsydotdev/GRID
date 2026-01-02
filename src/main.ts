@@ -670,7 +670,7 @@ function getUserDefinedLocale(argvConfig: IArgvConfig): string | undefined {
 
 //#endregion
 
-function processElectronSwitches(argvKey: string, argvValue: any): void {
+function processElectronSwitches(argvKey: string, argvValue: unknown): void {
 	if (argvValue === true || argvValue === 'true') {
 		if (argvKey === 'disable-hardware-acceleration') {
 			app.disableHardwareAcceleration(); // needs to be called explicitly
@@ -682,7 +682,7 @@ function processElectronSwitches(argvKey: string, argvValue: any): void {
 	}
 }
 
-function processMainProcessSwitches(argvKey: string, argvValue: any): void {
+function processMainProcessSwitches(argvKey: string, argvValue: unknown): void {
 	switch (argvKey) {
 		case 'enable-proposed-api':
 			if (Array.isArray(argvValue)) {

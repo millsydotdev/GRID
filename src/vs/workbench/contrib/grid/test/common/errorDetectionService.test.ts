@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
@@ -144,6 +144,8 @@ class MockGridSettingsService implements Partial<IGridSettingsService> {
 }
 
 suite('ErrorDetectionService Tests', () => {
+
+	ensureNoDisposablesAreLeakedInTestSuite();
 	let markerService: MockMarkerService;
 	let languageFeaturesService: MockLanguageFeaturesService;
 	let textModelService: MockTextModelService;
@@ -544,7 +546,7 @@ suite('ErrorDetectionService Tests', () => {
 		test('should resolve auto model selection', () => {
 			const settings = gridSettingsService.state;
 
-			let modelSelection = settings.modelSelectionOfFeature['Chat'];
+			const modelSelection = settings.modelSelectionOfFeature['Chat'];
 
 			// Verify it's using a valid model (not auto)
 			assert.ok(modelSelection);

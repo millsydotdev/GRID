@@ -157,7 +157,7 @@ export interface ICustomLanguageGrammar {
 	/**
 	 * Inline grammar rules (if not using external file)
 	 */
-	grammar?: any;
+	grammar?: unknown;
 
 	/**
 	 * Embedded language support
@@ -222,7 +222,7 @@ export interface ICustomLanguageServerConfig {
 	/**
 	 * Initialization options
 	 */
-	initializationOptions?: any;
+	initializationOptions?: unknown;
 }
 
 /**

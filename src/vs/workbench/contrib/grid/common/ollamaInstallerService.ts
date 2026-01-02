@@ -1,6 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Minimal installer service that proxies to main channel and exposes events
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';

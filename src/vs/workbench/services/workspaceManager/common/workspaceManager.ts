@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Millsy.dev All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { Event } from '../../../../base/common/event.js';
@@ -82,7 +82,7 @@ export interface IWorkspaceMetadata {
 	/**
 	 * Custom properties for extensibility
 	 */
-	properties?: Record<string, any>;
+	properties?: Record<string, unknown>;
 }
 
 /**
@@ -94,8 +94,8 @@ export interface IWorkspaceState {
 	 */
 	openEditors?: {
 		resource: URI;
-		viewState?: any;
-		options?: any;
+		viewState?: unknown;
+		options?: unknown;
 	}[];
 
 	/**
@@ -106,7 +106,7 @@ export interface IWorkspaceState {
 	/**
 	 * Explorer view state (expanded folders, etc.)
 	 */
-	explorerState?: any;
+	explorerState?: unknown;
 
 	/**
 	 * Sidebar visibility and size
@@ -129,12 +129,12 @@ export interface IWorkspaceState {
 	/**
 	 * Layout state
 	 */
-	layoutState?: any;
+	layoutState?: unknown;
 
 	/**
 	 * Custom view states
 	 */
-	viewStates?: Record<string, any>;
+	viewStates?: Record<string, unknown>;
 }
 
 /**
@@ -180,7 +180,7 @@ export interface IWorkspaceTemplate {
 	/**
 	 * Default settings for workspaces created from this template
 	 */
-	settings?: Record<string, any>;
+	settings?: Record<string, unknown>;
 
 	/**
 	 * Extensions to recommend
@@ -190,7 +190,7 @@ export interface IWorkspaceTemplate {
 	/**
 	 * Tasks to pre-configure
 	 */
-	tasks?: any[];
+	tasks?: unknown[];
 }
 
 /**

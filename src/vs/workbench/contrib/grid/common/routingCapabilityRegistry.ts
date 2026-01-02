@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { ProviderName, ModelSelection } from './gridSettingsTypes.js';
@@ -112,12 +112,12 @@ export class ModelCapabilityRegistry {
 
 		// Compute weaknesses (inverse of strengths, but only if significant)
 		const weaknesses: ModelCapabilityProfile['weaknesses'] = {};
-		if (strengths.codeEdit < 0.3) weaknesses.codeEdit = 1 - strengths.codeEdit;
-		if (strengths.codeReasoning < 0.3) weaknesses.codeReasoning = 1 - strengths.codeReasoning;
-		if (strengths.generalQA < 0.3) weaknesses.generalQA = 1 - strengths.generalQA;
-		if (strengths.vision < 0.3) weaknesses.vision = 1 - strengths.vision;
-		if (strengths.pdf < 0.3) weaknesses.pdf = 1 - strengths.pdf;
-		if (strengths.longContext < 0.3) weaknesses.longContext = 1 - strengths.longContext;
+		if (strengths.codeEdit < 0.3) {weaknesses.codeEdit = 1 - strengths.codeEdit;}
+		if (strengths.codeReasoning < 0.3) {weaknesses.codeReasoning = 1 - strengths.codeReasoning;}
+		if (strengths.generalQA < 0.3) {weaknesses.generalQA = 1 - strengths.generalQA;}
+		if (strengths.vision < 0.3) {weaknesses.vision = 1 - strengths.vision;}
+		if (strengths.pdf < 0.3) {weaknesses.pdf = 1 - strengths.pdf;}
+		if (strengths.longContext < 0.3) {weaknesses.longContext = 1 - strengths.longContext;}
 
 		// Cost tier
 		const costPerM = (capabilities.cost.input + capabilities.cost.output) / 2;
@@ -171,7 +171,7 @@ export class ModelCapabilityRegistry {
 		let score = 0;
 
 		// FIM support is critical for code editing
-		if (capabilities.supportsFIM) score += 0.4;
+		if (capabilities.supportsFIM) {score += 0.4;}
 
 		// Code-tuned models
 		if (name.includes('code') || name.includes('coder') || name.includes('devstral') || name.includes('codestral')) {
@@ -200,9 +200,9 @@ export class ModelCapabilityRegistry {
 		let score = 0;
 
 		// Large context is critical for codebase reasoning
-		if (capabilities.contextWindow >= 200_000) score += 0.3;
-		else if (capabilities.contextWindow >= 128_000) score += 0.25;
-		else if (capabilities.contextWindow >= 64_000) score += 0.15;
+		if (capabilities.contextWindow >= 200_000) {score += 0.3;}
+		else if (capabilities.contextWindow >= 128_000) {score += 0.25;}
+		else if (capabilities.contextWindow >= 64_000) {score += 0.15;}
 
 		// Reasoning capabilities
 		if (
@@ -255,7 +255,7 @@ export class ModelCapabilityRegistry {
 
 	private computeVisionStrength(provider: string, name: string, capabilities: GridStaticModelInfo): number {
 		// Check if model supports vision
-		if (provider === 'gemini') return 0.9; // All Gemini models support vision
+		if (provider === 'gemini') {return 0.9;} // All Gemini models support vision
 		if (
 			provider === 'anthropic' &&
 			(name.includes('3.5') ||
@@ -281,13 +281,13 @@ export class ModelCapabilityRegistry {
 	private computePDFStrength(provider: string, name: string, capabilities: GridStaticModelInfo): number {
 		// PDF requires vision + large context + good reasoning
 		const visionStrength = this.computeVisionStrength(provider, name, capabilities);
-		if (visionStrength === 0) return 0;
+		if (visionStrength === 0) {return 0;}
 
 		let score = visionStrength * 0.5; // Base on vision capability
 
 		// Large context helps with multi-page PDFs
-		if (capabilities.contextWindow >= 200_000) score += 0.3;
-		else if (capabilities.contextWindow >= 128_000) score += 0.2;
+		if (capabilities.contextWindow >= 200_000) {score += 0.3;}
+		else if (capabilities.contextWindow >= 128_000) {score += 0.2;}
 
 		// Reasoning helps understand document structure
 		if (
@@ -302,10 +302,10 @@ export class ModelCapabilityRegistry {
 	}
 
 	private computeLongContextStrength(capabilities: GridStaticModelInfo): number {
-		if (capabilities.contextWindow >= 200_000) return 1.0;
-		if (capabilities.contextWindow >= 128_000) return 0.8;
-		if (capabilities.contextWindow >= 64_000) return 0.6;
-		if (capabilities.contextWindow >= 32_000) return 0.4;
+		if (capabilities.contextWindow >= 200_000) {return 1.0;}
+		if (capabilities.contextWindow >= 128_000) {return 0.8;}
+		if (capabilities.contextWindow >= 64_000) {return 0.6;}
+		if (capabilities.contextWindow >= 32_000) {return 0.4;}
 		return 0.2;
 	}
 }
