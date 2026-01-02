@@ -64,7 +64,7 @@ export class LLMMessageChannel implements IServerChannel<string> {
 	constructor(private readonly metricsService: IMetricsService) {}
 
 	// browser uses this to listen for changes
-	listen(_: unknown, event: string): Event<unknown> {
+	listen(_: any, event: string): Event<any> {
 		// text
 		if (event === 'onText_sendLLMMessage') {return this.llmMessageEmitters.onText.event;}
 		else if (event === 'onFinalMessage_sendLLMMessage') {return this.llmMessageEmitters.onFinalMessage.event;}
@@ -78,7 +78,7 @@ export class LLMMessageChannel implements IServerChannel<string> {
 	}
 
 	// browser uses this to call (see this.channel.call() in llmMessageService.ts for all usages)
-	async call(_: unknown, command: string, params: unknown): Promise<unknown> {
+	async call(_: any, command: string, params: any): Promise<any> {
 		try {
 			if (command === 'sendLLMMessage') {
 				this._callSendLLMMessage(params);

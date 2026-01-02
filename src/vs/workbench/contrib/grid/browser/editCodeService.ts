@@ -1151,11 +1151,11 @@ class EditCodeService extends Disposable implements IEditCodeService {
 
 	public async callBeforeApplyOrEdit(givenURI: URI | 'current' | CallBeforeStartApplyingOpts) {
 		let uri: URI | null | undefined = null;
-		if ((givenURI as unknown).from === 'QuickEdit') {
-			const diffArea = this.diffAreaOfId[(givenURI as unknown).diffareaid];
+		if ((givenURI as any).from === 'QuickEdit') {
+			const diffArea = this.diffAreaOfId[(givenURI as any).diffareaid];
 			uri = diffArea ? diffArea._URI : null;
-		} else if ((givenURI as unknown).from === 'ClickApply') {
-			uri = this._uriOfGivenURI((givenURI as unknown).uri);
+		} else if ((givenURI as any).from === 'ClickApply') {
+			uri = this._uriOfGivenURI((givenURI as any).uri);
 		} else {
 			uri = this._uriOfGivenURI(givenURI as URI | 'current');
 		}
@@ -1799,7 +1799,7 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			}
 		}
 
-		const systemMsg = isLocal ? rewriteCode_systemMessage_local : searchReplaceGivenDescription_systemMessage;
+		const systemMsg = searchReplaceGivenDescription_systemMessage;
 
 		const { messages, separateSystemMessage: separateSystemMessage } =
 			this._convertToLLMMessageService.prepareLLMSimpleMessages({

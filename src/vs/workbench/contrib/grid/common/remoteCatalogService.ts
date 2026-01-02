@@ -297,7 +297,7 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 			}
 
 			const data = await response.json();
-			return (data.data || []).map((model: unknown) => ({
+			return (data.data || []).map((model: any) => ({
 				id: model.id,
 				name: model.name,
 				description: model.description,
