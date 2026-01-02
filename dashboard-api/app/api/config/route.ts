@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireAuth, createAuditLog } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export const GET = requireAuth(async (request, user) => {
+export const GET = requireAuth(async (_request, user) => {
   try {
     const { data: config, error } = await supabaseAdmin
       .from('enterprise_configs')
