@@ -185,8 +185,8 @@ export class LiveCodingService implements ILiveCodingService {
 	private connectionUrl: string;
 
 	constructor(
-		private fileService: unknown,
-		private editorService: unknown,
+		private fileService: any,
+		private editorService: any,
 		connectionUrl: string = 'ws://localhost:8080/collaboration'
 	) {
 		this.connectionUrl = connectionUrl;
@@ -487,7 +487,7 @@ export class LiveCodingService implements ILiveCodingService {
 		});
 	}
 
-	private broadcastMessage(message: unknown): void {
+	private broadcastMessage(message: any): void {
 		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
 			this.ws.send(JSON.stringify(message));
 		}

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { parse, ParsedPattern, IExpression } from '../../../../base/common/glob.js';
+import { parse, ParsedPattern, ParsedExpression, IExpression } from '../../../../base/common/glob.js';
 
 /**
  * AI-Powered Auto-Debug Service
@@ -126,7 +126,7 @@ export class AutoDebugService implements IAutoDebugService {
 	private monitoredFiles: Set<string> = new Set();
 	private detectedBugs: Map<string, DetectedBug[]> = new Map(); // filePath -> bugs
 	private errorPatterns: ErrorPattern[] = [];
-	private ignorePattern: ParsedPattern | undefined;
+	private ignorePattern: ParsedExpression | undefined;
 	private stats: AutoDebugStats = {
 		totalBugsDetected: 0,
 		totalBugsFixed: 0,

@@ -293,7 +293,7 @@ export class ImageGenerationService {
 
 		this._onProgressUpdate.fire({ status: 'processing', message: `Generating with ${model.name}...`, progress: 10 });
 
-		const payload: Record<string, unknown> = {
+		const payload: Record<string, any> = {
 			inputs: options.prompt,
 			parameters: {},
 		};

@@ -229,7 +229,7 @@ export class GridNotificationService extends Disposable implements IGridNotifica
         }
     }
 
-    private transformNotification(raw: unknown): GridNotification {
+    private transformNotification(raw: any): GridNotification {
         const r = raw as any;
         return {
             id: r.id,

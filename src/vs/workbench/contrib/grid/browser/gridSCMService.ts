@@ -17,7 +17,6 @@ import { ILLMMessageService } from '../common/sendLLMMessageService.js';
 import { ModelSelection, OverridesOfModel, ModelSelectionOptions } from '../common/gridSettingsTypes.js';
 import {
 	gitCommitMessage_systemMessage,
-	gitCommitMessage_systemMessage_local,
 	gitCommitMessage_userMessage,
 } from '../common/prompt/prompts.js';
 import { isLocalProvider } from './convertToLLMMessageService.js';
@@ -108,12 +107,8 @@ class GenerateCommitMessageService extends Disposable implements IGenerateCommit
 
 				const prompt = gitCommitMessage_userMessage(stat, sampledDiffs, branch, log);
 
-				// Use local variant for local models to reduce token usage
-				const isLocal =
-					modelSelection &&
-					modelSelection.providerName !== 'auto' &&
-					isLocalProvider(modelSelection.providerName, this.gridSettingsService.state.settingsOfProvider);
-				const systemMessage = isLocal ? gitCommitMessage_systemMessage_local : gitCommitMessage_systemMessage;
+				// Use standard system message for commit generation
+				const systemMessage = gitCommitMessage_systemMessage;
 
 				const simpleMessages = [{ role: 'user', content: prompt } as const];
 				const { messages, separateSystemMessage } = this.convertToLLMMessageService.prepareLLMSimpleMessages({
@@ -150,7 +145,7 @@ class GenerateCommitMessageService extends Disposable implements IGenerateCommit
 	}
 
 	private gitRepoInfo() {
-		const repo = Array.from(this.scmService.repositories || []).find((r: unknown) => r.provider.contextValue === 'git');
+		const repo = Array.from(this.scmService.repositories || []).find((r: any) => r.provider.contextValue === 'git');
 		if (!repo) {
 			throw new Error('No git repository found');
 		}

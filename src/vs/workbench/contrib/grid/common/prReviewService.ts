@@ -113,9 +113,9 @@ export class PRReviewService implements IPRReviewService {
 	private analysisHistory: PRAnalysis[] = [];
 
 	constructor(
-		private llmService: unknown,
-		private gitService: unknown,
-		private fileService: unknown
+		private llmService: any,
+		private gitService: any,
+		private fileService: any
 	) {}
 
 	public async analyzePR(prNumber: number): Promise<PRAnalysis> {
@@ -271,7 +271,7 @@ export class PRReviewService implements IPRReviewService {
 		for (const [category, categoryReviews] of Object.entries(grouped)) {
 			if (categoryReviews.length === 0) {continue;}
 
-			comment += `### ${this.getCategoryEmoji(category as unknown)} ${this.getCategoryTitle(category as unknown)}\n\n`;
+			comment += `### ${this.getCategoryEmoji(category as any)} ${this.getCategoryTitle(category as any)}\n\n`;
 
 			for (const review of categoryReviews.slice(0, 5)) {
 				// Limit to 5 per category
@@ -341,7 +341,7 @@ export class PRReviewService implements IPRReviewService {
 
 	// Private helper methods
 
-	private async generateAISummary(pr: unknown, files: PRFile[], reviews: CodeReview[]): Promise<string> {
+	private async generateAISummary(pr: any, files: PRFile[], reviews: CodeReview[]): Promise<string> {
 		const prompt = `
 Analyze this pull request and provide a concise summary:
 
@@ -392,13 +392,13 @@ Provide a 2-3 sentence summary of what this PR does and any concerns.
 		return changes;
 	}
 
-	private async runStaticAnalysis(filePath: string, changes: unknown[]): Promise<CodeReview[]> {
+	private async runStaticAnalysis(filePath: string, changes: any[]): Promise<CodeReview[]> {
 		// Run linters/static analysis tools
 		// This would integrate with ESLint, TSLint, etc.
 		return [];
 	}
 
-	private async runAIReview(filePath: string, changes: unknown[]): Promise<CodeReview[]> {
+	private async runAIReview(filePath: string, changes: any[]): Promise<CodeReview[]> {
 		// Use AI to review code changes
 		const reviews: CodeReview[] = [];
 
@@ -418,7 +418,7 @@ Provide a 2-3 sentence summary of what this PR does and any concerns.
 		return null;
 	}
 
-	private async checkSecurity(filePath: string, changes: unknown[]): Promise<CodeReview[]> {
+	private async checkSecurity(filePath: string, changes: any[]): Promise<CodeReview[]> {
 		const reviews: CodeReview[] = [];
 
 		for (const change of changes.filter((c) => c.type === 'add')) {
@@ -466,7 +466,7 @@ Provide a 2-3 sentence summary of what this PR does and any concerns.
 		return reviews;
 	}
 
-	private async checkPerformance(filePath: string, changes: unknown[]): Promise<CodeReview[]> {
+	private async checkPerformance(filePath: string, changes: any[]): Promise<CodeReview[]> {
 		const reviews: CodeReview[] = [];
 
 		for (const change of changes.filter((c) => c.type === 'add')) {
