@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { parse, ParsedPattern, IExpression } from '../../../../../base/common/glob.js';
+import { parse, ParsedPattern, IExpression } from '../../../../base/common/glob.js';
 
 /**
  * AI-Powered Auto-Debug Service
@@ -136,10 +136,10 @@ export class AutoDebugService implements IAutoDebugService {
 	};
 
 	constructor(
-		private llmService: unknown, // Inject LLM service for AI-powered suggestions
-		private fileService: unknown, // For reading/writing files
-		private diagnosticsService: unknown, // For getting compiler errors
-		private workspaceContextService: unknown // Inject workspace service
+		private llmService: any, // Inject LLM service for AI-powered suggestions
+		private fileService: any, // For reading/writing files
+		private diagnosticsService: any, // For getting compiler errors
+		private workspaceContextService: any // Inject workspace service
 	) {
 		this.initializeErrorPatterns();
 		this.loadGridIgnore();
@@ -194,7 +194,7 @@ export class AutoDebugService implements IAutoDebugService {
 	private async loadGridIgnore(): Promise<void> {
 		try {
 			if (!this.workspaceContextService) {return;}
-			const workspace = (this.workspaceContextService as unknown).getWorkspace();
+			const workspace = (this.workspaceContextService as any).getWorkspace();
 			if (!workspace.folders.length) {return;}
 
 			const rootPath = workspace.folders[0].uri.fsPath || workspace.folders[0].uri.path;
@@ -202,7 +202,7 @@ export class AutoDebugService implements IAutoDebugService {
 			const ignorePath = rootPath.endsWith(sep) ? `${rootPath}.gridignore` : `${rootPath}${sep}.gridignore`;
 
 			try {
-				const content = await (this.fileService as unknown).readFile(ignorePath);
+				const content = await (this.fileService as any).readFile(ignorePath);
 				const expression: IExpression = {};
 				content.split('\n').forEach((line: string) => {
 					const trimmed = line.trim();
@@ -245,9 +245,9 @@ export class AutoDebugService implements IAutoDebugService {
 		if (this.isIgnored(filePath)) {return [];}
 
 		// Get compiler/linter errors
-		const diagnostics: unknown[] = await this.diagnosticsService.getDiagnostics(filePath);
+		const diagnostics: any[] = await this.diagnosticsService.getDiagnostics(filePath);
 
-		const bugs: DetectedBug[] = diagnostics.map((diag: unknown) => {
+		const bugs: DetectedBug[] = diagnostics.map((diag: any) => {
 			const lines = code.split('\n');
 			const startLine = diag.range.start.line;
 
@@ -283,7 +283,7 @@ export class AutoDebugService implements IAutoDebugService {
 
 		// Generate AI-powered fix suggestions
 		const aiPrompt = this.buildFixPrompt(bug, knownPattern);
-		const aiResponse: unknown = await this.llmService.sendMessage({
+		const aiResponse: any = await this.llmService.sendMessage({
 			messages: [
 				{
 					role: 'system',
@@ -473,7 +473,7 @@ Format your response as JSON:
 		}
 	}
 
-	private async applyAdditionalChange(change: unknown): Promise<void> {
+	private async applyAdditionalChange(change: any): Promise<void> {
 		const content: string = await this.fileService.readFile(change.filePath);
 		const lines = content.split('\n');
 		const { startLine, endLine, new: newCode } = change.change;
