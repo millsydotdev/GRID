@@ -123,7 +123,7 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 				throw new Error(`Non-200 status code: ${context.res.statusCode}`);
 			}
 
-			const version = data.tag_name;
+			const version = (data as any).tag_name;
 
 			const myVersion = this._productService.version;
 			const latestVersion = version;
