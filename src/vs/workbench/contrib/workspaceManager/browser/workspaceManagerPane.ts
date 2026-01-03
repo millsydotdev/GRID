@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { EditorInput } from '../../../common/editor/editorInput.js';
 import * as nls from '../../../../nls.js';
 import { EditorExtensions } from '../../../common/editor.js';
@@ -23,7 +22,6 @@ import { URI } from '../../../../base/common/uri.js';
 // TODO: React component not built yet
 // import { mountWorkspaceManager } from './react/out/workspace-manager-tsx/index.js';
 import { Codicon } from '../../../../base/common/codicons.js';
-import { toDisposable } from '../../../../base/common/lifecycle.js';
 import { IWorkspaceManagerService } from '../../../services/workspaceManager/common/workspaceManager.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
@@ -61,8 +59,7 @@ class WorkspaceManagerPane extends EditorPane {
 		group: IEditorGroup,
 		@ITelemetryService telemetryService: ITelemetryService,
 		@IThemeService themeService: IThemeService,
-		@IStorageService storageService: IStorageService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService
+		@IStorageService storageService: IStorageService
 	) {
 		super(WorkspaceManagerPane.ID, group, telemetryService, themeService, storageService);
 	}
@@ -211,7 +208,6 @@ registerAction2(class extends Action2 {
 		const workspaceManager = accessor.get(IWorkspaceManagerService);
 
 		const workspaces = await workspaceManager.getWorkspaces();
-		const _activeWorkspace = await workspaceManager.getActiveWorkspace();
 
 		const items = workspaces.map(ws => ({
 			label: ws.name,

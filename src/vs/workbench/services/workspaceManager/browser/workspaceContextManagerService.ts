@@ -65,11 +65,17 @@ export class WorkspaceContextManagerService extends Disposable implements IWorks
 			}
 		}
 
+		// Check if workspace will be in parallel mode
+		const existingInstancesOfWorkspace = Array.from(this.contextsCache.values())
+			.filter(ctx => ctx.workspaceId === options.workspaceId);
+		const isParallelMode = existingInstancesOfWorkspace.length > 0;
+
 		const context: IWorkspaceContext = {
 			workspaceId: options.workspaceId,
 			instanceId,
 			displayName: options.displayName || `Workspace ${this.contextsCache.size + 1}`,
 			isPrimary: options.makePrimary ?? true,
+			isParallelMode,
 			chatThreadIds: [],
 			agentSessions: [],
 			settings: options.settings,
