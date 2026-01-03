@@ -388,10 +388,13 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 			};
 
 			for (const providerName of providerNames) {
+				// Merge default and read settings for each provider
+				const defaultSettings = defaultSettingsOfProvider[providerName];
+				const readSettings = readS.settingsOfProvider[providerName];
 				readS.settingsOfProvider[providerName] = {
-					...defaultSettingsOfProvider[providerName],
-					...readS.settingsOfProvider[providerName],
-				} as SettingsAtProvider<typeof providerName>;
+					...defaultSettings,
+					...readSettings,
+				} as typeof defaultSettings;
 
 				// conversion from 1.0.3 to 1.2.5 (can remove this when enough people update)
 				for (const m of readS.settingsOfProvider[providerName].models) {
