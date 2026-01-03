@@ -153,6 +153,9 @@ export class GridNotificationService extends Disposable implements IGridNotifica
                 primary: [{
                     id: 'view',
                     label: 'View',
+                    tooltip: 'View in browser',
+                    class: undefined,
+                    enabled: true,
                     run: () => {
                         // Open in external browser or internal webview
                         if (notification.actionUrl) {
