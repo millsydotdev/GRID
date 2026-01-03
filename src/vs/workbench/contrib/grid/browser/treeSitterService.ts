@@ -27,6 +27,27 @@ export interface ASTChunk {
 	symbolName?: string; // If this chunk represents a symbol
 }
 
+// Tree-sitter WASM module types
+interface TreeSitterNode {
+	type: string;
+	startPosition: { row: number; column: number };
+	endPosition: { row: number; column: number };
+	children?: TreeSitterNode[];
+	text?: string;
+}
+
+interface TreeSitterTree {
+	rootNode: TreeSitterNode;
+}
+
+interface TreeSitterParser {
+	parse(content: string): TreeSitterTree | null;
+}
+
+interface TreeSitterWasmModule {
+	createParser(language: string): Promise<TreeSitterParser | null>;
+}
+
 export const ITreeSitterService = createDecorator<ITreeSitterService>('treeSitterService');
 
 export interface ITreeSitterService {
@@ -40,8 +61,8 @@ class TreeSitterService implements ITreeSitterService {
 	declare readonly _serviceBrand: undefined;
 
 	private _enabled = false;
-	private _parserCache: Map<string, unknown> = new Map(); // language -> parser instance
-	private _wasmModule: any = null;
+	private _parserCache: Map<string, TreeSitterParser> = new Map(); // language -> parser instance
+	private _wasmModule: TreeSitterWasmModule | null = null;
 	private _loadFailed = false; // Track if module loading has failed to prevent repeated warnings
 
 	constructor(
