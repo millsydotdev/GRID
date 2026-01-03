@@ -221,8 +221,8 @@ const _validatedModelState = (state: Omit<GridSettingsState, '_modelOptions'>): 
 	// update model options
 	const newModelOptions: ModelOption[] = [];
 	// Add "Auto" option first (only for Chat feature)
-	// Note: 'auto' is not a real ProviderName, but we use it as a special marker
-	const autoOption: ModelOption = { name: 'Auto', selection: { providerName: 'auto' as unknown, modelName: 'auto' } };
+	// Note: 'auto' is a special ModelSelection value for automatic routing
+	const autoOption: ModelOption = { name: 'Auto', selection: { providerName: 'auto', modelName: 'auto' } };
 	newModelOptions.push(autoOption);
 
 	for (const providerName of providerNames) {
@@ -390,7 +390,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 				readS.settingsOfProvider[providerName] = {
 					...defaultSettingsOfProvider[providerName],
 					...readS.settingsOfProvider[providerName],
-				} as unknown;
+				} as SettingsAtProvider<typeof providerName>;
 
 				// conversion from 1.0.3 to 1.2.5 (can remove this when enough people update)
 				for (const m of readS.settingsOfProvider[providerName].models) {
