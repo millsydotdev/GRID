@@ -9,10 +9,8 @@ import { IMainProcessService } from '../../../../../platform/ipc/common/mainProc
 import { IGridSettingsService } from '../../common/gridSettingsService.js';
 import { IMCPService } from '../../common/mcpService.js';
 import { ISecretDetectionService } from '../../common/secretDetectionService.js';
-import { INotificationService } from '../../../../../platform/notification/common/notification.js';
 import { Emitter, Event } from '../../../../../base/common/event.js';
 import { ServiceSendLLMMessageParams } from '../../common/sendLLMMessageTypes.js';
-import { Severity } from '../../../../../platform/notification/common/notification.js';
 
 /**
  * Mock IPC Channel for testing
@@ -143,29 +141,29 @@ class MockSecretDetectionService implements Partial<ISecretDetectionService> {
 /**
  * Mock NotificationService
  */
-class MockNotificationService implements Partial<INotificationService> {
-	private notifications: Array<{ severity: Severity; message: string }> = [];
+// class MockNotificationService implements Partial<INotificationService> {
+// 	private notifications: Array<{ severity: Severity; message: string }> = [];
 
-	info(message: string) {
-		this.notifications.push({ severity: Severity.Info, message });
-	}
+// 	info(message: string) {
+// 		this.notifications.push({ severity: Severity.Info, message });
+// 	}
 
-	warn(message: string) {
-		this.notifications.push({ severity: Severity.Warning, message });
-	}
+// 	warn(message: string) {
+// 		this.notifications.push({ severity: Severity.Warning, message });
+// 	}
 
-	error(message: string) {
-		this.notifications.push({ severity: Severity.Error, message });
-	}
+// 	error(message: string) {
+// 		this.notifications.push({ severity: Severity.Error, message });
+// 	}
 
-	getNotifications() {
-		return this.notifications;
-	}
+// 	getNotifications() {
+// 		return this.notifications;
+// 	}
 
-	clearNotifications() {
-		this.notifications = [];
-	}
-}
+// 	clearNotifications() {
+// 		this.notifications = [];
+// 	}
+// }
 
 suite('LLMMessageService Tests', () => {
 
@@ -176,7 +174,6 @@ suite('LLMMessageService Tests', () => {
 	let gridSettingsService: MockGridSettingsService;
 	let mcpService: MockMCPService;
 	let secretDetectionService: MockSecretDetectionService;
-	let notificationService: MockNotificationService;
 
 	setup(() => {
 		channel = new MockChannel();
@@ -184,7 +181,6 @@ suite('LLMMessageService Tests', () => {
 		gridSettingsService = new MockGridSettingsService();
 		mcpService = new MockMCPService();
 		secretDetectionService = new MockSecretDetectionService();
-		notificationService = new MockNotificationService();
 
 		service = new LLMMessageService(
 			mainProcessService as any,
@@ -410,9 +406,9 @@ suite('LLMMessageService Tests', () => {
 				},
 				logging: { loggingName: 'Chat', loggingExtras: {} },
 				modelSelectionOptions: {},
-				overridesOfModel: {},
-				chatMode: 'edit',
-				separateSystemMessage: false,
+				overridesOfModel: {} as any,
+				chatMode: 'edit' as any,
+				separateSystemMessage: false as any,
 			};
 
 			const requestId = service.sendLLMMessage(params);
@@ -586,7 +582,7 @@ suite('LLMMessageService Tests', () => {
 			};
 
 			service.openAICompatibleList({
-				providerName: 'lmstudio',
+				providerName: 'lmStudio',
 				onSuccess,
 				onError,
 			});
