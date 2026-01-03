@@ -27,8 +27,8 @@ export class CustomLanguageIndexingContribution extends Disposable implements IW
 
 	constructor(
 		@ICustomLanguagesService private readonly customLanguagesService: ICustomLanguagesService,
-		@IEditorService private readonly editorService: IEditorService,
-		@ILanguageService private readonly languageService: ILanguageService,
+		@IEditorService _editorService: IEditorService,
+		@ILanguageService _languageService: ILanguageService,
 		@IFileService private readonly fileService: IFileService,
 		@IWorkspaceContextService private readonly workspaceContextService: IWorkspaceContextService,
 		@ILogService private readonly logService: ILogService
@@ -97,13 +97,9 @@ export class CustomLanguageIndexingContribution extends Disposable implements IW
 		// Watch for file changes
 		this._register(this.fileService.watch(configUri));
 		this._register(this.fileService.onDidFilesChange(e => {
-			for (const change of e.changes) {
-				if (change.resource.toString() === configUri.toString()) {
-					if (change.type === FileChangeType.UPDATED || change.type === FileChangeType.ADDED) {
-						this.logService.info('Workspace custom languages configuration changed, reloading...');
-						this._loadWorkspaceLanguages();
-					}
-				}
+			if (e.contains(configUri, FileChangeType.UPDATED, FileChangeType.ADDED)) {
+				this.logService.info('Workspace custom languages configuration changed, reloading...');
+				this._loadWorkspaceLanguages();
 			}
 		}));
 	}
