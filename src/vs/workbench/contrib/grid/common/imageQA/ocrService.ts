@@ -108,6 +108,10 @@ export class TesseractOCRService implements IOCRService {
 	async extract(imageData: Uint8Array, mimeType: string): Promise<OCRResult> {
 		await this.ensureWorker();
 
+		if (!this.tesseractWorker) {
+			throw new Error('Tesseract worker not initialized');
+		}
+
 		try {
 			const result = await this.tesseractWorker.recognize(imageData);
 

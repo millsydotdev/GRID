@@ -10,6 +10,7 @@ import { IFileService } from '../../../../../platform/files/common/files.js';
 import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { basename } from '../../../../../base/common/resources.js';
 import { IChatRequestVariableEntry } from '../../common/chatVariableEntries.js';
+import { ChatAgentLocation } from '../../common/chatAgents.js';
 
 export class GridRulesContribution extends Disposable implements IWorkbenchContribution {
     static readonly ID = 'chat.gridRules';
@@ -21,7 +22,7 @@ export class GridRulesContribution extends Disposable implements IWorkbenchContr
     ) {
         super();
         this._register(this.chatWidgetService.onDidAddWidget(widget => this.handleWidget(widget)));
-        this.chatWidgetService.getWidgetsByLocations().forEach(widget => this.handleWidget(widget));
+        this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat).forEach(widget => this.handleWidget(widget));
     }
 
     private async handleWidget(widget: IChatWidget): Promise<void> {
