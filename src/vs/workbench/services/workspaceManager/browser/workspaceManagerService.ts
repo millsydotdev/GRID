@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { URI } from '../../../../base/common/uri.js';
 import { IWorkspaceManagerService, IWorkspaceMetadata, ICreateWorkspaceOptions, IWorkspaceState, IWorkspaceTemplate, IWorkspacesAddedEvent, IWorkspacesRemovedEvent, IWorkspaceUpdatedEvent, IActiveWorkspaceChangedEvent } from '../common/workspaceManager.js';
@@ -12,7 +12,7 @@ import { IFileService } from '../../../../platform/files/common/files.js';
 import { IWorkspaceContextService, WorkbenchState } from '../../../../platform/workspace/common/workspace.js';
 import { IHostService } from '../../../../workbench/services/host/browser/host.js';
 import { VSBuffer } from '../../../../base/common/buffer.js';
-import { basename, dirname, joinPath } from '../../../../base/common/resources.js';
+import { joinPath } from '../../../../base/common/resources.js';
 import { generateUuid } from '../../../../base/common/uuid.js';
 import { IStoredWorkspace, IStoredWorkspaceFolder } from '../../../../platform/workspaces/common/workspaces.js';
 import { IEditorService } from '../../../../workbench/services/editor/common/editorService.js';
@@ -60,7 +60,7 @@ export class WorkspaceManagerService extends Disposable implements IWorkspaceMan
 		@IWorkspaceContextService private readonly contextService: IWorkspaceContextService,
 		@IHostService private readonly hostService: IHostService,
 		@IEditorService private readonly editorService: IEditorService,
-		@IViewsService private readonly viewsService: IViewsService,
+		@IViewsService _viewsService: IViewsService,
 		@ILayoutService private readonly layoutService: IWorkbenchLayoutService
 	) {
 		super();

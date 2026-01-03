@@ -8,8 +8,7 @@ import { IStatusbarService, StatusbarAlignment, IStatusbarEntry, IStatusbarEntry
 import { IWorkspaceManagerService } from '../../../services/workspaceManager/common/workspaceManager.js';
 import { IWorkspaceContextManagerService } from '../../../services/workspaceManager/common/workspaceContext.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
-import { QUICK_SWITCH_WORKSPACE_ACTION_ID, WORKSPACE_MANAGER_OPEN_ACTION_ID } from './workspaceManagerPane.js';
-import { ThemeIcon } from '../../../../base/common/themables.js';
+import { QUICK_SWITCH_WORKSPACE_ACTION_ID } from './workspaceManagerPane.js';
 import { localize } from '../../../../nls.js';
 import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from '../../../common/contributions.js';
 
@@ -25,7 +24,7 @@ export class WorkspaceStatusBarContribution extends Disposable implements IWorkb
 		@IStatusbarService private readonly statusbarService: IStatusbarService,
 		@IWorkspaceManagerService private readonly workspaceManager: IWorkspaceManagerService,
 		@IWorkspaceContextManagerService private readonly contextManager: IWorkspaceContextManagerService,
-		@ICommandService private readonly commandService: ICommandService
+		@ICommandService _commandService: ICommandService
 	) {
 		super();
 		this._register(this.workspaceManager.onDidChangeActiveWorkspace(() => this._updateStatusBar()));

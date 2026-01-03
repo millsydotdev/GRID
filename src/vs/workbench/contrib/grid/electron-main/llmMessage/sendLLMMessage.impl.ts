@@ -1591,7 +1591,7 @@ type CallFnOfProvider = {
 	[providerName in ProviderName]: {
 		sendChat: (params: SendChatParams_Internal) => Promise<void>;
 		sendFIM: ((params: SendFIMParams_Internal) => void) | null;
-		list: ((params: ListParams_Internal<unknown>) => void) | null;
+		list: ((params: ListParams_Internal<any>) => void) | null;
 	};
 };
 
@@ -1683,7 +1683,7 @@ export const sendLLMMessageToProviderImplementation = {
 		sendFIM: null,
 		list: null,
 	},
-} satisfies CallFnOfProvider;
+} as CallFnOfProvider;
 
 /*
 FIM info (this may be useful in the future with vLLM, but in most cases the only way to use FIM is if the provider explicitly supports it):

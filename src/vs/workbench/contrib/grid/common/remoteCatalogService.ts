@@ -126,7 +126,8 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 				case 'openRouter':
 					return await this.fetchOpenRouterCatalog(apiKey!);
 				case 'ollama':
-					return await this.fetchOllamaCatalog(('url' in settings ? settings.url : undefined) || 'http://127.0.0.1:11434');
+					const url = ('url' in settings && typeof settings.url === 'string') ? settings.url : 'http://127.0.0.1:11434';
+				return await this.fetchOllamaCatalog(url);
 				default:
 					// For providers without public catalog APIs, return empty
 					// They rely on hardcoded lists in modelCapabilities.ts

@@ -1047,7 +1047,7 @@ export class ComposerPanel extends ViewPane {
 				.filter(item => item.uri && this._workspaceContextService.isInsideWorkspace(item.uri))
 				.map(item => ({
 					uri: item.uri!,
-					type: (item as unknown).isFolder ? 'folder' as const : 'file' as const,
+					type: (item as any).isFolder ? 'folder' as const : 'file' as const,
 					label: this._labelService.getUriLabel(item.uri!, { relative: true })
 				}));
 
@@ -1235,11 +1235,11 @@ export class ComposerPanel extends ViewPane {
 							return { linesAdded: 0, linesRemoved: 0 };
 						}
 
-						if (diff && diff.changes.length > 0) {
+						if (diff && (diff as any).changes?.length > 0) {
 							let fileLinesAdded = 0;
 							let fileLinesRemoved = 0;
 
-							for (const change of diff.changes) {
+							for (const change of (diff as any).changes) {
 								const originalLines = change.original.isEmpty ? 0 : (change.original.endLineNumberExclusive - change.original.startLineNumber);
 								const modifiedLines = change.modified.isEmpty ? 0 : (change.modified.endLineNumberExclusive - change.modified.startLineNumber);
 

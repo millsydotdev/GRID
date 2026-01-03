@@ -40,8 +40,8 @@ export class WebSearchTool {
         if (!query) {
             return {
                 content: [{
-                    type: 'text',
-                    text: 'No query provided.'
+                    kind: 'text',
+                    value: 'No query provided.'
                 }]
             };
         }
@@ -59,8 +59,8 @@ export class WebSearchTool {
             if (!response.ok) {
                 return {
                     content: [{
-                        type: 'text',
-                        text: `Web search failed: ${response.status} ${response.statusText}`
+                        kind: 'text',
+                        value: `Web search failed: ${response.status} ${response.statusText}`
                     }]
                 };
             }
@@ -70,16 +70,16 @@ export class WebSearchTool {
 
             return {
                 content: [{
-                    type: 'text',
-                    text: results.length > 0 ? results.join('\n\n') : 'No results found.'
+                    kind: 'text',
+                    value: results.length > 0 ? results.join('\n\n') : 'No results found.'
                 }]
             };
 
         } catch (error) {
             return {
                 content: [{
-                    type: 'text',
-                    text: `Web search error: ${error instanceof Error ? error.message : String(error)}`
+                    kind: 'text',
+                    value: `Web search error: ${error instanceof Error ? error.message : String(error)}`
                 }]
             };
         }

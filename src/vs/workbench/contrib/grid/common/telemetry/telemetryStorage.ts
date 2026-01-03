@@ -23,7 +23,7 @@ export class TelemetryStorageService {
 		@IFileService private readonly fileService: IFileService,
 		@IEnvironmentService private readonly environmentService: IEnvironmentService
 	) {
-		this.storageDir = joinPath(this.environmentService.userDataHome, 'telemetry');
+		this.storageDir = joinPath(this.environmentService.userRoamingDataHome, 'telemetry');
 		this._ensureStorageDir();
 	}
 

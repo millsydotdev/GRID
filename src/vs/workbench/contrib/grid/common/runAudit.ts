@@ -47,6 +47,6 @@ export function getAuditReport(): ReturnType<typeof generateComprehensiveAuditRe
 
 // Expose globally
 if (typeof window !== 'undefined') {
-	(window as unknown).gridRunAudit = runAudit;
-	(window as unknown).gridGetAuditReport = getAuditReport;
+	(window as any).gridRunAudit = runAudit;
+	(window as any).gridGetAuditReport = getAuditReport;
 }

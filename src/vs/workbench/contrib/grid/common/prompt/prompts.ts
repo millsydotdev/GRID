@@ -338,6 +338,34 @@ export const builtinTools: {
 		params: { persistent_terminal_id: { description: `The ID of the persistent terminal.` } }
 	},
 
+	run_nl_command: {
+		name: 'run_nl_command',
+		description: `Runs a natural language command by converting it to a shell command first. Times out after ${MAX_TERMINAL_INACTIVE_TIME}s of inactivity.`,
+		params: {
+			nl_input: { description: 'The natural language description of the command to run.' },
+			cwd: { description: cwdHelper },
+		},
+	},
+
+	web_search: {
+		name: 'web_search',
+		description: 'Searches the web for the given query and returns search results.',
+		params: {
+			query: { description: 'The search query.' },
+			k: { description: 'Optional. Number of results to return.' },
+			refresh: { description: 'Optional. Whether to refresh cached results.' },
+		},
+	},
+
+	browse_url: {
+		name: 'browse_url',
+		description: 'Fetches and returns the content of a URL.',
+		params: {
+			url: { description: 'The URL to browse.' },
+			refresh: { description: 'Optional. Whether to refresh cached content.' },
+		},
+	},
+
 	start_project_research: {
 		name: 'start_project_research',
 		description: 'Starts an interactive project research session to help the user plan a new project. Use this when the user wants to create a new project or needs help planning one.',

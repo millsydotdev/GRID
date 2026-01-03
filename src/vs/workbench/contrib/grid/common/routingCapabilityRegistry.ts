@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ProviderName, ModelSelection } from './gridSettingsTypes.js';
-import { getModelCapabilities, GridStaticModelInfo, OverridesOfModel } from './modelCapabilities.js';
+import { ProviderName, ModelSelection, OverridesOfModel } from './gridSettingsTypes.js';
+import { getModelCapabilities, GridStaticModelInfo } from './modelCapabilities.js';
 import { localProviderNames } from './gridSettingsTypes.js';
 
 /**
