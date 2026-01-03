@@ -53,8 +53,8 @@ export class LLMMessageService extends Disposable implements ILLMMessageService 
 		}
 	} satisfies {
 		[providerName in 'ollama' | 'openAICompat']: {
-			success: { [eventId: string]: ((params: EventModelListOnSuccessParams<unknown>) => void) };
-			error: { [eventId: string]: ((params: EventModelListOnErrorParams<unknown>) => void) };
+			success: { [eventId: string]: ((params: EventModelListOnSuccessParams<any>) => void) };
+			error: { [eventId: string]: ((params: EventModelListOnErrorParams<any>) => void) };
 		}
 	};
 
