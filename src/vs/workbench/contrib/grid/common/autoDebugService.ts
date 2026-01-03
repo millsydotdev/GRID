@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { parse, ParsedPattern, ParsedExpression, IExpression } from '../../../../base/common/glob.js';
+import { parse, ParsedExpression, IExpression } from '../../../../base/common/glob.js';
 
 /**
  * AI-Powered Auto-Debug Service

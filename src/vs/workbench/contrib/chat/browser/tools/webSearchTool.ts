@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
-import { IToolData, IToolInvocation, ToolDataSource } from '../../common/languageModelToolsService.js';
+import { CountTokensCallback, IToolData, IToolInvocation, IToolResult, ToolDataSource, ToolProgress } from '../../common/languageModelToolsService.js';
 import { localize } from '../../../../../nls.js';
 
 interface IWebSearchToolParameters {
@@ -33,14 +33,16 @@ export class WebSearchTool {
     constructor(
     ) { }
 
-    async invoke(invocation: IToolInvocation, token: CancellationToken): Promise<unknown> {
+    async invoke(invocation: IToolInvocation, _countTokens: CountTokensCallback, _progress: ToolProgress, token: CancellationToken): Promise<IToolResult> {
         const parameters = invocation.parameters as IWebSearchToolParameters;
         const query = parameters.query;
 
         if (!query) {
             return {
-                type: 'text',
-                content: 'No query provided.'
+                content: [{
+                    type: 'text',
+                    text: 'No query provided.'
+                }]
             };
         }
 
@@ -56,8 +58,10 @@ export class WebSearchTool {
 
             if (!response.ok) {
                 return {
-                    type: 'text',
-                    content: `Web search failed: ${response.status} ${response.statusText}`
+                    content: [{
+                        type: 'text',
+                        text: `Web search failed: ${response.status} ${response.statusText}`
+                    }]
                 };
             }
 
@@ -65,14 +69,18 @@ export class WebSearchTool {
             const results = this.parseDuckDuckGoLite(html);
 
             return {
-                type: 'text',
-                content: results.length > 0 ? results.join('\n\n') : 'No results found.'
+                content: [{
+                    type: 'text',
+                    text: results.length > 0 ? results.join('\n\n') : 'No results found.'
+                }]
             };
 
         } catch (error) {
             return {
-                type: 'text',
-                content: `Web search error: ${error instanceof Error ? error.message : String(error)}`
+                content: [{
+                    type: 'text',
+                    text: `Web search error: ${error instanceof Error ? error.message : String(error)}`
+                }]
             };
         }
     }

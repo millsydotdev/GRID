@@ -20,7 +20,6 @@ import {
 	ProviderName,
 	ModelSelectionOfFeature,
 	SettingsOfProvider,
-	SettingsAtProvider,
 	SettingName,
 	providerNames,
 	ModelSelection,

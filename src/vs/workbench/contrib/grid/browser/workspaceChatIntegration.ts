@@ -174,7 +174,6 @@ export class WorkspaceChatIntegrationService extends Disposable implements IWork
 		}
 
 		const workspace = await this.workspaceManager.getWorkspace(instance.workspaceId);
-		const name = threadName || `${workspace?.name || 'Workspace'} - ${instance.displayName}`;
 
 		// Create thread using chat service
 		this.chatThreadService.openNewThread();

@@ -89,7 +89,7 @@ class TreeSitterService implements ITreeSitterService {
 		return this._enabled;
 	}
 
-	private async _getWasmModule(): Promise<unknown> {
+	private async _getWasmModule(): Promise<TreeSitterWasmModule | null> {
 		if (this._wasmModule) {
 			return this._wasmModule;
 		}

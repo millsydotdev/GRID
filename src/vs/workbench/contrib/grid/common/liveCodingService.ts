@@ -580,7 +580,7 @@ export class LiveCodingService implements ILiveCodingService {
 
 	private async applyCodeChange(change: CodeChange): Promise<void> {
 		// Apply code change to editor
-		const document = await this.editorService.openTextDocument(change.filePath);
+		await this.editorService.openTextDocument(change.filePath);
 		// Implementation would apply the actual edit
 	}
 
