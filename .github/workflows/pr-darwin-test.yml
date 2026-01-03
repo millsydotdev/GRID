@@ -49,6 +49,10 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit == 'true'
         run: tar -xzf .build/node_modules_cache/cache.tgz
 
+      - name: Install libvips for sharp
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: brew install vips
+
       - name: Install dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
