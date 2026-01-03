@@ -10,7 +10,7 @@ import { IFileService } from '../../../../../platform/files/common/files.js';
 import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { basename } from '../../../../../base/common/resources.js';
 import { IChatRequestVariableEntry } from '../../common/chatVariableEntries.js';
-import { ChatAgentLocation } from '../../common/chatAgents.js';
+import { ChatAgentLocation } from '../../common/constants.js';
 
 export class GridRulesContribution extends Disposable implements IWorkbenchContribution {
     static readonly ID = 'chat.gridRules';
