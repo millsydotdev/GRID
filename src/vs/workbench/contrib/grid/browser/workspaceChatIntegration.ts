@@ -51,6 +51,14 @@ export interface IChatWorkspaceContext {
 }
 
 /**
+ * Base AI request structure
+ */
+export interface IAIRequest {
+	metadata?: Record<string, unknown>;
+	[key: string]: unknown;
+}
+
+/**
  * Service that integrates workspace management with chat/AI services
  * Ensures AI conversations are scoped to the correct workspace instance
  */
@@ -220,7 +228,7 @@ export class WorkspaceChatIntegrationService extends Disposable implements IWork
 		return this.threadWorkspaceMap.get(threadId);
 	}
 
-	async enrichAIRequest(request: unknown): Promise<unknown> {
+	async enrichAIRequest(request: IAIRequest): Promise<IAIRequest> {
 		const context = await this.getCurrentWorkspaceContext();
 
 		return {
