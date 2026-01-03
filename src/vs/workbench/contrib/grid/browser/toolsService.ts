@@ -50,6 +50,19 @@ import { INLShellParserService } from '../common/nlShellParserService.js';
 import { ISecretDetectionService } from '../common/secretDetectionService.js';
 import { projectResearchService } from '../common/projectResearchService.js';
 
+// DuckDuckGo API response types
+interface DDGRelatedTopic {
+	Text?: string;
+	FirstURL?: string;
+}
+
+interface DDGResponse {
+	AbstractText?: string;
+	Heading?: string;
+	AbstractURL?: string;
+	RelatedTopics?: DDGRelatedTopic[];
+}
+
 // tool use for AI
 type ValidateBuiltinParams = { [T in BuiltinToolName]: (p: RawToolParamsObj) => BuiltinToolCallParams[T] };
 type CallBuiltinTool = {
@@ -795,7 +808,7 @@ export class ToolsService implements IToolsService {
 										CancellationToken.None
 									);
 
-									const json = await asJson<unknown>(response);
+									const json = await asJson<DDGResponse>(response);
 									const results: Array<{ title: string; snippet: string; url: string }> = [];
 
 									if (json?.AbstractText) {
@@ -1286,6 +1299,9 @@ export class ToolsService implements IToolsService {
 				const titleStr = result.title ? `Title: ${result.title}\n\n` : '';
 				const metadataStr = result.metadata?.publishedDate ? `Published: ${result.metadata.publishedDate}\n\n` : '';
 				return `${titleStr}${metadataStr}Content from ${result.url}:\n\n${result.content.substring(0, 10000)}${result.content.length > 10000 ? '\n\n... (content truncated)' : ''}`;
+			},
+			start_project_research: (params, result) => {
+				return result.success ? 'Research started successfully.' : 'Failed to start research.';
 			},
 		};
 	}
