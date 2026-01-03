@@ -15,6 +15,7 @@ import { IActionWidgetDropdownAction, IActionWidgetDropdownActionProvider, IActi
 import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
 import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
 import { IChatAgentData } from '../../common/chatAgents.js';
+import { ThemeIcon } from '../../../../../base/common/themables.js';
 
 export interface IAgentPickerDelegate {
     readonly onDidChangeAgent: Event<IChatAgentData | undefined>;
@@ -30,6 +31,7 @@ function agentDelegateToWidgetActionsProvider(delegate: IAgentPickerDelegate): I
                 return {
                     id: agent.id,
                     enabled: true,
+                    class: undefined,
                     icon: agent.metadata.themeIcon,
                     checked: agent.id === delegate.getCurrentAgent()?.id,
                     label: agent.fullName || agent.name,

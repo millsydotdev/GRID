@@ -34,6 +34,11 @@ export interface IWorkspaceContext {
 	isPrimary: boolean;
 
 	/**
+	 * Whether this workspace is in parallel mode (multiple instances)
+	 */
+	isParallelMode: boolean;
+
+	/**
 	 * Chat thread IDs associated with this workspace instance
 	 */
 	chatThreadIds: string[];
