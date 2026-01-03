@@ -4,15 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
-import { IDisposable } from '../../../../../base/common/lifecycle.js';
-import { ILanguageModelTool, ILanguageModelToolsService, IToolInvocation } from '../../common/languageModelToolsService.js';
+import { ILanguageModelToolsService, IToolInvocation } from '../../common/languageModelToolsService.js';
 import { localize } from '../../../../../nls.js';
 
 interface IWebSearchToolParameters {
     query: string;
 }
 
-export class WebSearchTool implements ILanguageModelTool {
+// Note: ILanguageModelTool interface removed from codebase
+export class WebSearchTool {
     static readonly ID = 'workbench.tools.webSearch';
 
     readonly id = WebSearchTool.ID;
