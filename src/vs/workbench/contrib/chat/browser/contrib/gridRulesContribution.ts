@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable, DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
 import { IWorkbenchContribution } from '../../../../common/contributions.js';
 import { IChatWidget, IChatWidgetService } from '../chat.js';
 import { IFileService } from '../../../../../platform/files/common/files.js';
-import { IWorkspaceContextService, WorkbenchState } from '../../../../../platform/workspace/common/workspace.js';
+import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { basename } from '../../../../../base/common/resources.js';
 import { IChatRequestVariableEntry } from '../../common/chatVariableEntries.js';
 
