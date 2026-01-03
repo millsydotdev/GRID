@@ -55,8 +55,8 @@ export class LLMMessageChannel implements IServerChannel<string> {
 		},
 	} satisfies {
 		[providerName in 'ollama' | 'openaiCompat']: {
-			success: Emitter<EventModelListOnSuccessParams<unknown>>;
-			error: Emitter<EventModelListOnErrorParams<unknown>>;
+			success: Emitter<EventModelListOnSuccessParams<any>>;
+			error: Emitter<EventModelListOnErrorParams<any>>;
 		};
 	};
 
