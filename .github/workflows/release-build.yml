@@ -74,7 +74,7 @@ jobs:
           tar -czf artifacts/GRID-linux-x64-${{ github.event.inputs.version || github.ref_name }}.tar.gz GRID
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: GRID-linux-x64
           path: ../artifacts/GRID-linux-x64-*.tar.gz
@@ -118,7 +118,7 @@ jobs:
         working-directory: ..
 
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: GRID-windows-x64
           path: ../artifacts/GRID-windows-x64-*.zip
@@ -161,7 +161,7 @@ jobs:
           tar -czf artifacts/GRID-macos-universal-${{ github.event.inputs.version || github.ref_name }}.tar.gz GRID
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: GRID-macos-universal
           path: ../artifacts/GRID-macos-universal-*.tar.gz
