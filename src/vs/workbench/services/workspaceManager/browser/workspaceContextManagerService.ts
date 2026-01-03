@@ -215,7 +215,7 @@ export class WorkspaceContextManagerService extends Disposable implements IWorks
 
 		const sessionIndex = context.agentSessions.findIndex(s => s.id === sessionId);
 		if (sessionIndex !== -1) {
-			const session = context.agentSessions[sessionIndex];
+			const _session = context.agentSessions[sessionIndex];
 			// Mark as completed instead of removing
 			await this.updateAgentSession(instanceId, sessionId, { state: 'completed' });
 
