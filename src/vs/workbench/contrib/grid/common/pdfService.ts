@@ -90,7 +90,7 @@ export class PDFService implements IPDFService {
 				const resourcePath: AppResourcePath = `${nodeModulesPath}/pdfjs-dist/build/pdf.mjs`;
 				const fileUri = FileAccess.asBrowserUri(resourcePath).toString(true);
 				const mod = await import(fileUri);
-				pdfjs = (mod as unknown).default ?? mod;
+				pdfjs = (mod as { default?: any }).default ?? mod;
 				if (pdfjs && pdfjs.getDocument) {
 					// Set worker source to disable workers (use empty string or point to worker file)
 					// PDF.js v5 requires workerSrc to be set, but we can disable workers via getDocument options
@@ -113,7 +113,7 @@ export class PDFService implements IPDFService {
 			for (const specifier of candidates) {
 				try {
 					const mod = await import(specifier);
-					pdfjs = (mod as unknown).default ?? mod;
+					pdfjs = (mod as { default?: any }).default ?? mod;
 					if (pdfjs && pdfjs.getDocument) {
 						break;
 					}

@@ -102,7 +102,7 @@ export class ProjectResearchService implements IProjectResearchService {
                     tools: [],
                     services: []
                 },
-                complexity: 'medium',
+                complexity: 5,
                 estimatedSetupTime: '10m',
                 scaffoldCommands: [],
                 recommendedArchitecture: ['Standard MVC', 'Client-side rendering']
