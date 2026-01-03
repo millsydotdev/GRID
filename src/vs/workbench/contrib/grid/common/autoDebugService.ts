@@ -227,7 +227,7 @@ export class AutoDebugService implements IAutoDebugService {
 	}
 
 	private isIgnored(filePath: string): boolean {
-		return this.ignorePattern ? this.ignorePattern(filePath) : false;
+		return this.ignorePattern ? !!this.ignorePattern(filePath) : false;
 	}
 
 	public startMonitoring(filePath: string): void {
