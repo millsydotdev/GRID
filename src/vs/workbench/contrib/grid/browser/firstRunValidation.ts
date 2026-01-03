@@ -80,12 +80,12 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 
 		console.info = (...args: any[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalInfo(...(redacted.hasSecrets ? redacted.redacted : args));
+			originalInfo(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
 		console.debug = (...args: any[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalDebug(...(redacted.hasSecrets ? redacted.redacted : args));
+			originalDebug(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
 		// Restore on dispose
