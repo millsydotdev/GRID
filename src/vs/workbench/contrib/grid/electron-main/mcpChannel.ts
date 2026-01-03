@@ -76,11 +76,11 @@ export class MCPChannel implements IServerChannel<string> {
 	constructor() {}
 
 	// browser uses this to listen for changes
-	listen(_: unknown, event: string, arg?: any): Event<unknown> {
+	listen<T>(_: unknown, event: string, arg?: any): Event<T> {
 		// server events
-		if (event === 'onAdd_server') {return this.mcpEmitters.serverEvent.onAdd.event;}
-		else if (event === 'onUpdate_server') {return this.mcpEmitters.serverEvent.onUpdate.event;}
-		else if (event === 'onDelete_server') {return this.mcpEmitters.serverEvent.onDelete.event;}
+		if (event === 'onAdd_server') {return this.mcpEmitters.serverEvent.onAdd.event as Event<T>;}
+		else if (event === 'onUpdate_server') {return this.mcpEmitters.serverEvent.onUpdate.event as Event<T>;}
+		else if (event === 'onDelete_server') {return this.mcpEmitters.serverEvent.onDelete.event as Event<T>;}
 		// else if (event === 'onLoading_server') return this.mcpEmitters.serverEvent.onChangeLoading.event;
 		// tool call events
 		// handle unknown events
@@ -88,23 +88,27 @@ export class MCPChannel implements IServerChannel<string> {
 	}
 
 	// browser uses this to call (see this.channel.call() in mcpConfigService.ts for all usages)
-	async call(_: unknown, command: string, arg?: any, cancellationToken?: any): Promise<unknown> {
+	async call<T>(_: unknown, command: string, arg?: any, cancellationToken?: any): Promise<T> {
 		try {
 			if (command === 'refreshMCPServers') {
 				await this._refreshMCPServers(arg);
+				return undefined as T;
 			} else if (command === 'closeAllMCPServers') {
 				await this._closeAllMCPServers();
+				return undefined as T;
 			} else if (command === 'toggleMCPServer') {
 				await this._toggleMCPServer(arg.serverName, arg.isOn);
+				return undefined as T;
 			} else if (command === 'callTool') {
 				const p: MCPToolCallParams = arg;
 				const response = await this._safeCallTool(p.serverName, p.toolName, p.params);
-				return response;
+				return response as T;
 			} else {
 				throw new Error(`GRID: command "${command}" not recognized.`);
 			}
 		} catch (e) {
 			console.error('mcp channel: Call Error:', e);
+			return undefined as T;
 		}
 	}
 
