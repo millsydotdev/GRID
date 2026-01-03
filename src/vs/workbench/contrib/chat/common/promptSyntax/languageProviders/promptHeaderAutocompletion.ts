@@ -152,13 +152,21 @@ export class PromptHeaderAutocompletion implements CompletionItemProvider {
 		}
 
 		const whilespaceAfterColon = (lineContent.substring(colonPosition.column).match(/^\s*/)?.[0].length) ?? 0;
+		const insertRange = new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber));
+
+		// Special handling for model attribute with provider grouping
+		if (attribute === PromptHeaderAttributes.model && (promptType === PromptsType.prompt || promptType === PromptsType.agent)) {
+			const modelCompletions = this.getModelCompletions(promptType === PromptsType.agent, whilespaceAfterColon, insertRange);
+			return { suggestions: modelCompletions };
+		}
+
 		const values = this.getValueSuggestions(promptType, attribute);
 		for (const value of values) {
 			const item: CompletionItem = {
 				label: value,
 				kind: CompletionItemKind.Value,
 				insertText: whilespaceAfterColon === 0 ? ` ${value}` : value,
-				range: new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber)),
+				range: insertRange,
 			};
 			suggestions.push(item);
 		}
@@ -174,12 +182,107 @@ export class PromptHeaderAutocompletion implements CompletionItemProvider {
 				label: localize('promptHeaderAutocompletion.handoffsExample', "Handoff Example"),
 				kind: CompletionItemKind.Value,
 				insertText: whilespaceAfterColon === 0 ? ` ${value}` : value,
-				range: new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber)),
+				range: insertRange,
 			};
 			suggestions.push(item);
 		}
 		return { suggestions };
 	}
+
+	/**
+	 * Provides enhanced model completions grouped by provider with capability indicators.
+	 */
+	private getModelCompletions(agentModeOnly: boolean, whilespaceAfterColon: number, insertRange: Range): CompletionItem[] {
+		const suggestions: CompletionItem[] = [];
+
+		// Group models by vendor
+		const modelsByVendor = new Map<string, { metadata: ILanguageModelChatMetadata; qualifiedName: string }[]>();
+
+		for (const modelId of this.languageModelsService.getLanguageModelIds()) {
+			const metadata = this.languageModelsService.lookupLanguageModel(modelId);
+			if (metadata && metadata.isUserSelectable !== false) {
+				if (!agentModeOnly || ILanguageModelChatMetadata.suitableForAgentMode(metadata)) {
+					const vendor = metadata.vendor || 'other';
+					if (!modelsByVendor.has(vendor)) {
+						modelsByVendor.set(vendor, []);
+					}
+					modelsByVendor.get(vendor)!.push({
+						metadata,
+						qualifiedName: ILanguageModelChatMetadata.asQualifiedName(metadata)
+					});
+				}
+			}
+		}
+
+		// Sort vendors alphabetically
+		const sortedVendors = Array.from(modelsByVendor.keys()).sort((a, b) => a.localeCompare(b));
+
+		let sortIndex = 0;
+		for (const vendor of sortedVendors) {
+			const models = modelsByVendor.get(vendor)!;
+
+			// Sort models within vendor alphabetically
+			models.sort((a, b) => a.metadata.name.localeCompare(b.metadata.name));
+
+			for (const { metadata, qualifiedName } of models) {
+				// Build capability badges for detail
+				const capabilities: string[] = [];
+				if (metadata.capabilities?.toolCalling) {
+					capabilities.push('$(tools)');
+				}
+				if (metadata.capabilities?.vision) {
+					capabilities.push('$(eye)');
+				}
+				if (metadata.capabilities?.agentMode) {
+					capabilities.push('$(sparkle)');
+				}
+
+				const capabilityText = capabilities.length > 0 ? ` ${capabilities.join(' ')}` : '';
+
+				// Use vendor display name from metadata or fall back to vendor id
+				const vendorDisplayName = this.getVendorDisplayName(vendor);
+
+				const item: CompletionItem = {
+					label: {
+						label: metadata.name,
+						description: vendorDisplayName + capabilityText,
+					},
+					kind: CompletionItemKind.Value,
+					insertText: whilespaceAfterColon === 0 ? ` ${qualifiedName}` : qualifiedName,
+					filterText: `${metadata.name} ${vendorDisplayName} ${qualifiedName}`,
+					sortText: String(sortIndex++).padStart(5, '0'), // Ensure proper sorting by vendor then name
+					detail: metadata.detail || undefined,
+					range: insertRange,
+				};
+				suggestions.push(item);
+			}
+		}
+
+		return suggestions;
+	}
+
+	/**
+	 * Gets a human-readable display name for a vendor.
+	 */
+	private getVendorDisplayName(vendor: string): string {
+		// Map common vendor IDs to display names
+		const vendorDisplayNames: Record<string, string> = {
+			'copilot': 'GitHub Copilot',
+			'openai': 'OpenAI',
+			'anthropic': 'Anthropic',
+			'google': 'Google',
+			'ollama': 'Ollama',
+			'azure': 'Azure OpenAI',
+			'mistral': 'Mistral AI',
+			'groq': 'Groq',
+			'together': 'Together AI',
+			'deepseek': 'DeepSeek',
+			'other': 'Other',
+		};
+		return vendorDisplayNames[vendor.toLowerCase()] || vendor;
+	}
+
+
 
 	private getValueSuggestions(promptType: string, attribute: string): string[] {
 		switch (attribute) {
@@ -209,25 +312,8 @@ export class PromptHeaderAutocompletion implements CompletionItemProvider {
 					return ['[]', `['search', 'edit', 'fetch']`];
 				}
 				break;
-			case PromptHeaderAttributes.model:
-				if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
-					return this.getModelNames(promptType === PromptsType.agent);
-				}
 		}
 		return [];
-	}
-
-	private getModelNames(agentModeOnly: boolean): string[] {
-		const result = [];
-		for (const model of this.languageModelsService.getLanguageModelIds()) {
-			const metadata = this.languageModelsService.lookupLanguageModel(model);
-			if (metadata && metadata.isUserSelectable !== false) {
-				if (!agentModeOnly || ILanguageModelChatMetadata.suitableForAgentMode(metadata)) {
-					result.push(ILanguageModelChatMetadata.asQualifiedName(metadata));
-				}
-			}
-		}
-		return result;
 	}
 
 	private provideToolCompletions(model: ITextModel, position: Position, header: PromptHeader, isGitHubTarget: boolean): CompletionList | undefined {

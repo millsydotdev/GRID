@@ -10,6 +10,8 @@ import { TestInstantiationService } from '../../../../platform/instantiation/tes
 import { NullLogService } from '../../../../platform/log/common/log.js';
 
 suite('LocalContextService', () => {
+
+	ensureNoDisposablesAreLeakedInTestSuite();
     let service: LocalContextService;
     let instantiationService: TestInstantiationService;
 

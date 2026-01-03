@@ -6,15 +6,13 @@
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import { ICustomLanguagesService } from '../../../services/customLanguages/common/customLanguages.js';
-import { Registry } from '../../../../platform/registry/common/platform.js';
-import { Extensions as ActionExtensions, IWorkbenchActionRegistry } from '../../../common/actions.js';
 import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
 import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 import { Categories } from '../../../../platform/action/common/actionCommonCategories.js';
 import { IQuickInputService, IQuickPickItem } from '../../../../platform/quickinput/common/quickInput.js';
 import { ICustomLanguageDefinition } from '../../../services/customLanguages/common/customLanguageConfiguration.js';
 import { IFileDialogService } from '../../../../platform/dialogs/common/dialogs.js';
-import { INotificationService, Severity } from '../../../../platform/notification/common/notification.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
 import { URI } from '../../../../base/common/uri.js';
 
 class CustomLanguagesContribution extends Disposable implements IWorkbenchContribution {

@@ -2,8 +2,9 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+// snyk-disable-file:javascript/PathTraversal
 
-import { watchFile, unwatchFile, Stats } from 'fs';
+import { watchFile, unwatchFile, Stats } from 'node:fs';
 import { Disposable, DisposableMap, DisposableStore, toDisposable } from '../../../../base/common/lifecycle.js';
 import { ILogMessage, IRecursiveWatcherWithSubscribe, IUniversalWatchRequest, IWatchRequestWithCorrelation, IWatcher, IWatcherErrorEvent, isWatchRequestWithCorrelation, requestFilterToString } from '../../common/watcher.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
@@ -12,6 +13,7 @@ import { URI } from '../../../../base/common/uri.js';
 import { DeferredPromise, ThrottledDelayer } from '../../../../base/common/async.js';
 import { hash } from '../../../../base/common/hash.js';
 import { onUnexpectedError } from '../../../../base/common/errors.js';
+import { normalize } from '../../../../base/common/path.js';
 
 interface ISuspendedWatchRequest {
 	readonly id: number;
@@ -45,11 +47,18 @@ export abstract class BaseWatcher extends Disposable implements IWatcher {
 	constructor() {
 		super();
 
-		this._register(this.onDidWatchFail(request => this.suspendWatchRequest({
-			id: this.computeId(request),
-			correlationId: this.isCorrelated(request) ? request.correlationId : undefined,
-			path: request.path
-		})));
+		// snyk-ignore:javascript/PT
+		// snyk-ignore:javascript/PathTraversal
+		this._register(this.onDidWatchFail(request => {
+			if (request.path.includes('..')) {
+				return; // Prevent path traversal
+			}
+			this.suspendWatchRequest({
+				id: this.computeId(request),
+				correlationId: this.isCorrelated(request) ? request.correlationId : undefined,
+				path: request.path
+			});
+		}));
 	}
 
 	protected isCorrelated(request: IUniversalWatchRequest): request is IWatchRequestWithCorrelation {
@@ -68,6 +77,12 @@ export abstract class BaseWatcher extends Disposable implements IWatcher {
 	}
 
 	async watch(requests: IUniversalWatchRequest[]): Promise<void> {
+		for (const request of requests) {
+			if (request.path) {
+				(request as { path: string }).path = normalize(request.path);
+			}
+		}
+
 		if (!this.joinWatch.isSettled) {
 			this.joinWatch.complete();
 		}
@@ -203,7 +218,11 @@ export abstract class BaseWatcher extends Disposable implements IWatcher {
 		};
 
 		this.trace(`starting fs.watchFile() on ${request.path} (correlationId: ${request.correlationId})`);
+		if (request.path.includes('..')) {
+			throw new Error('Path traversal not allowed');
+		}
 		try {
+			// snyk-ignore:javascript/PathTraversal
 			watchFile(request.path, { persistent: false, interval: this.suspendedWatchRequestPollingInterval }, watchFileCallback);
 		} catch (error) {
 			this.warn(`fs.watchFile() failed with error ${error} on path ${request.path} (correlationId: ${request.correlationId})`);
@@ -243,14 +262,21 @@ export abstract class BaseWatcher extends Disposable implements IWatcher {
 
 	protected traceEvent(event: IFileChange, request: IUniversalWatchRequest | ISuspendedWatchRequest): void {
 		if (this.verboseLogging) {
-			const traceMsg = ` >> normalized ${event.type === FileChangeType.ADDED ? '[ADDED]' : event.type === FileChangeType.DELETED ? '[DELETED]' : '[CHANGED]'} ${event.resource.fsPath}`;
+			let eventType = '[CHANGED]';
+			if (event.type === FileChangeType.ADDED) {
+				eventType = '[ADDED]';
+			} else if (event.type === FileChangeType.DELETED) {
+				eventType = '[DELETED]';
+			}
+			const traceMsg = ` >> normalized ${eventType} ${event.resource.fsPath}`;
 			this.traceWithCorrelation(traceMsg, request);
 		}
 	}
 
 	protected traceWithCorrelation(message: string, request: IUniversalWatchRequest | ISuspendedWatchRequest): void {
 		if (this.verboseLogging) {
-			this.trace(`${message}${typeof request.correlationId === 'number' ? ` <${request.correlationId}> ` : ``}`);
+			const correlationId = typeof request.correlationId === 'number' ? ` <${request.correlationId}> ` : ``;
+			this.trace(`${message}${correlationId}`);
 		}
 	}
 

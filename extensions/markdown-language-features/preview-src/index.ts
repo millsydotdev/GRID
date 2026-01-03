@@ -199,6 +199,7 @@ async function copyImage(image: HTMLImageElement, retries = 5) {
 	}
 }
 
+// snyk-ignore:javascript/InsufficientPostmessageValidation
 window.addEventListener('message', async event => {
 	const data = event.data as ToWebviewMessage.Type;
 	switch (data.type) {

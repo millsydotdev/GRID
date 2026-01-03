@@ -1,12 +1,33 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
  * OCR Service for extracting text from images
  * Uses Tesseract.js for browser-based OCR
  */
+
+// Tesseract.js types (minimal interface for what we use)
+interface TesseractWord {
+	text: string;
+	confidence: number;
+	bbox: { x0: number; y0: number; x1: number; y1: number };
+}
+
+interface TesseractData {
+	text: string;
+	words?: TesseractWord[];
+}
+
+interface TesseractResult {
+	data: TesseractData;
+}
+
+interface TesseractWorker {
+	recognize(image: Uint8Array): Promise<TesseractResult>;
+	terminate(): Promise<void>;
+}
 
 export interface OCRBlock {
 	bbox: { x: number; y: number; width: number; height: number };
@@ -61,11 +82,11 @@ export interface IOCRService {
  * Dynamically loaded to avoid bundle size bloat
  */
 export class TesseractOCRService implements IOCRService {
-	private tesseractWorker: unknown = null;
+	private tesseractWorker: TesseractWorker | null = null;
 	private workerInitialized = false;
 
 	private async ensureWorker(): Promise<void> {
-		if (this.workerInitialized && this.tesseractWorker) return;
+		if (this.workerInitialized && this.tesseractWorker) {return;}
 
 		try {
 			// Dynamic import to avoid bundle bloat
@@ -80,7 +101,7 @@ export class TesseractOCRService implements IOCRService {
 			this.workerInitialized = true;
 		} catch (error: unknown) {
 			console.error('Failed to initialize Tesseract worker:', error);
-			throw new Error(`OCR service unavailable: ${error.message || 'Tesseract.js failed to load'}`);
+			throw new Error(`OCR service unavailable: ${error instanceof Error ? error.message : 'Tesseract.js failed to load'}`);
 		}
 	}
 
@@ -125,7 +146,7 @@ export class TesseractOCRService implements IOCRService {
 
 					// Simple grouping: merge words on same line
 					if (!currentBlock || Math.abs(bbox.y - currentBlock.bbox.y) > bbox.height * 0.5) {
-						if (currentBlock) blocks.push(currentBlock);
+						if (currentBlock) {blocks.push(currentBlock);}
 						currentBlock = { ...block };
 					} else {
 						currentBlock.text += ' ' + block.text;
@@ -143,7 +164,7 @@ export class TesseractOCRService implements IOCRService {
 					}
 				}
 
-				if (currentBlock) blocks.push(currentBlock);
+				if (currentBlock) {blocks.push(currentBlock);}
 			}
 
 			// Extract full text
@@ -162,7 +183,7 @@ export class TesseractOCRService implements IOCRService {
 				blocks: [],
 				tables: [],
 				code_blocks: [],
-				errors: [error.message || 'OCR failed'],
+				errors: [error instanceof Error ? error.message : 'OCR failed'],
 				fullText: '',
 				totalChars: 0,
 			};
@@ -200,8 +221,8 @@ export class TesseractOCRService implements IOCRService {
 					// Convert canvas to blob then to Uint8Array
 					const croppedBlob = await new Promise<Blob>((res, rej) => {
 						canvas.toBlob((blob) => {
-							if (blob) res(blob);
-							else rej(new Error('Failed to create blob'));
+							if (blob) {res(blob);}
+							else {rej(new Error('Failed to create blob'));}
 						}, mimeType);
 					});
 

@@ -4,8 +4,28 @@
 			"type": "stdio",
 			"command": "npm",
 			// Look at the [README](../test/mcp/README.md) to see what arguments are supported
-			"args": ["run", "start-stdio"],
+			"args": [
+				"run",
+				"start-stdio"
+			],
 			"cwd": "${workspaceFolder}/test/mcp"
+		},
+		"sequential-thinking": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-sequential-thinking"
+			]
+		},
+		"context7": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@upstash/context7-mcp"
+			],
+			"env": {
+				"CONTEXT7_API_KEY": "ctx7sk-0e5fc47d-2ed2-4bfb-a58a-87ca790de0fd"
+			}
 		}
 	},
 	"inputs": []

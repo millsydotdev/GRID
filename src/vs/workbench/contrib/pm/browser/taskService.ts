@@ -1,3 +1,7 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { ITaskService, IProject, ITask } from '../common/taskService.js';
 import { Emitter } from '../../../../base/common/event.js';
@@ -48,10 +52,10 @@ export class TaskService extends Disposable implements ITaskService {
 
             const data = await response.json();
             // Map raw data to IProject interface if needed, or assume match
-            this._projects = data.map((p: any) => ({
+            this._projects = data.map((p: unknown) => ({
                 id: p.id,
                 name: p.name,
-                tasks: p.tasks?.map((t: any) => ({
+                tasks: p.tasks?.map((t: unknown) => ({
                     id: t.id,
                     projectId: t.project_id,
                     title: t.title,
@@ -67,7 +71,7 @@ export class TaskService extends Disposable implements ITaskService {
         }
     }
 
-    async createTask(projectId: string, title: string, context?: any): Promise<ITask> {
+    async createTask(projectId: string, title: string, context?: unknown): Promise<ITask> {
         try {
             const response = await fetch(`${this._baseUrl}/api/ide/pm/tasks`, {
                 method: 'POST',
@@ -82,7 +86,7 @@ export class TaskService extends Disposable implements ITaskService {
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to create task');
+            if (!response.ok) {throw new Error('Failed to create task');}
 
             const newTaskRaw = await response.json();
             const newTask: ITask = {
@@ -121,7 +125,7 @@ export class TaskService extends Disposable implements ITaskService {
                 body: JSON.stringify(updates)
             });
 
-            if (!response.ok) throw new Error('Failed to update task');
+            if (!response.ok) {throw new Error('Failed to update task');}
 
             const updatedRaw = await response.json();
             const updatedTask: ITask = {

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { URI } from '../../../../base/common/uri.js';
@@ -62,8 +62,8 @@ const shouldExcludeDirectory = (name: string) => {
 		return true;
 	}
 
-	if (name.match(/\bout\b/)) return true;
-	if (name.match(/\bbuild\b/)) return true;
+	if (name.match(/\bout\b/)) {return true;}
+	if (name.match(/\bbuild\b/)) {return true;}
 
 	return false;
 };
@@ -185,7 +185,7 @@ const computeAndStringifyDirectoryTree = async (
 
 	let content = nodeLine;
 	let wasCutOff = false;
-	let remainingChars = MAX_CHARS - nodeLine.length;
+	const remainingChars = MAX_CHARS - nodeLine.length;
 
 	// Check if it's a directory we should skip
 	const isGitIgnoredDirectory = eItem.isDirectory && shouldExcludeDirectory(eItem.name);
@@ -386,7 +386,7 @@ class DirectoryStrService extends Disposable implements IDirectoryStrService {
 
 	async getDirectoryStrTool(uri: URI) {
 		const eRoot = await this.fileService.resolve(uri);
-		if (!eRoot) throw new Error(`The folder ${uri.fsPath} does not exist.`);
+		if (!eRoot) {throw new Error(`The folder ${uri.fsPath} does not exist.`);}
 
 		const maxItemsPerDir = START_MAX_ITEMS_PER_DIR; // Use START_MAX_ITEMS_PER_DIR
 
@@ -418,7 +418,7 @@ class DirectoryStrService extends Disposable implements IDirectoryStrService {
 
 		let c = content.substring(0, MAX_DIRSTR_CHARS_TOTAL_TOOL);
 		c = `Directory of ${uri.fsPath}:\n${content}`;
-		if (wasCutOff) c = `${c}\n...Result was truncated...`;
+		if (wasCutOff) {c = `${c}\n...Result was truncated...`;}
 
 		return c;
 	}
@@ -427,13 +427,13 @@ class DirectoryStrService extends Disposable implements IDirectoryStrService {
 		let str: string = '';
 		let cutOff = false;
 		const folders = this.workspaceContextService.getWorkspace().folders;
-		if (folders.length === 0) return '(NO WORKSPACE OPEN)';
+		if (folders.length === 0) {return '(NO WORKSPACE OPEN)';}
 
 		// Use START_MAX_ITEMS_PER_DIR if not specified
 		const startMaxItemsPerDir = START_MAX_ITEMS_PER_DIR;
 
 		for (let i = 0; i < folders.length; i += 1) {
-			if (i > 0) str += '\n';
+			if (i > 0) {str += '\n';}
 
 			// this prioritizes filling 1st workspace before any other, etc
 			const f = folders[i];
@@ -441,7 +441,7 @@ class DirectoryStrService extends Disposable implements IDirectoryStrService {
 			const rootURI = f.uri;
 
 			const eRoot = await this.fileService.resolve(rootURI);
-			if (!eRoot) continue;
+			if (!eRoot) {continue;}
 
 			// First try with START_MAX_DEPTH and startMaxItemsPerDir
 			const { content: initialContent, wasCutOff: initialCutOff } = await computeAndStringifyDirectoryTree(

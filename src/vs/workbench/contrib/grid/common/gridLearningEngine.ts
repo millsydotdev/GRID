@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -87,9 +87,23 @@ export const AGENT_MODES: Record<AgentMode, AgentModeConfig> = {
 			canRunCommands: true,
 			requiresApprovalFor: ['deleteFile', 'installPackage', 'gitPush'],
 		},
-		systemPromptAddition: `You are in BUILD mode. You have full access to edit files and run commands.
-Focus on implementing features efficiently while maintaining code quality.
-Apply learned patterns from the skillbook when applicable.`,
+		systemPromptAddition: `You are in BUILD mode. Full access to edit files and run commands.
+
+UNDERSTANDING THE USER:
+Users talk casually. "add a button", "make it work", "fix this thing" are all valid requests.
+Don't require formal specs - understand what they want from context and their codebase.
+Examples: "add dark mode" = implement dark mode toggle
+         "make it faster" = optimize performance
+         "hook up the api" = integrate with their backend
+
+WHAT YOU DO:
+- Implement features efficiently
+- Write clean, maintainable code
+- Apply patterns from the skillbook
+- Match the existing code style
+- Test changes work before finishing
+
+Just get things done. Ask for clarification only when truly needed.`,
 	},
 	plan: {
 		mode: 'plan',
@@ -100,8 +114,24 @@ Apply learned patterns from the skillbook when applicable.`,
 			requiresApprovalFor: ['editFile', 'bash', 'deleteFile'],
 		},
 		systemPromptAddition: `You are in PLAN mode (read-only). You CANNOT edit files or run commands without explicit approval.
-Focus on understanding the codebase, planning architecture, and providing detailed analysis.
-Use your skills to create comprehensive implementation plans.`,
+
+UNDERSTANDING THE USER:
+Users talk casually - understand intent from informal language like "wanna build", "how do i", "gimme", "maybe use", etc. 
+Don't require formal prompts. Interpret meaning from context, not perfect grammar.
+Examples: "wanna make a react thing" = they want to build a React project
+         "whats a good way to do auth" = asking about authentication approaches
+         "idk maybe nextjs?" = considering Next.js, looking for guidance
+
+WHAT YOU DO:
+- Understand codebases and explain how things work
+- Plan architecture and suggest tech stacks
+- Create implementation plans with file changes
+- Recommend languages, frameworks, tools, and file formats based on what they're building
+- Help them think through scale, team size, tradeoffs
+
+For new projects, INITIALIZE PROJECT RESEARCH by calling the 'start_project_research' tool with the user's intent. This will launch an interactive wizard to gather requirements.
+Do NOT suggest manual scaffolding if you can start the research session.
+Ask casual clarifying questions if needed - keep it conversational, not formal.`,
 	},
 	explore: {
 		mode: 'explore',
@@ -111,9 +141,20 @@ Use your skills to create comprehensive implementation plans.`,
 			canRunCommands: false,
 			requiresApprovalFor: ['editFile', 'deleteFile', 'bash'],
 		},
-		systemPromptAddition: `You are in EXPLORE mode. You can read and analyze code but cannot make changes.
-Focus on understanding unfamiliar codebases, identifying patterns, and building knowledge.
-Document your findings for future reference.`,
+		systemPromptAddition: `You are in EXPLORE mode. Read-only - you analyze but don't change anything.
+
+UNDERSTANDING THE USER:
+Users talk casually. "whats this do", "where is the X thing", "how does Y work" are all valid questions.
+Don't require formal prompts. Understand intent from informal, even fragmented language.
+
+WHAT YOU DO:
+- Navigate unfamiliar codebases and explain what you find
+- Find specific functions, files, patterns
+- Explain how pieces connect together
+- Answer questions about the code structure
+- Build knowledge about the project for later
+
+Keep explanations clear and conversational. Match the user's tone.`,
 	},
 	review: {
 		mode: 'review',
@@ -123,9 +164,20 @@ Document your findings for future reference.`,
 			canRunCommands: true,
 			requiresApprovalFor: ['deleteFile', 'gitPush'],
 		},
-		systemPromptAddition: `You are in REVIEW mode. Focus on code quality, testing, and improvements.
-Analyze code for bugs, performance issues, security vulnerabilities, and maintainability.
-Suggest refactorings and apply best practices from your skillbook.`,
+		systemPromptAddition: `You are in REVIEW mode. Focus on code quality and improvements.
+
+UNDERSTANDING THE USER:
+Casual language is fine. "check this", "looks wrong?", "can we make it better" all work.
+Don't require formal prompts - understand what they want from context.
+
+WHAT YOU DO:
+- Review code for bugs, performance issues, security problems
+- Suggest refactorings and improvements
+- Run tests and verify changes
+- Apply fixes when asked
+- Explain what's wrong and why in plain language
+
+Be direct about issues but not condescending. If something's fine, say so.`,
 		toolRestrictions: ['editFile', 'bash', 'grep', 'glob'],
 	},
 	debug: {
@@ -136,9 +188,20 @@ Suggest refactorings and apply best practices from your skillbook.`,
 			canRunCommands: true,
 			requiresApprovalFor: [],
 		},
-		systemPromptAddition: `You are in DEBUG mode. Focus on identifying and fixing bugs.
-Use systematic debugging approaches: reproduce, isolate, fix, verify.
-Add logging/tests as needed to prevent regression.`,
+		systemPromptAddition: `You are in DEBUG mode. Find and fix bugs.
+
+UNDERSTANDING THE USER:
+"its broken", "doesnt work", "wtf is this error" are all valid ways to describe problems.
+Don't require formal bug reports - understand the issue from whatever info they give.
+
+WHAT YOU DO:
+- Reproduce the problem
+- Isolate what's causing it
+- Fix it and verify the fix works
+- Add logging or tests if helpful
+- Explain what was wrong in simple terms
+
+Be systematic: reproduce → isolate → fix → verify. Keep the user informed.`,
 	},
 };
 
@@ -172,6 +235,13 @@ export interface IGRIDLearningEngine {
 	getInsights(): string[];
 	getSuggestedImprovements(): string[];
 	getSuccessPatterns(): string[];
+
+	// Tool Usage Tracking (for learning from agent loops)
+	recordToolUsage(toolName: string, success: boolean, context?: string): void;
+
+	// User Feedback (👍/👎 on responses)
+	recordUserFeedback(responseId: string, rating: 'positive' | 'negative', agentMode: AgentMode): void;
+	getFeedbackStats(): { positive: number; negative: number; byMode: Record<AgentMode, { positive: number; negative: number }> };
 }
 
 /**
@@ -182,6 +252,19 @@ export class GRIDLearningEngine implements IGRIDLearningEngine {
 	private skills: Map<string, Skill> = new Map();
 	private reflections: LearningReflection[] = [];
 	private projectKnowledge: Map<string, ProjectKnowledge> = new Map();
+	private toolUsageStats: Map<string, { success: number; failure: number }> = new Map();
+	private userFeedback: { positive: number; negative: number; byMode: Record<AgentMode, { positive: number; negative: number }> } = {
+		positive: 0,
+		negative: 0,
+		byMode: {
+			build: { positive: 0, negative: 0 },
+			plan: { positive: 0, negative: 0 },
+			explore: { positive: 0, negative: 0 },
+			review: { positive: 0, negative: 0 },
+			debug: { positive: 0, negative: 0 },
+		},
+	};
+
 
 	constructor() {
 		this.initializeDefaultSkills();
@@ -410,6 +493,44 @@ export class GRIDLearningEngine implements IGRIDLearningEngine {
 			.sort(([, a], [, b]) => b - a)
 			.slice(0, 5)
 			.map(([tool, count]) => `${tool}: used ${count} times successfully`);
+	}
+
+	recordToolUsage(toolName: string, success: boolean, _context?: string): void {
+		const stats = this.toolUsageStats.get(toolName) || { success: 0, failure: 0 };
+		if (success) {
+			stats.success++;
+		} else {
+			stats.failure++;
+		}
+		this.toolUsageStats.set(toolName, stats);
+
+		// If tool has high success rate, consider creating/updating a skill
+		const total = stats.success + stats.failure;
+		if (total >= 5) {
+			const successRate = stats.success / total;
+			const existingSkill = this.getSkills().find(s => s.title.toLowerCase().includes(toolName.toLowerCase()));
+			if (existingSkill) {
+				existingSkill.successRate = successRate;
+				existingSkill.timesUsed = total;
+				existingSkill.lastUsed = Date.now();
+			}
+		}
+	}
+
+	recordUserFeedback(responseId: string, rating: 'positive' | 'negative', agentMode: AgentMode): void {
+		if (rating === 'positive') {
+			this.userFeedback.positive++;
+			this.userFeedback.byMode[agentMode].positive++;
+		} else {
+			this.userFeedback.negative++;
+			this.userFeedback.byMode[agentMode].negative++;
+		}
+		// TODO: Log to telemetry for staff dashboard
+		console.log(`[LearningEngine] Feedback recorded: ${rating} for ${agentMode} mode (response: ${responseId})`);
+	}
+
+	getFeedbackStats(): { positive: number; negative: number; byMode: Record<AgentMode, { positive: number; negative: number }> } {
+		return { ...this.userFeedback };
 	}
 }
 

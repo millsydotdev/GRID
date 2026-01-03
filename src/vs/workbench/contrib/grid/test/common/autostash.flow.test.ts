@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { suite, test } from 'mocha';
@@ -35,7 +35,7 @@ class MockGitRepo {
 
 	restoreStash(ref: string): boolean {
 		const stashIdx = this.stashes.findIndex((s) => s.ref === ref);
-		if (stashIdx === -1) return false;
+		if (stashIdx === -1) {return false;}
 
 		const stash = this.stashes[stashIdx];
 		stash.files.forEach((f) => this.dirtyFiles.add(f));
@@ -91,6 +91,8 @@ class MockAutoStashService {
 }
 
 suite('AutoStash Flow', () => {
+
+	ensureNoDisposablesAreLeakedInTestSuite();
 	let gitRepo: MockGitRepo;
 	let autoStashService: MockAutoStashService;
 

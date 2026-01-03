@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
 
@@ -28,26 +28,26 @@ import { IViewsService } from '../../../services/views/common/viewsService.js';
 
 export const roundRangeToLines = (range: IRange | null | undefined, options: { emptySelectionBehavior: 'null' | 'line' }) => {
 	if (!range)
-		return null
+		{return null;}
 
 	// treat as no selection if selection is empty
 	if (range.endColumn === range.startColumn && range.endLineNumber === range.startLineNumber) {
 		if (options.emptySelectionBehavior === 'null')
-			return null
+			{return null;}
 		else if (options.emptySelectionBehavior === 'line')
-			return { startLineNumber: range.startLineNumber, startColumn: 1, endLineNumber: range.startLineNumber, endColumn: 1 }
+			{return { startLineNumber: range.startLineNumber, startColumn: 1, endLineNumber: range.startLineNumber, endColumn: 1 };}
 	}
 
 	// IRange is 1-indexed
-	const endLine = range.endColumn === 1 ? range.endLineNumber - 1 : range.endLineNumber // e.g. if the user triple clicks, it selects column=0, line=line -> column=0, line=line+1
+	const endLine = range.endColumn === 1 ? range.endLineNumber - 1 : range.endLineNumber; // e.g. if the user triple clicks, it selects column=0, line=line -> column=0, line=line+1
 	const newRange: IRange = {
 		startLineNumber: range.startLineNumber,
 		startColumn: 1,
 		endLineNumber: endLine,
 		endColumn: Number.MAX_SAFE_INTEGER
-	}
-	return newRange
-}
+	};
+	return newRange;
+};
 
 // const getContentInRange = (model: ITextModel, range: IRange | null) => {
 // 	if (!range)
@@ -61,18 +61,18 @@ export const roundRangeToLines = (range: IRange | null | undefined, options: { e
 
 
 
-const VOID_OPEN_SIDEBAR_ACTION_ID = 'void.sidebar.open'
+const GRID_OPEN_SIDEBAR_ACTION_ID = 'grid.sidebar.open';
 registerAction2(class extends Action2 {
 	constructor() {
-		super({ id: VOID_OPEN_SIDEBAR_ACTION_ID, title: localize2('gridOpenSidebar', 'GRID: Open Sidebar'), f1: true });
+		super({ id: GRID_OPEN_SIDEBAR_ACTION_ID, title: localize2('gridOpenSidebar', 'GRID: Open Sidebar'), f1: true });
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService)
-		const chatThreadsService = accessor.get(IChatThreadService)
-		viewsService.openViewContainer(GRID_VIEW_CONTAINER_ID)
-		await chatThreadsService.focusCurrentChat()
+		const viewsService = accessor.get(IViewsService);
+		const chatThreadsService = accessor.get(IChatThreadService);
+		viewsService.openViewContainer(GRID_VIEW_CONTAINER_ID);
+		await chatThreadsService.focusCurrentChat();
 	}
-})
+});
 
 
 // cmd L
@@ -90,25 +90,25 @@ registerAction2(class extends Action2 {
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
 		// Get services
-		const commandService = accessor.get(ICommandService)
-		const viewsService = accessor.get(IViewsService)
-		const metricsService = accessor.get(IMetricsService)
-		const editorService = accessor.get(ICodeEditorService)
-		const chatThreadService = accessor.get(IChatThreadService)
+		const commandService = accessor.get(ICommandService);
+		const viewsService = accessor.get(IViewsService);
+		const metricsService = accessor.get(IMetricsService);
+		const editorService = accessor.get(ICodeEditorService);
+		const chatThreadService = accessor.get(IChatThreadService);
 
-		metricsService.capture('Ctrl+L', {})
+		metricsService.capture('Ctrl+L', {});
 
 		// capture selection and model before opening the chat panel
-		const editor = editorService.getActiveCodeEditor()
-		const model = editor?.getModel()
-		if (!model) return
+		const editor = editorService.getActiveCodeEditor();
+		const model = editor?.getModel();
+		if (!model) {return;}
 
-		const selectionRange = roundRangeToLines(editor?.getSelection(), { emptySelectionBehavior: 'null' })
+		const selectionRange = roundRangeToLines(editor?.getSelection(), { emptySelectionBehavior: 'null' });
 
 		// open panel
-		const wasAlreadyOpen = viewsService.isViewContainerVisible(GRID_VIEW_CONTAINER_ID)
+		const wasAlreadyOpen = viewsService.isViewContainerVisible(GRID_VIEW_CONTAINER_ID);
 		if (!wasAlreadyOpen) {
-			await commandService.executeCommand(VOID_OPEN_SIDEBAR_ACTION_ID)
+			await commandService.executeCommand(GRID_OPEN_SIDEBAR_ACTION_ID);
 		}
 
 		// Add selection to chat
@@ -119,14 +119,14 @@ registerAction2(class extends Action2 {
 				endLineNumber: selectionRange.endLineNumber,
 				startColumn: 1,
 				endColumn: Number.MAX_SAFE_INTEGER
-			})
+			});
 			chatThreadService.addNewStagingSelection({
 				type: 'CodeSelection',
 				uri: model.uri,
 				language: model.getLanguageId(),
 				range: [selectionRange.startLineNumber, selectionRange.endLineNumber],
 				state: { wasAddedAsCurrentFile: false },
-			})
+			});
 		}
 		// add file
 		else {
@@ -135,20 +135,20 @@ registerAction2(class extends Action2 {
 				uri: model.uri,
 				language: model.getLanguageId(),
 				state: { wasAddedAsCurrentFile: false },
-			})
+			});
 		}
 
-		await chatThreadService.focusCurrentChat()
+		await chatThreadService.focusCurrentChat();
 	}
-})
+});
 
 
 // New chat keybind + menu button
-const VOID_CMD_SHIFT_L_ACTION_ID = 'void.cmdShiftL'
+const GRID_CMD_SHIFT_L_ACTION_ID = 'grid.cmdShiftL';
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: VOID_CMD_SHIFT_L_ACTION_ID,
+			id: GRID_CMD_SHIFT_L_ACTION_ID,
 			title: 'New Chat',
 			keybinding: {
 				primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyL,
@@ -160,56 +160,56 @@ registerAction2(class extends Action2 {
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
 
-		const metricsService = accessor.get(IMetricsService)
-		const chatThreadsService = accessor.get(IChatThreadService)
-		const editorService = accessor.get(ICodeEditorService)
-		metricsService.capture('Chat Navigation', { type: 'Start New Chat' })
+		const metricsService = accessor.get(IMetricsService);
+		const chatThreadsService = accessor.get(IChatThreadService);
+		const editorService = accessor.get(ICodeEditorService);
+		metricsService.capture('Chat Navigation', { type: 'Start New Chat' });
 
 		// get current selections and value to transfer
-		const oldThreadId = chatThreadsService.state.currentThreadId
-		const oldThread = chatThreadsService.state.allThreads[oldThreadId]
+		const oldThreadId = chatThreadsService.state.currentThreadId;
+		const oldThread = chatThreadsService.state.allThreads[oldThreadId];
 
-		const oldUI = await oldThread?.state.mountedInfo?.whenMounted
+		const oldUI = await oldThread?.state.mountedInfo?.whenMounted;
 
-		const oldSelns = oldThread?.state.stagingSelections
-		const oldVal = oldUI?.textAreaRef?.current?.value
+		const oldSelns = oldThread?.state.stagingSelections;
+		const oldVal = oldUI?.textAreaRef?.current?.value;
 
 		// open and focus new thread
-		chatThreadsService.openNewThread()
-		await chatThreadsService.focusCurrentChat()
+		chatThreadsService.openNewThread();
+		await chatThreadsService.focusCurrentChat();
 
 
 		// set new thread values
-		const newThreadId = chatThreadsService.state.currentThreadId
-		const newThread = chatThreadsService.state.allThreads[newThreadId]
+		const newThreadId = chatThreadsService.state.currentThreadId;
+		const newThread = chatThreadsService.state.allThreads[newThreadId];
 
-		const newUI = await newThread?.state.mountedInfo?.whenMounted
-		chatThreadsService.setCurrentThreadState({ stagingSelections: oldSelns, })
-		if (newUI?.textAreaRef?.current && oldVal) newUI.textAreaRef.current.value = oldVal
+		const newUI = await newThread?.state.mountedInfo?.whenMounted;
+		chatThreadsService.setCurrentThreadState({ stagingSelections: oldSelns, });
+		if (newUI?.textAreaRef?.current && oldVal) {newUI.textAreaRef.current.value = oldVal;}
 
 
 		// if has selection, add it
-		const editor = editorService.getActiveCodeEditor()
-		const model = editor?.getModel()
-		if (!model) return
-		const selectionRange = roundRangeToLines(editor?.getSelection(), { emptySelectionBehavior: 'null' })
-		if (!selectionRange) return
-		editor?.setSelection({ startLineNumber: selectionRange.startLineNumber, endLineNumber: selectionRange.endLineNumber, startColumn: 1, endColumn: Number.MAX_SAFE_INTEGER })
+		const editor = editorService.getActiveCodeEditor();
+		const model = editor?.getModel();
+		if (!model) {return;}
+		const selectionRange = roundRangeToLines(editor?.getSelection(), { emptySelectionBehavior: 'null' });
+		if (!selectionRange) {return;}
+		editor?.setSelection({ startLineNumber: selectionRange.startLineNumber, endLineNumber: selectionRange.endLineNumber, startColumn: 1, endColumn: Number.MAX_SAFE_INTEGER });
 		chatThreadsService.addNewStagingSelection({
 			type: 'CodeSelection',
 			uri: model.uri,
 			language: model.getLanguageId(),
 			range: [selectionRange.startLineNumber, selectionRange.endLineNumber],
 			state: { wasAddedAsCurrentFile: false },
-		})
+		});
 	}
-})
+});
 
 // History menu button
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: 'void.historyAction',
+			id: 'grid.historyAction',
 			title: 'View Past Chats',
 			icon: { id: 'history' },
 			menu: [{ id: MenuId.ViewTitle, group: 'navigation', when: ContextKeyExpr.equals('view', GRID_VIEW_ID), }]
@@ -219,37 +219,37 @@ registerAction2(class extends Action2 {
 
 		// do not do anything if there are no messages (without this it clears all of the user's selections if the button is pressed)
 		// TODO the history button should be disabled in this case so we can remove this logic
-		const thread = accessor.get(IChatThreadService).getCurrentThread()
+		const thread = accessor.get(IChatThreadService).getCurrentThread();
 		if (thread.messages.length === 0) {
 			return;
 		}
 
-		const metricsService = accessor.get(IMetricsService)
+		const metricsService = accessor.get(IMetricsService);
 
-		const commandService = accessor.get(ICommandService)
+		const commandService = accessor.get(ICommandService);
 
-		metricsService.capture('Chat Navigation', { type: 'History' })
-		commandService.executeCommand(VOID_CMD_SHIFT_L_ACTION_ID)
+		metricsService.capture('Chat Navigation', { type: 'History' });
+		commandService.executeCommand(GRID_CMD_SHIFT_L_ACTION_ID);
 
 	}
-})
+});
 
 
 // Settings gear
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: 'void.settingsAction',
+			id: 'grid.settingsAction',
 			title: `GRID's Settings`,
 			icon: { id: 'settings-gear' },
 			menu: [{ id: MenuId.ViewTitle, group: 'navigation', when: ContextKeyExpr.equals('view', GRID_VIEW_ID), }]
 		});
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
-		const commandService = accessor.get(ICommandService)
-		commandService.executeCommand(GRID_TOGGLE_SETTINGS_ACTION_ID)
+		const commandService = accessor.get(ICommandService);
+		commandService.executeCommand(GRID_TOGGLE_SETTINGS_ACTION_ID);
 	}
-})
+});
 
 
 

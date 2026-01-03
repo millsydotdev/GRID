@@ -1,9 +1,10 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Action2, MenuId, registerAction2 } from '../../../../platform/actions/common/actions.js';
+import { ICommandActionTitle } from '../../../../platform/action/common/action.js';
 import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
 import { KeybindingWeight } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
@@ -65,9 +66,9 @@ async function gatherSelectionContext(services: {
 	const workspace = services.workspace;
 
 	const editor = editorService.getActiveCodeEditor();
-	if (!editor) return { ok: false, error: 'Please open a file.' };
+	if (!editor) {return { ok: false, error: 'Please open a file.' };}
 	const model = editor.getModel();
-	if (!model) return { ok: false, error: 'No file is open.' };
+	if (!model) {return { ok: false, error: 'No file is open.' };}
 
 	if (!workspace.isInsideWorkspace(model.uri)) {
 		return { ok: false, error: 'Quick Actions only work on files within the workspace.' };
@@ -120,9 +121,9 @@ async function addSelectionChip(services: {
 	const chatThreadsService = services.chatThreadsService;
 	const editor = editorService.getActiveCodeEditor();
 	const model = editor?.getModel();
-	if (!editor || !model) return;
+	if (!editor || !model) {return;}
 	const selectionRange = roundRangeToLines(editor.getSelection(), { emptySelectionBehavior: 'null' });
-	if (!selectionRange) return;
+	if (!selectionRange) {return;}
 	editor.setSelection({
 		startLineNumber: selectionRange.startLineNumber,
 		endLineNumber: selectionRange.endLineNumber,
@@ -146,7 +147,7 @@ function registerQuickAction({
 	promptMaker,
 }: {
 	id: string;
-	title: any;
+	title: ICommandActionTitle;
 	kb?: number;
 	task: QuickActionTask;
 	promptMaker?: (base: {
@@ -190,7 +191,7 @@ function registerQuickAction({
 
 				const ctx = await gatherSelectionContext({ editorService, workspace });
 				if (!ctx.ok || !ctx.taskContext) {
-					if (ctx.error) notificationService.warn(ctx.error);
+					if (ctx.error) {notificationService.warn(ctx.error);}
 					return;
 				}
 

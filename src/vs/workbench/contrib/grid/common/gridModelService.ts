@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable, IReference } from '../../../../base/common/lifecycle.js';
@@ -73,7 +73,7 @@ class GridModelService extends Disposable implements IGridModelService {
 			const fsPath = uri.fsPath;
 
 			// Check cache first
-			if (fsPath in this._modelRefOfURI) return;
+			if (fsPath in this._modelRefOfURI) {return;}
 			const cachedRef = this._modelCache.get(fsPath);
 			if (cachedRef && !cachedRef.object.isDisposed()) {
 				this._modelRefOfURI[fsPath] = cachedRef;
@@ -159,7 +159,7 @@ class GridModelService extends Disposable implements IGridModelService {
 	};
 
 	getModelSafe = async (uri: URI): Promise<GridModelType> => {
-		if (!(uri.fsPath in this._modelRefOfURI)) await this.initializeModel(uri);
+		if (!(uri.fsPath in this._modelRefOfURI)) {await this.initializeModel(uri);}
 		return this.getModel(uri);
 	};
 

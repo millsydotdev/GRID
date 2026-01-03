@@ -27,6 +27,8 @@ import { IEditorProgressService } from '../../../../../../../platform/progress/c
 import { detectLanguage } from '../../../../common/helpers/languageHelpers.js';
 
 
+import './inputs.css';
+
 // type guard
 const isConstructor = (f: any)
 	: f is { new(...params: any[]): any } => {
@@ -753,11 +755,12 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 
 			disabled={!isEnabled}
 
-			className={`w-full resize-none max-h-[500px] overflow-y-auto text-void-fg-1 placeholder:text-void-fg-3 ${className}`}
+			className={`w-full resize-none max-h-[500px] overflow-y-auto text-void-fg-1 placeholder:text-void-fg-3 grid-input-box ${className}`}
+			// eslint-disable-next-line
 			style={{
 				// defaultInputBoxStyles
-				background: asCssVariable(inputBackground),
-				color: asCssVariable(inputForeground)
+				// background: asCssVariable(inputBackground),
+				// color: asCssVariable(inputForeground)
 				// inputBorder: asCssVariable(inputBorder),
 			}}
 
@@ -810,6 +813,7 @@ export const GridInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 			<div
 				ref={refs.setFloating}
 				className="z-[100] border-void-border-3 bg-void-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
+				// eslint-disable-next-line
 				style={{
 					position: strategy,
 					top: y ?? 0,
@@ -929,11 +933,12 @@ export const GridSimpleInputBox = ({ value, onChangeValue, placeholder, classNam
 				${compact ? 'py-1 px-2' : 'py-2 px-4 '}
 				rounded
 				${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-				${className}`}
+				${className} grid-input-box ${passwordBlur ? 'grid-input-box-password-blur' : ''}`}
+			// eslint-disable-next-line
 			style={{
-				...passwordBlur && { WebkitTextSecurity: 'disc' },
-				background: asCssVariable(inputBackground),
-				color: asCssVariable(inputForeground)
+				// ...passwordBlur && { WebkitTextSecurity: 'disc' },
+				// background: asCssVariable(inputBackground),
+				// color: asCssVariable(inputForeground)
 			}}
 			{...inputProps}
 			type={undefined} // VS Code is doing some annoyingness that breaks paste if this is defined
@@ -1092,13 +1097,13 @@ export const GridSlider = ({
 				<div className="relative w-full">
 					{/* Invisible wider clickable area that sits above the track */}
 					<div
-						className="absolute w-full cursor-pointer"
-						style={{
-							height: '16px',
-							top: '50%',
-							transform: 'translateY(-50%)',
-							zIndex: 1
-						}}
+						className="absolute w-full cursor-pointer grid-slider-clickable-area"
+						// style={{
+						// 	height: '16px',
+						// 	top: '50%',
+						// 	transform: 'translateY(-50%)',
+						// 	zIndex: 1
+						// }}
 						onClick={handleTrackClick}
 					/>
 
@@ -1118,6 +1123,7 @@ export const GridSlider = ({
 									size === 'sm' ? 'h-1.5' :
 										size === 'sm+' ? 'h-2' : 'h-2.5'
 								} bg-void-fg-1 rounded-full`}
+							// eslint-disable-next-line
 							style={{ width: `${percentage}%` }}
 						/>
 					</div>
@@ -1132,6 +1138,7 @@ export const GridSlider = ({
 							}
 							bg-void-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
 							border border-void-fg-1`}
+						// eslint-disable-next-line
 						style={{ left: `${percentage}%`, zIndex: 2 }}  // Ensure thumb is above the invisible clickable area
 						onMouseDown={(e) => {
 							if (disabled) return;
@@ -1417,6 +1424,7 @@ export const GridCustomDropdownBox = <T extends NonNullable<any>>({
 				<div
 					ref={refs.setFloating}
 					className="z-[100] bg-void-bg-1 border-void-border-3 border rounded shadow-lg"
+					// eslint-disable-next-line
 					style={{
 						position: strategy,
 						top: y ?? 0,
@@ -1478,7 +1486,7 @@ export const GridCustomDropdownBox = <T extends NonNullable<any>>({
 
 
 
-export const _VoidSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
+export const _GridSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
 	onChangeSelection: (value: T) => void;
 	onCreateInstance?: ((instance: SelectBox) => void | IDisposable[]);
 	selectBoxRef?: React.MutableRefObject<SelectBox | null>;

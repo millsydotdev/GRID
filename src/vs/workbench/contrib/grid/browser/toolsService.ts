@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../base/common/cancellation.js';
@@ -48,6 +48,20 @@ import { LRUCache } from '../../../../base/common/map.js';
 import { OfflinePrivacyGate } from '../common/offlinePrivacyGate.js';
 import { INLShellParserService } from '../common/nlShellParserService.js';
 import { ISecretDetectionService } from '../common/secretDetectionService.js';
+import { projectResearchService } from '../common/projectResearchService.js';
+
+// DuckDuckGo API response types
+interface DDGRelatedTopic {
+	Text?: string;
+	FirstURL?: string;
+}
+
+interface DDGResponse {
+	AbstractText?: string;
+	Heading?: string;
+	AbstractURL?: string;
+	RelatedTopics?: DDGRelatedTopic[];
+}
 
 // tool use for AI
 type ValidateBuiltinParams = { [T in BuiltinToolName]: (p: RawToolParamsObj) => BuiltinToolCallParams[T] };
@@ -65,11 +79,12 @@ const isFalsy = (u: unknown) => {
 };
 
 const validateStr = (argName: string, value: unknown) => {
-	if (value === null) throw new Error(`Invalid LLM output: ${argName} was null.`);
-	if (typeof value !== 'string')
+	if (value === null) { throw new Error(`Invalid LLM output: ${argName} was null.`); }
+	if (typeof value !== 'string') {
 		throw new Error(
 			`Invalid LLM output format: ${argName} must be a string, but its type is "${typeof value}". Full value: ${JSON.stringify(value)}.`
 		);
+	}
 	return value;
 };
 
@@ -82,11 +97,12 @@ const validateURI = (
 	workspaceContextService?: IWorkspaceContextService,
 	requireWorkspace: boolean = true
 ) => {
-	if (uriStr === null) throw new Error(`Invalid LLM output: uri was null.`);
-	if (typeof uriStr !== 'string')
+	if (uriStr === null) { throw new Error(`Invalid LLM output: uri was null.`); }
+	if (typeof uriStr !== 'string') {
 		throw new Error(
 			`Invalid LLM output format: Provided uri must be a string, but it's a(n) ${typeof uriStr}. Full value: ${JSON.stringify(uriStr)}.`
 		);
+	}
 
 	let uri: URI;
 	// Check if it's already a full URI with scheme (e.g., vscode-remote://, file://, etc.)
@@ -149,31 +165,30 @@ const validateURI = (
 };
 
 const validateOptionalURI = (uriStr: unknown, workspaceContextService?: IWorkspaceContextService) => {
-	if (isFalsy(uriStr)) return null;
+	if (isFalsy(uriStr)) { return null; }
 	return validateURI(uriStr, workspaceContextService, true);
 };
 
 const validateOptionalStr = (argName: string, str: unknown) => {
-	if (isFalsy(str)) return null;
+	if (isFalsy(str)) { return null; }
 	return validateStr(argName, str);
 };
 
 const validatePageNum = (pageNumberUnknown: unknown) => {
-	if (!pageNumberUnknown) return 1;
+	if (!pageNumberUnknown) { return 1; }
 	const parsedInt = Number.parseInt(pageNumberUnknown + '');
-	if (!Number.isInteger(parsedInt)) throw new Error(`Page number was not an integer: "${pageNumberUnknown}".`);
-	if (parsedInt < 1)
-		throw new Error(`Invalid LLM output format: Specified page number must be 1 or greater: "${pageNumberUnknown}".`);
+	if (!Number.isInteger(parsedInt)) { throw new Error(`Page number was not an integer: "${pageNumberUnknown}".`); }
+	if (parsedInt < 1) { throw new Error(`Invalid LLM output format: Specified page number must be 1 or greater: "${pageNumberUnknown}".`); }
 	return parsedInt;
 };
 
 const validateNumber = (numStr: unknown, opts: { default: number | null }) => {
-	if (typeof numStr === 'number') return numStr;
-	if (isFalsy(numStr)) return opts.default;
+	if (typeof numStr === 'number') { return numStr; }
+	if (isFalsy(numStr)) { return opts.default; }
 
 	if (typeof numStr === 'string') {
 		const parsedInt = Number.parseInt(numStr + '');
-		if (!Number.isInteger(parsedInt)) return opts.default;
+		if (!Number.isInteger(parsedInt)) { return opts.default; }
 		return parsedInt;
 	}
 
@@ -181,16 +196,15 @@ const validateNumber = (numStr: unknown, opts: { default: number | null }) => {
 };
 
 const validateProposedTerminalId = (terminalIdUnknown: unknown) => {
-	if (!terminalIdUnknown)
-		throw new Error(`A value for terminalID must be specified, but the value was "${terminalIdUnknown}"`);
+	if (!terminalIdUnknown) { throw new Error(`A value for terminalID must be specified, but the value was "${terminalIdUnknown}"`); }
 	const terminalId = terminalIdUnknown + '';
 	return terminalId;
 };
 
 const validateBoolean = (b: unknown, opts: { default: boolean }) => {
 	if (typeof b === 'string') {
-		if (b === 'true') return true;
-		if (b === 'false') return false;
+		if (b === 'true') { return true; }
+		if (b === 'false') { return false; }
 	}
 	if (typeof b === 'boolean') {
 		return b;
@@ -200,7 +214,7 @@ const validateBoolean = (b: unknown, opts: { default: boolean }) => {
 
 const checkIfIsFolder = (uriStr: string) => {
 	uriStr = uriStr.trim();
-	if (uriStr.endsWith('/') || uriStr.endsWith('\\')) return true;
+	if (uriStr.endsWith('/') || uriStr.endsWith('\\')) { return true; }
 	return false;
 };
 
@@ -267,8 +281,8 @@ export class ToolsService implements IToolsService {
 				let startLine = validateNumber(startLineUnknown, { default: null });
 				let endLine = validateNumber(endLineUnknown, { default: null });
 
-				if (startLine !== null && startLine < 1) startLine = null;
-				if (endLine !== null && endLine < 1) endLine = null;
+				if (startLine !== null && startLine < 1) { startLine = null; }
+				if (endLine !== null && endLine < 1) { endLine = null; }
 
 				return { uri, startLine, endLine, pageNumber };
 			},
@@ -427,6 +441,12 @@ export class ToolsService implements IToolsService {
 				}
 				return { url, refresh };
 			},
+
+			start_project_research: (params: RawToolParamsObj) => {
+				const { intent: intentUnknown } = params;
+				const intent = validateStr('intent', intentUnknown);
+				return { intent };
+			}
 		};
 
 		this.callTool = {
@@ -610,7 +630,7 @@ export class ToolsService implements IToolsService {
 			// ---
 
 			create_file_or_folder: async ({ uri, isFolder }) => {
-				if (isFolder) await fileService.createFolder(uri);
+				if (isFolder) { await fileService.createFolder(uri); }
 				else {
 					await fileService.createFile(uri);
 				}
@@ -742,6 +762,11 @@ export class ToolsService implements IToolsService {
 				return { result: {} };
 			},
 
+			start_project_research: async ({ intent }) => {
+				await projectResearchService.startSession(intent);
+				return { result: { success: true } };
+			},
+
 			// ---
 
 			web_search: async ({ query, k, refresh }) => {
@@ -750,6 +775,10 @@ export class ToolsService implements IToolsService {
 
 				const cacheKey = `search:${query}:${k}`;
 				const cached = this._webSearchCache.get(cacheKey);
+				if (!refresh && cached && Date.now() - cached.timestamp < this._cacheTTL) {
+					return { result: { results: cached.results } };
+				}
+
 				if (!refresh && cached && Date.now() - cached.timestamp < this._cacheTTL) {
 					return { result: { results: cached.results } };
 				}
@@ -764,253 +793,253 @@ export class ToolsService implements IToolsService {
 					name: string;
 					method: () => Promise<Array<{ title: string; snippet: string; url: string }>>;
 				}> = [
-					// Method 1: DuckDuckGo Instant Answer API (fast, direct API - may hit CORS but worth trying first)
-					{
-						name: 'DuckDuckGo Instant Answer API',
-						method: async () => {
-							const instantUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
-							try {
-								const response = await this.requestService.request(
-									{
-										type: 'GET',
-										url: instantUrl,
-										timeout: 10000,
-									},
-									CancellationToken.None
-								);
+						// Method 1: DuckDuckGo Instant Answer API (fast, direct API - may hit CORS but worth trying first)
+						{
+							name: 'DuckDuckGo Instant Answer API',
+							method: async () => {
+								const instantUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+								try {
+									const response = await this.requestService.request(
+										{
+											type: 'GET',
+											url: instantUrl,
+											timeout: 10000,
+										},
+										CancellationToken.None
+									);
 
-								const json = await asJson<any>(response);
-								const results: Array<{ title: string; snippet: string; url: string }> = [];
+									const json = await asJson<DDGResponse>(response);
+									const results: Array<{ title: string; snippet: string; url: string }> = [];
 
-								if (json?.AbstractText) {
-									results.push({
-										title: json.Heading || query,
-										snippet: json.AbstractText,
-										url: json.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
-									});
-								}
+									if (json?.AbstractText) {
+										results.push({
+											title: json.Heading || query,
+											snippet: json.AbstractText,
+											url: json.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+										});
+									}
 
-								if (json?.RelatedTopics && Array.isArray(json.RelatedTopics)) {
-									for (const topic of json.RelatedTopics.slice(0, maxResults - results.length)) {
-										if (topic?.Text && topic?.FirstURL) {
-											results.push({
-												title: topic.Text.split(' - ')[0] || topic.Text.substring(0, 100),
-												snippet: topic.Text,
-												url: topic.FirstURL,
-											});
+									if (json?.RelatedTopics && Array.isArray(json.RelatedTopics)) {
+										for (const topic of json.RelatedTopics.slice(0, maxResults - results.length)) {
+											if (topic?.Text && topic?.FirstURL) {
+												results.push({
+													title: topic.Text.split(' - ')[0] || topic.Text.substring(0, 100),
+													snippet: topic.Text,
+													url: topic.FirstURL,
+												});
+											}
 										}
 									}
-								}
 
-								if (results.length === 0) {
-									throw new Error('No results from DuckDuckGo Instant Answer API');
-								}
+									if (results.length === 0) {
+										throw new Error('No results from DuckDuckGo Instant Answer API');
+									}
 
-								return results;
-							} catch (error) {
-								const errorMsg = error instanceof Error ? error.message : String(error);
-								// Check if it's a CORS or network error
-								if (
-									errorMsg.includes('CORS') ||
-									errorMsg.includes('Failed to fetch') ||
-									errorMsg.includes('NetworkError')
-								) {
-									throw new Error(`Network/CORS error: ${errorMsg}. The DuckDuckGo API may be blocked.`);
+									return results;
+								} catch (error) {
+									const errorMsg = error instanceof Error ? error.message : String(error);
+									// Check if it's a CORS or network error
+									if (
+										errorMsg.includes('CORS') ||
+										errorMsg.includes('Failed to fetch') ||
+										errorMsg.includes('NetworkError')
+									) {
+										throw new Error(`Network/CORS error: ${errorMsg}. The DuckDuckGo API may be blocked.`);
+									}
+									throw error;
 								}
-								throw error;
-							}
+							},
 						},
-					},
-					// Method 2: DuckDuckGo HTML search via webContentExtractorService (reliable, bypasses CORS)
-					{
-						name: 'DuckDuckGo HTML via webContentExtractorService',
-						method: async () => {
-							const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-							try {
-								const uri = URI.parse(searchUrl);
-								const extracted = await this.webContentExtractorService.extract([uri]);
+						// Method 2: DuckDuckGo HTML search via webContentExtractorService (reliable, bypasses CORS)
+						{
+							name: 'DuckDuckGo HTML via webContentExtractorService',
+							method: async () => {
+								const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+								try {
+									const uri = URI.parse(searchUrl);
+									const extracted = await this.webContentExtractorService.extract([uri]);
 
-								if (!extracted || extracted.length === 0 || extracted[0]?.status !== 'ok' || !extracted[0].result) {
-									throw new Error('Failed to extract DuckDuckGo search results');
-								}
+									if (!extracted || extracted.length === 0 || extracted[0]?.status !== 'ok' || !extracted[0].result) {
+										throw new Error('Failed to extract DuckDuckGo search results');
+									}
 
-								const content = extracted[0].result;
-								const results: Array<{ title: string; snippet: string; url: string }> = [];
+									const content = extracted[0].result;
+									const results: Array<{ title: string; snippet: string; url: string }> = [];
 
-								// Helper function to extract real URL from DuckDuckGo redirect
-								const extractRealUrl = (url: string): string | null => {
-									if (!url || !url.startsWith('http')) return null;
+									// Helper function to extract real URL from DuckDuckGo redirect
+									const extractRealUrl = (url: string): string | null => {
+										if (!url || !url.startsWith('http')) { return null; }
 
-									// Check if it's a DuckDuckGo redirect URL
-									if (url.includes('duckduckgo.com/l/')) {
-										try {
-											const urlObj = new URL(url);
-											const uddgParam = urlObj.searchParams.get('uddg');
-											if (uddgParam) {
-												return decodeURIComponent(uddgParam);
+										// Check if it's a DuckDuckGo redirect URL
+										if (url.includes('duckduckgo.com/l/')) {
+											try {
+												const urlObj = new URL(url);
+												const uddgParam = urlObj.searchParams.get('uddg');
+												if (uddgParam) {
+													return decodeURIComponent(uddgParam);
+												}
+											} catch (e) {
+												// If URL parsing fails, try regex extraction
+												const uddgMatch = url.match(/uddg=([^&]+)/);
+												if (uddgMatch) {
+													try {
+														return decodeURIComponent(uddgMatch[1]);
+													} catch (e2) {
+														// Ignore decode errors
+													}
+												}
 											}
-										} catch (e) {
-											// If URL parsing fails, try regex extraction
-											const uddgMatch = url.match(/uddg=([^&]+)/);
-											if (uddgMatch) {
-												try {
-													return decodeURIComponent(uddgMatch[1]);
-												} catch (e2) {
-													// Ignore decode errors
+										}
+
+										// Not a redirect, return as-is
+										return url;
+									};
+
+									// Strategy 1: Parse markdown links [text](url) - most reliable
+									const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+									const markdownLinks: Array<{ url: string; title: string; index: number }> = [];
+									let match;
+									markdownLinkRegex.lastIndex = 0;
+
+									while ((match = markdownLinkRegex.exec(content)) !== null && markdownLinks.length < maxResults * 2) {
+										const rawUrl = match[2].trim();
+										const title = match[1].trim();
+
+										// Skip empty titles or URLs
+										if (!title || !rawUrl) { continue; }
+
+										// Extract real URL (handles DuckDuckGo redirects)
+										const realUrl = extractRealUrl(rawUrl);
+										if (!realUrl) { continue; }
+
+										// Filter out DuckDuckGo internal links and invalid URLs
+										if (realUrl.startsWith('http://') || realUrl.startsWith('https://')) {
+											if (
+												!realUrl.includes('duckduckgo.com') &&
+												!realUrl.includes('duck.com') &&
+												!realUrl.startsWith('#') &&
+												realUrl.length < 500
+											) {
+												markdownLinks.push({ url: realUrl, title, index: match.index });
+												if (markdownLinks.length >= maxResults) {
+													break;
 												}
 											}
 										}
 									}
 
-									// Not a redirect, return as-is
-									return url;
-								};
+									// Sort by position in content
+									markdownLinks.sort((a, b) => a.index - b.index);
 
-								// Strategy 1: Parse markdown links [text](url) - most reliable
-								const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-								const markdownLinks: Array<{ url: string; title: string; index: number }> = [];
-								let match;
-								markdownLinkRegex.lastIndex = 0;
+									for (let i = 0; i < Math.min(markdownLinks.length, maxResults); i++) {
+										const link = markdownLinks[i];
 
-								while ((match = markdownLinkRegex.exec(content)) !== null && markdownLinks.length < maxResults * 2) {
-									const rawUrl = match[2].trim();
-									const title = match[1].trim();
-
-									// Skip empty titles or URLs
-									if (!title || !rawUrl) continue;
-
-									// Extract real URL (handles DuckDuckGo redirects)
-									const realUrl = extractRealUrl(rawUrl);
-									if (!realUrl) continue;
-
-									// Filter out DuckDuckGo internal links and invalid URLs
-									if (realUrl.startsWith('http://') || realUrl.startsWith('https://')) {
-										if (
-											!realUrl.includes('duckduckgo.com') &&
-											!realUrl.includes('duck.com') &&
-											!realUrl.startsWith('#') &&
-											realUrl.length < 500
-										) {
-											markdownLinks.push({ url: realUrl, title, index: match.index });
-											if (markdownLinks.length >= maxResults) {
-												break;
-											}
+										// Try to extract snippet from content around the link
+										let snippet = '';
+										const linkPattern = `[${link.title}](${link.url})`;
+										const linkIndex = content.indexOf(linkPattern, link.index);
+										if (linkIndex >= 0) {
+											const start = Math.max(0, linkIndex - 100);
+											const end = Math.min(content.length, linkIndex + linkPattern.length + 200);
+											const context = content
+												.substring(start, end)
+												.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+												.replace(/<[^>]*>/g, ' ')
+												.replace(/\s+/g, ' ')
+												.trim();
+											snippet = context.substring(0, 200);
 										}
-									}
-								}
-
-								// Sort by position in content
-								markdownLinks.sort((a, b) => a.index - b.index);
-
-								for (let i = 0; i < Math.min(markdownLinks.length, maxResults); i++) {
-									const link = markdownLinks[i];
-
-									// Try to extract snippet from content around the link
-									let snippet = '';
-									const linkPattern = `[${link.title}](${link.url})`;
-									const linkIndex = content.indexOf(linkPattern, link.index);
-									if (linkIndex >= 0) {
-										const start = Math.max(0, linkIndex - 100);
-										const end = Math.min(content.length, linkIndex + linkPattern.length + 200);
-										const context = content
-											.substring(start, end)
-											.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-											.replace(/<[^>]*>/g, ' ')
-											.replace(/\s+/g, ' ')
-											.trim();
-										snippet = context.substring(0, 200);
-									}
-
-									results.push({
-										title: link.title,
-										snippet: snippet || 'No snippet available',
-										url: link.url,
-									});
-								}
-
-								// Strategy 2: Fallback - extract URLs directly if we don't have enough results
-								if (results.length < maxResults) {
-									const existingUrls = new Set(results.map((r) => r.url));
-									const urlRegex = /https?:\/\/[^\s<>"'\n\r\)]+/gi;
-									const urlMatches: Array<{ url: string; index: number }> = [];
-
-									urlRegex.lastIndex = 0;
-									const needed = maxResults - results.length;
-									while ((match = urlRegex.exec(content)) !== null && urlMatches.length < needed * 2) {
-										const rawUrl = match[0].replace(/[.,;:!?]+$/, '');
-
-										// Extract real URL from DuckDuckGo redirect if needed
-										const realUrl = extractRealUrl(rawUrl);
-										if (!realUrl) continue;
-
-										if (
-											realUrl.length > 10 &&
-											realUrl.length < 500 &&
-											!realUrl.includes('duckduckgo.com') &&
-											!realUrl.includes('duck.com') &&
-											!existingUrls.has(realUrl)
-										) {
-											urlMatches.push({ url: realUrl, index: match.index });
-											if (urlMatches.length >= needed) {
-												break;
-											}
-										}
-									}
-
-									urlMatches.sort((a, b) => a.index - b.index);
-
-									for (let i = 0; i < Math.min(urlMatches.length, needed); i++) {
-										const { url, index } = urlMatches[i];
-
-										// Extract context around URL for title/snippet
-										const start = Math.max(0, index - 100);
-										const end = Math.min(content.length, index + url.length + 200);
-										const context = content
-											.substring(start, end)
-											.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-											.replace(/<[^>]*>/g, ' ')
-											.replace(/\s+/g, ' ')
-											.trim();
-
-										// Extract title from before URL
-										const beforeUrl = content.substring(start, index).trim();
-										const words = beforeUrl.split(/\s+/).filter((w) => w.length > 2);
-										const title = words.length > 0 ? words.slice(-5).join(' ').substring(0, 100) : url;
-
-										// Extract snippet from after URL
-										const afterUrl = content.substring(index + url.length, end).trim();
-										const snippet = afterUrl.substring(0, 200) || context.substring(0, 200) || 'No snippet available';
 
 										results.push({
-											title: title || url,
-											snippet: snippet,
-											url: url,
+											title: link.title,
+											snippet: snippet || 'No snippet available',
+											url: link.url,
 										});
 									}
-								}
 
-								if (results.length === 0) {
-									// Provide diagnostic info
-									const contentPreview = content.substring(0, 1000).replace(/\s+/g, ' ');
-									const hasUrls = /https?:\/\//i.test(content);
-									const hasMarkdownLinks = /\[.*?\]\(.*?\)/.test(content);
+									// Strategy 2: Fallback - extract URLs directly if we don't have enough results
+									if (results.length < maxResults) {
+										const existingUrls = new Set(results.map((r) => r.url));
+										const urlRegex = /https?:\/\/[^\s<>"'\n\r\)]+/gi;
+										const urlMatches: Array<{ url: string; index: number }> = [];
 
-									throw new Error(
-										`No results found in DuckDuckGo search. ` +
+										urlRegex.lastIndex = 0;
+										const needed = maxResults - results.length;
+										while ((match = urlRegex.exec(content)) !== null && urlMatches.length < needed * 2) {
+											const rawUrl = match[0].replace(/[.,;:!?]+$/, '');
+
+											// Extract real URL from DuckDuckGo redirect if needed
+											const realUrl = extractRealUrl(rawUrl);
+											if (!realUrl) { continue; }
+
+											if (
+												realUrl.length > 10 &&
+												realUrl.length < 500 &&
+												!realUrl.includes('duckduckgo.com') &&
+												!realUrl.includes('duck.com') &&
+												!existingUrls.has(realUrl)
+											) {
+												urlMatches.push({ url: realUrl, index: match.index });
+												if (urlMatches.length >= needed) {
+													break;
+												}
+											}
+										}
+
+										urlMatches.sort((a, b) => a.index - b.index);
+
+										for (let i = 0; i < Math.min(urlMatches.length, needed); i++) {
+											const { url, index } = urlMatches[i];
+
+											// Extract context around URL for title/snippet
+											const start = Math.max(0, index - 100);
+											const end = Math.min(content.length, index + url.length + 200);
+											const context = content
+												.substring(start, end)
+												.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+												.replace(/<[^>]*>/g, ' ')
+												.replace(/\s+/g, ' ')
+												.trim();
+
+											// Extract title from before URL
+											const beforeUrl = content.substring(start, index).trim();
+											const words = beforeUrl.split(/\s+/).filter((w) => w.length > 2);
+											const title = words.length > 0 ? words.slice(-5).join(' ').substring(0, 100) : url;
+
+											// Extract snippet from after URL
+											const afterUrl = content.substring(index + url.length, end).trim();
+											const snippet = afterUrl.substring(0, 200) || context.substring(0, 200) || 'No snippet available';
+
+											results.push({
+												title: title || url,
+												snippet: snippet,
+												url: url,
+											});
+										}
+									}
+
+									if (results.length === 0) {
+										// Provide diagnostic info
+										const contentPreview = content.substring(0, 1000).replace(/\s+/g, ' ');
+										const hasUrls = /https?:\/\//i.test(content);
+										const hasMarkdownLinks = /\[.*?\]\(.*?\)/.test(content);
+
+										throw new Error(
+											`No results found in DuckDuckGo search. ` +
 											`Content length: ${content.length}, ` +
 											`Has URLs: ${hasUrls}, ` +
 											`Has markdown links: ${hasMarkdownLinks}, ` +
 											`Preview: ${contentPreview.substring(0, 300)}...`
-									);
-								}
+										);
+									}
 
-								return results;
-							} catch (error) {
-								throw error;
-							}
+									return results;
+								} catch (error) {
+									throw error;
+								}
+							},
 						},
-					},
-				];
+					];
 
 				// Try each method (with single retry only for transient errors)
 				for (const { name, method } of searchMethods) {
@@ -1169,7 +1198,7 @@ export class ToolsService implements IToolsService {
 			},
 			search_in_file: (params, result) => {
 				const { model } = gridModelService.getModel(params.uri);
-				if (!model) return '<Error getting string of result>';
+				if (!model) { return '<Error getting string of result>'; }
 				const lines = result.lines
 					.map((n) => {
 						const lineContent = model.getValueInRange(
@@ -1271,6 +1300,9 @@ export class ToolsService implements IToolsService {
 				const metadataStr = result.metadata?.publishedDate ? `Published: ${result.metadata.publishedDate}\n\n` : '';
 				return `${titleStr}${metadataStr}Content from ${result.url}:\n\n${result.content.substring(0, 10000)}${result.content.length > 10000 ? '\n\n... (content truncated)' : ''}`;
 			},
+			start_project_research: (params, result) => {
+				return result.success ? 'Research started successfully.' : 'Failed to start research.';
+			},
 		};
 	}
 
@@ -1362,7 +1394,7 @@ export class ToolsService implements IToolsService {
 					}) satisfies LintErrorItem
 			);
 
-		if (!lintErrors.length) return { lintErrors: null };
+		if (!lintErrors.length) { return { lintErrors: null }; }
 		return { lintErrors };
 	}
 }

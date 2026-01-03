@@ -8,9 +8,9 @@ import { useSettingsState, useAccessor, useCtrlKZoneStreamingState } from '../ut
 import { TextAreaFns, GridInputBox2 } from '../util/inputs.js';
 import { QuickEditPropsType } from '../../../quickEditActions.js';
 import { ButtonStop, ButtonSubmit, IconX, GridChatArea } from '../sidebar-tsx/SidebarChat.js';
-import { VOID_CTRL_K_ACTION_ID } from '../../../actionIDs.js';
+import { GRID_CTRL_K_ACTION_ID } from '../../../actionIDs.js';
 import { useRefState } from '../util/helpers.js';
-import { isFeatureNameDisabled } from '../../../../../../../workbench/contrib/GRID/common/GRIDSettingsTypes.js';
+import { isFeatureNameDisabled } from '../../../../../../../workbench/contrib/grid/common/gridSettingsTypes.js';
 
 
 
@@ -91,7 +91,7 @@ export const QuickEditChat = ({
 		editCodeService.removeCtrlKZone({ diffareaid })
 	}, [editCodeService, diffareaid])
 
-	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(VOID_CTRL_K_ACTION_ID)?.getLabel()
+	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(GRID_CTRL_K_ACTION_ID)?.getLabel()
 
 	const chatAreaRef = useRef<HTMLDivElement | null>(null)
 	return <div ref={sizerRef} style={{ maxWidth: 450 }} className={`py-2 w-full`}>

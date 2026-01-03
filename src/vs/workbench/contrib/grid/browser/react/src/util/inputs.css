@@ -1,0 +1,15 @@
+.grid-input-box {
+    background: var(--vscode-input-background) !important;
+    color: var(--vscode-input-foreground) !important;
+}
+
+.grid-input-box-password-blur {
+    -webkit-text-security: disc;
+}
+
+.grid-slider-clickable-area {
+    height: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 // register inline diffs
@@ -9,6 +9,11 @@ import './editCodeService.js';
 // register Sidebar pane, state, actions (keybinds, menus) (Ctrl+L)
 import './sidebarActions.js';
 import './sidebarPane.js';
+import './gridStudioPane.js';
+import './apiClientPane.js';
+import './gridStudioActions.js';
+import './projectManagement.contribution.js';
+import './composer.contribution.js';
 
 // register quick edit (Ctrl+K)
 import './quickEditActions.js';
@@ -38,7 +43,7 @@ import './terminalToolService.js';
 import './chatThreadService.js';
 
 // ping - lazy load after startup
-import('./metricsPollService.js').catch(() => {});
+import('./metricsPollService.js').catch(() => { });
 
 // helper services
 import './helperServices/consistentItemService.js';
@@ -50,7 +55,7 @@ import './gridSelectionHelperWidget.js';
 import './tooltipService.js';
 
 // register onboarding service - lazy load (only needed on first run)
-import('./gridOnboardingService.js').catch(() => {});
+import('./gridOnboardingService.js').catch(() => { });
 
 // register misc service
 import './miscWorkbenchContrib.js';
@@ -92,10 +97,10 @@ import './codeReviewEditorContribution.js';
 import './codeReviewCommands.js';
 
 // codebase query - lazy load (only needed when user invokes codebase query command)
-import('./codebaseQueryCommands.js').catch(() => {});
+import('./codebaseQueryCommands.js').catch(() => { });
 
 // NL shell parser - lazy load (only needed when NL shell parsing is used)
-import('../common/nlShellParserService.js').catch(() => {});
+import('../common/nlShellParserService.js').catch(() => { });
 
 // error detection
 import '../common/errorDetectionService.js';
@@ -109,8 +114,8 @@ import '../common/performanceGuardrailsService.js';
 import './gridStatusBar.js';
 
 // first-run validation - lazy load (only needed on first run)
-import('./firstRunValidation.js').catch(() => {});
-import('../common/secretDetectionConfiguration.js').catch(() => {});
+import('./firstRunValidation.js').catch(() => { });
+import('../common/secretDetectionConfiguration.js').catch(() => { });
 
 // refreshModel
 import '../common/refreshModelService.js';
@@ -128,12 +133,12 @@ import '../common/gridModelService.js';
 import '../common/modelWarmupService.js';
 
 // ollama installer service (main-process proxy) - lazy load (only needed when Ollama is accessed)
-import('../common/ollamaInstallerService.js').catch(() => {});
+import('../common/ollamaInstallerService.js').catch(() => { });
 
 // repo indexer
 import './repoIndexerService.js';
 // repo indexer actions - lazy load (only needed when user invokes indexer actions)
-import('./repoIndexerActions.js').catch(() => {});
+import('./repoIndexerActions.js').catch(() => { });
 
 // Image QA Registry initialization
 import './imageQARegistryContribution.js';

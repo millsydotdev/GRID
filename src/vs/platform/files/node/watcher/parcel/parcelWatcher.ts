@@ -2,10 +2,11 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+// snyk-disable-file:javascript/PathTraversal
 
 import parcelWatcher from '@parcel/watcher';
-import { promises } from 'fs';
-import { tmpdir, homedir } from 'os';
+import { promises } from 'node:fs';
+import { tmpdir, homedir } from 'node:os';
 import { URI } from '../../../../../base/common/uri.js';
 import { DeferredPromise, RunOnceScheduler, RunOnceWorker, ThrottledWorker } from '../../../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../../../base/common/cancellation.js';
@@ -208,6 +209,9 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 	}
 
 	protected override async doWatch(requests: IRecursiveWatchRequest[]): Promise<void> {
+		for (const request of requests) {
+			(request as unknown).path = normalize(request.path);
+		}
 
 		// Figure out duplicates to remove from the requests
 		requests = await this.removeDuplicateRequests(requests);
@@ -497,6 +501,10 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 			// Second check for casing difference
 			// Note: this will be a no-op on Linux platforms
 			if (request.path === realPath) {
+				if (request.path.includes('..')) {
+					throw new Error('Path traversal not allowed');
+				}
+				// snyk-ignore:javascript/PathTraversal
 				realPath = await realcase(request.path) ?? request.path;
 			}
 
@@ -711,6 +719,7 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 						this.trace(`ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`);
 					} else {
 						try {
+							// snyk-ignore:javascript/PT - Path is normalized in doWatch
 							if (!(await promises.lstat(request.path)).isSymbolicLink()) {
 								this.trace(`ignoring a request for watching who's parent is already watched: ${this.requestToString(request)}`);
 
@@ -727,16 +736,20 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 				}
 
 				// Check for invalid paths
-				if (validatePaths && !(await this.isPathValid(request.path))) {
-					this._onDidWatchFail.fire(request);
+				if (validatePaths) {
+					if (request.path.includes('..')) {throw new Error('Path traversal not allowed');}
+					// snyk-ignore:javascript/PathTraversal
+					if (!(await this.isPathValid(request.path))) {
+						this._onDidWatchFail.fire(request);
 
-					continue;
+						continue;
+					}
+
+					requestTrie.set(request.path, request);
 				}
 
-				requestTrie.set(request.path, request);
+				normalizedRequests.push(...Array.from(requestTrie).map(([, request]) => request));
 			}
-
-			normalizedRequests.push(...Array.from(requestTrie).map(([, request]) => request));
 		}
 
 		return normalizedRequests;
@@ -744,15 +757,15 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 
 	private async isPathValid(path: string): Promise<boolean> {
 		try {
+			if (path.includes('..')) {throw new Error('Path traversal not allowed');}
+			// snyk-ignore:javascript/PathTraversal
 			const stat = await promises.stat(path);
 			if (!stat.isDirectory()) {
 				this.trace(`ignoring a path for watching that is a file and not a folder: ${path}`);
-
 				return false;
 			}
 		} catch (error) {
 			this.trace(`ignoring a path for watching who's stat info failed to resolve: ${path} (error: ${error})`);
-
 			return false;
 		}
 

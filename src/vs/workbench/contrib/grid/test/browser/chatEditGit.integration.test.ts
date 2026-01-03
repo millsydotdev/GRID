@@ -1,12 +1,14 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
 import { URI } from '../../../../../base/common/uri.js';
 
 suite('Chat-Edit-Git Integration Workflow', () => {
+
+	ensureNoDisposablesAreLeakedInTestSuite();
 	suite('End-to-End Chat to Code Edit Flow', () => {
 		test('should process user message and generate code edits', async () => {
 			// Simulate user message
@@ -216,7 +218,7 @@ suite('Chat-Edit-Git Integration Workflow', () => {
 					result = await retryableOperation();
 					break;
 				} catch (error) {
-					if (i === maxRetries - 1) throw error;
+					if (i === maxRetries - 1) {throw error;}
 				}
 			}
 

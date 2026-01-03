@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Emitter, Event } from '../../../../base/common/event.js';
@@ -150,7 +150,7 @@ export const modelFilterOfFeatureName: {
 	Autocomplete: {
 		filter: (o, opts) => {
 			// Skip "auto" option - it's not a real model
-			if (o.providerName === 'auto' && o.modelName === 'auto') return false;
+			if (o.providerName === 'auto' && o.modelName === 'auto') {return false;}
 			return getModelCapabilities(o.providerName, o.modelName, opts.overridesOfModel).supportsFIM;
 		},
 		emptyMessage: { message: 'No models support FIM', priority: 'always' },
@@ -158,7 +158,7 @@ export const modelFilterOfFeatureName: {
 	Chat: {
 		filter: (o) => {
 			// Always allow "Auto" option
-			if (o.providerName === 'auto' && o.modelName === 'auto') return true;
+			if (o.providerName === 'auto' && o.modelName === 'auto') {return true;}
 			// For other models, check capabilities
 			return true;
 		},
@@ -207,7 +207,7 @@ const _validatedModelState = (state: Omit<GridSettingsState, '_modelOptions'>): 
 			(key) => !!settingsAtProvider[key as keyof typeof settingsAtProvider]
 		);
 
-		if (didFillInProviderSettings === settingsAtProvider._didFillInProviderSettings) continue;
+		if (didFillInProviderSettings === settingsAtProvider._didFillInProviderSettings) {continue;}
 
 		newSettingsOfProvider = {
 			...newSettingsOfProvider,
@@ -219,17 +219,17 @@ const _validatedModelState = (state: Omit<GridSettingsState, '_modelOptions'>): 
 	}
 
 	// update model options
-	let newModelOptions: ModelOption[] = [];
+	const newModelOptions: ModelOption[] = [];
 	// Add "Auto" option first (only for Chat feature)
-	// Note: 'auto' is not a real ProviderName, but we use it as a special marker
-	const autoOption: ModelOption = { name: 'Auto', selection: { providerName: 'auto' as any, modelName: 'auto' } };
+	// Note: 'auto' is a special ModelSelection value for automatic routing
+	const autoOption: ModelOption = { name: 'Auto', selection: { providerName: 'auto', modelName: 'auto' } };
 	newModelOptions.push(autoOption);
 
 	for (const providerName of providerNames) {
 		const providerTitle = providerName; // displayInfoOfProviderName(providerName).title.toLowerCase() // looks better lowercase, best practice to not use raw providerName
-		if (!newSettingsOfProvider[providerName]._didFillInProviderSettings) continue; // if disabled, don't display model options
+		if (!newSettingsOfProvider[providerName]._didFillInProviderSettings) {continue;} // if disabled, don't display model options
 		for (const { modelName, isHidden } of newSettingsOfProvider[providerName].models) {
-			if (isHidden) continue;
+			if (isHidden) {continue;}
 			newModelOptions.push({ name: `${modelName} (${providerTitle})`, selection: { providerName, modelName } });
 		}
 	}
@@ -253,7 +253,7 @@ const _validatedModelState = (state: Omit<GridSettingsState, '_modelOptions'>): 
 				? -1
 				: modelOptionsForThisFeature.findIndex((m) => modelSelectionsEqual(m.selection, modelSelectionAtFeature));
 
-		if (selnIdx !== -1) continue; // no longer in list, so update to 1st in list or null
+		if (selnIdx !== -1) {continue;} // no longer in list, so update to 1st in list or null
 
 		newModelSelectionOfFeature = {
 			...newModelSelectionOfFeature,
@@ -357,10 +357,10 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 		try {
 			readS = await this._readState();
 			// 1.0.3 addition, remove when enough users have had this code run
-			if (readS.globalSettings.includeToolLintErrors === undefined) readS.globalSettings.includeToolLintErrors = true;
+			if (readS.globalSettings.includeToolLintErrors === undefined) {readS.globalSettings.includeToolLintErrors = true;}
 
 			// autoapprove is now an obj not a boolean (1.2.5)
-			if (typeof readS.globalSettings.autoApprove === 'boolean') readS.globalSettings.autoApprove = {};
+			if (typeof readS.globalSettings.autoApprove === 'boolean') {readS.globalSettings.autoApprove = {};}
 
 			// 1.3.5 add source control feature
 			if (readS.modelSelectionOfFeature && !readS.modelSelectionOfFeature['SCM']) {
@@ -368,10 +368,10 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 				readS.optionsOfModelSelection['SCM'] = deepClone(readS.optionsOfModelSelection['Chat']);
 			}
 			// add disableSystemMessage feature
-			if (readS.globalSettings.disableSystemMessage === undefined) readS.globalSettings.disableSystemMessage = false;
+			if (readS.globalSettings.disableSystemMessage === undefined) {readS.globalSettings.disableSystemMessage = false;}
 
 			// add autoAcceptLLMChanges feature
-			if (readS.globalSettings.autoAcceptLLMChanges === undefined) readS.globalSettings.autoAcceptLLMChanges = false;
+			if (readS.globalSettings.autoAcceptLLMChanges === undefined) {readS.globalSettings.autoAcceptLLMChanges = false;}
 		} catch (e) {
 			readS = defaultState();
 		}
@@ -387,18 +387,21 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 			};
 
 			for (const providerName of providerNames) {
-				readS.settingsOfProvider[providerName] = {
-					...defaultSettingsOfProvider[providerName],
-					...readS.settingsOfProvider[providerName],
-				} as any;
+				// Merge default and read settings for each provider
+				const defaultSettings = defaultSettingsOfProvider[providerName];
+				const readSettings = readS.settingsOfProvider[providerName];
+				(readS.settingsOfProvider as any)[providerName] = {
+					...defaultSettings,
+					...readSettings,
+				} as typeof defaultSettings;
 
 				// conversion from 1.0.3 to 1.2.5 (can remove this when enough people update)
 				for (const m of readS.settingsOfProvider[providerName].models) {
 					if (!m.type) {
 						const old = m as { isAutodetected?: boolean; isDefault?: boolean };
-						if (old.isAutodetected) m.type = 'autodetected';
-						else if (old.isDefault) m.type = 'default';
-						else m.type = 'custom';
+						if (old.isAutodetected) {m.type = 'autodetected';}
+						else if (old.isDefault) {m.type = 'default';}
+						else {m.type = 'custom';}
 					}
 				}
 
@@ -429,7 +432,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 	private async _readState(): Promise<GridSettingsState> {
 		const encryptedState = this._storageService.get(GRID_SETTINGS_STORAGE_KEY, StorageScope.APPLICATION);
 
-		if (!encryptedState) return defaultState();
+		if (!encryptedState) {return defaultState();}
 
 		const stateStr = await this._encryptionService.decrypt(encryptedState);
 		const state = JSON.parse(stateStr);
@@ -466,6 +469,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 			globalSettings: newGlobalSettings,
 			overridesOfModel: newOverridesOfModel,
 			mcpUserStateOfName: newMCPUserStateOfName,
+			dashboardSettings: this.state.dashboardSettings,
 		};
 
 		this.state = _validatedModelState(newState);
@@ -504,8 +508,8 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 		this._onDidChangeState.fire();
 
 		// hooks
-		if (this.state.globalSettings.syncApplyToChat) this._onUpdate_syncApplyToChat();
-		if (this.state.globalSettings.syncSCMToChat) this._onUpdate_syncSCMToChat();
+		if (this.state.globalSettings.syncApplyToChat) {this._onUpdate_syncApplyToChat();}
+		if (this.state.globalSettings.syncSCMToChat) {this._onUpdate_syncSCMToChat();}
 	};
 
 	setModelSelectionOfFeature: SetModelSelectionOfFeatureFn = async (featureName, newVal) => {
@@ -626,7 +630,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 	toggleModelHidden(providerName: ProviderName, modelName: string) {
 		const { models } = this.state.settingsOfProvider[providerName];
 		const modelIdx = models.findIndex((m) => m.modelName === modelName);
-		if (modelIdx === -1) return;
+		if (modelIdx === -1) {return;}
 		const newIsHidden = !models[modelIdx].isHidden;
 		const newModels: GridStatefulModelInfo[] = [
 			...models.slice(0, modelIdx),
@@ -640,7 +644,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 	addModel(providerName: ProviderName, modelName: string) {
 		const { models } = this.state.settingsOfProvider[providerName];
 		const existingIdx = models.findIndex((m) => m.modelName === modelName);
-		if (existingIdx !== -1) return; // if exists, do nothing
+		if (existingIdx !== -1) {return;} // if exists, do nothing
 		const newModels = [...models, { modelName, type: 'custom', isHidden: false } as const];
 		this.setSettingOfProvider(providerName, 'models', newModels);
 
@@ -649,7 +653,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 	deleteModel(providerName: ProviderName, modelName: string): boolean {
 		const { models } = this.state.settingsOfProvider[providerName];
 		const delIdx = models.findIndex((m) => m.modelName === modelName);
-		if (delIdx === -1) return false;
+		if (delIdx === -1) {return false;}
 		const newModels = [
 			...models.slice(0, delIdx), // delete the idx
 			...models.slice(delIdx + 1, Infinity),

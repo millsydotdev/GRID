@@ -170,6 +170,7 @@ export interface IProductConfiguration {
 	readonly licenseUrl?: string;
 	readonly serverLicenseUrl?: string;
 	readonly privacyStatementUrl?: string;
+	readonly termsOfServiceUrl?: string;
 	readonly showTelemetryOptOut?: boolean;
 
 	readonly serverGreeting?: string[];

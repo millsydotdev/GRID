@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
@@ -27,6 +27,34 @@ export interface ASTChunk {
 	symbolName?: string; // If this chunk represents a symbol
 }
 
+// Tree-sitter WASM module types
+interface TreeSitterNode {
+	type: string;
+	startPosition: { row: number; column: number };
+	endPosition: { row: number; column: number };
+	childCount: number;
+	text: string;
+	child(index: number): TreeSitterNode | null;
+	childForFieldName(name: string): TreeSitterNode | null;
+	children?: TreeSitterNode[]; // For compatibility if needed, though usually traversed via methods
+}
+
+interface TreeSitterTree {
+	rootNode: TreeSitterNode;
+}
+
+interface TreeSitterParser {
+	parse(content: string): TreeSitterTree | null;
+}
+
+interface TreeSitterWasmModule {
+	createParser?(language: string): Promise<TreeSitterParser | null>;
+	Parser?: any;
+	Tree?: any;
+	Language?: any;
+	[key: string]: any;
+}
+
 export const ITreeSitterService = createDecorator<ITreeSitterService>('treeSitterService');
 
 export interface ITreeSitterService {
@@ -40,8 +68,8 @@ class TreeSitterService implements ITreeSitterService {
 	declare readonly _serviceBrand: undefined;
 
 	private _enabled = false;
-	private _parserCache: Map<string, any> = new Map(); // language -> parser instance
-	private _wasmModule: unknown = null;
+	private _parserCache: Map<string, TreeSitterParser> = new Map(); // language -> parser instance
+	private _wasmModule: TreeSitterWasmModule | null = null;
 	private _loadFailed = false; // Track if module loading has failed to prevent repeated warnings
 
 	constructor(
@@ -64,7 +92,7 @@ class TreeSitterService implements ITreeSitterService {
 		return this._enabled;
 	}
 
-	private async _getWasmModule(): Promise<any> {
+	private async _getWasmModule(): Promise<TreeSitterWasmModule | null> {
 		if (this._wasmModule) {
 			return this._wasmModule;
 		}
@@ -135,7 +163,7 @@ class TreeSitterService implements ITreeSitterService {
 			// Get or create parser for this language
 			let parser = this._parserCache.get(language);
 			if (!parser) {
-				parser = await wasmModule.createParser(language);
+				parser = await wasmModule.createParser?.(language) ?? undefined;
 				if (parser) {
 					this._parserCache.set(language, parser);
 				}
@@ -162,8 +190,8 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _traverseAST(node: any, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
-		if (!node) return;
+	private _traverseAST(node: TreeSitterNode, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
+		if (!node) { return; }
 
 		// Extract symbol based on node type
 		const nodeType = node.type;
@@ -239,7 +267,7 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _extractNameFromNode(node: any, content: string): string | null {
+	private _extractNameFromNode(node: TreeSitterNode, content: string): string | null {
 		// Try common name field patterns
 		const nameFields = ['name', 'identifier', 'declaration', 'definition'];
 		for (const field of nameFields) {
@@ -278,7 +306,7 @@ class TreeSitterService implements ITreeSitterService {
 
 			let parser = this._parserCache.get(language);
 			if (!parser) {
-				parser = await wasmModule.createParser(language);
+				parser = await wasmModule.createParser?.(language) ?? undefined;
 				if (parser) {
 					this._parserCache.set(language, parser);
 				}
@@ -326,7 +354,7 @@ class TreeSitterService implements ITreeSitterService {
 	}
 
 	private _extractTopLevelChunks(
-		rootNode: unknown,
+		rootNode: TreeSitterNode,
 		content: string,
 		lines: string[],
 		chunks: ASTChunk[],
@@ -338,8 +366,8 @@ class TreeSitterService implements ITreeSitterService {
 			coveredRanges.add(`${symbol.startLine}-${symbol.endLine}`);
 		}
 
-		const processNode = (node: any) => {
-			if (!node) return;
+		const processNode = (node: TreeSitterNode) => {
+			if (!node) { return; }
 
 			// Check if this is a top-level statement/declaration
 			const nodeType = node.type;

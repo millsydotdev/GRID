@@ -1,6 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Minimal installer service that proxies to main channel and exposes events
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
@@ -30,8 +31,8 @@ export class OllamaInstallerService implements IOllamaInstallerService {
 
 	constructor(@IMainProcessService private readonly mainProcessService: IMainProcessService) {
 		const channel = this.mainProcessService.getChannel('grid-channel-ollamaInstaller');
-		channel.listen('onLog')((e: unknown) => this._onLog.fire((e as { text: string }).text));
-		channel.listen('onDone')((e: unknown) => this._onDone.fire((e as { ok: boolean }).ok));
+		channel.listen('onLog')((e: any) => this._onLog.fire((e as { text: string }).text));
+		channel.listen('onDone')((e: any) => this._onDone.fire((e as { ok: boolean }).ok));
 	}
 
 	install(options: InstallOptions) {

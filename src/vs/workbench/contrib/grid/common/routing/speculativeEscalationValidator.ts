@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { IGridTelemetryService } from '../telemetry/telemetryService.js';
@@ -101,19 +101,19 @@ export class SpeculativeEscalationValidator {
 		escalationEvents: RoutingDecisionEvent[],
 		allEvents: RoutingDecisionEvent[]
 	): number {
-		if (escalationEvents.length === 0) return 0;
+		if (escalationEvents.length === 0) {return 0;}
 
 		// Compare escalated events to similar non-escalated events
 		const escalatedLatencies = escalationEvents.filter((e) => e.totalLatency > 0).map((e) => e.totalLatency);
 
-		if (escalatedLatencies.length === 0) return 0;
+		if (escalatedLatencies.length === 0) {return 0;}
 
 		const avgEscalatedLatency = escalatedLatencies.reduce((a, b) => a + b, 0) / escalatedLatencies.length;
 
 		// Find similar non-escalated events (same task type, similar context size)
 		const nonEscalatedEvents = allEvents.filter((e) => !e.speculativeEscalation?.used && e.totalLatency > 0);
 
-		if (nonEscalatedEvents.length === 0) return 0;
+		if (nonEscalatedEvents.length === 0) {return 0;}
 
 		const avgNonEscalatedLatency =
 			nonEscalatedEvents.map((e) => e.totalLatency).reduce((a, b) => a + b, 0) / nonEscalatedEvents.length;
@@ -128,7 +128,7 @@ export class SpeculativeEscalationValidator {
 		escalationEvents: RoutingDecisionEvent[],
 		allEvents: RoutingDecisionEvent[]
 	): number {
-		if (escalationEvents.length === 0) return 0;
+		if (escalationEvents.length === 0) {return 0;}
 
 		// Acceptance rate for escalated events
 		const escalatedAccepted = escalationEvents.filter((e) => e.userAccepted === true).length;

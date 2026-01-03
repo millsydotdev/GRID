@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -158,6 +158,11 @@ export interface TechStack {
 	libraries: string[];
 	tools: string[];
 	services: string[];
+	// Extended fields for project planning
+	packageManager?: 'npm' | 'yarn' | 'pnpm' | 'bun' | 'pip' | 'cargo' | 'go' | 'maven' | 'gradle';
+	buildTool?: string;
+	testingStrategy?: string[];
+	deploymentTarget?: ('vercel' | 'aws' | 'gcp' | 'azure' | 'docker' | 'kubernetes' | 'local' | 'edge')[];
 }
 
 export interface ArchitectureDecision {
@@ -167,6 +172,45 @@ export interface ArchitectureDecision {
 	alternatives: string[];
 	tradeoffs: string[];
 	status: 'proposed' | 'accepted' | 'rejected';
+}
+
+/**
+ * Project Planning Wizard Types
+ * These types power the Plan mode's project scaffolding guidance
+ */
+
+export type ProjectCategory = 'web' | 'mobile' | 'cli' | 'library' | 'api' | 'desktop' | 'game' | 'ai-ml' | 'data';
+
+export interface FileFormatRecommendation {
+	purpose: 'config' | 'data' | 'style' | 'test' | 'doc' | 'schema' | 'state';
+	format: string;
+	extension: string;
+	rationale: string;
+	alternatives: string[];
+}
+
+export interface ProjectIntent {
+	description: string;
+	category: ProjectCategory;
+	scale: 'prototype' | 'small' | 'medium' | 'large' | 'enterprise';
+	teamSize: 'solo' | 'small-team' | 'large-team' | 'enterprise';
+	platforms: string[];
+	constraints: string[];
+	priorities: ('speed' | 'scalability' | 'maintainability' | 'security' | 'cost')[];
+}
+
+export interface ProjectTemplate {
+	id: string;
+	name: string;
+	description: string;
+	category: ProjectCategory;
+	techStack: TechStack;
+	recommendedArchitecture: string[];
+	fileFormats: FileFormatRecommendation[];
+	scaffoldCommands: string[];
+	estimatedSetupTime: string;
+	difficulty: 'beginner' | 'intermediate' | 'advanced';
+	complexity?: number;
 }
 
 export interface Risk {
@@ -239,7 +283,7 @@ export class ProjectContextService implements IProjectContextService {
 	private projectIndexes: Map<string, ProjectIndex> = new Map();
 	private taskDocuments: Map<string, TaskDocument> = new Map();
 	private implementationPlans: Map<string, ImplementationPlan> = new Map();
-	private watchers: Map<string, any> = new Map();
+	private watchers: Map<string, unknown> = new Map();
 
 	async indexProject(projectPath: string): Promise<ProjectIndex> {
 		// Implementation would scan the project directory

@@ -26,7 +26,7 @@ export class ComposerUnifiedDiffView {
 	private readonly _ignoreTrimWhitespace: IObservable<boolean>;
 	// Cache for computed diffs to avoid recomputing for unchanged files
 	// Key: entryId + originalVersion + modifiedVersion + ignoreTrimWhitespace
-	private readonly _diffCache = new Map<string, Promise<{ diff: any; originalVersion: number; modifiedVersion: number }>>();
+	private readonly _diffCache = new Map<string, Promise<{ diff: unknown; originalVersion: number; modifiedVersion: number }>>();
 
 	constructor(
 		private readonly _container: HTMLElement,

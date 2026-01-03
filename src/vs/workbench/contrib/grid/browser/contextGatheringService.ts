@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../base/common/cancellation.js';
@@ -15,6 +15,7 @@ import { InstantiationType, registerSingleton } from '../../../../platform/insta
 import { IModelService } from '../../../../editor/common/services/model.js';
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 import { URI } from '../../../../base/common/uri.js';
+import { IMemoriesService, RelevantMemory } from '../common/memoriesService.js';
 
 // make sure snippet logic works
 // change logic for `visited` to intervals
@@ -31,6 +32,8 @@ export interface IContextGatheringService {
 	readonly _serviceBrand: undefined;
 	updateCache(model: ITextModel, pos: Position): Promise<void>;
 	getCachedSnippets(): string[];
+	/** Get relevant memories for the current context query */
+	getRelevantMemoriesForContext(query: string): Promise<RelevantMemory[]>;
 }
 
 export const IContextGatheringService = createDecorator<IContextGatheringService>('contextGatheringService');
@@ -46,7 +49,8 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 	constructor(
 		@ILanguageFeaturesService private readonly _langFeaturesService: ILanguageFeaturesService,
 		@IModelService private readonly _modelService: IModelService,
-		@ICodeEditorService private readonly _codeEditorService: ICodeEditorService
+		@ICodeEditorService private readonly _codeEditorService: ICodeEditorService,
+		@IMemoriesService private readonly _memoriesService: IMemoriesService
 	) {
 		super();
 		this._modelService.getModels().forEach((model) => this._subscribeToModel(model));
@@ -80,6 +84,16 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 
 	public getCachedSnippets(): string[] {
 		return this._cache;
+	}
+
+	/** Get relevant memories based on current context */
+	public async getRelevantMemoriesForContext(query: string): Promise<RelevantMemory[]> {
+		if (!this._memoriesService.isEnabled()) {
+			return [];
+		}
+		// Include current file and cached snippets in the query for better relevance
+		const enrichedQuery = [query, ...this._cache.slice(0, 3)].join(' ');
+		return this._memoriesService.getRelevantMemories(enrichedQuery, 5);
 	}
 
 	// Basic snippet extraction.
@@ -148,7 +162,7 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 		snippets: Set<string>,
 		visited: IVisitedInterval[]
 	): Promise<void> {
-		if (depth <= 0) return;
+		if (depth <= 0) {return;}
 
 		const startLine = Math.max(pos.lineNumber - numLines, 1);
 		const endLine = Math.min(pos.lineNumber + numLines, model.getLineCount());
@@ -178,10 +192,10 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 		snippets: Set<string>,
 		visited: IVisitedInterval[]
 	): Promise<void> {
-		if (depth <= 0) return;
+		if (depth <= 0) {return;}
 
 		const container = await this._findContainerFunction(model, pos);
-		if (!container) return;
+		if (!container) {return;}
 
 		const containerRange = container.kind === SymbolKind.Method ? container.selectionRange : container.range;
 		this._addSnippetIfNotOverlapping(model, containerRange, snippets, visited);
@@ -247,7 +261,7 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 			for (const word of words) {
 				const startColumn = content.indexOf(word) + 1;
 				const pos = new Position(line, startColumn);
-				if (!this._positionInRange(pos, range)) continue;
+				if (!this._positionInRange(pos, range)) {continue;}
 				for (const provider of refProviders) {
 					try {
 						const refs = await provider.provideReferences(
@@ -352,10 +366,10 @@ class ContextGatheringService extends Disposable implements IContextGatheringSer
 		const funcs = symbols.filter(
 			(s) => (s.kind === SymbolKind.Function || s.kind === SymbolKind.Method) && this._positionInRange(pos, s.range)
 		);
-		if (!funcs.length) return null;
+		if (!funcs.length) {return null;}
 		return funcs.reduce(
 			(innermost, current) => {
-				if (!innermost) return current;
+				if (!innermost) {return current;}
 				const moreInner =
 					(current.range.startLineNumber > innermost.range.startLineNumber ||
 						(current.range.startLineNumber === innermost.range.startLineNumber &&

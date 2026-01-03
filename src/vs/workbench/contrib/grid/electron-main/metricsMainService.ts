@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { isLinux, isMacintosh, isWindows } from '../../../../base/common/platform.js';
@@ -12,21 +12,21 @@ import { StorageTarget, StorageScope } from '../../../../platform/storage/common
 import { IApplicationStorageMainService } from '../../../../platform/storage/electron-main/storageMainService.js';
 
 import { IMetricsService } from '../common/metricsService.js';
-import { PostHog } from 'posthog-node'
+import { PostHog } from 'posthog-node';
 import { OPT_OUT_KEY } from '../common/storageKeys.js';
 
 
-const os = isWindows ? 'windows' : isMacintosh ? 'mac' : isLinux ? 'linux' : null
+const os = isWindows ? 'windows' : isMacintosh ? 'mac' : isLinux ? 'linux' : null;
 const _getOSInfo = () => {
 	try {
-		const { platform, arch } = process // see platform.ts
-		return { platform, arch }
+		const { platform, arch } = process; // see platform.ts
+		return { platform, arch };
 	}
 	catch (e) {
-		return { osInfo: { platform: '??', arch: '??' } }
+		return { osInfo: { platform: '??', arch: '??' } };
 	}
-}
-const osInfo = _getOSInfo()
+};
+const osInfo = _getOSInfo();
 
 // we'd like to use devDeviceId on telemetryService, but that gets sanitized by the time it gets here as 'someValue.devDeviceId'
 
@@ -35,18 +35,18 @@ const osInfo = _getOSInfo()
 export class MetricsMainService extends Disposable implements IMetricsService {
 	_serviceBrand: undefined;
 
-	private readonly client: PostHog
+	private readonly client: PostHog;
 
-	private _initProperties: object = {}
+	private _initProperties: object = {};
 
 
 	// helper - looks like this is stored in a .vscdb file in ~/Library/Application Support/GRID
 	private _memoStorage(key: string, target: StorageTarget, setValIfNotExist?: string) {
-		const currVal = this._appStorage.get(key, StorageScope.APPLICATION)
-		if (currVal !== undefined) return currVal
-		const newVal = setValIfNotExist ?? generateUuid()
-		this._appStorage.store(key, newVal, StorageScope.APPLICATION, target)
-		return newVal
+		const currVal = this._appStorage.get(key, StorageScope.APPLICATION);
+		if (currVal !== undefined) {return currVal;}
+		const newVal = setValIfNotExist ?? generateUuid();
+		this._appStorage.store(key, newVal, StorageScope.APPLICATION, target);
+		return newVal;
 	}
 
 
@@ -54,14 +54,14 @@ export class MetricsMainService extends Disposable implements IMetricsService {
 	// returns 'NULL' or the old key
 	private get oldId() {
 		// check new storage key first
-		const newKey = 'grid.app.oldMachineId'
-		const newOldId = this._appStorage.get(newKey, StorageScope.APPLICATION)
-		if (newOldId) return newOldId
+		const newKey = 'grid.app.oldMachineId';
+		const newOldId = this._appStorage.get(newKey, StorageScope.APPLICATION);
+		if (newOldId) {return newOldId;}
 
 		// put old key into new key if didn't already
-		const oldValue = this._appStorage.get('void.machineId', StorageScope.APPLICATION) ?? 'NULL' // the old way of getting the key
-		this._appStorage.store(newKey, oldValue, StorageScope.APPLICATION, StorageTarget.MACHINE)
-		return oldValue
+		const oldValue = this._appStorage.get('void.machineId', StorageScope.APPLICATION) ?? 'NULL'; // the old way of getting the key
+		this._appStorage.store(newKey, oldValue, StorageScope.APPLICATION, StorageTarget.MACHINE);
+		return oldValue;
 
 		// in a few weeks we can replace above with this
 		// private get oldId() {
@@ -72,14 +72,14 @@ export class MetricsMainService extends Disposable implements IMetricsService {
 
 	// the main id
 	private get distinctId() {
-		const oldId = this.oldId
-		const setValIfNotExist = oldId === 'NULL' ? undefined : oldId
-		return this._memoStorage('grid.app.machineId', StorageTarget.MACHINE, setValIfNotExist)
+		const oldId = this.oldId;
+		const setValIfNotExist = oldId === 'NULL' ? undefined : oldId;
+		return this._memoStorage('grid.app.machineId', StorageTarget.MACHINE, setValIfNotExist);
 	}
 
 	// just to see if there are ever multiple machineIDs per userID (instead of this, we should just track by the user's email)
 	private get userId() {
-		return this._memoStorage('grid.app.userMachineId', StorageTarget.USER)
+		return this._memoStorage('grid.app.userMachineId', StorageTarget.USER);
 	}
 
 	constructor(
@@ -87,21 +87,21 @@ export class MetricsMainService extends Disposable implements IMetricsService {
 		@IEnvironmentMainService private readonly _envMainService: IEnvironmentMainService,
 		@IApplicationStorageMainService private readonly _appStorage: IApplicationStorageMainService,
 	) {
-		super()
+		super();
 		this.client = new PostHog('phc_UanIdujHiLp55BkUTjB1AuBXcasVkdqRwgnwRlWESH2', {
 			host: 'https://us.i.posthog.com',
-		})
+		});
 
-		this.initialize() // async
+		this.initialize(); // async
 	}
 
 	async initialize() {
 		// very important to await whenReady!
-		await this._appStorage.whenReady
+		await this._appStorage.whenReady;
 
-		const { commit, version, gridVersion, release, quality } = this._productService
+		const { commit, version, gridVersion, release, quality } = this._productService;
 
-		const isDevMode = !this._envMainService.isBuilt // found in abstractUpdateService.ts
+		const isDevMode = !this._envMainService.isBuilt; // found in abstractUpdateService.ts
 
 		// custom properties we identify
 		this._initProperties = {
@@ -116,46 +116,46 @@ export class MetricsMainService extends Disposable implements IMetricsService {
 			oldId: this.oldId,
 			isDevMode,
 			...osInfo,
-		}
+		};
 
 		const identifyMessage = {
 			distinctId: this.distinctId,
 			properties: this._initProperties,
-		}
+		};
 
-		const didOptOut = this._appStorage.getBoolean(OPT_OUT_KEY, StorageScope.APPLICATION, false)
+		const didOptOut = this._appStorage.getBoolean(OPT_OUT_KEY, StorageScope.APPLICATION, false);
 
-		console.log('User is opted out of basic GRID metrics?', didOptOut)
+		console.log('User is opted out of basic GRID metrics?', didOptOut);
 		if (didOptOut) {
-			this.client.optOut()
+			this.client.optOut();
 		}
 		else {
-			this.client.optIn()
-			this.client.identify(identifyMessage)
+			this.client.optIn();
+			this.client.identify(identifyMessage);
 		}
 
 
-		console.log('GRID posthog metrics info:', JSON.stringify(identifyMessage, null, 2))
+		console.log('GRID posthog metrics info:', JSON.stringify(identifyMessage, null, 2));
 	}
 
 
 	capture: IMetricsService['capture'] = (event, params) => {
-		const capture = { distinctId: this.distinctId, event, properties: params } as const
+		const capture = { distinctId: this.distinctId, event, properties: params } as const;
 		// console.log('full capture:', this.distinctId)
-		this.client.capture(capture)
-	}
+		this.client.capture(capture);
+	};
 
 	setOptOut: IMetricsService['setOptOut'] = (newVal: boolean) => {
 		if (newVal) {
-			this._appStorage.store(OPT_OUT_KEY, 'true', StorageScope.APPLICATION, StorageTarget.MACHINE)
+			this._appStorage.store(OPT_OUT_KEY, 'true', StorageScope.APPLICATION, StorageTarget.MACHINE);
 		}
 		else {
-			this._appStorage.remove(OPT_OUT_KEY, StorageScope.APPLICATION)
+			this._appStorage.remove(OPT_OUT_KEY, StorageScope.APPLICATION);
 		}
-	}
+	};
 
 	async getDebuggingProperties() {
-		return this._initProperties
+		return this._initProperties;
 	}
 }
 

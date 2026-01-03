@@ -1,14 +1,30 @@
 {
 	"nameShort": "GRID",
 	"nameLong": "GRID",
-	"gridVersion": "0.0.8",
+	"gridVersion": "0.9.1-beta",
 	"gridRelease": "0906",
 	"applicationName": "grid",
 	"dataFolderName": ".grid",
 	"win32MutexName": "grid",
 	"licenseName": "MIT",
-	"licenseUrl": "https://github.com/GRID-Editor/GRID/blob/main/LICENSE.txt",
-	"serverLicenseUrl": "https://github.com/GRID-Editor/GRID/blob/main/LICENSE.txt",
+	"licenseUrl": "https://grideditor.com/license",
+	"privacyStatementUrl": "https://grideditor.com/privacy",
+	"termsOfServiceUrl": "https://grideditor.com/terms",
+	"documentationUrl": "https://grideditor.com/docs",
+	"defaultChatAgent": {
+		"provider": {
+			"default": {
+				"name": "GRID",
+				"displayName": "GRID AI"
+			}
+		},
+		"termsStatementUrl": "https://grideditor.com/terms",
+		"privacyStatementUrl": "https://grideditor.com/privacy",
+		"documentationUrl": "https://grideditor.com/docs/getting-started",
+		"manageSettingsUrl": "https://grideditor.com/dashboard/settings",
+		"publicCodeMatchesUrl": "https://grideditor.com/docs/ai-features#public-code"
+	},
+	"serverLicenseUrl": "https://grideditor.com/license",
 	"serverGreeting": [],
 	"serverLicense": [],
 	"serverLicensePrompt": "",

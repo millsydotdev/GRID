@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { ProviderName } from './gridSettingsTypes.js';
@@ -65,7 +65,7 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 	private cache: Map<ProviderName, CachedCatalog> = new Map();
 	private readonly DEFAULT_TTL = 3600_000; // 1 hour
 
-	constructor(@IGridSettingsService private readonly settingsService: IGridSettingsService) {}
+	constructor(@IGridSettingsService private readonly settingsService: IGridSettingsService) { }
 
 	async fetchCatalog(providerName: ProviderName, forceRefresh: boolean = false): Promise<RemoteModelInfo[]> {
 		// Check cache first
@@ -99,28 +99,34 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 
 		// Get API key - it might be undefined
 		const apiKey = settings.apiKey;
-		if (!apiKey) {
+
+		// Local providers don't strictly require an API key
+		const isLocalProvider = ['ollama', 'vLLM', 'lmStudio', 'localai'].includes(providerName);
+
+		if (!apiKey && !isLocalProvider) {
 			return [];
 		}
 
 		try {
 			switch (providerName) {
 				case 'openAI':
-					return await this.fetchOpenAICatalog(apiKey);
+					return await this.fetchOpenAICatalog(apiKey!);
 				case 'anthropic':
-					return await this.fetchAnthropicCatalog(apiKey);
+					return await this.fetchAnthropicCatalog(apiKey!);
 				case 'gemini':
-					return await this.fetchGeminiCatalog(apiKey);
+					return await this.fetchGeminiCatalog(apiKey!);
 				case 'mistral':
-					return await this.fetchMistralCatalog(apiKey);
+					return await this.fetchMistralCatalog(apiKey!);
 				case 'groq':
-					return await this.fetchGroqCatalog(apiKey);
+					return await this.fetchGroqCatalog(apiKey!);
 				case 'xAI':
-					return await this.fetchXAICatalog(apiKey);
+					return await this.fetchXAICatalog(apiKey!);
 				case 'deepseek':
-					return await this.fetchDeepSeekCatalog(apiKey);
+					return await this.fetchDeepSeekCatalog(apiKey!);
 				case 'openRouter':
-					return await this.fetchOpenRouterCatalog(apiKey);
+					return await this.fetchOpenRouterCatalog(apiKey!);
+				case 'ollama':
+					return await this.fetchOllamaCatalog(('url' in settings ? settings.url : undefined) || 'http://127.0.0.1:11434');
 				default:
 					// For providers without public catalog APIs, return empty
 					// They rely on hardcoded lists in modelCapabilities.ts
@@ -132,11 +138,59 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 		}
 	}
 
+	private async fetchOllamaCatalog(baseUrl: string): Promise<RemoteModelInfo[]> {
+		try {
+			// Ollama tags endpoint
+			const response = await fetch(`${baseUrl.replace(/\/$/, '')}/api/tags`);
+
+			if (!response.ok) {
+				throw new Error(`Ollama API returned ${response.status}`);
+			}
+
+			const data = await response.json();
+			return (data.models || []).map((model: { name: string; size?: number; details?: { parameter_size?: string; family?: string } }) => ({
+				id: model.name,
+				name: model.name,
+				description: model.details ? `${model.details.family} ${model.details.parameter_size}` : undefined,
+				// Heuristic: models with 'vision' or 'llava' in name likely support vision
+				supportsVision: model.name.includes('vision') || model.name.includes('llava'),
+				supportsCode: model.name.includes('code') || model.name.includes('oder'),
+			}));
+		} catch (error) {
+			console.error('Failed to fetch Ollama catalog:', error);
+			return [];
+		}
+	}
+
 	private async fetchOpenAICatalog(apiKey: string): Promise<RemoteModelInfo[]> {
-		// OpenAI doesn't have a public models endpoint, but we can use the API
-		// For now, return empty - models are hardcoded in modelCapabilities.ts
-		// In the future, could use https://api.openai.com/v1/models if API key is provided
-		return [];
+		// OpenAI has a models endpoint that returns available models
+		try {
+			const response = await fetch('https://api.openai.com/v1/models', {
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error(`OpenAI API returned ${response.status}`);
+			}
+
+			const data = await response.json();
+			// Filter to only chat models (gpt-*, o1-*, o3-*)
+			const chatModels = (data.data || []).filter((model: { id: string }) => {
+				const id = model.id.toLowerCase();
+				return id.startsWith('gpt-') || id.startsWith('o1') || id.startsWith('o3') || id.startsWith('o4');
+			});
+
+			return chatModels.map((model: { id: string; created: number }) => ({
+				id: model.id,
+				name: model.id,
+				deprecated: model.id.includes('0301') || model.id.includes('0314'), // Old snapshot versions
+			}));
+		} catch (error) {
+			console.error('Failed to fetch OpenAI catalog:', error);
+			return [];
+		}
 	}
 
 	private async fetchAnthropicCatalog(apiKey: string): Promise<RemoteModelInfo[]> {
@@ -146,21 +200,75 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 	}
 
 	private async fetchGeminiCatalog(apiKey: string): Promise<RemoteModelInfo[]> {
-		// Google Gemini models are documented at https://ai.google.dev/gemini-api/docs/models/gemini
-		// No public API, but we could parse the docs page
-		return [];
+		// Google Gemini has a models list endpoint
+		try {
+			const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+			if (!response.ok) {
+				throw new Error(`Gemini API returned ${response.status}`);
+			}
+
+			const data = await response.json();
+			return (data.models || []).map((model: { name: string; displayName: string; description?: string; inputTokenLimit?: number }) => ({
+				id: model.name.replace('models/', ''),
+				name: model.displayName,
+				description: model.description,
+				contextWindow: model.inputTokenLimit,
+			}));
+		} catch (error) {
+			console.error('Failed to fetch Gemini catalog:', error);
+			return [];
+		}
 	}
 
 	private async fetchMistralCatalog(apiKey: string): Promise<RemoteModelInfo[]> {
-		// Mistral has docs at https://docs.mistral.ai/getting-started/models/models_overview/
-		// Could fetch from their API if available
-		return [];
+		// Mistral has an OpenAI-compatible models endpoint
+		try {
+			const response = await fetch('https://api.mistral.ai/v1/models', {
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error(`Mistral API returned ${response.status}`);
+			}
+
+			const data = await response.json();
+			return (data.data || []).map((model: { id: string; name?: string; deprecated?: boolean }) => ({
+				id: model.id,
+				name: model.name || model.id,
+				deprecated: model.deprecated,
+			}));
+		} catch (error) {
+			console.error('Failed to fetch Mistral catalog:', error);
+			return [];
+		}
 	}
 
 	private async fetchGroqCatalog(apiKey: string): Promise<RemoteModelInfo[]> {
-		// Groq models are at https://console.groq.com/docs/models
-		// Could use their API if available
-		return [];
+		// Groq uses OpenAI-compatible models endpoint
+		try {
+			const response = await fetch('https://api.groq.com/openai/v1/models', {
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error(`Groq API returned ${response.status}`);
+			}
+
+			const data = await response.json();
+			return (data.data || []).map((model: { id: string; context_window?: number }) => ({
+				id: model.id,
+				name: model.id,
+				contextWindow: model.context_window,
+			}));
+		} catch (error) {
+			console.error('Failed to fetch Groq catalog:', error);
+			return [];
+		}
 	}
 
 	private async fetchXAICatalog(apiKey: string): Promise<RemoteModelInfo[]> {
@@ -179,8 +287,8 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 			const response = await fetch('https://openrouter.ai/api/v1/models', {
 				headers: apiKey
 					? {
-							Authorization: `Bearer ${apiKey}`,
-						}
+						Authorization: `Bearer ${apiKey}`,
+					}
 					: {},
 			});
 
@@ -189,7 +297,7 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 			}
 
 			const data = await response.json();
-			return (data.data || []).map((model: unknown) => ({
+			return (data.data || []).map((model: any) => ({
 				id: model.id,
 				name: model.name,
 				description: model.description,
@@ -198,9 +306,9 @@ export class RemoteCatalogService implements IRemoteCatalogService {
 				supportsCode: model.name?.toLowerCase().includes('code') || model.name?.toLowerCase().includes('coder'),
 				cost: model.pricing
 					? {
-							input: model.pricing.prompt || 0,
-							output: model.pricing.completion || 0,
-						}
+						input: model.pricing.prompt || 0,
+						output: model.pricing.completion || 0,
+					}
 					: undefined,
 			}));
 		} catch (error) {

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Registry } from '../../../../platform/registry/common/platform.js';
@@ -119,7 +119,7 @@ const viewContainerRegistry = Registry.as<IViewContainersRegistry>(ViewContainer
 const container = viewContainerRegistry.registerViewContainer(
 	{
 		id: GRID_VIEW_CONTAINER_ID,
-		title: nls.localize2('gridContainer', 'GRID AI'), // GRID AI container (Ctrl + L)
+		title: nls.localize2('gridContainer', 'GRID Chat'), // GRID Chat container (Ctrl + L)
 		ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [
 			GRID_VIEW_CONTAINER_ID,
 			{
@@ -145,7 +145,7 @@ viewsRegistry.registerViews(
 			id: GRID_VIEW_ID,
 			hideByDefault: false, // start open
 			containerIcon: FileAccess.asBrowserUri('vs/workbench/browser/media/code-icon.svg'), // GRID logo
-			name: nls.localize2('gridChat', 'GRID AI'),
+			name: nls.localize2('gridChat', 'GRID Chat'),
 			ctorDescriptor: new SyncDescriptor(SidebarViewPane),
 			canToggleVisibility: false,
 			canMoveView: false, // can't move this out of its container

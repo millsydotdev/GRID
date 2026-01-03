@@ -4,11 +4,12 @@
  *--------------------------------------------------------------------------------------*/
 
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'; // Added useRef import just in case it was missed, though likely already present
-import { ProviderName, SettingName, displayInfoOfSettingName, providerNames, GridStatefulModelInfo, customSettingNamesOfProvider, RefreshableProviderName, refreshableProviderNames, displayInfoOfProviderName, nonlocalProviderNames, localProviderNames, GlobalSettingName, featureNames, displayInfoOfFeatureName, isProviderNameDisabled, FeatureName, hasDownloadButtonsOnModelsProviderNames, subTextMdOfProviderName } from '../../../../common/GRIDSettingsTypes.js'
+import { IGridSettingsService } from '../../../../common/gridSettingsService.js'
+import { ProviderName, SettingName, displayInfoOfSettingName, providerNames, GridStatefulModelInfo, customSettingNamesOfProvider, RefreshableProviderName, refreshableProviderNames, displayInfoOfProviderName, nonlocalProviderNames, localProviderNames, GlobalSettingName, featureNames, displayInfoOfFeatureName, isProviderNameDisabled, FeatureName, hasDownloadButtonsOnModelsProviderNames, subTextMdOfProviderName } from '../../../../common/gridSettingsTypes.js'
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js'
 import { GridButtonBgDarken, GridCustomDropdownBox, GridInputBox2, GridSimpleInputBox, GridSwitch } from '../util/inputs.js'
 import { useAccessor, useIsDark, useIsOptedOut, useRefreshModelListener, useRefreshModelState, useSettingsState } from '../util/services.js'
-import { X, RefreshCw, Loader2, Check, Asterisk, Plus } from 'lucide-react'
+import { X, RefreshCw, Loader2, Check, Asterisk, Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import { URI } from '../../../../../../../base/common/uri.js'
 import { ModelDropdown } from './ModelDropdown.js'
 import { ChatMarkdownRender } from '../markdown/ChatMarkdownRender.js'
@@ -31,6 +32,7 @@ type Tab =
 	| 'featureOptions'
 	| 'mcp'
 	| 'general'
+	| 'hub'
 	| 'all';
 
 
@@ -147,7 +149,7 @@ export const AnimatedCheckmarkButton = ({ text, className }: { text?: string, cl
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
-				style={{
+				style={{ // NOSONAR
 					strokeDasharray: 40,
 					strokeDashoffset: dashOffset
 				}}
@@ -220,7 +222,7 @@ const SimpleModelSettingsDialog = ({
 	const accessor = useAccessor()
 	const settingsState = useSettingsState()
 	const mouseDownInsideModal = useRef(false); // Ref to track mousedown origin
-	const settingsStateService = accessor.get('IGRIDSettingsService')
+	const settingsStateService = accessor.get('IGridSettingsService')
 
 	// current overrides and defaults
 	const defaultModelCapabilities = getModelCapabilities(providerName, modelName, undefined);
@@ -314,6 +316,8 @@ const SimpleModelSettingsDialog = ({
 					<button
 						onClick={onClose}
 						className="text-void-fg-3 hover:text-void-fg-1"
+						aria-label="Close"
+						title="Close"
 					>
 						<X className="size-5" />
 					</button>
@@ -373,7 +377,7 @@ const SimpleModelSettingsDialog = ({
 
 export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderName[] }) => {
 	const accessor = useAccessor()
-	const settingsStateService = accessor.get('IGRIDSettingsService')
+	const settingsStateService = accessor.get('IGridSettingsService')
 	const settingsState = useSettingsState()
 
 	// State to track which model's settings dialog is open
@@ -482,6 +486,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 								data-tooltip-id='void-tooltip'
 								data-tooltip-place='right'
 								data-tooltip-content='Advanced Settings'
+								aria-label='Advanced Settings'
 								className={`${hasOverrides ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
 							>
 								<Plus size={12} className="text-void-fg-3 opacity-50" />
@@ -512,6 +517,7 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 							data-tooltip-id='void-tooltip'
 							data-tooltip-place='right'
 							data-tooltip-content='Delete'
+							aria-label='Delete'
 							className={`${hasOverrides ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
 						>
 							<X size={12} className="text-void-fg-3 opacity-50" />
@@ -574,6 +580,8 @@ export const ModelDump = ({ filteredProviders }: { filteredProviders?: ProviderN
 							setUserChosenProviderName(null);
 						}}
 						className='text-void-fg-4'
+						aria-label="Cancel"
+						title="Cancel"
 					>
 						<X className='size-4' />
 					</button>
@@ -615,7 +623,7 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 	const { title: settingTitle, placeholder, isPasswordField } = displayInfoOfSettingName(providerName, settingName)
 
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 	const settingsState = useSettingsState()
 
 	const settingValue = settingsState.settingsOfProvider[providerName][settingName] as string // this should always be a string in this component
@@ -651,7 +659,7 @@ const ProviderSetting = ({ providerName, settingName, subTextMd }: { providerNam
 // 	const needsModel = isProviderNameDisabled(providerName, GridSettingsState) === 'addModel'
 
 // 	// const accessor = useAccessor()
-// 	// const GridSettingsService = accessor.get('IGRIDSettingsService')
+// 	// const GridSettingsService = accessor.get('IGridSettingsService')
 
 // 	// const { enabled } = GridSettingsState.settingsOfProvider[providerName]
 // 	const settingNames = customSettingNamesOfProvider(providerName)
@@ -697,7 +705,7 @@ export const SettingsForProvider = ({ providerName, showProviderTitle, showProvi
 	const needsModel = isProviderNameDisabled(providerName, GridSettingsState) === 'addModel'
 
 	// const accessor = useAccessor()
-	// const GridSettingsService = accessor.get('IGRIDSettingsService')
+	// const GridSettingsService = accessor.get('IGridSettingsService')
 
 	// const { enabled } = GridSettingsState.settingsOfProvider[providerName]
 	const settingNames = customSettingNamesOfProvider(providerName)
@@ -745,11 +753,56 @@ export const SettingsForProvider = ({ providerName, showProviderTitle, showProvi
 
 
 export const GridProviderSettings = ({ providerNames }: { providerNames: ProviderName[] }) => {
-	return <>
-		{providerNames.map(providerName =>
-			<SettingsForProvider key={providerName} providerName={providerName} showProviderTitle={true} showProviderSuggestions={true} />
-		)}
-	</>
+
+	const grouped = useMemo(() => {
+		const g: Record<string, ProviderName[]> = {};
+		for (const p of providerNames) {
+			const info = displayInfoOfProviderName(p);
+			const cat = info.category || 'Other';
+			if (!g[cat]) g[cat] = [];
+			g[cat].push(p);
+		}
+		return g;
+	}, [providerNames]);
+
+	const categoriesOrder = ['Main', 'Local', 'Inference', 'Chinese AI', 'Enterprise', 'Aggregators', 'Specialized', 'Other'];
+	const presentCategories = categoriesOrder.filter(c => grouped[c]?.length > 0);
+
+	const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(() => {
+		const init: Record<string, boolean> = {};
+		presentCategories.forEach(c => {
+			if (presentCategories.length === 1) init[c] = true;
+			else if (c === 'Main') init[c] = true;
+			else init[c] = false;
+		});
+		return init;
+	});
+
+	const toggle = (cat: string) => setOpenCategories(s => ({ ...s, [cat]: !s[cat] }));
+
+	return <div className='flex flex-col gap-4'>
+		{presentCategories.map(cat => {
+			const providers = grouped[cat];
+			const isOpen = openCategories[cat];
+			const displayName = cat === 'Main' ? 'Popular Providers' : cat;
+
+			return <div key={cat} className='border border-void-border-2 rounded-sm overflow-hidden'>
+				<button
+					onClick={() => toggle(cat)}
+					className='w-full text-left px-4 py-2 bg-void-bg-2 hover:brightness-95 font-medium flex justify-between items-center select-none'
+				>
+					<span>{displayName}</span>
+					{isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+				</button>
+
+				{isOpen && <div className='p-4 pt-2 flex flex-col gap-1 bg-void-bg-1'>
+					{providers.map(providerName =>
+						<SettingsForProvider key={providerName} providerName={providerName} showProviderTitle={true} showProviderSuggestions={true} />
+					)}
+				</div>}
+			</div>
+		})}
+	</div>
 }
 
 
@@ -758,7 +811,7 @@ export const AutoDetectLocalModelsToggle = () => {
 	const settingName: GlobalSettingName = 'autoRefreshModels'
 
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 	const metricsService = accessor.get('IMetricsService')
 
 	const GridSettingsState = useSettingsState()
@@ -783,7 +836,7 @@ export const AutoDetectLocalModelsToggle = () => {
 
 export const AIInstructionsBox = () => {
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 	const GridSettingsState = useSettingsState()
 	return <GridInputBox2
 		className='min-h-[81px] p-3 rounded-sm'
@@ -798,7 +851,7 @@ export const AIInstructionsBox = () => {
 
 const FastApplyMethodDropdown = () => {
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 
 	const options = useMemo(() => [true, false], [])
 
@@ -838,7 +891,7 @@ export const OllamaSetupInstructions = ({ sayWeAutoDetect }: { sayWeAutoDetect?:
 
 const RedoOnboardingButton = ({ className }: { className?: string }) => {
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 	return <div
 		className={`text-void-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer ${className}`}
 		onClick={() => { GridSettingsService.setGlobalSetting('isOnboardingComplete', false) }}
@@ -856,7 +909,7 @@ const RedoOnboardingButton = ({ className }: { className?: string }) => {
 
 export const ToolApprovalTypeSwitch = ({ approvalType, size, desc }: { approvalType: ToolApprovalType, size: "xxs" | "xs" | "sm" | "sm+" | "md", desc: string }) => {
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 	const GridSettingsState = useSettingsState()
 	const metricsService = accessor.get('IMetricsService')
 
@@ -1042,6 +1095,7 @@ export const Settings = () => {
 		{ tab: 'featureOptions', label: 'Feature Options' },
 		{ tab: 'general', label: 'General' },
 		{ tab: 'mcp', label: 'MCP' },
+		{ tab: 'hub', label: 'GRID Hub' },
 		{ tab: 'all', label: 'All Settings' },
 	];
 	const shouldShowTab = (tab: Tab) => selectedSection === 'all' || selectedSection === tab;
@@ -1050,7 +1104,7 @@ export const Settings = () => {
 	const environmentService = accessor.get('IEnvironmentService')
 	const nativeHostService = accessor.get('INativeHostService')
 	const settingsState = useSettingsState()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const GridSettingsService = accessor.get('IGridSettingsService')
 	const chatThreadsService = accessor.get('IChatThreadService')
 	const notificationService = accessor.get('INotificationService')
 	const mcpService = accessor.get('IMCPService')
@@ -1123,8 +1177,8 @@ export const Settings = () => {
 
 
 	return (
-		<div className={`@@void-scope ${isDark ? 'dark' : ''}`} style={{ height: '100%', width: '100%', overflow: 'auto' }}>
-			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32" style={{ minHeight: '80vh' }}>
+		<div className={`@@void-scope ${isDark ? 'dark' : ''} h-full w-full overflow-auto`}>
+			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32 min-h-[80vh]">
 				{/* ──────────────  SIDEBAR  ────────────── */}
 
 				<aside className="md:w-1/4 w-full p-6 shrink-0">
@@ -1413,7 +1467,7 @@ export const Settings = () => {
 									<div className='flex flex-col gap-8'>
 										{/* Settings Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Settings')} />
+											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' aria-label="Import Settings" onChange={handleUpload('Settings')} />
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputSettingsRef.current?.click() }}>
 												Import Settings
 											</GridButtonBgDarken>
@@ -1427,7 +1481,7 @@ export const Settings = () => {
 
 										{/* Chats Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Chats')} />
+											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' aria-label="Import Chats" onChange={handleUpload('Chats')} />
 											<GridButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputChatsRef.current?.click() }}>
 												Import Chats
 											</GridButtonBgDarken>
@@ -1524,6 +1578,101 @@ Alternatively, place a \`.Gridrules\` file in the root of your workspace.
 									</div>
 								</div>
 
+							</div>
+
+
+
+							{/* GRID Hub section */}
+							<div className={shouldShowTab('hub') ? `` : 'hidden'}>
+								<ErrorBoundary>
+									<h2 className='text-3xl mb-2'>GRID Hub</h2>
+									<h4 className={`text-void-fg-3 mb-4`}>
+										Connect to GRID Hub for cloud sync, team features, and more.
+									</h4>
+
+									{/* API Key Input */}
+									<div className='my-4'>
+										<label className='text-sm text-void-fg-2 block mb-1'>Dashboard API Key</label>
+										<GridInputBox2
+											className='p-2 rounded-sm w-full'
+											initValue={settingsState.dashboardSettings?.dashboardApiKey || ''}
+											placeholder='grid_api_xxxxxxxxxxxx'
+											multiline={false}
+											onChangeText={(newText) => {
+												GridSettingsService.setDashboardSettings({
+													...settingsState.dashboardSettings,
+													dashboardApiKey: newText
+												})
+											}}
+										/>
+										<p className='text-xs text-void-fg-3 mt-1'>
+											Get your API key from the GRID Hub dashboard.
+										</p>
+									</div>
+
+									{/* Sync Button */}
+									<div className='my-4 flex items-center gap-4'>
+										<GridButtonBgDarken
+											className='px-4 py-2'
+											onClick={async () => {
+												try {
+													const dashboardUrl = settingsState.dashboardSettings?.dashboardEndpoint || 'https://grideditor.com'
+													const apiKey = settingsState.dashboardSettings?.dashboardApiKey
+													const response = await fetch(`${dashboardUrl}/api/ide/config`, {
+														headers: { 'Authorization': `Bearer ${apiKey}` }
+													})
+													if (!response.ok) throw new Error(`HTTP ${response.status}`)
+													const config = await response.json()
+													// Apply synced provider settings
+													if (config.providerSettings) {
+														for (const [providerName, settings] of Object.entries(config.providerSettings)) {
+															GridSettingsService.setSettingOfProvider(providerName as any, 'apiKey', (settings as any).apiKey)
+														}
+													}
+													GridSettingsService.setDashboardSettings({
+														...settingsState.dashboardSettings,
+														lastSyncTimestamp: Date.now()
+													})
+													notificationService.info('Sync complete! Configuration updated from GRID Hub.')
+												} catch (err) {
+													notificationService.error('Sync failed: ' + (err instanceof Error ? err.message : String(err)))
+												}
+											}}
+											disabled={!settingsState.dashboardSettings?.dashboardApiKey}
+										>
+											Sync from Dashboard
+										</GridButtonBgDarken>
+										<span className='text-xs text-void-fg-3'>
+											{settingsState.dashboardSettings?.lastSyncTimestamp
+												? `Last synced: ${new Date(settingsState.dashboardSettings.lastSyncTimestamp).toLocaleString()}`
+												: 'Never synced'}
+										</span>
+									</div>
+
+									{/* Self-Hosted URL */}
+									<div className='my-4 p-4 border border-yellow-500/30 bg-yellow-500/5 rounded-md'>
+										<div className='flex items-center gap-2 mb-2'>
+											<span className='text-yellow-500'>⚠️</span>
+											<span className='text-sm font-medium text-yellow-400'>Enterprise / Self-Hosted Only</span>
+										</div>
+										<p className='text-xs text-void-fg-3 mb-3'>
+											This setting is only required for Enterprise airgapped deployments. Pro users should leave this empty.
+										</p>
+										<label className='text-sm text-void-fg-2 block mb-1'>Custom Dashboard URL</label>
+										<GridInputBox2
+											className='p-2 rounded-sm w-full'
+											initValue={settingsState.dashboardSettings?.dashboardEndpoint || ''}
+											placeholder='https://grid.your-company.com'
+											multiline={false}
+											onChangeText={(newText) => {
+												GridSettingsService.setDashboardSettings({
+													...settingsState.dashboardSettings,
+													dashboardEndpoint: newText
+												})
+											}}
+										/>
+									</div>
+								</ErrorBoundary>
 							</div>
 
 

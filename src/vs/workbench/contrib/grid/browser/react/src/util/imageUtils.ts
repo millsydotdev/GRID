@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -47,7 +47,7 @@ function toArrayBuffer(data: Uint8Array): ArrayBuffer {
  * Formats file size for display
  */
 export function formatFileSize(bytes: number): string {
-	if (bytes === 0) return '0 B';
+	if (bytes === 0) {return '0 B';}
 	const k = 1024;
 	const sizes = ['B', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -345,7 +345,7 @@ async function processSvgImage(file: File, onProgress?: (progress: number) => vo
 	const svgText = await file.text();
 
 	// Hardened SVG sanitization
-	let sanitized = svgText
+	const sanitized = svgText
 		// Remove script tags and embedded scripts
 		.replace(/<script\b[\s\S]*?<\/script>/gi, '')
 		.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, (match) => {

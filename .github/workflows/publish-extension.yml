@@ -34,6 +34,6 @@ jobs:
 
       - name: Package and Publish
         working-directory: extensions/unreal-engine
-        run: vsce publish -p ${{ secrets.VSCE_PAT }} --no-dependencies
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: vsce publish --no-dependencies

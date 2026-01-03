@@ -127,7 +127,227 @@ export const defaultProviderSettings = {
 		// https://nebius.ai/
 		apiKey: '',
 	},
+
+	// ============================================
+	// CHINESE AI PROVIDERS
+	// ============================================
+	moonshot: {
+		// https://platform.moonshot.cn/ (Kimi)
+		apiKey: '',
+	},
+	zhipu: {
+		// https://open.bigmodel.cn/ (ChatGLM)
+		apiKey: '',
+	},
+	baichuan: {
+		// https://platform.baichuan-ai.com/
+		apiKey: '',
+	},
+	yi: {
+		// https://platform.01.ai/ (01.AI)
+		apiKey: '',
+	},
+	alibabaCloud: {
+		// https://dashscope.console.aliyun.com/ (Qwen)
+		apiKey: '',
+	},
+	minimax: {
+		// https://platform.minimaxi.com/
+		apiKey: '',
+		groupId: '', // Required for Minimax API
+	},
+	siliconflow: {
+		// https://cloud.siliconflow.cn/
+		apiKey: '',
+	},
+	tencentHunyuan: {
+		// https://cloud.tencent.com/product/hunyuan
+		apiKey: '',
+	},
+	bytedanceDoubao: {
+		// https://www.volcengine.com/product/doubao (Volcano Engine)
+		apiKey: '',
+	},
+	stepfun: {
+		// https://platform.stepfun.com/
+		apiKey: '',
+	},
+	sensetimeNova: {
+		// https://platform.sensenova.cn/
+		apiKey: '',
+	},
+	iflytekSpark: {
+		// https://xinghuo.xfyun.cn/
+		apiKey: '',
+	},
+
+	// ============================================
+	// INFERENCE PLATFORMS
+	// ============================================
+	sambanova: {
+		// https://cloud.sambanova.ai/
+		apiKey: '',
+	},
+	leptonai: {
+		// https://www.lepton.ai/
+		apiKey: '',
+	},
+	novitaai: {
+		// https://novita.ai/
+		apiKey: '',
+	},
+	octoai: {
+		// https://octoai.cloud/
+		apiKey: '',
+	},
+	runpod: {
+		// https://www.runpod.io/
+		apiKey: '',
+		endpoint: '', // User-specific serverless endpoint
+	},
+	anyscale: {
+		// https://www.anyscale.com/
+		apiKey: '',
+		endpoint: '', // User-specific service URL
+	},
+	baseten: {
+		// https://www.baseten.co/
+		apiKey: '',
+	},
+	lambdalabs: {
+		// https://lambdalabs.com/
+		apiKey: '',
+	},
+	featherless: {
+		// https://featherless.ai/
+		apiKey: '',
+	},
+	gradientai: {
+		// https://gradient.ai/
+		apiKey: '',
+	},
+	predibase: {
+		// https://predibase.com/
+		apiKey: '',
+	},
+	nvidiaNim: {
+		// https://build.nvidia.com/
+		apiKey: '',
+		endpoint: '', // Custom NIM endpoint
+	},
+	databricks: {
+		// https://www.databricks.com/
+		apiKey: '',
+		endpoint: '', // Workspace URL
+	},
+	modal: {
+		// https://modal.com/
+		apiKey: '',
+		endpoint: '', // Custom deployment endpoint
+	},
+	mancer: {
+		// https://mancer.tech/
+		apiKey: '',
+	},
+
+	// ============================================
+	// ENTERPRISE & SPECIALTY PROVIDERS
+	// ============================================
+	cloudflareAI: {
+		// https://ai.cloudflare.com/
+		apiKey: '',
+		accountId: '', // Required for Cloudflare
+	},
+	rekaai: {
+		// https://www.reka.ai/
+		apiKey: '',
+	},
+	alephalpha: {
+		// https://aleph-alpha.com/
+		apiKey: '',
+	},
+	writerai: {
+		// https://writer.com/
+		apiKey: '',
+	},
+	inflectionai: {
+		// https://inflection.ai/
+		apiKey: '',
+	},
+	netmindai: {
+		// https://netmind.ai/
+		apiKey: '',
+	},
+	inworldai: {
+		// https://inworld.ai/ (AI Characters)
+		apiKey: '',
+	},
+	upstage: {
+		// https://www.upstage.ai/ (Solar LLM)
+		apiKey: '',
+	},
+	textsynth: {
+		// https://textsynth.com/
+		apiKey: '',
+	},
+	forefrontai: {
+		// https://www.forefront.ai/
+		apiKey: '',
+	},
+
+	// ============================================
+	// AGGREGATORS & GATEWAYS
+	// ============================================
+	aimlapi: {
+		// https://aimlapi.com/
+		apiKey: '',
+	},
+	poeapi: {
+		// https://poe.com/
+		apiKey: '',
+	},
+	edenai: {
+		// https://www.edenai.co/
+		apiKey: '',
+	},
+	unifyai: {
+		// https://unify.ai/
+		apiKey: '',
+	},
+	portkey: {
+		// https://portkey.ai/
+		apiKey: '',
+	},
+	martian: {
+		// https://withmartian.com/
+		apiKey: '',
+	},
+	nlpcloud: {
+		// https://nlpcloud.com/
+		apiKey: '',
+	},
+
+	// ============================================
+	// SPECIALIZED (EMBEDDINGS/SEARCH/AUDIO)
+	// ============================================
+	voyageai: {
+		// https://www.voyageai.com/ (Embeddings)
+		apiKey: '',
+	},
+	jinaai: {
+		// https://jina.ai/ (Search/Embeddings)
+		apiKey: '',
+	},
+	friendliai: {
+		// https://friendli.ai/
+		apiKey: '',
+	},
+	elevenlabs: {
+		// https://elevenlabs.io/ (Text-to-Speech)
+		apiKey: '',
+	},
 } as const;
+
 
 export const defaultModelsOfProvider = {
 	openAI: [
@@ -498,7 +718,269 @@ export const defaultModelsOfProvider = {
 		'meta-llama/Llama-3.1-70B-Instruct',
 		'meta-llama/Llama-3.1-8B-Instruct',
 	],
+
+	// ============================================
+	// CHINESE AI PROVIDERS
+	// ============================================
+	// Moonshot/Kimi - https://platform.moonshot.cn/
+	moonshot: [
+		'moonshot-v1-8k',
+		'moonshot-v1-32k',
+		'moonshot-v1-128k',
+		'kimi-k2-0711-preview',
+	],
+	// Zhipu/ChatGLM - https://open.bigmodel.cn/
+	zhipu: [
+		'glm-4-plus',
+		'glm-4-air',
+		'glm-4-flash',
+		'glm-4v-plus',
+		'glm-4-long',
+	],
+	// Baichuan - https://platform.baichuan-ai.com/
+	baichuan: [
+		'Baichuan4-Turbo',
+		'Baichuan4-Air',
+		'Baichuan4',
+		'Baichuan3-Turbo',
+	],
+	// 01.AI/Yi - https://platform.01.ai/
+	yi: [
+		'yi-lightning',
+		'yi-large',
+		'yi-large-turbo',
+		'yi-medium',
+	],
+	// Alibaba Qwen Cloud - https://dashscope.console.aliyun.com/
+	alibabaCloud: [
+		'qwen-max',
+		'qwen-plus',
+		'qwen-turbo',
+		'qwen-long',
+		'qwen-vl-max',
+	],
+	// Minimax - https://platform.minimaxi.com/
+	minimax: [
+		'abab6.5s-chat',
+		'abab6.5-chat',
+		'abab5.5-chat',
+	],
+	// SiliconFlow - https://cloud.siliconflow.cn/
+	siliconflow: [
+		'deepseek-ai/DeepSeek-R1',
+		'deepseek-ai/DeepSeek-V3',
+		'Qwen/Qwen2.5-72B-Instruct',
+		'meta-llama/Llama-3.3-70B-Instruct',
+	],
+	// Tencent Hunyuan - https://cloud.tencent.com/product/hunyuan
+	tencentHunyuan: [
+		'hunyuan-t1-latest',
+		'hunyuan-turbo-latest',
+		'hunyuan-pro',
+		'hunyuan-standard',
+	],
+	// ByteDance Doubao - https://www.volcengine.com/product/doubao
+	bytedanceDoubao: [
+		'doubao-1.5-pro-32k',
+		'doubao-1.5-pro-256k',
+		'doubao-pro-32k',
+		'doubao-lite-32k',
+	],
+	// Stepfun - https://platform.stepfun.com/
+	stepfun: [
+		'step-3',
+		'step-2-16k',
+		'step-1-8k',
+	],
+	// SenseTime Nova - https://platform.sensenova.cn/
+	sensetimeNova: [
+		'SenseChat-5',
+		'SenseChat-4',
+		'SenseChat-Turbo',
+	],
+	// iFlytek Spark - https://xinghuo.xfyun.cn/
+	iflytekSpark: [
+		'spark-4.0-ultra',
+		'spark-max',
+		'spark-pro',
+		'spark-lite',
+	],
+
+	// ============================================
+	// INFERENCE PLATFORMS
+	// ============================================
+	// SambaNova - https://cloud.sambanova.ai/
+	sambanova: [
+		'deepseek-r1',
+		'deepseek-v3',
+		'Meta-Llama-3.3-70B-Instruct',
+		'Qwen3-32B',
+	],
+	// Lepton AI - https://www.lepton.ai/
+	leptonai: [
+		'llama3.1-70b',
+		'llama3.1-8b',
+		'mixtral-8x7b',
+	],
+	// Novita AI - https://novita.ai/
+	novitaai: [
+		'meta-llama/llama-3.1-70b-instruct',
+		'meta-llama/llama-3.1-8b-instruct',
+		'deepseek/deepseek-r1',
+	],
+	// OctoAI - https://octoai.cloud/
+	octoai: [
+		'meta-llama-3.1-70b-instruct',
+		'meta-llama-3.1-8b-instruct',
+		'mixtral-8x7b-instruct',
+	],
+	// RunPod - models are user-deployed
+	runpod: [],
+	// Anyscale - models are user-deployed
+	anyscale: [],
+	// Baseten - https://www.baseten.co/
+	baseten: [
+		'llama-3.1-70b',
+		'llama-3.1-8b',
+		'mistral-7b',
+	],
+	// Lambda Labs - https://lambdalabs.com/
+	lambdalabs: [
+		'llama3.1-70b-instruct',
+		'llama3.1-8b-instruct',
+	],
+	// Featherless AI - https://featherless.ai/
+	featherless: [
+		'Qwen/Qwen2.5-72B-Instruct',
+		'meta-llama/Meta-Llama-3.1-70B-Instruct',
+		'deepseek-ai/DeepSeek-R1',
+	],
+	// Gradient AI - https://gradient.ai/
+	gradientai: [],
+	// Predibase - https://predibase.com/
+	predibase: [],
+	// NVIDIA NIM - https://build.nvidia.com/
+	nvidiaNim: [
+		'meta/llama-3.1-70b-instruct',
+		'meta/llama-3.1-8b-instruct',
+		'mistralai/mixtral-8x7b-instruct-v0.1',
+	],
+	// Databricks - models are workspace-specific
+	databricks: [],
+	// Modal - models are user-deployed
+	modal: [],
+	// Mancer AI - https://mancer.tech/
+	mancer: [
+		'mythomax-l2-13b',
+		'goliath-120b',
+		'weaver-alpha',
+	],
+
+	// ============================================
+	// ENTERPRISE & SPECIALTY PROVIDERS
+	// ============================================
+	// Cloudflare AI - https://ai.cloudflare.com/
+	cloudflareAI: [
+		'@cf/meta/llama-3.1-70b-instruct',
+		'@cf/meta/llama-3.1-8b-instruct',
+		'@cf/mistral/mistral-7b-instruct-v0.1',
+	],
+	// Reka AI - https://www.reka.ai/
+	rekaai: [
+		'reka-core',
+		'reka-flash',
+		'reka-edge',
+	],
+	// Aleph Alpha - https://aleph-alpha.com/
+	alephalpha: [
+		'luminous-supreme-control',
+		'luminous-extended-control',
+		'luminous-base-control',
+	],
+	// Writer AI - https://writer.com/
+	writerai: [
+		'palmyra-x-004',
+		'palmyra-x-003-instruct',
+	],
+	// Inflection AI - https://inflection.ai/
+	inflectionai: [
+		'inflection-3-pi',
+		'inflection-3-productivity',
+	],
+	// NetMind AI - https://netmind.ai/
+	netmindai: [
+		'llama-3.1-70b-instruct',
+		'llama-3.1-8b-instruct',
+	],
+	// Inworld AI - https://inworld.ai/
+	inworldai: [],
+	// Upstage - https://www.upstage.ai/
+	upstage: [
+		'solar-pro',
+		'solar-mini',
+	],
+	// TextSynth - https://textsynth.com/
+	textsynth: [
+		'mistral_7B_instruct',
+		'llama2_7B',
+		'falcon_40B_instruct',
+	],
+	// Forefront AI - https://www.forefront.ai/
+	forefrontai: [],
+
+	// ============================================
+	// AGGREGATORS & GATEWAYS
+	// ============================================
+	// AIMLAPI - https://aimlapi.com/
+	aimlapi: [
+		'gpt-4o',
+		'claude-3-5-sonnet-20241022',
+		'gemini-1.5-pro',
+	],
+	// Poe API - https://poe.com/
+	poeapi: [
+		'GPT-4o',
+		'Claude-3.5-Sonnet',
+		'Gemini-1.5-Pro',
+		'Llama-3.1-70B',
+	],
+	// Eden AI - https://www.edenai.co/
+	edenai: [],
+	// Unify AI - https://unify.ai/
+	unifyai: [],
+	// Portkey - https://portkey.ai/
+	portkey: [],
+	// Martian - https://withmartian.com/
+	martian: [],
+	// NLPCloud - https://nlpcloud.com/
+	nlpcloud: [
+		'llama-3-70b-instruct',
+		'chatdolphin',
+	],
+
+	// ============================================
+	// SPECIALIZED (EMBEDDINGS/SEARCH/AUDIO)
+	// ============================================
+	// Voyage AI - https://www.voyageai.com/
+	voyageai: [
+		'voyage-3',
+		'voyage-code-3',
+		'voyage-large-2-instruct',
+	],
+	// Jina AI - https://jina.ai/
+	jinaai: [
+		'jina-embeddings-v3',
+		'jina-reranker-v2-base-multilingual',
+	],
+	// Friendli AI - https://friendli.ai/
+	friendliai: [
+		'llama-3.1-70b-instruct',
+		'mixtral-8x7b-instruct',
+	],
+	// ElevenLabs - https://elevenlabs.io/
+	elevenlabs: [],
 } as const satisfies Record<ProviderName, string[]>;
+
 
 export type GridStaticModelInfo = {
 	// not stateful
@@ -516,22 +998,22 @@ export type GridStaticModelInfo = {
 
 	// reasoning options
 	reasoningCapabilities:
-		| false
-		| {
-				readonly supportsReasoning: true; // for clarity, this must be true if anything below is specified
-				readonly canTurnOffReasoning: boolean; // whether or not the user can disable reasoning mode (false if the model only supports reasoning)
-				readonly canIOReasoning: boolean; // whether or not the model actually outputs reasoning (eg o1 lets us control reasoning but not output it)
-				readonly reasoningReservedOutputTokenSpace?: number; // overrides normal reservedOutputTokenSpace
-				readonly reasoningSlider?:
-					| undefined
-					| { type: 'budget_slider'; min: number; max: number; default: number } // anthropic supports this (reasoning budget)
-					| { type: 'effort_slider'; values: string[]; default: string }; // openai-compatible supports this (reasoning effort)
+	| false
+	| {
+		readonly supportsReasoning: true; // for clarity, this must be true if anything below is specified
+		readonly canTurnOffReasoning: boolean; // whether or not the user can disable reasoning mode (false if the model only supports reasoning)
+		readonly canIOReasoning: boolean; // whether or not the model actually outputs reasoning (eg o1 lets us control reasoning but not output it)
+		readonly reasoningReservedOutputTokenSpace?: number; // overrides normal reservedOutputTokenSpace
+		readonly reasoningSlider?:
+		| undefined
+		| { type: 'budget_slider'; min: number; max: number; default: number } // anthropic supports this (reasoning budget)
+		| { type: 'effort_slider'; values: string[]; default: string }; // openai-compatible supports this (reasoning effort)
 
-				// if it's open source and specifically outputs think tags, put the think tags here and we'll parse them out (e.g. ollama)
-				readonly openSourceThinkTags?: [string, string];
+		// if it's open source and specifically outputs think tags, put the think tags here and we'll parse them out (e.g. ollama)
+		readonly openSourceThinkTags?: [string, string];
 
-				// the only other field related to reasoning is "providerReasoningIOSettings", which varies by provider.
-		  };
+		// the only other field related to reasoning is "providerReasoningIOSettings", which varies by provider.
+	};
 
 	// --- below is just informative, not used in sending / receiving, cannot be customized in settings ---
 	cost: {
@@ -541,10 +1023,10 @@ export type GridStaticModelInfo = {
 		cache_write?: number;
 	};
 	downloadable:
-		| false
-		| {
-				sizeGb: number | 'not-known';
-		  };
+	| false
+	| {
+		sizeGb: number | 'not-known';
+	};
 };
 // if you change the above type, remember to update the Settings link
 
@@ -566,8 +1048,8 @@ type ProviderReasoningIOSettings = {
 	// nameOfFieldInDelta: reasoning output is in response.choices[0].delta[deltaReasoningField]
 	// needsManualParse: whether we must manually parse out the <think> tags
 	output?:
-		| { nameOfFieldInDelta?: string; needsManualParse?: undefined }
-		| { nameOfFieldInDelta?: undefined; needsManualParse?: true };
+	| { nameOfFieldInDelta?: string; needsManualParse?: undefined }
+	| { nameOfFieldInDelta?: undefined; needsManualParse?: true };
 };
 
 type GridStaticProviderInfo = {
@@ -2576,6 +3058,46 @@ const huggingFaceSettings: GridStaticProviderInfo = {
 	modelOptionsFallback: extensiveModelOptionsFallback,
 };
 
+// ============================================
+// CHINESE AI PROVIDERS
+// ============================================
+const chineseProviderSettings: GridStaticProviderInfo = {
+	modelOptions: {},
+	modelOptionsFallback: extensiveModelOptionsFallback,
+};
+
+// ============================================
+// INFERENCE PLATFORMS
+// ============================================
+const inferenceProviderSettings: GridStaticProviderInfo = {
+	modelOptions: {},
+	modelOptionsFallback: extensiveModelOptionsFallback,
+};
+
+// ============================================
+// ENTERPRISE & SPECIALTY
+// ============================================
+const enterpriseProviderSettings: GridStaticProviderInfo = {
+	modelOptions: {},
+	modelOptionsFallback: extensiveModelOptionsFallback,
+};
+
+// ============================================
+// AGGREGATORS & GATEWAYS
+// ============================================
+const aggregatorProviderSettings: GridStaticProviderInfo = {
+	modelOptions: {},
+	modelOptionsFallback: extensiveModelOptionsFallback,
+};
+
+// ============================================
+// SPECIALIZED (EMBEDDINGS/SEARCH/AUDIO)
+// ============================================
+const specializedProviderSettings: GridStaticProviderInfo = {
+	modelOptions: {},
+	modelOptionsFallback: extensiveModelOptionsFallback,
+};
+
 const modelSettingsOfProvider: { [providerName in ProviderName]: GridStaticProviderInfo } = {
 	openAI: openAISettings,
 	anthropic: anthropicSettings,
@@ -2612,7 +3134,76 @@ const modelSettingsOfProvider: { [providerName in ProviderName]: GridStaticProvi
 	ai21: ai21Settings,
 	hyperbolic: hyperbolicSettings,
 	nebius: nebiusSettings,
+
+	// ============================================
+	// CHINESE AI PROVIDERS
+	// ============================================
+	moonshot: chineseProviderSettings,
+	zhipu: chineseProviderSettings,
+	baichuan: chineseProviderSettings,
+	yi: chineseProviderSettings,
+	alibabaCloud: chineseProviderSettings,
+	minimax: chineseProviderSettings,
+	siliconflow: chineseProviderSettings,
+	tencentHunyuan: chineseProviderSettings,
+	bytedanceDoubao: chineseProviderSettings,
+	stepfun: chineseProviderSettings,
+	sensetimeNova: chineseProviderSettings,
+	iflytekSpark: chineseProviderSettings,
+
+	// ============================================
+	// INFERENCE PLATFORMS
+	// ============================================
+	sambanova: inferenceProviderSettings,
+	leptonai: inferenceProviderSettings,
+	novitaai: inferenceProviderSettings,
+	octoai: inferenceProviderSettings,
+	runpod: inferenceProviderSettings,
+	anyscale: inferenceProviderSettings,
+	baseten: inferenceProviderSettings,
+	lambdalabs: inferenceProviderSettings,
+	featherless: inferenceProviderSettings,
+	gradientai: inferenceProviderSettings,
+	predibase: inferenceProviderSettings,
+	nvidiaNim: inferenceProviderSettings,
+	databricks: inferenceProviderSettings,
+	modal: inferenceProviderSettings,
+	mancer: inferenceProviderSettings,
+
+	// ============================================
+	// ENTERPRISE & SPECIALTY PROVIDERS
+	// ============================================
+	cloudflareAI: enterpriseProviderSettings,
+	rekaai: enterpriseProviderSettings,
+	alephalpha: enterpriseProviderSettings,
+	writerai: enterpriseProviderSettings,
+	inflectionai: enterpriseProviderSettings,
+	netmindai: enterpriseProviderSettings,
+	inworldai: enterpriseProviderSettings,
+	upstage: enterpriseProviderSettings,
+	textsynth: enterpriseProviderSettings,
+	forefrontai: enterpriseProviderSettings,
+
+	// ============================================
+	// AGGREGATORS & GATEWAYS
+	// ============================================
+	aimlapi: aggregatorProviderSettings,
+	poeapi: aggregatorProviderSettings,
+	edenai: aggregatorProviderSettings,
+	unifyai: aggregatorProviderSettings,
+	portkey: aggregatorProviderSettings,
+	martian: aggregatorProviderSettings,
+	nlpcloud: aggregatorProviderSettings,
+
+	// ============================================
+	// SPECIALIZED (EMBEDDINGS/SEARCH/AUDIO)
+	// ============================================
+	voyageai: specializedProviderSettings,
+	jinaai: specializedProviderSettings,
+	friendliai: specializedProviderSettings,
+	elevenlabs: specializedProviderSettings,
 } as const;
+
 
 // ---------------- exports ----------------
 
@@ -2672,15 +3263,15 @@ export const getProviderCapabilities = (providerName: ProviderName) => {
 
 export type SendableReasoningInfo =
 	| {
-			type: 'budget_slider_value';
-			isReasoningEnabled: true;
-			reasoningBudget: number;
-	  }
+		type: 'budget_slider_value';
+		isReasoningEnabled: true;
+		reasoningBudget: number;
+	}
 	| {
-			type: 'effort_slider_value';
-			isReasoningEnabled: true;
-			reasoningEffort: string;
-	  }
+		type: 'effort_slider_value';
+		isReasoningEnabled: true;
+		reasoningEffort: string;
+	}
 	| null;
 
 export const getIsReasoningEnabledState = (

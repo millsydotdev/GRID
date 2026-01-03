@@ -7,8 +7,8 @@
 			"trusted-types",
 			"wicg-file-system-access"
 		],
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"removeComments": false,
 		"preserveConstEnums": true,
 		"target": "ES2022",

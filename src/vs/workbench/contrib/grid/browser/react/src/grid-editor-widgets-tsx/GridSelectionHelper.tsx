@@ -7,12 +7,12 @@
 import { useAccessor, useActiveURI, useIsDark, useSettingsState } from '../util/services.js';
 
 import '../styles.css'
-import { VOID_CTRL_K_ACTION_ID, VOID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
+import { GRID_CTRL_K_ACTION_ID, GRID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
 import { Circle, MoreVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { GridSelectionHelperProps } from '../../../../../../contrib/GRID/browser/GridSelectionHelperWidget.js';
-import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../GridSettingsPane.js';
+import { GridSelectionHelperProps } from '../../../../../../contrib/grid/browser/GridSelectionHelperWidget.js';
+import { GRID_OPEN_SETTINGS_ACTION_ID } from '../../../gridSettingsPane.js';
 
 
 export const GridSelectionHelperMain = (props: GridSelectionHelperProps) => {
@@ -35,8 +35,8 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 	const keybindingService = accessor.get('IKeybindingService')
 	const commandService = accessor.get('ICommandService')
 
-	const ctrlLKeybind = keybindingService.lookupKeybinding(VOID_CTRL_L_ACTION_ID)
-	const ctrlKKeybind = keybindingService.lookupKeybinding(VOID_CTRL_K_ACTION_ID)
+	const ctrlLKeybind = keybindingService.lookupKeybinding(GRID_CTRL_L_ACTION_ID)
+	const ctrlKKeybind = keybindingService.lookupKeybinding(GRID_CTRL_K_ACTION_ID)
 
 	const dividerHTML = <div className='w-[0.5px] bg-void-border-3'></div>
 
@@ -45,7 +45,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 
 	useEffect(() => {
 		const disposable = commandService.onWillExecuteCommand(e => {
-			if (e.commandId === VOID_CTRL_L_ACTION_ID || e.commandId === VOID_CTRL_K_ACTION_ID) {
+			if (e.commandId === GRID_CTRL_L_ACTION_ID || e.commandId === GRID_CTRL_K_ACTION_ID) {
 				setClickState('clickedOption')
 			}
 		});
@@ -79,7 +79,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 					cursor-pointer
 				'
 				onClick={() => {
-					commandService.executeCommand(VOID_CTRL_L_ACTION_ID)
+					commandService.executeCommand(GRID_CTRL_L_ACTION_ID)
 					setClickState('clickedOption');
 				}}
 			>
@@ -99,7 +99,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 					cursor-pointer
 				'
 				onClick={() => {
-					commandService.executeCommand(VOID_CTRL_K_ACTION_ID)
+					commandService.executeCommand(GRID_CTRL_K_ACTION_ID)
 					setClickState('clickedOption');
 				}}
 			>
@@ -133,7 +133,7 @@ const GridSelectionHelper = ({ rerenderKey }: GridSelectionHelperProps) => {
 				cursor-pointer
 			'
 			onClick={() => {
-				commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID);
+				commandService.executeCommand(GRID_OPEN_SETTINGS_ACTION_ID);
 				setClickState('clickedOption');
 			}}
 		>

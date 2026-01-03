@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { ThemeIcon } from '../../../../base/common/themables.js';
@@ -17,10 +17,8 @@ import { ILLMMessageService } from '../common/sendLLMMessageService.js';
 import { ModelSelection, OverridesOfModel, ModelSelectionOptions } from '../common/gridSettingsTypes.js';
 import {
 	gitCommitMessage_systemMessage,
-	gitCommitMessage_systemMessage_local,
 	gitCommitMessage_userMessage,
 } from '../common/prompt/prompts.js';
-import { isLocalProvider } from './convertToLLMMessageService.js';
 import { LLMChatMessage } from '../common/sendLLMMessageTypes.js';
 import { generateUuid } from '../../../../base/common/uuid.js';
 import { ThrottledDelayer } from '../../../../base/common/async.js';
@@ -108,12 +106,8 @@ class GenerateCommitMessageService extends Disposable implements IGenerateCommit
 
 				const prompt = gitCommitMessage_userMessage(stat, sampledDiffs, branch, log);
 
-				// Use local variant for local models to reduce token usage
-				const isLocal =
-					modelSelection &&
-					modelSelection.providerName !== 'auto' &&
-					isLocalProvider(modelSelection.providerName, this.gridSettingsService.state.settingsOfProvider);
-				const systemMessage = isLocal ? gitCommitMessage_systemMessage_local : gitCommitMessage_systemMessage;
+				// Use standard system message for commit generation
+				const systemMessage = gitCommitMessage_systemMessage;
 
 				const simpleMessages = [{ role: 'user', content: prompt } as const];
 				const { messages, separateSystemMessage } = this.convertToLLMMessageService.prepareLLMSimpleMessages({

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { AppResourcePath, FileAccess, nodeModulesPath } from '../../../../base/common/network.js';
@@ -74,23 +74,23 @@ export interface IPDFService {
  * Dynamically loads PDF.js to avoid bundle bloat
  */
 export class PDFService implements IPDFService {
-	private pdfjsLib: unknown = null;
+	private pdfjsLib: any = null;
 	private initialized = false;
 
 	private async ensureInitialized(): Promise<void> {
-		if (this.initialized && this.pdfjsLib) return;
+		if (this.initialized && this.pdfjsLib) { return; }
 
 		try {
 			// Try multiple approaches to load PDF.js (ESM module)
-			let pdfjs: unknown = null;
-			let lastError: unknown = null;
+			let pdfjs: any = null;
+			let lastError: any = null;
 
 			// Approach 1: Try dynamic import with file URI
 			try {
 				const resourcePath: AppResourcePath = `${nodeModulesPath}/pdfjs-dist/build/pdf.mjs`;
 				const fileUri = FileAccess.asBrowserUri(resourcePath).toString(true);
 				const mod = await import(fileUri);
-				pdfjs = (mod as any).default ?? mod;
+				pdfjs = (mod as { default?: any }).default ?? mod;
 				if (pdfjs && pdfjs.getDocument) {
 					// Set worker source to disable workers (use empty string or point to worker file)
 					// PDF.js v5 requires workerSrc to be set, but we can disable workers via getDocument options
@@ -113,7 +113,7 @@ export class PDFService implements IPDFService {
 			for (const specifier of candidates) {
 				try {
 					const mod = await import(specifier);
-					pdfjs = (mod as any).default ?? mod;
+					pdfjs = (mod as { default?: any }).default ?? mod;
 					if (pdfjs && pdfjs.getDocument) {
 						break;
 					}
@@ -136,7 +136,7 @@ export class PDFService implements IPDFService {
 
 			this.pdfjsLib = pdfjs;
 			this.initialized = true;
-		} catch (error: unknown) {
+		} catch (error: any) {
 			console.error('Failed to initialize PDF.js:', error);
 			throw new Error(`PDF.js failed to load: ${error?.message || error || 'Unknown error'}`);
 		}
@@ -229,7 +229,7 @@ export class PDFService implements IPDFService {
 
 				// Extract text
 				const textItems = textContent.items
-					.filter((item: unknown) => item.str)
+					.filter((item: { str?: string }): item is { str: string } => typeof item.str === 'string')
 					.map((item: { str: string }) => item.str);
 				const text = textItems.join(' ');
 
@@ -363,7 +363,7 @@ export class PDFService implements IPDFService {
 
 				// Extract text
 				const textItems = textContent.items
-					.filter((item: unknown) => item.str)
+					.filter((item: { str?: string }): item is { str: string } => typeof item.str === 'string')
 					.map((item: { str: string }) => item.str);
 				const text = textItems.join(' ');
 

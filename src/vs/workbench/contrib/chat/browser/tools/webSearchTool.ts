@@ -4,44 +4,45 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
-import { IDisposable } from '../../../../../base/common/lifecycle.js';
-import { ILanguageModelTool, ILanguageModelToolsService, IToolInvocation } from '../../common/languageModelToolsService.js';
+import { CountTokensCallback, IToolData, IToolInvocation, IToolResult, ToolDataSource, ToolProgress } from '../../common/languageModelToolsService.js';
 import { localize } from '../../../../../nls.js';
 
 interface IWebSearchToolParameters {
     query: string;
 }
 
-export class WebSearchTool implements ILanguageModelTool {
-    static readonly ID = 'workbench.tools.webSearch';
+export const WebSearchToolData: IToolData = {
+	id: 'workbench.tools.webSearch',
+	displayName: localize('webSearch.displayName', "Web Search"),
+	modelDescription: localize('webSearch.description', "Search the web for information using DuckDuckGo."),
+	source: ToolDataSource.Internal,
+	inputSchema: {
+		type: 'object',
+		properties: {
+			query: {
+				type: 'string',
+				description: localize('webSearch.query.description', "The search query to send to DuckDuckGo.")
+			}
+		},
+		required: ['query']
+	}
+};
 
-    readonly id = WebSearchTool.ID;
-    readonly name = 'webSearch';
-    readonly displayName = localize('webSearch.displayName', "Web Search");
-    readonly description = localize('webSearch.description', "Search the web for information using DuckDuckGo.");
-
-    readonly parameters = {
-        type: 'object',
-        properties: {
-            query: {
-                type: 'string',
-                description: localize('webSearch.query.description', "The search query to send to DuckDuckGo.")
-            }
-        },
-        required: ['query']
-    };
+export class WebSearchTool {
 
     constructor(
     ) { }
 
-    async invoke(invocation: IToolInvocation, token: CancellationToken): Promise<unknown> {
+    async invoke(invocation: IToolInvocation, _countTokens: CountTokensCallback, _progress: ToolProgress, token: CancellationToken): Promise<IToolResult> {
         const parameters = invocation.parameters as IWebSearchToolParameters;
         const query = parameters.query;
 
         if (!query) {
             return {
-                type: 'text',
-                content: 'No query provided.'
+                content: [{
+                    type: 'text',
+                    text: 'No query provided.'
+                }]
             };
         }
 
@@ -57,8 +58,10 @@ export class WebSearchTool implements ILanguageModelTool {
 
             if (!response.ok) {
                 return {
-                    type: 'text',
-                    content: `Web search failed: ${response.status} ${response.statusText}`
+                    content: [{
+                        type: 'text',
+                        text: `Web search failed: ${response.status} ${response.statusText}`
+                    }]
                 };
             }
 
@@ -66,14 +69,18 @@ export class WebSearchTool implements ILanguageModelTool {
             const results = this.parseDuckDuckGoLite(html);
 
             return {
-                type: 'text',
-                content: results.length > 0 ? results.join('\n\n') : 'No results found.'
+                content: [{
+                    type: 'text',
+                    text: results.length > 0 ? results.join('\n\n') : 'No results found.'
+                }]
             };
 
         } catch (error) {
             return {
-                type: 'text',
-                content: `Web search error: ${error instanceof Error ? error.message : String(error)}`
+                content: [{
+                    type: 'text',
+                    text: `Web search error: ${error instanceof Error ? error.message : String(error)}`
+                }]
             };
         }
     }

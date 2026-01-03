@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { createDecorator, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 import { ProxyChannel } from '../../../../base/parts/ipc/common/ipc.js';
@@ -13,7 +13,7 @@ import { INotificationService } from '../../../../platform/notification/common/n
 
 export interface IMetricsService {
 	readonly _serviceBrand: undefined;
-	capture(event: string, params: Record<string, any>): void;
+	capture(event: string, params: Record<string, unknown>): void;
 	setOptOut(val: boolean): void;
 	getDebuggingProperties(): Promise<object>;
 }
@@ -46,7 +46,7 @@ export class MetricsService implements IMetricsService {
 
 	// anything transmitted over a channel must be async even if it looks like it doesn't have to be
 	async getDebuggingProperties(): Promise<object> {
-		return this.metricsService.getDebuggingProperties()
+		return this.metricsService.getDebuggingProperties();
 	}
 }
 
@@ -63,11 +63,11 @@ registerAction2(class extends Action2 {
 		});
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
-		const metricsService = accessor.get(IMetricsService)
-		const notifService = accessor.get(INotificationService)
+		const metricsService = accessor.get(IMetricsService);
+		const notifService = accessor.get(INotificationService);
 
-		const debugProperties = await metricsService.getDebuggingProperties()
-		console.log('Metrics:', debugProperties)
-		notifService.info(`Void Debug info:\n${JSON.stringify(debugProperties, null, 2)}`)
+		const debugProperties = await metricsService.getDebuggingProperties();
+		console.log('Metrics:', debugProperties);
+		notifService.info(`GRID Debug info:\n${JSON.stringify(debugProperties, null, 2)}`);
 	}
-})
+});

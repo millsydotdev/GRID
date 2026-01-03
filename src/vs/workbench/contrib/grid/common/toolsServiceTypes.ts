@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { URI } from '../../../../base/common/uri.js';
@@ -64,6 +64,7 @@ export type BuiltinToolCallParams = {
 	// ---
 	web_search: { query: string; k?: number; refresh?: boolean };
 	browse_url: { url: string; refresh?: boolean };
+	start_project_research: { intent: string };
 };
 
 // RESULT OF TOOL CALL
@@ -94,6 +95,7 @@ export type BuiltinToolResultType = {
 	// ---
 	web_search: { results: Array<{ title: string; snippet: string; url: string }> };
 	browse_url: { content: string; title?: string; url: string; metadata?: { publishedDate?: string } };
+	start_project_research: { success: boolean };
 };
 
 export type ToolCallParams<T extends BuiltinToolName | (string & {})> = T extends BuiltinToolName

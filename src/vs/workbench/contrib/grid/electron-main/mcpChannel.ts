@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 // registered in app.ts
@@ -54,7 +54,7 @@ type InfoOfClientId = {
 	[clientId: string]: ClientInfo;
 };
 
-export class MCPChannel implements IServerChannel {
+export class MCPChannel implements IServerChannel<string> {
 	private readonly infoOfClientId: InfoOfClientId = {};
 	private readonly _refreshingServerNames: Set<string> = new Set();
 
@@ -76,35 +76,39 @@ export class MCPChannel implements IServerChannel {
 	constructor() {}
 
 	// browser uses this to listen for changes
-	listen(_: unknown, event: string): Event<any> {
+	listen<T>(_: unknown, event: string, arg?: any): Event<T> {
 		// server events
-		if (event === 'onAdd_server') return this.mcpEmitters.serverEvent.onAdd.event;
-		else if (event === 'onUpdate_server') return this.mcpEmitters.serverEvent.onUpdate.event;
-		else if (event === 'onDelete_server') return this.mcpEmitters.serverEvent.onDelete.event;
+		if (event === 'onAdd_server') {return this.mcpEmitters.serverEvent.onAdd.event as Event<T>;}
+		else if (event === 'onUpdate_server') {return this.mcpEmitters.serverEvent.onUpdate.event as Event<T>;}
+		else if (event === 'onDelete_server') {return this.mcpEmitters.serverEvent.onDelete.event as Event<T>;}
 		// else if (event === 'onLoading_server') return this.mcpEmitters.serverEvent.onChangeLoading.event;
 		// tool call events
 		// handle unknown events
-		else throw new Error(`Event not found: ${event}`);
+		else {throw new Error(`Event not found: ${event}`);}
 	}
 
 	// browser uses this to call (see this.channel.call() in mcpConfigService.ts for all usages)
-	async call(_: unknown, command: string, params: unknown): Promise<unknown> {
+	async call<T>(_: unknown, command: string, arg?: any, cancellationToken?: any): Promise<T> {
 		try {
 			if (command === 'refreshMCPServers') {
-				await this._refreshMCPServers(params);
+				await this._refreshMCPServers(arg);
+				return undefined as T;
 			} else if (command === 'closeAllMCPServers') {
 				await this._closeAllMCPServers();
+				return undefined as T;
 			} else if (command === 'toggleMCPServer') {
-				await this._toggleMCPServer(params.serverName, params.isOn);
+				await this._toggleMCPServer(arg.serverName, arg.isOn);
+				return undefined as T;
 			} else if (command === 'callTool') {
-				const p: MCPToolCallParams = params;
+				const p: MCPToolCallParams = arg;
 				const response = await this._safeCallTool(p.serverName, p.toolName, p.params);
-				return response;
+				return response as T;
 			} else {
 				throw new Error(`GRID: command "${command}" not recognized.`);
 			}
 		} catch (e) {
 			console.error('mcp channel: Call Error:', e);
+			return undefined as T;
 		}
 	}
 
@@ -130,7 +134,7 @@ export class MCPChannel implements IServerChannel {
 		await Promise.all(
 			allChanges.map(async ({ serverName, type }) => {
 				// check if already refreshing
-				if (this._refreshingServerNames.has(serverName)) return;
+				if (this._refreshingServerNames.has(serverName)) {return;}
 				this._refreshingServerNames.add(serverName);
 
 				const prevServer = this.infoOfClientId[serverName]?.mcpServer;

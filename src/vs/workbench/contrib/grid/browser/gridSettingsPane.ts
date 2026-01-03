@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { EditorInput } from '../../../common/editor/editorInput.js';
@@ -23,7 +23,7 @@ import { URI } from '../../../../base/common/uri.js';
 import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
 
 
-import { mountGridSettings } from './react/out/grid-settings-tsx/index.js'
+import { mountGridSettings } from './react/out/grid-settings-tsx/index.js';
 import { Codicon } from '../../../../base/common/codicons.js';
 import { toDisposable } from '../../../../base/common/lifecycle.js';
 
@@ -37,7 +37,7 @@ class GridSettingsInput extends EditorInput {
 	static readonly RESOURCE = URI.from({ // I think this scheme is invalid, it just shuts up TS
 		scheme: 'grid',  // Custom scheme for our editor (try Schemas.https)
 		path: 'settings'
-	})
+	});
 	readonly resource = GridSettingsInput.RESOURCE;
 
 	constructor() {
@@ -45,7 +45,7 @@ class GridSettingsInput extends EditorInput {
 	}
 
 	override get typeId(): string {
-		return VoidSettingsInput.ID;
+		return GridSettingsInput.ID;
 	}
 
 	override getName(): string {
@@ -53,7 +53,7 @@ class GridSettingsInput extends EditorInput {
 	}
 
 	override getIcon() {
-		return Codicon.checklist // symbol for the actual editor pane
+		return Codicon.checklist; // symbol for the actual editor pane
 	}
 
 }
@@ -91,7 +91,7 @@ class GridSettingsPane extends EditorPane {
 		// Mount React into the scrollable content
 		this.instantiationService.invokeFunction(accessor => {
 			const disposeFn = mountGridSettings(settingsElt, accessor)?.dispose;
-			this._register(toDisposable(() => disposeFn?.()))
+			this._register(toDisposable(() => disposeFn?.()));
 
 			// setTimeout(() => { // this is a complete hack and I don't really understand how scrollbar works here
 			// 	this._scrollbar?.scanDomNode();
@@ -106,7 +106,7 @@ class GridSettingsPane extends EditorPane {
 	}
 
 
-	override get minimumWidth() { return 700 }
+	override get minimumWidth() { return 700; }
 
 }
 
@@ -118,7 +118,7 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 
 
 // register the gear on the top right
-export const GRID_TOGGLE_SETTINGS_ACTION_ID = 'workbench.action.toggleGridSettings'
+export const GRID_TOGGLE_SETTINGS_ACTION_ID = 'workbench.action.toggleGridSettings';
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
@@ -146,29 +146,28 @@ registerAction2(class extends Action2 {
 		const instantiationService = accessor.get(IInstantiationService);
 
 		// if is open, close it
-		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE); // should only have 0 or 1 elements...
+		const openEditors = editorService.findEditors(GridSettingsInput.RESOURCE); // should only have 0 or 1 elements...
 		if (openEditors.length !== 0) {
-			const openEditor = openEditors[0].editor
-			const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath
+			const openEditor = openEditors[0].editor;
+			const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath;
 			if (isCurrentlyOpen)
-				await editorService.closeEditors(openEditors)
+				{await editorService.closeEditors(openEditors);}
 			else
-				await editorGroupService.activeGroup.openEditor(openEditor)
+				{await editorGroupService.activeGroup.openEditor(openEditor);}
 			return;
 		}
 
 
 		// else open it
-		const input = instantiationService.createInstance(VoidSettingsInput);
+		const input = instantiationService.createInstance(GridSettingsInput);
 
 		await editorGroupService.activeGroup.openEditor(input);
 	}
-})
+});
 
 
 
-export const GRID_OPEN_SETTINGS_ACTION_ID = 'workbench.action.openGridSettings'
-export const VOID_OPEN_SETTINGS_ACTION_ID = GRID_OPEN_SETTINGS_ACTION_ID // Alias for backwards compatibility
+export const GRID_OPEN_SETTINGS_ACTION_ID = 'grid.settings.open';
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
@@ -183,16 +182,16 @@ registerAction2(class extends Action2 {
 		const instantiationService = accessor.get(IInstantiationService);
 
 		// close all instances if found
-		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE);
+		const openEditors = editorService.findEditors(GridSettingsInput.RESOURCE);
 		if (openEditors.length > 0) {
 			await editorService.closeEditors(openEditors);
 		}
 
 		// then, open one single editor
-		const input = instantiationService.createInstance(VoidSettingsInput);
+		const input = instantiationService.createInstance(GridSettingsInput);
 		await editorService.openEditor(input);
 	}
-})
+});
 
 
 

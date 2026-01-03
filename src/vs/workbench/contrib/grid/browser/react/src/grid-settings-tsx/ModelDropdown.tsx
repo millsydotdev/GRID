@@ -4,13 +4,13 @@
  *--------------------------------------------------------------------------------------*/
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FeatureName, featureNames, isFeatureNameDisabled, ModelSelection, modelSelectionsEqual, ProviderName, providerNames, SettingsOfProvider } from '../../../../../../../workbench/contrib/GRID/common/GRIDSettingsTypes.js'
+import { FeatureName, featureNames, isFeatureNameDisabled, ModelSelection, modelSelectionsEqual, ProviderName, providerNames, SettingsOfProvider } from '../../../../../../../workbench/contrib/grid/common/gridSettingsTypes.js'
 import { useSettingsState, useRefreshModelState, useAccessor } from '../util/services.js'
-import { _VoidSelectBox, GridCustomDropdownBox } from '../util/inputs.js'
+import { _GridSelectBox, GridCustomDropdownBox } from '../util/inputs.js'
 import { SelectBox } from '../../../../../../../base/browser/ui/selectBox/selectBox.js'
 import { IconWarning } from '../sidebar-tsx/SidebarChat.js'
-import { VOID_OPEN_SETTINGS_ACTION_ID, VOID_TOGGLE_SETTINGS_ACTION_ID } from '../../../GridSettingsPane.js'
-import { modelFilterOfFeatureName, ModelOption } from '../../../../../../../workbench/contrib/GRID/common/GRIDSettingsService.js'
+import { GRID_OPEN_SETTINGS_ACTION_ID, GRID_TOGGLE_SETTINGS_ACTION_ID } from '../../../GridSettingsPane.js'
+import { modelFilterOfFeatureName, ModelOption } from '../../../../../../../workbench/contrib/grid/common/gridSettingsService.js'
 import { WarningBox } from './WarningBox.js'
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js'
 
@@ -24,14 +24,14 @@ const optionsEqual = (m1: ModelOption[], m2: ModelOption[]) => {
 
 const ModelSelectBox = ({ options, featureName, className }: { options: ModelOption[], featureName: FeatureName, className: string }) => {
 	const accessor = useAccessor()
-	const GridSettingsService = accessor.get('IGRIDSettingsService')
+	const gridSettingsService = accessor.get('IGridSettingsService')
 
-	const selection = GridSettingsService.state.modelSelectionOfFeature[featureName]
-	const selectedOption = selection ? GridSettingsService.state._modelOptions.find(v => modelSelectionsEqual(v.selection, selection))! : options[0]
+	const selection = gridSettingsService.state.modelSelectionOfFeature[featureName]
+	const selectedOption = selection ? gridSettingsService.state._modelOptions.find(v => modelSelectionsEqual(v.selection, selection))! : options[0]
 
 	const onChangeOption = useCallback((newOption: ModelOption) => {
-		GridSettingsService.setModelSelectionOfFeature(featureName, newOption.selection)
-	}, [GridSettingsService, featureName])
+		gridSettingsService.setModelSelectionOfFeature(featureName, newOption.selection)
+	}, [gridSettingsService, featureName])
 
 	return <GridCustomDropdownBox
 		options={options}
@@ -78,7 +78,7 @@ export const ModelDropdown = ({ featureName, className }: { featureName: Feature
 	const accessor = useAccessor()
 	const commandService = accessor.get('ICommandService')
 
-	const openSettings = () => { commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID); };
+	const openSettings = () => { commandService.executeCommand(GRID_OPEN_SETTINGS_ACTION_ID); };
 
 
 	const { emptyMessage } = modelFilterOfFeatureName[featureName]

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -80,12 +80,12 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 
 		console.info = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalInfo(...(redacted.hasSecrets ? redacted.redacted : args));
+			originalInfo(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
 		console.debug = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalDebug(...(redacted.hasSecrets ? redacted.redacted : args));
+			originalDebug(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
 		// Restore on dispose

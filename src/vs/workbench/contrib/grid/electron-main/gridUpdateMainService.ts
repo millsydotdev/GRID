@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -9,6 +9,9 @@ import { IProductService } from '../../../../platform/product/common/productServ
 import { IUpdateService, StateType } from '../../../../platform/update/common/update.js';
 import { IGridUpdateService } from '../common/gridUpdateService.js';
 import { GridCheckUpdateResponse } from '../common/gridUpdateServiceTypes.js';
+import { IRequestService, asJson } from '../../../../platform/request/common/request.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 
 export class GridMainUpdateService extends Disposable implements IGridUpdateService {
 	_serviceBrand: undefined;
@@ -16,7 +19,9 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 	constructor(
 		@IProductService private readonly _productService: IProductService,
 		@IEnvironmentMainService private readonly _envMainService: IEnvironmentMainService,
-		@IUpdateService private readonly _updateService: IUpdateService
+		@IUpdateService private readonly _updateService: IUpdateService,
+		@IRequestService private readonly _requestService: IRequestService,
+		@IConfigurationService private readonly _configurationService: IConfigurationService
 	) {
 		super();
 	}
@@ -30,7 +35,7 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 
 		// if disabled and not explicitly checking, return early
 		if (this._updateService.state.type === StateType.Disabled) {
-			if (!explicit) return { message: null } as const;
+			if (!explicit) {return { message: null } as const;}
 		}
 
 		this._updateService.checkForUpdates(false); // implicity check, then handle result ourselves
@@ -88,9 +93,36 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 
 	private async _manualCheckGHTagIfDisabled(explicit: boolean): Promise<GridCheckUpdateResponse> {
 		try {
-			const response = await fetch('https://api.github.com/repos/grid/grid/releases/latest');
+			// Get channel from configuration
+			const channel = this._configurationService.getValue<string>('update.updateChannel') || 'stable';
 
-			const data = await response.json();
+			// Determine URL based on channel
+			// Stable: /releases/latest
+			// Beta/Nightly: /releases?per_page=1 (as per plan)
+			const url = channel === 'stable'
+				? 'https://api.github.com/repos/GRID-Editor/GRID/releases/latest'
+				: 'https://api.github.com/repos/GRID-Editor/GRID/releases?per_page=1';
+
+			const context = await this._requestService.request({
+				url,
+				headers: {
+					'User-Agent': 'grid-client'
+				}
+			}, CancellationToken.None);
+
+			let data: unknown;
+			if (context.res.statusCode === 200) {
+				const json = await asJson(context);
+				// If strictly stable, it's an object. If beta/nightly (list), take first item.
+				if (Array.isArray(json)) {
+					data = json[0];
+				} else {
+					data = json;
+				}
+			} else {
+				throw new Error(`Non-200 status code: ${context.res.statusCode}`);
+			}
+
 			const version = data.tag_name;
 
 			const myVersion = this._productService.version;
@@ -103,24 +135,19 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 
 			// explicit
 			if (explicit) {
-				if (response.ok) {
-					if (!isUpToDate) {
-						message =
-							'A new version of GRID is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!';
-						action = 'reinstall';
-					} else {
-						message = 'GRID is up-to-date!';
-					}
-				} else {
-					message = `An error occurred when fetching the latest GitHub release tag. Please try again in ~5 minutes, or reinstall.`;
+				if (!isUpToDate) {
+					message =
+						`A new ${channel} version of GRID is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!`;
 					action = 'reinstall';
+				} else {
+					message = 'GRID is up-to-date!';
 				}
 			}
 			// not explicit
 			else {
-				if (response.ok && !isUpToDate) {
+				if (!isUpToDate) {
 					message =
-						'A new version of GRID is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!';
+						`A new ${channel} version of GRID is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!`;
 					action = 'reinstall';
 				} else {
 					message = null;

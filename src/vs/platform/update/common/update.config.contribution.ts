@@ -63,6 +63,13 @@ configurationRegistry.registerConfiguration({
 			description: localize('updateMode', "Configure whether you receive automatic updates. Requires a restart after change. The updates are fetched from a Microsoft online service."),
 			deprecationMessage: localize('deprecated', "This setting is deprecated, please use '{0}' instead.", 'update.mode')
 		},
+		'update.updateChannel': {
+			type: 'string',
+			enum: ['stable', 'beta', 'nightly'],
+			default: 'stable',
+			scope: ConfigurationScope.APPLICATION,
+			description: localize('updateChannel', "Configure the update channel to receive updates from. Requires a restart after change."),
+		},
 		'update.enableWindowsBackgroundUpdates': {
 			type: 'boolean',
 			default: true,
