@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Action2, MenuId, registerAction2 } from '../../../../platform/actions/common/actions.js';
+import { ICommandActionTitle } from '../../../../platform/action/common/action.js';
 import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
 import { KeybindingWeight } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
@@ -146,7 +147,7 @@ function registerQuickAction({
 	promptMaker,
 }: {
 	id: string;
-	title: unknown;
+	title: string | ICommandActionTitle;
 	kb?: number;
 	task: QuickActionTask;
 	promptMaker?: (base: {
