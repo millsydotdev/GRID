@@ -5,7 +5,7 @@
 
 import { ProviderName, ModelSelection } from './gridSettingsTypes.js';
 import { getModelCapabilities, GridStaticModelInfo } from './modelCapabilities.js';
-import { IGridSettingsService } from './gridSettingsService.js';
+import { IGridSettingsService, GridSettingsState } from './gridSettingsService.js';
 import { localProviderNames } from './gridSettingsTypes.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
@@ -108,7 +108,7 @@ export class TaskAwareModelRouter extends Disposable implements ITaskAwareModelR
 	 */
 	private getCachedCapabilities(
 		modelSelection: ModelSelection,
-		settingsState: Record<string, unknown>
+		settingsState: GridSettingsState
 	): ReturnType<typeof getModelCapabilities> {
 		const key = `${modelSelection.providerName}:${modelSelection.modelName}:${this.capabilityCacheVersion}`;
 		if (this.capabilityCache.has(key)) {
@@ -586,7 +586,7 @@ export class TaskAwareModelRouter extends Disposable implements ITaskAwareModelR
 	/**
 	 * Find a fast/cheap model suitable for speculative escalation
 	 */
-	private findFastCheapModel(models: ModelSelection[], settingsState: Record<string, unknown>): ModelSelection | null {
+	private findFastCheapModel(models: ModelSelection[], settingsState: GridSettingsState): ModelSelection | null {
 		// Filter out 'auto' provider
 		const validModels = models.filter((m) => m.providerName !== 'auto');
 
@@ -683,7 +683,7 @@ export class TaskAwareModelRouter extends Disposable implements ITaskAwareModelR
 	/**
 	 * Get per-model timeout based on task and model characteristics
 	 */
-	private getModelTimeout(model: ModelSelection, context: TaskContext, settingsState: Record<string, unknown>): number {
+	private getModelTimeout(model: ModelSelection, context: TaskContext, settingsState: GridSettingsState): number {
 		// Skip 'auto' provider
 		if (model.providerName === 'auto') {
 			return 60_000; // Default timeout
@@ -771,7 +771,7 @@ export class TaskAwareModelRouter extends Disposable implements ITaskAwareModelR
 	/**
 	 * Get all available models from settings
 	 */
-	private getAvailableModels(settingsState: Record<string, unknown>): ModelSelection[] {
+	private getAvailableModels(settingsState: GridSettingsState): ModelSelection[] {
 		const models: ModelSelection[] = [];
 
 		for (const providerName of Object.keys(settingsState.settingsOfProvider) as ProviderName[]) {
@@ -798,7 +798,7 @@ export class TaskAwareModelRouter extends Disposable implements ITaskAwareModelR
 	private scoreModel(
 		modelSelection: ModelSelection,
 		context: TaskContext,
-		settingsState: Record<string, unknown>,
+		settingsState: GridSettingsState,
 		hasOnlineModels: boolean = false,
 		localFirstAI?: boolean // PERFORMANCE: Pre-computed localFirstAI passed as parameter to avoid repeated lookup
 	): number {
@@ -1638,7 +1638,7 @@ export class TaskAwareModelRouter extends Disposable implements ITaskAwareModelR
 		modelSelection: ModelSelection,
 		context: TaskContext,
 		score: number,
-		settingsState: Record<string, unknown>
+		settingsState: GridSettingsState
 	): string {
 		// Guard: "auto" is not a real model
 		if (modelSelection.providerName === 'auto' && modelSelection.modelName === 'auto') {
