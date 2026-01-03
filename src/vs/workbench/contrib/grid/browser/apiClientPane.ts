@@ -29,7 +29,6 @@ import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 import { mountApiClient } from './react/out/api-client-tsx/index.js';
 import { Orientation } from '../../../../base/browser/ui/sash/sash.js';
 import { toDisposable } from '../../../../base/common/lifecycle.js';
-import { ThemeIcon } from '../../../../base/common/themables.js';
 import { Codicon } from '../../../../base/common/codicons.js';
 
 // ---------- Define viewpane ----------

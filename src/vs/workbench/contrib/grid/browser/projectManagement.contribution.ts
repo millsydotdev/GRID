@@ -14,7 +14,6 @@ import {
 import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
 import { ViewPaneContainer } from '../../../browser/parts/views/viewPaneContainer.js';
 import * as nls from '../../../../nls.js';
-import { ThemeIcon } from '../../../../base/common/themables.js';
 import { Codicon } from '../../../../base/common/codicons.js';
 import { Orientation } from '../../../../base/browser/ui/sash/sash.js';
 import { ProjectManagementView } from './projectManagementView.js';
