@@ -86,7 +86,7 @@ export type DiffZone = {
 				isStreaming: true;
 				streamRequestIdRef: { current: string | null };
 				line: number;
-				cachedBlocks?: import('../../../common/helpers/extractCodeFromResult.js').ExtractedSearchReplaceBlock[]; // Cached S/R blocks for resuming
+				cachedBlocks?: import('./helpers/extractCodeFromResult.js').ExtractedSearchReplaceBlock[]; // Cached S/R blocks for resuming
 				lastProcessedBlockNum?: number; // Last block number that was fully processed
 		  }
 		| {
