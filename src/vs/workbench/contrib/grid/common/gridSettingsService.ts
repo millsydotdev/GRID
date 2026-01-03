@@ -20,6 +20,7 @@ import {
 	ProviderName,
 	ModelSelectionOfFeature,
 	SettingsOfProvider,
+	SettingsAtProvider,
 	SettingName,
 	providerNames,
 	ModelSelection,
@@ -466,6 +467,7 @@ class GridSettingsService extends Disposable implements IGridSettingsService {
 			globalSettings: newGlobalSettings,
 			overridesOfModel: newOverridesOfModel,
 			mcpUserStateOfName: newMCPUserStateOfName,
+			dashboardSettings: this.state.dashboardSettings,
 		};
 
 		this.state = _validatedModelState(newState);
