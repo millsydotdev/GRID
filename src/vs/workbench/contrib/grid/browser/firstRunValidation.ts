@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -54,12 +54,12 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 		const originalDebug = console.debug;
 
 		// Wrap console methods to redact secrets
-		console.log = (...args: unknown[]) => {
+		console.log = (...args: any[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalLog(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
+			originalLog(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
-		console.error = (...args: unknown[]) => {
+		console.error = (...args: any[]) => {
 			// Suppress non-fatal Web Locks API errors (they occur during initialization when context isn't fully ready)
 			const errorMessage = args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' ');
 			if (
@@ -70,22 +70,22 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 				return;
 			}
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalError(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
+			originalError(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
-		console.warn = (...args: unknown[]) => {
+		console.warn = (...args: any[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalWarn(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
+			originalWarn(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
-		console.info = (...args: unknown[]) => {
+		console.info = (...args: any[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalInfo(...(redacted.hasSecrets ? redacted.redacted : args));
+			originalInfo(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
-		console.debug = (...args: unknown[]) => {
+		console.debug = (...args: any[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalDebug(...(redacted.hasSecrets ? redacted.redacted : args));
+			originalDebug(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
 		};
 
 		// Restore on dispose

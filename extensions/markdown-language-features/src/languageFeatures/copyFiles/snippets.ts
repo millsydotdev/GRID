@@ -7,7 +7,13 @@
  * Resolves variables in a VS Code snippet style string
  */
 export function resolveSnippet(snippetString: string, vars: ReadonlyMap<string, string>): string {
-	return snippetString.replaceAll(/(?<escape>\\\$)|(?<!\\)\$\{(?<name>\w+)(?:\/(?<pattern>(?:\\/|[^\}])+)\/(?<replacement>(?:\\/|[^\}])+)\/)?\}/g, (match, _escape, name, pattern, replacement, _offset, _str, groups) => {
+	// Complex regex pattern for matching snippet variables with optional transform
+	const snippetPattern = new RegExp(
+		String.raw`(?<escape>\\\$)|(?<!\\)\$\{(?<name>\w+)(?:\/(?<pattern>(?:\\/|[^\}])+)\/(?<replacement>(?:\\/|[^\}])+)\/)?\}`,
+		'g'
+	);
+
+	return snippetString.replaceAll(snippetPattern, (match, _escape, name, pattern, replacement, _offset, _str, groups) => {
 		if (groups?.['escape']) {
 			return '$';
 		}

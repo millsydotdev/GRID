@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable, IDisposable, toDisposable } from '../../../../base/common/lifecycle.js';
@@ -61,15 +61,15 @@ export const ITerminalToolService = createDecorator<ITerminalToolService>('Termi
 // }
 
 export const persistentTerminalNameOfId = (id: string) => {
-	if (id === '1') return 'GRID Agent';
+	if (id === '1') {return 'GRID Agent';}
 	return `GRID Agent (${id})`;
 };
 export const idOfPersistentTerminalName = (name: string) => {
-	if (name === 'GRID Agent') return '1';
+	if (name === 'GRID Agent') {return '1';}
 
 	const match = name.match(/GRID Agent \((\d+)\)/);
-	if (!match) return null;
-	if (Number.isInteger(match[1]) && Number(match[1]) >= 1) return match[1];
+	if (!match) {return null;}
+	if (Number.isInteger(match[1]) && Number(match[1]) >= 1) {return match[1];}
 	return null;
 };
 
@@ -91,7 +91,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 			const d = terminal.onExit(() => {
 				const terminalId = idOfPersistentTerminalName(terminal.title);
 				if (terminalId !== null && terminalId in this.persistentTerminalInstanceOfId)
-					delete this.persistentTerminalInstanceOfId[terminalId];
+					{delete this.persistentTerminalInstanceOfId[terminalId];}
 				d.dispose();
 			});
 		};
@@ -99,7 +99,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 		// initialize any terminals that are already open
 		for (const terminal of terminalService.instances) {
 			const proposedTerminalId = idOfPersistentTerminalName(terminal.title);
-			if (proposedTerminalId) this.persistentTerminalInstanceOfId[proposedTerminalId] = terminal;
+			if (proposedTerminalId) {this.persistentTerminalInstanceOfId[proposedTerminalId] = terminal;}
 
 			initializeTerminal(terminal);
 		}
@@ -120,11 +120,11 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 		// {1 3 4} # size 3, new=2
 		// 1 <= newTerminalId <= n + 1
 		const n = Object.keys(this.persistentTerminalInstanceOfId).length;
-		if (n === 0) return '1';
+		if (n === 0) {return '1';}
 
 		for (let i = 1; i <= n + 1; i++) {
 			const potentialId = i + '';
-			if (!(potentialId in this.persistentTerminalInstanceOfId)) return potentialId;
+			if (!(potentialId in this.persistentTerminalInstanceOfId)) {return potentialId;}
 		}
 		throw new Error('This should never be reached by pigeonhole principle');
 	}
@@ -137,7 +137,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 		const { cwd: override_cwd, config, hidden } = props;
 
 		const cwd: URI | string | undefined =
-			override_cwd ?? undefined ?? this.workspaceContextService.getWorkspace().folders[0]?.uri;
+			override_cwd ?? this.workspaceContextService.getWorkspace().folders[0]?.uri;
 
 		const options: ICreateTerminalOptions = {
 			cwd,
@@ -183,7 +183,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 
 	async killPersistentTerminal(terminalId: string) {
 		const terminal = this.persistentTerminalInstanceOfId[terminalId];
-		if (!terminal) throw new Error(`Kill Terminal: Terminal with ID ${terminalId} did not exist.`);
+		if (!terminal) {throw new Error(`Kill Terminal: Terminal with ID ${terminalId} did not exist.`);}
 		terminal.dispose();
 		delete this.persistentTerminalInstanceOfId[terminalId];
 		return;
@@ -194,23 +194,23 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 	}
 
 	getTemporaryTerminal(terminalId: string): ITerminalInstance | undefined {
-		if (!terminalId) return;
+		if (!terminalId) {return;}
 		const terminal = this.temporaryTerminalInstanceOfId[terminalId];
-		if (!terminal) return; // should never happen
+		if (!terminal) {return;} // should never happen
 		return terminal;
 	}
 
 	getPersistentTerminal(terminalId: string): ITerminalInstance | undefined {
-		if (!terminalId) return;
+		if (!terminalId) {return;}
 		const terminal = this.persistentTerminalInstanceOfId[terminalId];
-		if (!terminal) return; // should never happen
+		if (!terminal) {return;} // should never happen
 		return terminal;
 	}
 
 	focusPersistentTerminal: ITerminalToolService['focusPersistentTerminal'] = async (terminalId) => {
-		if (!terminalId) return;
+		if (!terminalId) {return;}
 		const terminal = this.persistentTerminalInstanceOfId[terminalId];
-		if (!terminal) return; // should never happen
+		if (!terminal) {return;} // should never happen
 		this.terminalService.setActiveInstance(terminal);
 		await this.terminalService.focusActiveInstance();
 	};
@@ -247,7 +247,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 
 	private async _waitForCommandDetectionCapability(terminal: ITerminalInstance) {
 		const cmdCap = terminal.capabilities.get(TerminalCapability.CommandDetection);
-		if (cmdCap) return cmdCap;
+		if (cmdCap) {return cmdCap;}
 
 		const disposables: IDisposable[] = [];
 
@@ -255,7 +255,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 		const waitForCapability = new Promise<ITerminalCapabilityImplMap[TerminalCapability.CommandDetection]>((res) => {
 			disposables.push(
 				terminal.capabilities.onDidAddCapability((e) => {
-					if (e.id === TerminalCapability.CommandDetection) res(e.capability);
+					if (e.id === TerminalCapability.CommandDetection) {res(e.capability);}
 				})
 			);
 		});
@@ -281,7 +281,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 			const { persistentTerminalId } = params;
 			terminal = this.persistentTerminalInstanceOfId[persistentTerminalId];
 			if (!terminal)
-				throw new Error(`Unexpected internal error: Terminal with ID ${persistentTerminalId} did not exist.`);
+				{throw new Error(`Unexpected internal error: Terminal with ID ${persistentTerminalId} did not exist.`);}
 		} else {
 			const { cwd } = params;
 			terminal = await this._createTerminal({ cwd: cwd, config: undefined, hidden: true });
@@ -290,8 +290,8 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 
 		const interrupt = () => {
 			terminal.dispose();
-			if (!isPersistent) delete this.temporaryTerminalInstanceOfId[params.terminalId];
-			else delete this.persistentTerminalInstanceOfId[params.persistentTerminalId];
+			if (!isPersistent) {delete this.temporaryTerminalInstanceOfId[params.terminalId];}
+			else {delete this.persistentTerminalInstanceOfId[params.persistentTerminalId];}
 		};
 
 		const waitForResult = async () => {
@@ -309,9 +309,9 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 			// Prefer the structured command-detection capability when available
 
 			const waitUntilDone = new Promise<void>((resolve) => {
-				if (!cmdCap) return;
+				if (!cmdCap) {return;}
 				const l = cmdCap.onCommandFinished((cmd) => {
-					if (resolveReason) return; // already resolved
+					if (resolveReason) {return;} // already resolved
 					resolveReason = { type: 'done', exitCode: cmd.exitCode ?? 0 };
 					result = cmd.getOutput() ?? '';
 					l.dispose();
@@ -337,7 +337,7 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 						const resetTimer = () => {
 							clearTimeout(globalTimeoutId);
 							globalTimeoutId = setTimeout(() => {
-								if (resolveReason) return;
+								if (resolveReason) {return;}
 
 								resolveReason = { type: 'timeout' };
 								res();
@@ -367,9 +367,9 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 				interrupt();
 			}
 
-			if (!resolveReason) throw new Error('Unexpected internal error: Promise.any should have resolved with a reason.');
+			if (!resolveReason) {throw new Error('Unexpected internal error: Promise.any should have resolved with a reason.');}
 
-			if (!isPersistent) result = `$ ${command}\n${result}`;
+			if (!isPersistent) {result = `$ ${command}\n${result}`;}
 			result = removeAnsiEscapeCodes(result);
 			// trim
 			if (result.length > MAX_TERMINAL_CHARS) {

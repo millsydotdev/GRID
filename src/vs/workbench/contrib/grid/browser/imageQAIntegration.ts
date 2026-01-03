@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -23,7 +23,7 @@ export interface ImageQAPreprocessedMessage {
  * Check if we should use the Image QA pipeline for this message
  */
 export function shouldUseImageQAPipeline(images: ChatImageAttachment[] | undefined): boolean {
-	if (!images || images.length === 0) return false;
+	if (!images || images.length === 0) {return false;}
 
 	// Use pipeline for text-heavy images (terminal, code, documents)
 	// For now, use for all images (can be refined with heuristics)

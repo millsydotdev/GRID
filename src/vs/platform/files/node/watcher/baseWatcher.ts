@@ -79,7 +79,7 @@ export abstract class BaseWatcher extends Disposable implements IWatcher {
 	async watch(requests: IUniversalWatchRequest[]): Promise<void> {
 		for (const request of requests) {
 			if (request.path) {
-				(request as any).path = normalize(request.path);
+				(request as { path: string }).path = normalize(request.path);
 			}
 		}
 

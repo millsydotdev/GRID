@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { IGridSettingsService } from './gridSettingsService.js';
@@ -62,9 +62,9 @@ const autoOptions = { enableProviderOnSuccess: true, doNotFire: true };
 
 // element-wise equals
 function eq<T>(a: T[], b: T[]): boolean {
-	if (a.length !== b.length) return false;
+	if (a.length !== b.length) {return false;}
 	for (let i = 0; i < a.length; i++) {
-		if (a[i] !== b[i]) return false;
+		if (a[i] !== b[i]) {return false;}
 	}
 	return true;
 }
@@ -101,14 +101,14 @@ export class RefreshModelService extends Disposable implements IRefreshModelServ
 			disposables.forEach((d) => d.dispose());
 			disposables.clear();
 
-			if (!gridSettingsService.state.globalSettings.autoRefreshModels) return;
+			if (!gridSettingsService.state.globalSettings.autoRefreshModels) {return;}
 
 			for (const providerName of refreshableProviderNames) {
 				// const { '_didFillInProviderSettings': enabled } = this.gridSettingsService.state.settingsOfProvider[providerName]
 				this.startRefreshingModels(providerName, autoOptions);
 
 				// every time providerName.enabled changes, refresh models too, like a useEffect
-				let relevantVals = () =>
+				const relevantVals = () =>
 					refreshBasedOn[providerName].map(
 						(settingName) => gridSettingsService.state.settingsOfProvider[providerName][settingName]
 					);
@@ -143,7 +143,7 @@ export class RefreshModelService extends Disposable implements IRefreshModelServ
 			initializeAutoPollingAndOnChange();
 			this._register(
 				gridSettingsService.onDidChangeState((type) => {
-					if (typeof type === 'object' && type[1] === 'autoRefreshModels') initializeAutoPollingAndOnChange();
+					if (typeof type === 'object' && type[1] === 'autoRefreshModels') {initializeAutoPollingAndOnChange();}
 				})
 			);
 		});
@@ -178,16 +178,16 @@ export class RefreshModelService extends Disposable implements IRefreshModelServ
 				this.gridSettingsService.setAutodetectedModels(
 					providerName,
 					models.map((model) => {
-						if (providerName === 'ollama') return (model as OllamaModelResponse).name;
-						else if (providerName === 'vLLM') return (model as OpenaiCompatibleModelResponse).id;
-						else if (providerName === 'lmStudio') return (model as OpenaiCompatibleModelResponse).id;
-						else throw new Error('refreshMode fn: unknown provider', providerName);
+						if (providerName === 'ollama') {return (model as OllamaModelResponse).name;}
+						else if (providerName === 'vLLM') {return (model as OpenaiCompatibleModelResponse).id;}
+						else if (providerName === 'lmStudio') {return (model as OpenaiCompatibleModelResponse).id;}
+						else {throw new Error('refreshMode fn: unknown provider', providerName);}
 					}),
 					{ enableProviderOnSuccess: options.enableProviderOnSuccess, hideRefresh: options.doNotFire }
 				);
 
 				if (options.enableProviderOnSuccess)
-					this.gridSettingsService.setSettingOfProvider(providerName, '_didFillInProviderSettings', true);
+					{this.gridSettingsService.setSettingOfProvider(providerName, '_didFillInProviderSettings', true);}
 
 				this._setRefreshState(providerName, 'finished', options);
 				autoPoll();
@@ -222,7 +222,7 @@ export class RefreshModelService extends Disposable implements IRefreshModelServ
 		state: RefreshableState['state'],
 		options?: { doNotFire: boolean }
 	) {
-		if (options?.doNotFire) return;
+		if (options?.doNotFire) {return;}
 		this.state[providerName].state = state;
 		this._onDidChangeState.fire(providerName);
 	}

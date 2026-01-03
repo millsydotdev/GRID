@@ -1,3 +1,7 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { ProjectTemplate } from './projectContextService.js';
 export interface ResearchQuestion {
     id: string;
@@ -12,7 +16,7 @@ export interface ResearchSession {
     intentDescription: string;
     currentPhase: 'clarification' | 'proposal';
     questions: ResearchQuestion[];
-    knowledge: Record<string, any>;
+    knowledge: Record<string, unknown>;
     proposedPlan?: ProjectTemplate;
 }
 
@@ -67,7 +71,7 @@ export class ProjectResearchService implements IProjectResearchService {
 
     async answerQuestion(sessionId: string, answer: string): Promise<ResearchSession> {
         const session = this.sessions.get(sessionId);
-        if (!session) throw new Error('Session not found');
+        if (!session) {throw new Error('Session not found');}
 
         // Store answer (in real impl, update knowledge via LLM)
         const lastQuestion = session.questions[session.questions.length - 1];
@@ -112,7 +116,7 @@ export class ProjectResearchService implements IProjectResearchService {
 
     async generateProposal(sessionId: string): Promise<ProjectTemplate> {
         const session = this.sessions.get(sessionId);
-        if (!session || !session.proposedPlan) throw new Error('Proposal not ready');
+        if (!session || !session.proposedPlan) {throw new Error('Proposal not ready');}
         return session.proposedPlan;
     }
 }

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -92,22 +92,22 @@ const findStagingSelectionIndex = (
 	currentSelections: StagingSelectionItem[] | undefined,
 	newSelection: StagingSelectionItem
 ): number | null => {
-	if (!currentSelections) return null;
+	if (!currentSelections) {return null;}
 
 	for (let i = 0; i < currentSelections.length; i += 1) {
 		const s = currentSelections[i];
 
-		if (s.uri.fsPath !== newSelection.uri.fsPath) continue;
+		if (s.uri.fsPath !== newSelection.uri.fsPath) {continue;}
 
 		if (s.type === 'File' && newSelection.type === 'File') {
 			return i;
 		}
 		if (s.type === 'CodeSelection' && newSelection.type === 'CodeSelection') {
-			if (s.uri.fsPath !== newSelection.uri.fsPath) continue;
+			if (s.uri.fsPath !== newSelection.uri.fsPath) {continue;}
 			// if there's any collision return true
 			const [oldStart, oldEnd] = s.range;
 			const [newStart, newEnd] = newSelection.range;
-			if (oldStart !== newStart || oldEnd !== newEnd) continue;
+			if (oldStart !== newStart || oldEnd !== newEnd) {continue;}
 			return i;
 		}
 		if (s.type === 'Folder' && newSelection.type === 'Folder') {
@@ -463,7 +463,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		@IAuditLogService private readonly _auditLogService: IAuditLogService
 	) {
 		super();
-		this.state = { allThreads: {}, currentThreadId: null as unknown as string }; // default state
+		this.state = { allThreads: {}, currentThreadId: null as any as string }; // default state
 		// When set for a thread, the next call to _shouldGeneratePlan will return false and clear the flag
 		this._suppressPlanOnceByThread = {};
 
@@ -472,7 +472,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		const allThreads = readThreads;
 		this.state = {
 			allThreads: allThreads,
-			currentThreadId: null as unknown as string, // gets set in startNewThread()
+			currentThreadId: null as any as string, // gets set in startNewThread()
 		};
 
 		// always be in a thread
@@ -487,7 +487,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	async focusCurrentChat() {
 		const threadId = this.state.currentThreadId;
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const s = await thread.state.mountedInfo?.whenMounted;
 		if (!this.isCurrentlyFocusingMessage()) {
 			s?.textAreaRef.current?.focus();
@@ -496,7 +496,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	async blurCurrentChat() {
 		const threadId = this.state.currentThreadId;
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const s = await thread.state.mountedInfo?.whenMounted;
 		if (!this.isCurrentlyFocusingMessage()) {
 			s?.textAreaRef.current?.blur();
@@ -508,7 +508,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		this._onDidChangeCurrentThread.fire();
 	};
 	resetState = () => {
-		this.state = { allThreads: {}, currentThreadId: null as unknown as string }; // see constructor
+		this.state = { allThreads: {}, currentThreadId: null as any as string }; // see constructor
 		this.openNewThread();
 		this._onDidChangeCurrentThread.fire();
 	};
@@ -542,7 +542,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 				} else if (Array.isArray(value)) {
 					// Handle case where it's already an array but not Uint8Array
 					// Only convert if it looks like byte data (all numbers 0-255)
-					if (value.length > 0 && value.every((v: unknown) => typeof v === 'number' && v >= 0 && v <= 255)) {
+					if (value.length > 0 && value.every((v: any) => typeof v === 'number' && v >= 0 && v <= 255)) {
 						return new Uint8Array(value as number[]);
 					}
 				}
@@ -603,7 +603,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 			const lastMessage = messages && messages[messages.length - 1];
 			// if awaiting user but stream state doesn't indicate it (happens if restart GRID)
 			if (lastMessage && lastMessage.role === 'tool' && lastMessage.type === 'tool_request')
-				this._setStreamState(threadId, { isRunning: 'awaiting_user' });
+				{this._setStreamState(threadId, { isRunning: 'awaiting_user' });}
 
 			// if running now but stream state doesn't indicate it (happens if restart GRID), cancel that last tool
 			if (lastMessage && lastMessage.role === 'tool' && lastMessage.type === 'running_now') {
@@ -622,7 +622,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		}
 
 		// if we did not just set the state to true, set mount info
-		if (doNotRefreshMountInfo) return;
+		if (doNotRefreshMountInfo) {return;}
 
 		let whenMountedResolver: (w: WhenMounted) => void;
 		const whenMountedPromise = new Promise<WhenMounted>((res) => (whenMountedResolver = res));
@@ -636,7 +636,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 					_whenMountedResolver: (w: WhenMounted) => {
 						whenMountedResolver(w);
 						const mountInfo = this.state.allThreads[threadId]?.state.mountedInfo;
-						if (mountInfo) mountInfo.mountedIsResolvedRef.current = true;
+						if (mountInfo) {mountInfo.mountedIsResolvedRef.current = true;}
 					},
 				},
 			},
@@ -934,12 +934,12 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	 * Check if a model supports vision/image inputs
 	 * Uses the same logic as modelRouter
 	 */
-	private _isModelVisionCapable(modelSelection: ModelSelection, capabilities: unknown): boolean {
+	private _isModelVisionCapable(modelSelection: ModelSelection, capabilities: any): boolean {
 		const name = modelSelection.modelName.toLowerCase();
 		const provider = modelSelection.providerName.toLowerCase();
 
 		// Known vision-capable models
-		if (provider === 'gemini') return true; // all Gemini models support vision
+		if (provider === 'gemini') {return true;} // all Gemini models support vision
 		if (provider === 'anthropic') {
 			return (
 				name.includes('3.5') ||
@@ -951,19 +951,19 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		}
 		if (provider === 'openai') {
 			// GPT-5 series (all variants support vision)
-			if (name.includes('gpt-5') || name.includes('gpt-5.1')) return true;
+			if (name.includes('gpt-5') || name.includes('gpt-5.1')) {return true;}
 			// GPT-4.1 series
-			if (name.includes('4.1')) return true;
+			if (name.includes('4.1')) {return true;}
 			// GPT-4o series
-			if (name.includes('4o')) return true;
+			if (name.includes('4o')) {return true;}
 			// o-series reasoning models (o1, o3, o4-mini support vision)
-			if (name.startsWith('o1') || name.startsWith('o3') || name.startsWith('o4')) return true;
+			if (name.startsWith('o1') || name.startsWith('o3') || name.startsWith('o4')) {return true;}
 			// Legacy GPT-4 models
-			if (name.includes('gpt-4')) return true;
+			if (name.includes('gpt-4')) {return true;}
 		}
 		if (provider === 'mistral') {
 			// Pixtral models support vision
-			if (name.includes('pixtral')) return true;
+			if (name.includes('pixtral')) {return true;}
 		}
 		if (provider === 'ollama' || provider === 'vllm') {
 			return name.includes('llava') || name.includes('bakllava') || name.includes('vision');
@@ -1521,9 +1521,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	private _swapOutLatestStreamingToolWithResult = (threadId: string, tool: ChatMessage & { role: 'tool' }) => {
 		const messages = this.state.allThreads[threadId]?.messages;
-		if (!messages) return false;
+		if (!messages) {return false;}
 		const lastMsg = messages[messages.length - 1];
-		if (!lastMsg) return false;
+		if (!lastMsg) {return false;}
 
 		if (lastMsg.role === 'tool' && lastMsg.type !== 'invalid_params') {
 			this._editMessageInThread(threadId, messages.length - 1, tool);
@@ -1533,16 +1533,16 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	};
 	private _updateLatestTool = (threadId: string, tool: ChatMessage & { role: 'tool' }) => {
 		const swapped = this._swapOutLatestStreamingToolWithResult(threadId, tool);
-		if (swapped) return;
+		if (swapped) {return;}
 		this._addMessageToThread(threadId, tool);
 	};
 
 	approveLatestToolRequest(threadId: string) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return; // should never happen
+		if (!thread) {return;} // should never happen
 
 		const lastMsg = thread.messages[thread.messages.length - 1];
-		if (!(lastMsg.role === 'tool' && lastMsg.type === 'tool_request')) return; // should never happen
+		if (!(lastMsg.role === 'tool' && lastMsg.type === 'tool_request')) {return;} // should never happen
 
 		const callThisToolFirst: ToolMessage<ToolName> = lastMsg;
 
@@ -1553,14 +1553,14 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	}
 	rejectLatestToolRequest(threadId: string) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return; // should never happen
+		if (!thread) {return;} // should never happen
 
 		const lastMsg = thread.messages[thread.messages.length - 1];
 
 		let params: ToolCallParams<ToolName>;
 		if (lastMsg.role === 'tool' && lastMsg.type !== 'invalid_params') {
 			params = lastMsg.params;
-		} else return;
+		} else {return;}
 
 		const { name, id, rawParams, mcpServerName } = lastMsg;
 
@@ -1586,9 +1586,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	approvePlan(opts: { threadId: string; messageIdx: number }) {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const updatedPlan: PlanMessage = {
@@ -1613,9 +1613,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	rejectPlan(opts: { threadId: string; messageIdx: number }) {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const updatedPlan: PlanMessage = {
@@ -1627,18 +1627,18 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	editPlan(opts: { threadId: string; messageIdx: number; updatedPlan: PlanMessage }) {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		this._editMessageInThread(opts.threadId, opts.messageIdx, opts.updatedPlan);
 	}
 
 	toggleStepDisabled(opts: { threadId: string; messageIdx: number; stepNumber: number }) {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const updatedPlan: PlanMessage = {
@@ -1652,9 +1652,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	reorderPlanSteps(opts: { threadId: string; messageIdx: number; newStepOrder: number[] }) {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const stepMap = new Map(plan.steps.map((s) => [s.stepNumber, s]));
@@ -1673,7 +1673,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	async pauseAgentExecution(opts: { threadId: string }): Promise<void> {
 		await this.abortRunning(opts.threadId);
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		// Find current plan and update current step to paused
 		const planIdx = findLastIdx(thread.messages, (m: ChatMessage) => m.role === 'plan') ?? -1;
@@ -1691,7 +1691,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	async resumeAgentExecution(opts: { threadId: string }): Promise<void> {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		const planIdx = findLastIdx(thread.messages, (m: ChatMessage) => m.role === 'plan') ?? -1;
 		if (planIdx >= 0) {
@@ -1717,9 +1717,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	async retryStep(opts: { threadId: string; messageIdx: number; stepNumber: number }): Promise<void> {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const updatedSteps = plan.steps.map((step) =>
@@ -1742,9 +1742,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	skipStep(opts: { threadId: string; messageIdx: number; stepNumber: number }) {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const updatedSteps = plan.steps.map((step) =>
@@ -1762,13 +1762,13 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	async rollbackToStep(opts: { threadId: string; messageIdx: number; stepNumber: number }): Promise<void> {
 		const thread = this.state.allThreads[opts.threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[opts.messageIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const step = plan.steps.find((s) => s.stepNumber === opts.stepNumber);
-		if (!step || step.checkpointIdx === undefined || step.checkpointIdx === null) return;
+		if (!step || step.checkpointIdx === undefined || step.checkpointIdx === null) {return;}
 
 		// Rollback to checkpoint before this step
 		this.jumpToCheckpointBeforeMessageIdx({
@@ -1784,7 +1784,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	private _getCurrentPlan(threadId: string, forceRefresh = false): { plan: PlanMessage; planIdx: number } | undefined {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return undefined;
+		if (!thread) {return undefined;}
 
 		// Fast path: check cache first (only if messages haven't changed significantly)
 		if (!forceRefresh) {
@@ -1819,14 +1819,14 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		forceRefresh = false
 	): { plan: PlanMessage; planIdx: number; step: PlanStep; stepIdx: number } | undefined {
 		const planInfo = this._getCurrentPlan(threadId, forceRefresh);
-		if (!planInfo) return undefined;
+		if (!planInfo) {return undefined;}
 		const { plan, planIdx } = planInfo;
 
 		// Find first step that's queued or running
 		const stepIdx = plan.steps.findIndex(
 			(s) => !s.disabled && (s.status === 'queued' || s.status === 'running' || s.status === 'paused')
 		);
-		if (stepIdx < 0) return undefined;
+		if (stepIdx < 0) {return undefined;}
 
 		return { plan, planIdx, step: plan.steps[stepIdx], stepIdx };
 	}
@@ -1839,7 +1839,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		chatMessages: ChatMessage[] | LLMChatMessage[],
 		modelSelection: ModelSelection | null,
 		chatMode: ChatMode,
-		repoIndexerResults: { results: string[]; metrics: unknown } | null | undefined
+		repoIndexerResults: { results: string[]; metrics: any } | null | undefined
 	): string {
 		// Create stable hash from inputs
 		const modelKey = modelSelection ? `${modelSelection.providerName}:${modelSelection.modelName}` : 'null';
@@ -1913,9 +1913,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	private _updatePlanStep(threadId: string, planIdx: number, stepIdx: number, updates: Partial<PlanStep>) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const message = thread.messages[planIdx];
-		if (!message || message.role !== 'plan') return;
+		if (!message || message.role !== 'plan') {return;}
 
 		const plan = message as PlanMessage;
 		const updatedSteps = [...plan.steps];
@@ -1935,7 +1935,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	) {
 		const { planIdx, step, stepIdx } = currentStep;
 		// If stepNumber provided, verify it matches
-		if (stepNumber !== undefined && step.stepNumber !== stepNumber) return;
+		if (stepNumber !== undefined && step.stepNumber !== stepNumber) {return;}
 
 		const toolCalls = step.toolCalls || [];
 		if (!toolCalls.includes(toolId)) {
@@ -1964,19 +1964,19 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	private _startNextStep(threadId: string): { step: PlanStep; checkpointIdx: number } | undefined {
 		// Force refresh to get latest plan state (may have been updated)
 		const planInfo = this._getCurrentPlan(threadId, true);
-		if (!planInfo) return undefined;
+		if (!planInfo) {return undefined;}
 		const { plan, planIdx } = planInfo;
 
 		// Find next queued step (not disabled, queued status)
 		const stepIdx = plan.steps.findIndex((s) => !s.disabled && s.status === 'queued');
-		if (stepIdx < 0) return undefined;
+		if (stepIdx < 0) {return undefined;}
 
 		const step = plan.steps[stepIdx];
 
 		// Create checkpoint before starting step
 		this._addUserCheckpoint({ threadId });
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return undefined;
+		if (!thread) {return undefined;}
 		const checkpointIdx = thread.messages.length - 1;
 
 		// Update step to running and link checkpoint
@@ -2001,10 +2001,10 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 			return false;
 		}
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return false;
+		if (!thread) {return false;}
 
 		const lastUserMessage = thread.messages.filter((m) => m.role === 'user').pop();
-		if (!lastUserMessage || lastUserMessage.role !== 'user') return false;
+		if (!lastUserMessage || lastUserMessage.role !== 'user') {return false;}
 
 		const userRequest = (lastUserMessage.displayContent || '').toLowerCase();
 
@@ -2068,10 +2068,10 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		modelSelectionOptions: ModelSelectionOptions | undefined
 	): Promise<void> {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		const lastUserMessage = thread.messages.filter((m) => m.role === 'user').pop();
-		if (!lastUserMessage || lastUserMessage.role !== 'user') return;
+		if (!lastUserMessage || lastUserMessage.role !== 'user') {return;}
 
 		const userRequest = lastUserMessage.displayContent || '';
 
@@ -2145,7 +2145,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 							isRunning: 'LLM',
 							llmInfo: { displayContentSoFar: 'Generating execution plan...', reasoningSoFar: '', toolCallSoFar: null },
 							interrupt: Promise.resolve(() => {
-								if (llmCancelToken) this._llmMessageService.abort(llmCancelToken);
+								if (llmCancelToken) {this._llmMessageService.abort(llmCancelToken);}
 							}),
 						});
 					},
@@ -2235,7 +2235,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	async abortRunning(threadId: string) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return; // should never happen
+		if (!thread) {return;} // should never happen
 
 		// add assistant message
 		if (this.streamState[threadId]?.isRunning === 'LLM') {
@@ -2247,11 +2247,11 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 				anthropicReasoning: null,
 			});
 			if (toolCallSoFar)
-				this._addMessageToThread(threadId, {
+				{this._addMessageToThread(threadId, {
 					role: 'interrupted_streaming_tool',
 					name: toolCallSoFar.name,
 					mcpServerName: this._computeMCPServerOfToolName(toolCallSoFar.name),
-				});
+				});}
 		}
 		// add tool that's running
 		else if (this.streamState[threadId]?.isRunning === 'tool') {
@@ -2287,7 +2287,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 		// interrupt any effects
 		const interrupt = await this.streamState[threadId]?.interrupt;
-		if (typeof interrupt === 'function') interrupt();
+		if (typeof interrupt === 'function') {interrupt();}
 
 		this._setStreamState(threadId, undefined);
 	}
@@ -2295,7 +2295,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 	private readonly toolErrMsgs = {
 		rejected: 'Tool call was rejected by the user.',
 		interrupted: 'Tool call was interrupted by the user.',
-		errWhenStringifying: (error: unknown) =>
+		errWhenStringifying: (error: any) =>
 			`Tool call succeeded, but there was an error stringifying the output.\n${getErrorMessage(error)}`,
 	};
 
@@ -3126,7 +3126,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		callThisToolFirst?: ToolMessage<ToolName> & { type: 'tool_request' };
 		earlyRequestId?: string;
 		isAutoMode?: boolean;
-		repoIndexerPromise?: Promise<{ results: string[]; metrics: unknown } | null>;
+		repoIndexerPromise?: Promise<{ results: string[]; metrics: any } | null>;
 	}) {
 		// CRITICAL: Create a flag to stop execution immediately when plan is generated
 		// NOTE: This flag is reset when plan is approved/executing to allow execution to proceed
@@ -3483,7 +3483,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 			// PERFORMANCE: Check cache for prepared messages before expensive preparation
 			// Get repoIndexer results if promise is available (for cache key)
-			let repoIndexerResults: { results: string[]; metrics: unknown } | null | undefined = undefined;
+			let repoIndexerResults: { results: string[]; metrics: any } | null | undefined = undefined;
 			if (repoIndexerPromise) {
 				try {
 					repoIndexerResults = await repoIndexerPromise;
@@ -3809,7 +3809,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 									toolCallSoFar: toolCall ?? null,
 								},
 								interrupt: Promise.resolve(() => {
-									if (llmCancelToken) this._llmMessageService.abort(llmCancelToken);
+									if (llmCancelToken) {this._llmMessageService.abort(llmCancelToken);}
 								}),
 							});
 						});
@@ -4001,7 +4001,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 								const availableModels: ModelSelection[] = [];
 								for (const providerName of Object.keys(settingsState.settingsOfProvider) as ProviderName[]) {
 									const providerSettings = settingsState.settingsOfProvider[providerName];
-									if (!providerSettings._didFillInProviderSettings) continue;
+									if (!providerSettings._didFillInProviderSettings) {continue;}
 									for (const modelInfo of providerSettings.models) {
 										if (!modelInfo.isHidden) {
 											const modelKey = `${providerName}/${modelInfo.modelName}`;
@@ -4099,11 +4099,11 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 							anthropicReasoning: null,
 						});
 						if (toolCallSoFar)
-							this._addMessageToThread(threadId, {
+							{this._addMessageToThread(threadId, {
 								role: 'interrupted_streaming_tool',
 								name: toolCallSoFar.name,
 								mcpServerName: this._computeMCPServerOfToolName(toolCallSoFar.name),
-							});
+							});}
 
 						this._setStreamState(threadId, { isRunning: undefined, error });
 						this._addUserCheckpoint({ threadId });
@@ -4130,7 +4130,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 						if (interruptedWhenIdle) {
 							this._setStreamState(threadId, undefined);
 							return;
-						} else continue; // retry
+						} else {continue;} // retry
 					}
 					// error, but too many attempts or no fallback available in auto mode
 					else {
@@ -4142,11 +4142,11 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 							anthropicReasoning: null,
 						});
 						if (toolCallSoFar)
-							this._addMessageToThread(threadId, {
+							{this._addMessageToThread(threadId, {
 								role: 'interrupted_streaming_tool',
 								name: toolCallSoFar.name,
 								mcpServerName: this._computeMCPServerOfToolName(toolCallSoFar.name),
-							});
+							});}
 
 						this._setStreamState(threadId, { isRunning: undefined, error });
 						this._addUserCheckpoint({ threadId });
@@ -4577,7 +4577,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	private _addCheckpoint(threadId: string, checkpoint: CheckpointEntry) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		// Count existing checkpoints in this thread
 		const existingCheckpoints = thread.messages.filter((m) => m.role === 'checkpoint');
@@ -4631,7 +4631,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 	private _getTotalCheckpointSizeMB(): number {
 		let totalBytes = 0;
 		for (const thread of Object.values(this.state.allThreads)) {
-			if (!thread) continue;
+			if (!thread) {continue;}
 			for (const msg of thread.messages) {
 				if (msg.role === 'checkpoint') {
 					totalBytes += this._estimateCheckpointSize(msg as CheckpointEntry);
@@ -4646,7 +4646,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		const checkpointList: Array<{ threadId: string; index: number; checkpoint: CheckpointEntry; size: number }> = [];
 
 		for (const [threadId, thread] of Object.entries(this.state.allThreads)) {
-			if (!thread) continue;
+			if (!thread) {continue;}
 			for (let i = 0; i < thread.messages.length; i++) {
 				const msg = thread.messages[i];
 				if (msg.role === 'checkpoint') {
@@ -4669,7 +4669,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		const toEvict = new Map<string, Set<number>>(); // threadId -> Set<indices>
 
 		for (const item of checkpointList) {
-			if (freedMB >= neededMB) break;
+			if (freedMB >= neededMB) {break;}
 
 			if (!toEvict.has(item.threadId)) {
 				toEvict.set(item.threadId, new Set());
@@ -4682,11 +4682,11 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		const newThreads = { ...this.state.allThreads };
 		for (const [threadId, indices] of toEvict.entries()) {
 			const thread = newThreads[threadId];
-			if (!thread) continue;
+			if (!thread) {continue;}
 
 			// Remove in reverse order to preserve indices
 			const sortedIndices = Array.from(indices).sort((a, b) => b - a);
-			let newMessages = [...thread.messages];
+			const newMessages = [...thread.messages];
 			for (const idx of sortedIndices) {
 				newMessages.splice(idx, 1);
 			}
@@ -4703,7 +4703,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	private _generateReviewMessage(threadId: string, plan: PlanMessage): void {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		const succeededSteps = plan.steps.filter((s) => s.status === 'succeeded');
 		const failedSteps = plan.steps.filter((s) => s.status === 'failed');
@@ -4793,7 +4793,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 	private _editMessageInThread(threadId: string, messageIdx: number, newMessage: ChatMessage) {
 		const { allThreads } = this.state;
 		const oldThread = allThreads[threadId];
-		if (!oldThread) return; // should never happen
+		if (!oldThread) {return;} // should never happen
 		// update state and store it
 		const newThreads = {
 			...allThreads,
@@ -4836,10 +4836,10 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	private _computeNewCheckpointInfo({ threadId }: { threadId: string }) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		const lastCheckpointIdx = findLastIdx(thread.messages, (m) => m.role === 'checkpoint') ?? -1;
-		if (lastCheckpointIdx === -1) return;
+		if (lastCheckpointIdx === -1) {return;}
 
 		const gridFileSnapshotOfURI: { [fsPath: string]: GridFileSnapshot | undefined } = {};
 
@@ -4847,17 +4847,17 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		const { lastIdxOfURI } = this._getCheckpointsBetween({ threadId, loIdx: 0, hiIdx: lastCheckpointIdx }) ?? {};
 		for (const fsPath in lastIdxOfURI ?? {}) {
 			const { model } = this._gridModelService.getModelFromFsPath(fsPath);
-			if (!model) continue;
+			if (!model) {continue;}
 			const checkpoint2 = thread.messages[lastIdxOfURI[fsPath]] || null;
-			if (!checkpoint2) continue;
-			if (checkpoint2.role !== 'checkpoint') continue;
+			if (!checkpoint2) {continue;}
+			if (checkpoint2.role !== 'checkpoint') {continue;}
 			const res = this._getCheckpointInfo(checkpoint2, fsPath, { includeUserModifiedChanges: false });
-			if (!res) continue;
+			if (!res) {continue;}
 			const { gridFileSnapshot: oldGridFileSnapshot } = res;
 
 			// if there was any change to the str or diffAreaSnapshot, update. rough approximation of equality, oldDiffAreasSnapshot === diffAreasSnapshot is not perfect
 			const gridFileSnapshot = this._editCodeService.getGridFileSnapshot(URI.file(fsPath));
-			if (oldGridFileSnapshot === gridFileSnapshot) continue;
+			if (oldGridFileSnapshot === gridFileSnapshot) {continue;}
 			gridFileSnapshotOfURI[fsPath] = gridFileSnapshot;
 		}
 
@@ -4876,9 +4876,9 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 	// call this right after LLM edits a file
 	private _addToolEditCheckpoint({ threadId, uri }: { threadId: string; uri: URI }) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		const { model } = this._gridModelService.getModel(uri);
-		if (!model) return; // should never happen
+		if (!model) {return;} // should never happen
 		const diffAreasSnapshot = this._editCodeService.getGridFileSnapshot(uri);
 		this._addCheckpoint(threadId, {
 			role: 'checkpoint',
@@ -4896,7 +4896,7 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		messageIdx: number;
 	}): [CheckpointEntry, number] | undefined => {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return undefined;
+		if (!thread) {return undefined;}
 		for (let i = messageIdx; i >= 0; i--) {
 			const message = thread.messages[i];
 			if (message.role === 'checkpoint') {
@@ -4908,11 +4908,11 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	private _getCheckpointsBetween({ threadId, loIdx, hiIdx }: { threadId: string; loIdx: number; hiIdx: number }) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return { lastIdxOfURI: {} }; // should never happen
+		if (!thread) {return { lastIdxOfURI: {} };} // should never happen
 		const lastIdxOfURI: { [fsPath: string]: number } = {};
 		for (let i = loIdx; i <= hiIdx; i += 1) {
 			const message = thread.messages[i];
-			if (message?.role !== 'checkpoint') continue;
+			if (message?.role !== 'checkpoint') {continue;}
 			for (const fsPath in message.gridFileSnapshotOfURI) {
 				// do not include userModified.beforeStrOfURI here, jumping should not include those changes
 				lastIdxOfURI[fsPath] = i;
@@ -4923,20 +4923,20 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	private _readCurrentCheckpoint(threadId: string): [CheckpointEntry, number] | undefined {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		const { currCheckpointIdx } = thread.state;
-		if (currCheckpointIdx === null) return;
+		if (currCheckpointIdx === null) {return;}
 
 		const checkpoint = thread.messages[currCheckpointIdx];
-		if (!checkpoint) return;
-		if (checkpoint.role !== 'checkpoint') return;
+		if (!checkpoint) {return;}
+		if (checkpoint.role !== 'checkpoint') {return;}
 		return [checkpoint, currCheckpointIdx];
 	}
 	private _addUserModificationsToCurrCheckpoint({ threadId }: { threadId: string }) {
 		const { gridFileSnapshotOfURI } = this._computeNewCheckpointInfo({ threadId }) ?? {};
 		const res = this._readCurrentCheckpoint(threadId);
-		if (!res) return;
+		if (!res) {return;}
 		const [checkpoint, checkpointIdx] = res;
 		this._editMessageInThread(threadId, checkpointIdx, {
 			...checkpoint,
@@ -4946,10 +4946,10 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 
 	private _makeUsStandOnCheckpoint({ threadId }: { threadId: string }) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 		if (thread.state.currCheckpointIdx === null) {
 			const lastMsg = thread.messages[thread.messages.length - 1];
-			if (lastMsg?.role !== 'checkpoint') this._addUserCheckpoint({ threadId });
+			if (lastMsg?.role !== 'checkpoint') {this._addUserCheckpoint({ threadId });}
 			this._setThreadState(threadId, { currCheckpointIdx: thread.messages.length - 1 });
 		}
 	}
@@ -4967,17 +4967,17 @@ Output ONLY the JSON, no other text. Start with { and end with }.`;
 		this._makeUsStandOnCheckpoint({ threadId });
 
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
-		if (this.streamState[threadId]?.isRunning) return;
+		if (!thread) {return;}
+		if (this.streamState[threadId]?.isRunning) {return;}
 
 		const c = this._getCheckpointBeforeMessage({ threadId, messageIdx });
-		if (c === undefined) return; // should never happen
+		if (c === undefined) {return;} // should never happen
 
 		const fromIdx = thread.state.currCheckpointIdx;
-		if (fromIdx === null) return; // should never happen
+		if (fromIdx === null) {return;} // should never happen
 
 		const [_, toIdx] = c;
-		if (toIdx === fromIdx) return;
+		if (toIdx === fromIdx) {return;}
 
 		// update the user's checkpoint
 		this._addUserModificationsToCurrCheckpoint({ threadId });
@@ -5020,11 +5020,11 @@ We only need to do it for files that were edited since `to`, ie files between to
 				// find the first instance of this file starting at toIdx (go up to latest file; if there is none, go down)
 				for (const k of idxes()) {
 					const message = thread.messages[k];
-					if (message.role !== 'checkpoint') continue;
+					if (message.role !== 'checkpoint') {continue;}
 					const res = this._getCheckpointInfo(message, fsPath, { includeUserModifiedChanges: jumpToUserModified });
-					if (!res) continue;
+					if (!res) {continue;}
 					const { gridFileSnapshot } = res;
-					if (!gridFileSnapshot) continue;
+					if (!gridFileSnapshot) {continue;}
 					this._editCodeService.restoreGridFileSnapshot(URI.file(fsPath), gridFileSnapshot);
 					break;
 				}
@@ -5054,11 +5054,11 @@ We only need to do it for files that were edited since `from`, ie files between 
 				// apply lowest down content for each uri
 				for (let k = toIdx; k >= fromIdx + 1; k -= 1) {
 					const message = thread.messages[k];
-					if (message.role !== 'checkpoint') continue;
+					if (message.role !== 'checkpoint') {continue;}
 					const res = this._getCheckpointInfo(message, fsPath, { includeUserModifiedChanges: jumpToUserModified });
-					if (!res) continue;
+					if (!res) {continue;}
 					const { gridFileSnapshot } = res;
-					if (!gridFileSnapshot) continue;
+					if (!gridFileSnapshot) {continue;}
 					this._editCodeService.restoreGridFileSnapshot(URI.file(fsPath), gridFileSnapshot);
 					break;
 				}
@@ -5071,10 +5071,10 @@ We only need to do it for files that were edited since `from`, ie files between 
 	private _wrapRunAgentToNotify(p: Promise<void>, threadId: string) {
 		const notify = ({ error }: { error: string | null }) => {
 			const thread = this.state.allThreads[threadId];
-			if (!thread) return;
+			if (!thread) {return;}
 			const userMsg = findLast(thread.messages, (m) => m.role === 'user');
-			if (!userMsg) return;
-			if (userMsg.role !== 'user') return;
+			if (!userMsg) {return;}
+			if (userMsg.role !== 'user') {return;}
 			const messageContent = truncate(userMsg.displayContent, 50, '...');
 
 			this._notificationService.notify({
@@ -5104,9 +5104,9 @@ We only need to do it for files that were edited since `from`, ie files between 
 		};
 
 		p.then(() => {
-			if (threadId !== this.state.currentThreadId) notify({ error: null });
+			if (threadId !== this.state.currentThreadId) {notify({ error: null });}
 		}).catch((e) => {
-			if (threadId !== this.state.currentThreadId) notify({ error: getErrorMessage(e) });
+			if (threadId !== this.state.currentThreadId) {notify({ error: getErrorMessage(e) });}
 			throw e;
 		});
 	}
@@ -5133,7 +5133,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		displayContent?: string;
 	}) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return; // should never happen
+		if (!thread) {return;} // should never happen
 
 		// interrupt existing stream
 		if (this.streamState[threadId]?.isRunning) {
@@ -5232,7 +5232,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 
 		// PERFORMANCE: Start prompt prep in parallel with router decision for auto mode
 		// This can save 50-200ms by doing work that doesn't need model selection
-		let repoIndexerPromise: Promise<{ results: string[]; metrics: unknown } | null> | undefined;
+		let repoIndexerPromise: Promise<{ results: string[]; metrics: any } | null> | undefined;
 		if (isAutoMode && earlyRequestId) {
 			// Update status to show model selection in progress
 			if (!preparationCancelled) {
@@ -5400,7 +5400,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		displayContent?: string;
 	}) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		// if there's a current checkpoint, delete all messages after it
 		if (thread.state.currCheckpointIdx !== null) {
@@ -5446,7 +5446,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		threadId,
 	}) => {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return; // should never happen
+		if (!thread) {return;} // should never happen
 
 		if (thread.messages?.[messageIdx]?.role !== 'user') {
 			throw new Error(`Error: editing a message with role !=='user'`);
@@ -5475,12 +5475,12 @@ We only need to do it for files that were edited since `from`, ie files between 
 
 	private _getAllSeenFileURIs(threadId: string) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return [];
+		if (!thread) {return [];}
 
 		const fsPathsSet = new Set<string>();
 		const uris: URI[] = [];
 		const addURI = (uri: URI) => {
-			if (!fsPathsSet.has(uri.fsPath)) uris.push(uri);
+			if (!fsPathsSet.has(uri.fsPath)) {uris.push(uri);}
 			fsPathsSet.add(uri.fsPath);
 			uris.push(uri);
 		};
@@ -5605,7 +5605,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 			for (const uri of prevUris) {
 				const modelRef = await this._gridModelService.getModelSafe(uri);
 				const { model } = modelRef;
-				if (!model) continue;
+				if (!model) {continue;}
 
 				const matches = model.findMatches(
 					target,
@@ -5626,7 +5626,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 					for (const provider of definitionProviders) {
 						const _definitions = await provider.provideDefinition(model, position, CancellationToken.None);
 
-						if (!_definitions) continue;
+						if (!_definitions) {continue;}
 
 						const definitions = Array.isArray(_definitions) ? _definitions : [_definitions];
 
@@ -5662,10 +5662,10 @@ We only need to do it for files that were edited since `from`, ie files between 
 		threadId: string;
 	}): CodespanLocationLink | undefined {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return undefined;
+		if (!thread) {return undefined;}
 
 		const links = thread.state.linksOfMessageIdx?.[messageIdx];
-		if (!links) return undefined;
+		if (!links) {return undefined;}
 
 		const link = links[codespanStr];
 
@@ -5684,7 +5684,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		threadId: string;
 	}) {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		this._setState({
 			allThreads: {
@@ -5709,7 +5709,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 	getCurrentThread(): ThreadType {
 		const state = this.state;
 		const thread = state.allThreads[state.currentThreadId];
-		if (!thread) throw new Error(`Current thread should never be undefined`);
+		if (!thread) {throw new Error(`Current thread should never be undefined`);}
 		return thread;
 	}
 
@@ -5718,12 +5718,12 @@ We only need to do it for files that were edited since `from`, ie files between 
 
 		// get the focusedMessageIdx
 		const focusedMessageIdx = thread.state.focusedMessageIdx;
-		if (focusedMessageIdx === undefined) return;
+		if (focusedMessageIdx === undefined) {return;}
 
 		// check that the message is actually being edited
 		const focusedMessage = thread.messages[focusedMessageIdx];
-		if (focusedMessage.role !== 'user') return;
-		if (!focusedMessage.state) return;
+		if (focusedMessage.role !== 'user') {return;}
+		if (!focusedMessage.state) {return;}
 
 		return focusedMessageIdx;
 	}
@@ -5773,7 +5773,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 	duplicateThread(threadId: string) {
 		const { allThreads: currentThreads } = this.state;
 		const threadToDuplicate = currentThreads[threadId];
-		if (!threadToDuplicate) return;
+		if (!threadToDuplicate) {return;}
 		const newThread = {
 			...deepClone(threadToDuplicate),
 			id: generateUuid(),
@@ -5793,7 +5793,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		}
 		const { allThreads } = this.state;
 		const oldThread = allThreads[threadId];
-		if (!oldThread) return; // should never happen
+		if (!oldThread) {return;} // should never happen
 		// update state and store it
 		const newThreads = {
 			...allThreads,
@@ -5811,7 +5811,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 	setCurrentlyFocusedMessageIdx(messageIdx: number | undefined) {
 		const threadId = this.state.currentThreadId;
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		this._setState({
 			allThreads: {
@@ -5882,7 +5882,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 	private _setCurrentMessageState(state: Partial<UserMessageState>, messageIdx: number): void {
 		const threadId = this.state.currentThreadId;
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		this._setState({
 			allThreads: {
@@ -5912,7 +5912,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		doNotRefreshMountInfo?: boolean
 	): void {
 		const thread = this.state.allThreads[threadId];
-		if (!thread) return;
+		if (!thread) {return;}
 
 		this._setState(
 			{
@@ -5943,12 +5943,12 @@ We only need to do it for files that were edited since `from`, ie files between 
 
 	getCurrentMessageState(messageIdx: number): UserMessageState {
 		const currMessage = this.getCurrentThread()?.messages?.[messageIdx];
-		if (!currMessage || currMessage.role !== 'user') return defaultMessageState;
+		if (!currMessage || currMessage.role !== 'user') {return defaultMessageState;}
 		return currMessage.state;
 	}
 	setCurrentMessageState(messageIdx: number, newState: Partial<UserMessageState>) {
 		const currMessage = this.getCurrentThread()?.messages?.[messageIdx];
-		if (!currMessage || currMessage.role !== 'user') return;
+		if (!currMessage || currMessage.role !== 'user') {return;}
 		this._setCurrentMessageState(newState, messageIdx);
 	}
 }

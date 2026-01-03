@@ -1,7 +1,7 @@
-// /*--------------------------------------------------------------------------------------
-//  *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
-//  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
-//  *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { URI } from '../../../../../base/common/uri.js';
 import { ILanguageService } from '../../../../../editor/common/languages/language.js';
@@ -19,7 +19,7 @@ export function detectLanguage(
 
 // --- conversions
 export const convertToVscodeLang = (languageService: ILanguageService, markdownLang: string) => {
-	if (markdownLang in markdownLangToVscodeLang) return markdownLangToVscodeLang[markdownLang];
+	if (markdownLang in markdownLangToVscodeLang) {return markdownLangToVscodeLang[markdownLang];}
 
 	const { languageId } = languageService.createById(markdownLang);
 	return languageId;

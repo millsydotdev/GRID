@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
@@ -12,6 +12,8 @@ import {
 } from '../../common/secretDetection.js';
 
 suite('Secret Detection', () => {
+
+	ensureNoDisposablesAreLeakedInTestSuite();
 	suite('detectSecrets', () => {
 		test('should detect OpenAI API keys', () => {
 			const text = 'My API key is sk-proj-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz';

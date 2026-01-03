@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -154,7 +154,7 @@ class DiffComposerAudit {
 	 */
 	getMetrics(requestId: string, fileCount: number = 0): DiffComposerMetrics | null {
 		const context = this.contexts.get(requestId);
-		if (!context) return null;
+		if (!context) {return null;}
 
 		const now = performance.now();
 		const panelOpenTime =

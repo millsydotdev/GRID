@@ -81,7 +81,7 @@ export class ComposerPanel extends ViewPane {
 	private _hasAgent = observableValue<boolean>(this, false);
 	// Cache for computed diffs in summary stats to avoid recomputing for unchanged files
 	// Key: entryId + originalVersion + modifiedVersion
-	private readonly _summaryDiffCache = new Map<string, Promise<{ diff: any; originalVersion: number; modifiedVersion: number }>>();
+	private readonly _summaryDiffCache = new Map<string, Promise<{ diff: unknown; originalVersion: number; modifiedVersion: number }>>();
 
 	constructor(
 		options: IViewletViewOptions,
@@ -1047,7 +1047,7 @@ export class ComposerPanel extends ViewPane {
 				.filter(item => item.uri && this._workspaceContextService.isInsideWorkspace(item.uri))
 				.map(item => ({
 					uri: item.uri!,
-					type: (item as any).isFolder ? 'folder' as const : 'file' as const,
+					type: (item as unknown).isFolder ? 'folder' as const : 'file' as const,
 					label: this._labelService.getUriLabel(item.uri!, { relative: true })
 				}));
 

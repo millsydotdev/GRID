@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Millsy.dev All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { EditorInput } from '../../../common/editor/editorInput.js';
@@ -222,8 +222,8 @@ registerAction2(class extends Action2 {
 
 		// Sort: pinned first, then by last accessed
 		items.sort((a, b) => {
-			if (a.workspace.pinned && !b.workspace.pinned) return -1;
-			if (!a.workspace.pinned && b.workspace.pinned) return 1;
+			if (a.workspace.pinned && !b.workspace.pinned) {return -1;}
+			if (!a.workspace.pinned && b.workspace.pinned) {return 1;}
 			return b.workspace.lastAccessedAt - a.workspace.lastAccessedAt;
 		});
 

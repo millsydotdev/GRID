@@ -1,3 +1,7 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { Event } from '../../../../base/common/event.js';
 
@@ -9,7 +13,7 @@ export interface ITask {
     title: string;
     status: 'todo' | 'in_progress' | 'review' | 'done';
     priority: 'low' | 'medium' | 'high' | 'urgent';
-    context?: any;
+    context?: unknown;
 }
 
 export interface IProject {
@@ -24,7 +28,7 @@ export interface ITaskService {
     readonly onDidChangeProjects: Event<IProject[]>;
 
     getProjects(): Promise<IProject[]>;
-    createTask(projectId: string, title: string, context?: any): Promise<ITask>;
+    createTask(projectId: string, title: string, context?: unknown): Promise<ITask>;
     updateTask(taskId: string, updates: Partial<ITask>): Promise<ITask>;
     sync(): Promise<void>;
 }

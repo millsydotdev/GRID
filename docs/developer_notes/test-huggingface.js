@@ -1,13 +1,8 @@
 #!/usr/bin/env node
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Millsy.dev All rights reserved.
- *  HuggingFace Integration Test Script
- *
- *  This script tests the HuggingFace Inference Router API integration.
- *  IMPORTANT: API key is passed via command line argument, NOT hardcoded.
- *
- *  Usage: node test-huggingface.js <HF_API_KEY>
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 // Get API key from command line (NOT hardcoded!)
 const HF_API_KEY = process.argv[2];
@@ -121,7 +116,7 @@ async function testStreaming(modelName) {
 		for await (const chunk of stream) {
 			const newText = chunk.choices[0]?.delta?.content ?? '';
 			fullText += newText;
-			if (newText) chunkCount++;
+			if (newText) {chunkCount++;}
 		}
 
 		console.log(`   ✅ Streaming SUCCESS`);
@@ -246,8 +241,8 @@ async function runTests() {
 		for (const model of models) {
 			const result = await testModel(model, category);
 			results.models.push(result);
-			if (result.success) results.passed++;
-			else results.failed++;
+			if (result.success) {results.passed++;}
+			else {results.failed++;}
 
 			// Small delay between requests to respect rate limits
 			await new Promise(resolve => setTimeout(resolve, 500));

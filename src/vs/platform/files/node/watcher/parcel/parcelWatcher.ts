@@ -210,7 +210,7 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 
 	protected override async doWatch(requests: IRecursiveWatchRequest[]): Promise<void> {
 		for (const request of requests) {
-			(request as any).path = normalize(request.path);
+			(request as unknown).path = normalize(request.path);
 		}
 
 		// Figure out duplicates to remove from the requests
@@ -737,7 +737,7 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 
 				// Check for invalid paths
 				if (validatePaths) {
-					if (request.path.includes('..')) throw new Error('Path traversal not allowed');
+					if (request.path.includes('..')) {throw new Error('Path traversal not allowed');}
 					// snyk-ignore:javascript/PathTraversal
 					if (!(await this.isPathValid(request.path))) {
 						this._onDidWatchFail.fire(request);
@@ -757,7 +757,7 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 
 	private async isPathValid(path: string): Promise<boolean> {
 		try {
-			if (path.includes('..')) throw new Error('Path traversal not allowed');
+			if (path.includes('..')) {throw new Error('Path traversal not allowed');}
 			// snyk-ignore:javascript/PathTraversal
 			const stat = await promises.stat(path);
 			if (!stat.isDirectory()) {

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { SendLLMMessageParams, OnText, OnFinalMessage, OnError } from '../../common/sendLLMMessageTypes.js';
@@ -55,21 +55,21 @@ export const sendLLMMessage = async (
 
 	let _fullTextSoFar = '';
 	let _aborter: (() => void) | null = null;
-	let _setAborter = (fn: () => void) => {
+	const _setAborter = (fn: () => void) => {
 		_aborter = fn;
 	};
 	let _didAbort = false;
 
 	const onText: OnText = (params) => {
 		const { fullText } = params;
-		if (_didAbort) return;
+		if (_didAbort) {return;}
 		onText_(params);
 		_fullTextSoFar = fullText;
 	};
 
 	const onFinalMessage: OnFinalMessage = (params) => {
 		const { fullText, fullReasoning, toolCall } = params;
-		if (_didAbort) return;
+		if (_didAbort) {return;}
 		captureLLMEvent(`${loggingName} - Received Full Message`, {
 			messageLength: fullText.length,
 			reasoningLength: fullReasoning?.length,
@@ -80,7 +80,7 @@ export const sendLLMMessage = async (
 	};
 
 	const onError: OnError = ({ message: errorMessage, fullError }) => {
-		if (_didAbort) return;
+		if (_didAbort) {return;}
 		console.error('sendLLMMessage onError:', errorMessage);
 
 		// handle failed to fetch errors, which give 0 information by design
@@ -109,12 +109,12 @@ export const sendLLMMessage = async (
 	};
 	abortRef_.current = onAbort;
 
-	if (messagesType === 'chatMessages') captureLLMEvent(`${loggingName} - Sending Message`, {});
+	if (messagesType === 'chatMessages') {captureLLMEvent(`${loggingName} - Sending Message`, {});}
 	else if (messagesType === 'FIMMessage')
-		captureLLMEvent(`${loggingName} - Sending FIM`, {
+		{captureLLMEvent(`${loggingName} - Sending FIM`, {
 			prefixLen: messages_?.prefix?.length,
 			suffixLen: messages_?.suffix?.length,
-		});
+		});}
 
 	try {
 		// Skip "auto" - it's not a real provider

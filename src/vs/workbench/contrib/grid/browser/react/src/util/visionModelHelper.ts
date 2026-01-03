@@ -1,9 +1,21 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { SettingsOfProvider, ModelSelection, ProviderName } from '../../../../common/gridSettingsTypes.js';
+
+// Ollama API response types
+interface OllamaModel {
+	name: string;
+	modified_at?: string;
+	size?: number;
+	digest?: string;
+}
+
+interface OllamaTagsResponse {
+	models: OllamaModel[];
+}
 
 /**
  * Vision-capable providers that require API keys
@@ -59,12 +71,12 @@ export function isVisionModelName(modelName: string): boolean {
 export async function hasOllamaVisionModel(): Promise<boolean> {
 	try {
 		const res = await fetch('http://127.0.0.1:11434/api/tags', { method: 'GET' });
-		if (!res.ok) return false;
-		const data = await res.json();
+		if (!res.ok) {return false;}
+		const data = await res.json() as OllamaTagsResponse;
 		const models = data.models || [];
 		// Check for common vision model names
 		// Ollama API returns models with 'name' field
-		return models.some((m: unknown) => {
+		return models.some((m: OllamaModel) => {
 			const name = (m.name || '').toLowerCase();
 			return isVisionModelName(name);
 		});
@@ -84,7 +96,7 @@ export async function checkOllamaModelVisionCapable(modelName: string): Promise<
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ name: modelName }),
 		});
-		if (!res.ok) return false;
+		if (!res.ok) {return false;}
 		const modelInfo = await res.json();
 		// Check if model has vision capabilities in its details
 		// Ollama vision models typically have "multimodal" or "vision" in details
@@ -103,12 +115,12 @@ export function isSelectedModelVisionCapable(
 	currentModelSelection: ModelSelection | null,
 	settingsOfProvider: SettingsOfProvider
 ): boolean {
-	if (!currentModelSelection) return false;
+	if (!currentModelSelection) {return false;}
 
 	const { providerName, modelName } = currentModelSelection;
 
 	// Skip "auto" - it's not a real provider
-	if (providerName === 'auto') return false;
+	if (providerName === 'auto') {return false;}
 
 	// Check if it's a vision-capable API provider with a valid key
 	if (VISION_PROVIDERS.includes(providerName)) {
@@ -137,7 +149,7 @@ export function isSelectedModelVisionCapable(
 
 		// Check if any model in settings matches (might be stored with different tag)
 		const matchingModel = providerSettings.models.find((m) => {
-			if (m.isHidden) return false;
+			if (m.isHidden) {return false;}
 			// Check exact match or if base names match
 			const modelBaseName = m.modelName.split(':')[0].toLowerCase();
 			if (m.modelName === modelName || modelBaseName === baseModelName) {

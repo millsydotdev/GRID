@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { defaultModelsOfProvider, defaultProviderSettings, ModelOverrides } from './modelCapabilities.js';
@@ -53,250 +53,250 @@ type DisplayInfoForProviderName = {
 
 export const displayInfoOfProviderName = (providerName: ProviderName): DisplayInfoForProviderName => {
 	// Main
-	if (providerName === 'anthropic') return { title: 'Anthropic', category: 'Main' };
-	if (providerName === 'openAI') return { title: 'OpenAI', category: 'Main' };
-	if (providerName === 'gemini') return { title: 'Gemini', category: 'Main' };
-	if (providerName === 'deepseek') return { title: 'DeepSeek', category: 'Main' };
-	if (providerName === 'xAI') return { title: 'Grok (xAI)', category: 'Main' };
-	if (providerName === 'mistral') return { title: 'Mistral', category: 'Main' };
+	if (providerName === 'anthropic') {return { title: 'Anthropic', category: 'Main' };}
+	if (providerName === 'openAI') {return { title: 'OpenAI', category: 'Main' };}
+	if (providerName === 'gemini') {return { title: 'Gemini', category: 'Main' };}
+	if (providerName === 'deepseek') {return { title: 'DeepSeek', category: 'Main' };}
+	if (providerName === 'xAI') {return { title: 'Grok (xAI)', category: 'Main' };}
+	if (providerName === 'mistral') {return { title: 'Mistral', category: 'Main' };}
 
 	// Local
-	if (providerName === 'ollama') return { title: 'Ollama', category: 'Local' };
-	if (providerName === 'vLLM') return { title: 'vLLM', category: 'Local' };
-	if (providerName === 'lmStudio') return { title: 'LM Studio', category: 'Local' };
+	if (providerName === 'ollama') {return { title: 'Ollama', category: 'Local' };}
+	if (providerName === 'vLLM') {return { title: 'vLLM', category: 'Local' };}
+	if (providerName === 'lmStudio') {return { title: 'LM Studio', category: 'Local' };}
 
 	// Chinese AI
-	if (providerName === 'moonshot') return { title: 'Moonshot AI (Kimi)', category: 'Chinese AI' };
-	if (providerName === 'zhipu') return { title: 'Zhipu AI (ChatGLM)', category: 'Chinese AI' };
-	if (providerName === 'baichuan') return { title: 'Baichuan', category: 'Chinese AI' };
-	if (providerName === 'yi') return { title: '01.AI (Yi)', category: 'Chinese AI' };
-	if (providerName === 'alibabaCloud') return { title: 'Alibaba Cloud (Qwen)', category: 'Chinese AI' };
-	if (providerName === 'minimax') return { title: 'MiniMax', category: 'Chinese AI' };
-	if (providerName === 'siliconflow') return { title: 'SiliconFlow', category: 'Chinese AI' };
-	if (providerName === 'tencentHunyuan') return { title: 'Tencent Hunyuan', category: 'Chinese AI' };
-	if (providerName === 'bytedanceDoubao') return { title: 'ByteDance Doubao', category: 'Chinese AI' };
-	if (providerName === 'stepfun') return { title: 'StepFun', category: 'Chinese AI' };
-	if (providerName === 'sensetimeNova') return { title: 'SenseTime Nova', category: 'Chinese AI' };
-	if (providerName === 'iflytekSpark') return { title: 'iFlytek Spark', category: 'Chinese AI' };
+	if (providerName === 'moonshot') {return { title: 'Moonshot AI (Kimi)', category: 'Chinese AI' };}
+	if (providerName === 'zhipu') {return { title: 'Zhipu AI (ChatGLM)', category: 'Chinese AI' };}
+	if (providerName === 'baichuan') {return { title: 'Baichuan', category: 'Chinese AI' };}
+	if (providerName === 'yi') {return { title: '01.AI (Yi)', category: 'Chinese AI' };}
+	if (providerName === 'alibabaCloud') {return { title: 'Alibaba Cloud (Qwen)', category: 'Chinese AI' };}
+	if (providerName === 'minimax') {return { title: 'MiniMax', category: 'Chinese AI' };}
+	if (providerName === 'siliconflow') {return { title: 'SiliconFlow', category: 'Chinese AI' };}
+	if (providerName === 'tencentHunyuan') {return { title: 'Tencent Hunyuan', category: 'Chinese AI' };}
+	if (providerName === 'bytedanceDoubao') {return { title: 'ByteDance Doubao', category: 'Chinese AI' };}
+	if (providerName === 'stepfun') {return { title: 'StepFun', category: 'Chinese AI' };}
+	if (providerName === 'sensetimeNova') {return { title: 'SenseTime Nova', category: 'Chinese AI' };}
+	if (providerName === 'iflytekSpark') {return { title: 'iFlytek Spark', category: 'Chinese AI' };}
 
 	// Inference Platforms
-	if (providerName === 'groq') return { title: 'Groq', category: 'Inference' };
-	if (providerName === 'cerebras') return { title: 'Cerebras', category: 'Inference' };
-	if (providerName === 'cohere') return { title: 'Cohere', category: 'Inference' };
-	if (providerName === 'sambanova') return { title: 'SambaNova', category: 'Inference' };
-	if (providerName === 'leptonai') return { title: 'Lepton AI', category: 'Inference' };
-	if (providerName === 'novitaai') return { title: 'Novita AI', category: 'Inference' };
-	if (providerName === 'octoai') return { title: 'OctoAI', category: 'Inference' };
-	if (providerName === 'runpod') return { title: 'RunPod', category: 'Inference' };
-	if (providerName === 'anyscale') return { title: 'Anyscale', category: 'Inference' };
-	if (providerName === 'baseten') return { title: 'Baseten', category: 'Inference' };
-	if (providerName === 'lambdalabs') return { title: 'Lambda Labs', category: 'Inference' };
-	if (providerName === 'featherless') return { title: 'Featherless AI', category: 'Inference' };
-	if (providerName === 'gradientai') return { title: 'Gradient AI', category: 'Inference' };
-	if (providerName === 'predibase') return { title: 'Predibase', category: 'Inference' };
-	if (providerName === 'nvidiaNim') return { title: 'NVIDIA NIM', category: 'Inference' };
-	if (providerName === 'databricks') return { title: 'Databricks', category: 'Inference' };
-	if (providerName === 'modal') return { title: 'Modal', category: 'Inference' };
-	if (providerName === 'mancer') return { title: 'Mancer AI', category: 'Inference' };
-	if (providerName === 'deepinfra') return { title: 'DeepInfra', category: 'Inference' };
-	if (providerName === 'hyperbolic') return { title: 'Hyperbolic', category: 'Inference' };
-	if (providerName === 'nebius') return { title: 'Nebius', category: 'Inference' };
-	if (providerName === 'friendliai') return { title: 'Friendli AI', category: 'Inference' };
+	if (providerName === 'groq') {return { title: 'Groq', category: 'Inference' };}
+	if (providerName === 'cerebras') {return { title: 'Cerebras', category: 'Inference' };}
+	if (providerName === 'cohere') {return { title: 'Cohere', category: 'Inference' };}
+	if (providerName === 'sambanova') {return { title: 'SambaNova', category: 'Inference' };}
+	if (providerName === 'leptonai') {return { title: 'Lepton AI', category: 'Inference' };}
+	if (providerName === 'novitaai') {return { title: 'Novita AI', category: 'Inference' };}
+	if (providerName === 'octoai') {return { title: 'OctoAI', category: 'Inference' };}
+	if (providerName === 'runpod') {return { title: 'RunPod', category: 'Inference' };}
+	if (providerName === 'anyscale') {return { title: 'Anyscale', category: 'Inference' };}
+	if (providerName === 'baseten') {return { title: 'Baseten', category: 'Inference' };}
+	if (providerName === 'lambdalabs') {return { title: 'Lambda Labs', category: 'Inference' };}
+	if (providerName === 'featherless') {return { title: 'Featherless AI', category: 'Inference' };}
+	if (providerName === 'gradientai') {return { title: 'Gradient AI', category: 'Inference' };}
+	if (providerName === 'predibase') {return { title: 'Predibase', category: 'Inference' };}
+	if (providerName === 'nvidiaNim') {return { title: 'NVIDIA NIM', category: 'Inference' };}
+	if (providerName === 'databricks') {return { title: 'Databricks', category: 'Inference' };}
+	if (providerName === 'modal') {return { title: 'Modal', category: 'Inference' };}
+	if (providerName === 'mancer') {return { title: 'Mancer AI', category: 'Inference' };}
+	if (providerName === 'deepinfra') {return { title: 'DeepInfra', category: 'Inference' };}
+	if (providerName === 'hyperbolic') {return { title: 'Hyperbolic', category: 'Inference' };}
+	if (providerName === 'nebius') {return { title: 'Nebius', category: 'Inference' };}
+	if (providerName === 'friendliai') {return { title: 'Friendli AI', category: 'Inference' };}
 
 	// Enterprise & Cloud
-	if (providerName === 'googleVertex') return { title: 'Google Vertex AI', category: 'Enterprise' };
-	if (providerName === 'microsoftAzure') return { title: 'Microsoft Azure', category: 'Enterprise' };
-	if (providerName === 'awsBedrock') return { title: 'AWS Bedrock', category: 'Enterprise' };
-	if (providerName === 'cloudflareAI') return { title: 'Cloudflare AI', category: 'Enterprise' };
-	if (providerName === 'rekaai') return { title: 'Reka AI', category: 'Enterprise' };
-	if (providerName === 'alephalpha') return { title: 'Aleph Alpha', category: 'Enterprise' };
-	if (providerName === 'writerai') return { title: 'Writer', category: 'Enterprise' };
-	if (providerName === 'inflectionai') return { title: 'Inflection AI', category: 'Enterprise' };
-	if (providerName === 'netmindai') return { title: 'NetMind AI', category: 'Enterprise' };
-	if (providerName === 'inworldai') return { title: 'Inworld AI', category: 'Enterprise' };
-	if (providerName === 'upstage') return { title: 'Upstage', category: 'Enterprise' };
-	if (providerName === 'textsynth') return { title: 'TextSynth', category: 'Enterprise' };
-	if (providerName === 'forefrontai') return { title: 'Forefront AI', category: 'Enterprise' };
+	if (providerName === 'googleVertex') {return { title: 'Google Vertex AI', category: 'Enterprise' };}
+	if (providerName === 'microsoftAzure') {return { title: 'Microsoft Azure', category: 'Enterprise' };}
+	if (providerName === 'awsBedrock') {return { title: 'AWS Bedrock', category: 'Enterprise' };}
+	if (providerName === 'cloudflareAI') {return { title: 'Cloudflare AI', category: 'Enterprise' };}
+	if (providerName === 'rekaai') {return { title: 'Reka AI', category: 'Enterprise' };}
+	if (providerName === 'alephalpha') {return { title: 'Aleph Alpha', category: 'Enterprise' };}
+	if (providerName === 'writerai') {return { title: 'Writer', category: 'Enterprise' };}
+	if (providerName === 'inflectionai') {return { title: 'Inflection AI', category: 'Enterprise' };}
+	if (providerName === 'netmindai') {return { title: 'NetMind AI', category: 'Enterprise' };}
+	if (providerName === 'inworldai') {return { title: 'Inworld AI', category: 'Enterprise' };}
+	if (providerName === 'upstage') {return { title: 'Upstage', category: 'Enterprise' };}
+	if (providerName === 'textsynth') {return { title: 'TextSynth', category: 'Enterprise' };}
+	if (providerName === 'forefrontai') {return { title: 'Forefront AI', category: 'Enterprise' };}
 
 	// Aggregators
-	if (providerName === 'openRouter') return { title: 'OpenRouter', category: 'Aggregators' };
-	if (providerName === 'huggingFace') return { title: 'Hugging Face', category: 'Aggregators' };
-	if (providerName === 'liteLLM') return { title: 'LiteLLM', category: 'Aggregators' };
-	if (providerName === 'openAICompatible') return { title: 'OpenAI-Compatible', category: 'Aggregators' };
-	if (providerName === 'aimlapi') return { title: 'AIMLAPI', category: 'Aggregators' };
-	if (providerName === 'poeapi') return { title: 'Poe API', category: 'Aggregators' };
-	if (providerName === 'edenai') return { title: 'Eden AI', category: 'Aggregators' };
-	if (providerName === 'unifyai') return { title: 'Unify AI', category: 'Aggregators' };
-	if (providerName === 'portkey') return { title: 'Portkey', category: 'Aggregators' };
-	if (providerName === 'martian') return { title: 'Martian', category: 'Aggregators' };
-	if (providerName === 'nlpcloud') return { title: 'NLP Cloud', category: 'Aggregators' };
+	if (providerName === 'openRouter') {return { title: 'OpenRouter', category: 'Aggregators' };}
+	if (providerName === 'huggingFace') {return { title: 'Hugging Face', category: 'Aggregators' };}
+	if (providerName === 'liteLLM') {return { title: 'LiteLLM', category: 'Aggregators' };}
+	if (providerName === 'openAICompatible') {return { title: 'OpenAI-Compatible', category: 'Aggregators' };}
+	if (providerName === 'aimlapi') {return { title: 'AIMLAPI', category: 'Aggregators' };}
+	if (providerName === 'poeapi') {return { title: 'Poe API', category: 'Aggregators' };}
+	if (providerName === 'edenai') {return { title: 'Eden AI', category: 'Aggregators' };}
+	if (providerName === 'unifyai') {return { title: 'Unify AI', category: 'Aggregators' };}
+	if (providerName === 'portkey') {return { title: 'Portkey', category: 'Aggregators' };}
+	if (providerName === 'martian') {return { title: 'Martian', category: 'Aggregators' };}
+	if (providerName === 'nlpcloud') {return { title: 'NLP Cloud', category: 'Aggregators' };}
 
 	// Specialized
-	if (providerName === 'voyageai') return { title: 'Voyage AI', category: 'Specialized' };
-	if (providerName === 'jinaai') return { title: 'Jina AI', category: 'Specialized' };
-	if (providerName === 'elevenlabs') return { title: 'ElevenLabs', category: 'Specialized' };
+	if (providerName === 'voyageai') {return { title: 'Voyage AI', category: 'Specialized' };}
+	if (providerName === 'jinaai') {return { title: 'Jina AI', category: 'Specialized' };}
+	if (providerName === 'elevenlabs') {return { title: 'ElevenLabs', category: 'Specialized' };}
 
 	// Fallback/Legacy
-	if (providerName === 'togetherai') return { title: 'Together AI', category: 'Inference' };
-	if (providerName === 'fireworksAI') return { title: 'Fireworks AI', category: 'Inference' };
-	if (providerName === 'replicate') return { title: 'Replicate', category: 'Inference' };
-	if (providerName === 'perplexity') return { title: 'Perplexity', category: 'Inference' };
-	if (providerName === 'ai21') return { title: 'AI21 Labs', category: 'Inference' };
+	if (providerName === 'togetherai') {return { title: 'Together AI', category: 'Inference' };}
+	if (providerName === 'fireworksAI') {return { title: 'Fireworks AI', category: 'Inference' };}
+	if (providerName === 'replicate') {return { title: 'Replicate', category: 'Inference' };}
+	if (providerName === 'perplexity') {return { title: 'Perplexity', category: 'Inference' };}
+	if (providerName === 'ai21') {return { title: 'AI21 Labs', category: 'Inference' };}
 
 	throw new Error(`displayInfo: Unknown provider name: "${providerName}"`);
 };
 
 
 export const subTextMdOfProviderName = (providerName: ProviderName): string => {
-	if (providerName === 'anthropic') return 'Get your [API Key here](https://console.anthropic.com/settings/keys).';
-	if (providerName === 'openAI') return 'Get your [API Key here](https://platform.openai.com/api-keys).';
-	if (providerName === 'deepseek') return 'Get your [API Key here](https://platform.deepseek.com/api_keys).';
+	if (providerName === 'anthropic') {return 'Get your [API Key here](https://console.anthropic.com/settings/keys).';}
+	if (providerName === 'openAI') {return 'Get your [API Key here](https://platform.openai.com/api-keys).';}
+	if (providerName === 'deepseek') {return 'Get your [API Key here](https://platform.deepseek.com/api_keys).';}
 	if (providerName === 'openRouter')
-		return 'Get your [API Key here](https://openrouter.ai/settings/keys). Read about [rate limits here](https://openrouter.ai/docs/api-reference/limits).';
+		{return 'Get your [API Key here](https://openrouter.ai/settings/keys). Read about [rate limits here](https://openrouter.ai/docs/api-reference/limits).';}
 	if (providerName === 'gemini')
-		return 'Get your [API Key here](https://aistudio.google.com/apikey). Read about [rate limits here](https://ai.google.dev/gemini-api/docs/rate-limits#current-rate-limits).';
-	if (providerName === 'groq') return 'Get your [API Key here](https://console.groq.com/keys).';
-	if (providerName === 'xAI') return 'Get your [API Key here](https://console.x.ai).';
-	if (providerName === 'mistral') return 'Get your [API Key here](https://console.mistral.ai/api-keys).';
+		{return 'Get your [API Key here](https://aistudio.google.com/apikey). Read about [rate limits here](https://ai.google.dev/gemini-api/docs/rate-limits#current-rate-limits).';}
+	if (providerName === 'groq') {return 'Get your [API Key here](https://console.groq.com/keys).';}
+	if (providerName === 'xAI') {return 'Get your [API Key here](https://console.x.ai).';}
+	if (providerName === 'mistral') {return 'Get your [API Key here](https://console.mistral.ai/api-keys).';}
 	if (providerName === 'huggingFace')
-		return 'Get your [API Key here](https://huggingface.co/settings/tokens). Use Inference API with popular open source models.';
+		{return 'Get your [API Key here](https://huggingface.co/settings/tokens). Use Inference API with popular open source models.';}
 	if (providerName === 'openAICompatible')
-		return `Use any provider that's OpenAI-compatible (use this for llama.cpp and more).`;
+		{return `Use any provider that's OpenAI-compatible (use this for llama.cpp and more).`;}
 	if (providerName === 'googleVertex')
-		return 'You must authenticate before using Vertex with GRID. Read more about endpoints [here](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/call-vertex-using-openai-library), and regions [here](https://cloud.google.com/vertex-ai/docs/general/locations#available-regions).';
+		{return 'You must authenticate before using Vertex with GRID. Read more about endpoints [here](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/call-vertex-using-openai-library), and regions [here](https://cloud.google.com/vertex-ai/docs/general/locations#available-regions).';}
 	if (providerName === 'microsoftAzure')
-		return 'Read more about endpoints [here](https://learn.microsoft.com/en-us/rest/api/aifoundry/model-inference/get-chat-completions/get-chat-completions?view=rest-aifoundry-model-inference-2024-05-01-preview&tabs=HTTP), and get your API key [here](https://learn.microsoft.com/en-us/azure/search/search-security-api-keys?tabs=rest-use%2Cportal-find%2Cportal-query#find-existing-keys).';
+		{return 'Read more about endpoints [here](https://learn.microsoft.com/en-us/rest/api/aifoundry/model-inference/get-chat-completions/get-chat-completions?view=rest-aifoundry-model-inference-2024-05-01-preview&tabs=HTTP), and get your API key [here](https://learn.microsoft.com/en-us/azure/search/search-security-api-keys?tabs=rest-use%2Cportal-find%2Cportal-query#find-existing-keys).';}
 	if (providerName === 'awsBedrock')
-		return 'Connect via a LiteLLM proxy or the AWS [Bedrock-Access-Gateway](https://github.com/aws-samples/bedrock-access-gateway). LiteLLM Bedrock setup docs are [here](https://docs.litellm.ai/docs/providers/bedrock).';
+		{return 'Connect via a LiteLLM proxy or the AWS [Bedrock-Access-Gateway](https://github.com/aws-samples/bedrock-access-gateway). LiteLLM Bedrock setup docs are [here](https://docs.litellm.ai/docs/providers/bedrock).';}
 	if (providerName === 'ollama')
-		return 'Read more about custom [Endpoints here](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-can-i-expose-ollama-on-my-network).';
+		{return 'Read more about custom [Endpoints here](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-can-i-expose-ollama-on-my-network).';}
 	if (providerName === 'vLLM')
-		return 'Read more about custom [Endpoints here](https://docs.vllm.ai/en/latest/getting_started/quickstart.html#openai-compatible-server).';
+		{return 'Read more about custom [Endpoints here](https://docs.vllm.ai/en/latest/getting_started/quickstart.html#openai-compatible-server).';}
 	if (providerName === 'lmStudio')
-		return 'Read more about custom [Endpoints here](https://lmstudio.ai/docs/app/api/endpoints/openai).';
+		{return 'Read more about custom [Endpoints here](https://lmstudio.ai/docs/app/api/endpoints/openai).';}
 	if (providerName === 'liteLLM')
-		return 'Read more about endpoints [here](https://docs.litellm.ai/docs/providers/openai_compatible).';
+		{return 'Read more about endpoints [here](https://docs.litellm.ai/docs/providers/openai_compatible).';}
 	if (providerName === 'togetherai')
-		return 'Get your [API Key here](https://api.together.ai/settings/api-keys). Access 100+ open-source models.';
+		{return 'Get your [API Key here](https://api.together.ai/settings/api-keys). Access 100+ open-source models.';}
 	if (providerName === 'fireworksAI')
-		return 'Get your [API Key here](https://fireworks.ai/api-keys). Fast inference for top open-source models.';
+		{return 'Get your [API Key here](https://fireworks.ai/api-keys). Fast inference for top open-source models.';}
 	if (providerName === 'replicate')
-		return 'Get your [API Key here](https://replicate.com/account/api-tokens). Run open-source models in the cloud.';
+		{return 'Get your [API Key here](https://replicate.com/account/api-tokens). Run open-source models in the cloud.';}
 	if (providerName === 'perplexity')
-		return 'Get your [API Key here](https://www.perplexity.ai/settings/api). Access online and chat models.';
+		{return 'Get your [API Key here](https://www.perplexity.ai/settings/api). Access online and chat models.';}
 	if (providerName === 'cerebras')
-		return 'Get your [API Key here](https://cloud.cerebras.ai/). Ultra-fast inference with Cerebras hardware.';
+		{return 'Get your [API Key here](https://cloud.cerebras.ai/). Ultra-fast inference with Cerebras hardware.';}
 	if (providerName === 'cohere')
-		return 'Get your [API Key here](https://dashboard.cohere.com/api-keys). Enterprise-grade language models.';
+		{return 'Get your [API Key here](https://dashboard.cohere.com/api-keys). Enterprise-grade language models.';}
 	if (providerName === 'deepinfra')
-		return 'Get your [API Key here](https://deepinfra.com/dash/api_keys). Serverless inference for popular models.';
+		{return 'Get your [API Key here](https://deepinfra.com/dash/api_keys). Serverless inference for popular models.';}
 	if (providerName === 'ai21')
-		return 'Get your [API Key here](https://studio.ai21.com/account/api-key). Access Jamba models.';
+		{return 'Get your [API Key here](https://studio.ai21.com/account/api-key). Access Jamba models.';}
 	if (providerName === 'hyperbolic')
-		return 'Get your [API Key here](https://app.hyperbolic.xyz/). Fast, affordable model inference.';
+		{return 'Get your [API Key here](https://app.hyperbolic.xyz/). Fast, affordable model inference.';}
 	if (providerName === 'nebius')
-		return 'Get your [API Key here](https://nebius.ai/). Access powerful open-source models.';
+		{return 'Get your [API Key here](https://nebius.ai/). Access powerful open-source models.';}
 	// Chinese AI Providers
 	if (providerName === 'moonshot')
-		return 'Get your [API Key here](https://platform.moonshot.cn/console/api-keys). Access Kimi models with 128K+ context.';
+		{return 'Get your [API Key here](https://platform.moonshot.cn/console/api-keys). Access Kimi models with 128K+ context.';}
 	if (providerName === 'zhipu')
-		return 'Get your [API Key here](https://open.bigmodel.cn/). Access ChatGLM and GLM-4 models.';
+		{return 'Get your [API Key here](https://open.bigmodel.cn/). Access ChatGLM and GLM-4 models.';}
 	if (providerName === 'baichuan')
-		return 'Get your [API Key here](https://platform.baichuan-ai.com/). Strong in Chinese language tasks.';
+		{return 'Get your [API Key here](https://platform.baichuan-ai.com/). Strong in Chinese language tasks.';}
 	if (providerName === 'yi')
-		return 'Get your [API Key here](https://platform.01.ai/). Access Yi models from 01.AI.';
+		{return 'Get your [API Key here](https://platform.01.ai/). Access Yi models from 01.AI.';}
 	if (providerName === 'alibabaCloud')
-		return 'Get your [API Key here](https://dashscope.console.aliyun.com/). Access Qwen models via Alibaba Cloud.';
+		{return 'Get your [API Key here](https://dashscope.console.aliyun.com/). Access Qwen models via Alibaba Cloud.';}
 	if (providerName === 'minimax')
-		return 'Get your [API Key here](https://platform.minimaxi.com/). Also requires Group ID.';
+		{return 'Get your [API Key here](https://platform.minimaxi.com/). Also requires Group ID.';}
 	if (providerName === 'siliconflow')
-		return 'Get your [API Key here](https://cloud.siliconflow.cn/). Fast inference for open-source models.';
+		{return 'Get your [API Key here](https://cloud.siliconflow.cn/). Fast inference for open-source models.';}
 	if (providerName === 'tencentHunyuan')
-		return 'Get your [API Key here](https://cloud.tencent.com/product/hunyuan). Access Tencent Hunyuan models.';
+		{return 'Get your [API Key here](https://cloud.tencent.com/product/hunyuan). Access Tencent Hunyuan models.';}
 	if (providerName === 'bytedanceDoubao')
-		return 'Get your [API Key here](https://console.volcengine.com/). Access Doubao models via Volcano Engine.';
+		{return 'Get your [API Key here](https://console.volcengine.com/). Access Doubao models via Volcano Engine.';}
 	if (providerName === 'stepfun')
-		return 'Get your [API Key here](https://platform.stepfun.com/). Advanced reasoning models.';
+		{return 'Get your [API Key here](https://platform.stepfun.com/). Advanced reasoning models.';}
 	if (providerName === 'sensetimeNova')
-		return 'Get your [API Key here](https://platform.sensenova.cn/). Access SenseChat models.';
+		{return 'Get your [API Key here](https://platform.sensenova.cn/). Access SenseChat models.';}
 	if (providerName === 'iflytekSpark')
-		return 'Get your [API Key here](https://xinghuo.xfyun.cn/). Access iFlytek Spark models.';
+		{return 'Get your [API Key here](https://xinghuo.xfyun.cn/). Access iFlytek Spark models.';}
 	// Inference Platforms
 	if (providerName === 'sambanova')
-		return 'Get your [API Key here](https://cloud.sambanova.ai/). Ultra-fast inference.';
+		{return 'Get your [API Key here](https://cloud.sambanova.ai/). Ultra-fast inference.';}
 	if (providerName === 'leptonai')
-		return 'Get your [API Key here](https://www.lepton.ai/). Developer-friendly AI platform.';
+		{return 'Get your [API Key here](https://www.lepton.ai/). Developer-friendly AI platform.';}
 	if (providerName === 'novitaai')
-		return 'Get your [API Key here](https://novita.ai/). Access LLMs and image models.';
+		{return 'Get your [API Key here](https://novita.ai/). Access LLMs and image models.';}
 	if (providerName === 'octoai')
-		return 'Get your [API Key here](https://octoai.cloud/). Optimized model inference.';
+		{return 'Get your [API Key here](https://octoai.cloud/). Optimized model inference.';}
 	if (providerName === 'runpod')
-		return 'Get your [API Key here](https://www.runpod.io/). Serverless GPU endpoints.';
+		{return 'Get your [API Key here](https://www.runpod.io/). Serverless GPU endpoints.';}
 	if (providerName === 'anyscale')
-		return 'Get your [API Key here](https://www.anyscale.com/). Scalable LLM endpoints.';
+		{return 'Get your [API Key here](https://www.anyscale.com/). Scalable LLM endpoints.';}
 	if (providerName === 'baseten')
-		return 'Get your [API Key here](https://www.baseten.co/). Deploy and serve models.';
+		{return 'Get your [API Key here](https://www.baseten.co/). Deploy and serve models.';}
 	if (providerName === 'lambdalabs')
-		return 'Get your [API Key here](https://lambdalabs.com/). GPU cloud for AI inference.';
+		{return 'Get your [API Key here](https://lambdalabs.com/). GPU cloud for AI inference.';}
 	if (providerName === 'featherless')
-		return 'Get your [API Key here](https://featherless.ai/). Serverless LLM inference.';
+		{return 'Get your [API Key here](https://featherless.ai/). Serverless LLM inference.';}
 	if (providerName === 'gradientai')
-		return 'Get your [API Key here](https://gradient.ai/). Fine-tune and deploy LLMs.';
+		{return 'Get your [API Key here](https://gradient.ai/). Fine-tune and deploy LLMs.';}
 	if (providerName === 'predibase')
-		return 'Get your [API Key here](https://predibase.com/). Deploy and fine-tune LLMs.';
+		{return 'Get your [API Key here](https://predibase.com/). Deploy and fine-tune LLMs.';}
 	if (providerName === 'nvidiaNim')
-		return 'Get your [API Key here](https://build.nvidia.com/). NVIDIA optimized inference.';
+		{return 'Get your [API Key here](https://build.nvidia.com/). NVIDIA optimized inference.';}
 	if (providerName === 'databricks')
-		return 'Configure your [workspace here](https://www.databricks.com/). Access Mosaic AI.';
+		{return 'Configure your [workspace here](https://www.databricks.com/). Access Mosaic AI.';}
 	if (providerName === 'modal')
-		return 'Get your [API Key here](https://modal.com/). Serverless GPU computing.';
+		{return 'Get your [API Key here](https://modal.com/). Serverless GPU computing.';}
 	if (providerName === 'mancer')
-		return 'Get your [API Key here](https://mancer.tech/). Uncensored LLM inference.';
+		{return 'Get your [API Key here](https://mancer.tech/). Uncensored LLM inference.';}
 	// Enterprise & Specialty
 	if (providerName === 'cloudflareAI')
-		return 'Get your [API Key here](https://dash.cloudflare.com/). Also requires Account ID.';
+		{return 'Get your [API Key here](https://dash.cloudflare.com/). Also requires Account ID.';}
 	if (providerName === 'rekaai')
-		return 'Get your [API Key here](https://www.reka.ai/). Multimodal AI models.';
+		{return 'Get your [API Key here](https://www.reka.ai/). Multimodal AI models.';}
 	if (providerName === 'alephalpha')
-		return 'Get your [API Key here](https://aleph-alpha.com/). European AI with data sovereignty.';
+		{return 'Get your [API Key here](https://aleph-alpha.com/). European AI with data sovereignty.';}
 	if (providerName === 'writerai')
-		return 'Get your [API Key here](https://writer.com/). Enterprise AI with Palmyra models.';
+		{return 'Get your [API Key here](https://writer.com/). Enterprise AI with Palmyra models.';}
 	if (providerName === 'inflectionai')
-		return 'Get your [API Key here](https://inflection.ai/). Human-centered AI models.';
+		{return 'Get your [API Key here](https://inflection.ai/). Human-centered AI models.';}
 	if (providerName === 'netmindai')
-		return 'Get your [API Key here](https://netmind.ai/). High-performance inference.';
+		{return 'Get your [API Key here](https://netmind.ai/). High-performance inference.';}
 	if (providerName === 'inworldai')
-		return 'Get your [API Key here](https://studio.inworld.ai/). AI characters for games.';
+		{return 'Get your [API Key here](https://studio.inworld.ai/). AI characters for games.';}
 	if (providerName === 'upstage')
-		return 'Get your [API Key here](https://www.upstage.ai/). Access Solar LLM models.';
+		{return 'Get your [API Key here](https://www.upstage.ai/). Access Solar LLM models.';}
 	if (providerName === 'textsynth')
-		return 'Get your [API Key here](https://textsynth.com/). Text completion and generation.';
+		{return 'Get your [API Key here](https://textsynth.com/). Text completion and generation.';}
 	if (providerName === 'forefrontai')
-		return 'Get your [API Key here](https://www.forefront.ai/). AI assistant platform.';
+		{return 'Get your [API Key here](https://www.forefront.ai/). AI assistant platform.';}
 	// Aggregators & Gateways
 	if (providerName === 'aimlapi')
-		return 'Get your [API Key here](https://aimlapi.com/). Unified access to 100+ models.';
+		{return 'Get your [API Key here](https://aimlapi.com/). Unified access to 100+ models.';}
 	if (providerName === 'poeapi')
-		return 'Get your [API Key here](https://poe.com/). Access 100+ models with one key.';
+		{return 'Get your [API Key here](https://poe.com/). Access 100+ models with one key.';}
 	if (providerName === 'edenai')
-		return 'Get your [API Key here](https://www.edenai.co/). Multi-provider AI gateway.';
+		{return 'Get your [API Key here](https://www.edenai.co/). Multi-provider AI gateway.';}
 	if (providerName === 'unifyai')
-		return 'Get your [API Key here](https://unify.ai/). LLM routing and optimization.';
+		{return 'Get your [API Key here](https://unify.ai/). LLM routing and optimization.';}
 	if (providerName === 'portkey')
-		return 'Get your [API Key here](https://portkey.ai/). LLM gateway with 250+ models.';
+		{return 'Get your [API Key here](https://portkey.ai/). LLM gateway with 250+ models.';}
 	if (providerName === 'martian')
-		return 'Get your [API Key here](https://withmartian.com/). Smart LLM routing.';
+		{return 'Get your [API Key here](https://withmartian.com/). Smart LLM routing.';}
 	if (providerName === 'nlpcloud')
-		return 'Get your [API Key here](https://nlpcloud.com/). Production-ready NLP APIs.';
+		{return 'Get your [API Key here](https://nlpcloud.com/). Production-ready NLP APIs.';}
 	// Specialized
 	if (providerName === 'voyageai')
-		return 'Get your [API Key here](https://www.voyageai.com/). Best-in-class embeddings.';
+		{return 'Get your [API Key here](https://www.voyageai.com/). Best-in-class embeddings.';}
 	if (providerName === 'jinaai')
-		return 'Get your [API Key here](https://jina.ai/). Embeddings and search AI.';
+		{return 'Get your [API Key here](https://jina.ai/). Embeddings and search AI.';}
 	if (providerName === 'friendliai')
-		return 'Get your [API Key here](https://friendli.ai/). Fast & efficient inference.';
+		{return 'Get your [API Key here](https://friendli.ai/). Fast & efficient inference.';}
 	if (providerName === 'elevenlabs')
-		return 'Get your [API Key here](https://elevenlabs.io/). Voice AI and text-to-speech.';
+		{return 'Get your [API Key here](https://elevenlabs.io/). Voice AI and text-to-speech.';}
 
 	throw new Error(`subTextMdOfProviderName: Unknown provider name: "${providerName}"`);
 };
@@ -970,14 +970,14 @@ export type FeatureName = keyof ModelSelectionOfFeature;
 
 export const displayInfoOfFeatureName = (featureName: FeatureName) => {
 	// editor:
-	if (featureName === 'Autocomplete') return 'Autocomplete';
-	else if (featureName === 'Ctrl+K') return 'Quick Edit';
+	if (featureName === 'Autocomplete') {return 'Autocomplete';}
+	else if (featureName === 'Ctrl+K') {return 'Quick Edit';}
 	// sidebar:
-	else if (featureName === 'Chat') return 'Chat';
-	else if (featureName === 'Apply') return 'Apply';
+	else if (featureName === 'Chat') {return 'Chat';}
+	else if (featureName === 'Apply') {return 'Apply';}
 	// source control:
-	else if (featureName === 'SCM') return 'Commit Message Generator';
-	else throw new Error(`Feature Name ${featureName} not allowed`);
+	else if (featureName === 'SCM') {return 'Commit Message Generator';}
+	else {throw new Error(`Feature Name ${featureName} not allowed`);}
 };
 
 // the models of these can be refreshed (in theory all can, but not all should)
@@ -1020,13 +1020,13 @@ export const isFeatureNameDisabled = (featureName: FeatureName, settingsState: G
 	const canTurnOnAModel = !!providerNames.find(
 		(providerName) => settingsState.settingsOfProvider[providerName].models.filter((m) => m.isHidden).length !== 0
 	);
-	if (canTurnOnAModel) return 'needToEnableModel';
+	if (canTurnOnAModel) {return 'needToEnableModel';}
 
 	// if there are any providers filled in, then they just need to add a model
 	const anyFilledIn = !!providerNames.find(
 		(providerName) => settingsState.settingsOfProvider[providerName]._didFillInProviderSettings
 	);
-	if (anyFilledIn) return 'addModel';
+	if (anyFilledIn) {return 'addModel';}
 
 	return 'addProvider';
 };

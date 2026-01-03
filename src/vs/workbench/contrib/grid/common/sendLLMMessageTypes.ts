@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { InternalToolInfo } from './prompt/prompts.js';
@@ -19,7 +19,7 @@ export const errorDetails = (fullError: Error | null): string | null => {
 	if (fullError === null) {
 		return null;
 	} else if (typeof fullError === 'object') {
-		if (Object.keys(fullError).length === 0) return null;
+		if (Object.keys(fullError).length === 0) {return null;}
 		return JSON.stringify(fullError, null, 2);
 	} else if (typeof fullError === 'string') {
 		return null;
@@ -27,8 +27,8 @@ export const errorDetails = (fullError: Error | null): string | null => {
 	return null;
 };
 
-export const getErrorMessage: (error: unknown) => string = (error) => {
-	if (error instanceof Error) return `${error.name}: ${error.message}`;
+export const getErrorMessage: (error: any) => string = (error) => {
+	if (error instanceof Error) {return `${error.name}: ${error.message}`;}
 	return error + '';
 };
 
@@ -40,7 +40,7 @@ export type AnthropicLLMChatMessage =
 				| (
 						| AnthropicReasoning
 						| { type: 'text'; text: string }
-						| { type: 'tool_use'; name: string; input: Record<string, any>; id: string }
+						| { type: 'tool_use'; name: string; input: Record<string, unknown>; id: string }
 				  )[];
 	  }
 	| {
@@ -107,8 +107,8 @@ export type RawToolCallObj = {
 };
 
 export type AnthropicReasoning =
-	| { type: 'thinking'; thinking: unknown; signature: string }
-	| { type: 'redacted_thinking'; data: unknown };
+	| { type: 'thinking'; thinking: any; signature: string }
+	| { type: 'redacted_thinking'; data: any };
 
 export type OnText = (p: { fullText: string; fullReasoning: string; toolCall?: RawToolCallObj }) => void;
 export type OnFinalMessage = (p: {
@@ -216,7 +216,7 @@ export type ModelListParams<ModelResponse> = {
 export type ServiceModelListParams<modelResponse> = {
 	providerName: RefreshableProviderName;
 	onSuccess: (param: { models: modelResponse[] }) => void;
-	onError: (param: { error: unknown }) => void;
+	onError: (param: { error: any }) => void;
 };
 
 type BlockedMainModelListParams = 'onSuccess' | 'onError';

@@ -1,6 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { IServerChannel } from '../../../../base/parts/ipc/common/ipc.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
@@ -13,9 +14,9 @@ export class OllamaInstallerChannel implements IServerChannel {
 	private readonly _onLog = new Emitter<{ text: string }>();
 	private readonly _onDone = new Emitter<{ ok: boolean }>();
 
-	listen(_: unknown, event: string): Event<any> {
-		if (event === 'onLog') return this._onLog.event;
-		if (event === 'onDone') return this._onDone.event;
+	listen(_: unknown, event: string): Event<unknown> {
+		if (event === 'onLog') {return this._onLog.event;}
+		if (event === 'onDone') {return this._onDone.event;}
 		throw new Error(`Event not found: ${event}`);
 	}
 

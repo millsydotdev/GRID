@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -35,7 +35,7 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 
 		// if disabled and not explicitly checking, return early
 		if (this._updateService.state.type === StateType.Disabled) {
-			if (!explicit) return { message: null } as const;
+			if (!explicit) {return { message: null } as const;}
 		}
 
 		this._updateService.checkForUpdates(false); // implicity check, then handle result ourselves
@@ -110,7 +110,7 @@ export class GridMainUpdateService extends Disposable implements IGridUpdateServ
 				}
 			}, CancellationToken.None);
 
-			let data: any;
+			let data: unknown;
 			if (context.res.statusCode === 200) {
 				const json = await asJson(context);
 				// If strictly stable, it's an object. If beta/nightly (list), take first item.

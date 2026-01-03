@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Registry } from '../../../../platform/registry/common/platform.js';
@@ -14,7 +14,6 @@ import {
 import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
 import { ViewPaneContainer } from '../../../browser/parts/views/viewPaneContainer.js';
 import * as nls from '../../../../nls.js';
-import { ThemeIcon } from '../../../../base/common/themables.js';
 import { Codicon } from '../../../../base/common/codicons.js';
 import { Orientation } from '../../../../base/browser/ui/sash/sash.js';
 import { ComposerPane } from './composerPane.js';
@@ -36,7 +35,7 @@ const container = viewContainerRegistry.registerViewContainer(
         ]),
         hideIfEmpty: false,
         order: 4,
-        icon: ThemeIcon.asThemeIcon(Codicon.wand), // Magic wand for AI Composer
+        icon: Codicon.wand, // Magic wand for AI Composer
     },
     ViewContainerLocation.Sidebar,
     { isDefault: false }

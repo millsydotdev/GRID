@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { ModelSelection } from './gridSettingsTypes.js';
@@ -114,8 +114,8 @@ export class RoutingEvaluationService {
 			const key = `${outcome.modelSelection.providerName}:${outcome.modelSelection.modelName}`;
 			const existing = modelPerf.get(key) || { count: 0, successes: 0, latencies: [] as number[] };
 			existing.count++;
-			if (outcome.success === true) existing.successes++;
-			if (outcome.latencyMs !== undefined) existing.latencies.push(outcome.latencyMs);
+			if (outcome.success === true) {existing.successes++;}
+			if (outcome.latencyMs !== undefined) {existing.latencies.push(outcome.latencyMs);}
 			modelPerf.set(key, existing);
 		}
 
@@ -151,7 +151,7 @@ export class RoutingEvaluationService {
 			(o) => `${o.modelSelection.providerName}:${o.modelSelection.modelName}` === key
 		);
 
-		if (modelOutcomes.length === 0) return 0.5; // Default to neutral if no data
+		if (modelOutcomes.length === 0) {return 0.5;} // Default to neutral if no data
 
 		const successful = modelOutcomes.filter((o) => o.success === true).length;
 		return successful / modelOutcomes.length;

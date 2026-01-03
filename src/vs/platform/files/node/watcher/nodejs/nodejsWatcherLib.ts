@@ -97,7 +97,7 @@ export class NodeJSFileWatcherLibrary extends Disposable {
 	) {
 		super();
 
-		(this.request as any).path = normalize(this.request.path);
+		(this.request as unknown).path = normalize(this.request.path);
 
 		this.excludes = parseWatcherPatterns(this.request.path, this.request.excludes);
 		this.includes = this.request.includes ? parseWatcherPatterns(this.request.path, this.request.includes) : undefined;
@@ -108,7 +108,7 @@ export class NodeJSFileWatcherLibrary extends Disposable {
 
 	private async watch(): Promise<void> {
 		try {
-			if (this.request.path.includes('..')) throw new Error('Path traversal not allowed');
+			if (this.request.path.includes('..')) {throw new Error('Path traversal not allowed');}
 			// snyk-ignore:javascript/PathTraversal
 			const stat = await promises.stat(normalize(this.request.path));
 

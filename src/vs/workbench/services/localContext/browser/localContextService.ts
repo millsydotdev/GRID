@@ -21,7 +21,7 @@ export class LocalContextService extends Disposable implements ILocalContextServ
     readonly onDidChangeStatus = this._onDidChangeStatus.event;
 
     private _vectors: IEmbedding[] = [];
-    private _pipeline: any = null;
+    private _pipeline: unknown = null;
 
     constructor(
         @ILogService private readonly logService: ILogService,
@@ -98,7 +98,7 @@ export class LocalContextService extends Disposable implements ILocalContextServ
     }
 
     async indexWorkspace(workspaceUri: URI): Promise<void> {
-        if (this._isIndexing) return;
+        if (this._isIndexing) {return;}
 
         this._isIndexing = true;
         this._onDidChangeStatus.fire();
@@ -111,10 +111,10 @@ export class LocalContextService extends Disposable implements ILocalContextServ
             const processDirectory = async (dir: URI) => {
                 try {
                     const stat = await this.fileService.resolve(dir);
-                    if (!stat.children) return;
+                    if (!stat.children) {return;}
 
                     for (const child of stat.children) {
-                        if (child.name.startsWith('.') || child.name === 'node_modules') continue;
+                        if (child.name.startsWith('.') || child.name === 'node_modules') {continue;}
 
                         if (child.isDirectory) {
                             await processDirectory(child.resource);

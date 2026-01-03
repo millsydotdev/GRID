@@ -1,21 +1,21 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
 	entry: [
-		'./src2/grid-editor-widgets-tsx/index.tsx',
-		'./src2/sidebar-tsx/index.tsx',
-		'./src2/grid-settings-tsx/index.tsx',
-		'./src2/grid-tooltip/index.tsx',
-		'./src2/grid-onboarding/index.tsx',
-		'./src2/quick-edit-tsx/index.tsx',
-		'./src2/diff/index.tsx',
-		'./src2/api-client-tsx/index.tsx',
-		'./src2/composer/index.tsx',
+		'./src/grid-editor-widgets-tsx/index.tsx',
+		'./src/sidebar-tsx/index.tsx',
+		'./src/grid-settings-tsx/index.tsx',
+		'./src/grid-tooltip/index.tsx',
+		'./src/grid-onboarding/index.tsx',
+		'./src/quick-edit-tsx/index.tsx',
+		'./src/diff/index.tsx',
+		'./src/api-client-tsx/index.tsx',
+		'./src/composer/index.tsx',
 	],
 	outDir: './out',
 	format: ['esm'],
@@ -40,6 +40,6 @@ export default defineConfig({
 	],
 	treeshake: true,
 	esbuildOptions(options) {
-		options.outbase = 'src2'; // tries copying the folder hierarchy starting at src2
+		options.outbase = 'src'; // tries copying the folder hierarchy starting at src
 	},
 });

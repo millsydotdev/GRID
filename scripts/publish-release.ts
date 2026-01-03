@@ -1,4 +1,8 @@
-/// <reference types="node" />
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as https from 'https';
@@ -82,7 +86,7 @@ async function main() {
     const date = new Date().toISOString();
 
     console.log(`🚀 Publishing Release Info for ${version} (${commit})...`);
-    if (isDryRun) console.log('🧪 DRY RUN MODE ENABLED');
+    if (isDryRun) {console.log('🧪 DRY RUN MODE ENABLED');}
 
     // 1. Publish Release Metadata (Win32 x64 example)
     // In a real scenario, this script might run per-platform or aggregate artifacts.
@@ -111,7 +115,7 @@ async function main() {
         console.log('✅ Release metadata updated.');
     } catch (e) {
         console.error('❌ Failed to update release metadata:', e);
-        if (!isDryRun) process.exit(1);
+        if (!isDryRun) {process.exit(1);}
     }
 
     // 2. Publish Changelog

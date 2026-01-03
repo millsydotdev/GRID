@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { useState, useCallback, useRef } from 'react';
@@ -109,7 +109,7 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 				};
 
 				const updateProgress = (progress: number, status: ChatPDFAttachment['uploadStatus'] = 'uploading') => {
-					if (checkCancelled()) return;
+					if (checkCancelled()) {return;}
 					setAttachments((prev) =>
 						prev.map((att) => (att.id === id ? { ...att, uploadStatus: status, uploadProgress: progress } : att))
 					);
@@ -119,12 +119,12 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 					// Step 1: Read file once (optimized - single read)
 					updateProgress(0.1, 'uploading');
 					const arrayBuffer = await file.arrayBuffer();
-					if (checkCancelled()) return;
+					if (checkCancelled()) {return;}
 
 					// Step 2: Convert to Uint8Array
 					updateProgress(0.3, 'uploading');
 					const data = new Uint8Array(arrayBuffer);
-					if (checkCancelled()) return;
+					if (checkCancelled()) {return;}
 
 					// Step 3: Extract PDF with previews in a single optimized pass
 					// This reuses the loaded PDF document and processes everything together
@@ -143,14 +143,14 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 						previewMaxWidth: 200,
 						previewMaxHeight: 300,
 					});
-					if (checkCancelled()) return;
+					if (checkCancelled()) {return;}
 
 					// Extract text from all pages
 					updateProgress(0.9, 'processing');
 					const selectedPages = Array.from({ length: pdfDocWithPreviews.pageCount }, (_, i) => i + 1);
 					const extractedText = pdfDocWithPreviews.pages.map((p) => `[Page ${p.pageNumber}]\n${p.text}`).join('\n\n');
 
-					if (checkCancelled()) return;
+					if (checkCancelled()) {return;}
 
 					// Update attachment with extracted data
 					setAttachments((prev) =>
@@ -173,7 +173,7 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 					processingRef.current.delete(id);
 					cancelRef.current.delete(id);
 				} catch (error: unknown) {
-					if (checkCancelled()) return;
+					if (checkCancelled()) {return;}
 					console.error('Error processing PDF:', error);
 					setAttachments((prev) =>
 						prev.map((att) =>
@@ -181,7 +181,7 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 								? {
 										...att,
 										uploadStatus: 'failed',
-										error: error.message || 'Failed to process PDF',
+										error: error instanceof Error ? error.message : 'Failed to process PDF',
 									}
 								: att
 						)
@@ -206,7 +206,7 @@ export function usePDFAttachments(): UsePDFAttachmentsReturn {
 	const retryPDF = useCallback(
 		async (id: string) => {
 			const originalFile = originalFilesRef.current.get(id);
-			if (!originalFile) return;
+			if (!originalFile) {return;}
 			removePDF(id);
 			await addPDFs([originalFile]);
 		},

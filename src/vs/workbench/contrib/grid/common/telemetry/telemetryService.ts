@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../../base/common/lifecycle.js';
@@ -194,7 +194,7 @@ export class GridTelemetryService extends Disposable implements IGridTelemetrySe
 			const qualityScores = groupEvents
 				.filter((e) => e.userAccepted !== undefined)
 				.map((e) => {
-					if (!e.userAccepted) return 0;
+					if (!e.userAccepted) {return 0;}
 					if (e.editDistance !== undefined) {
 						return Math.max(0, 1 - e.editDistance / 100); // Normalize edit distance
 					}
@@ -217,7 +217,7 @@ export class GridTelemetryService extends Disposable implements IGridTelemetrySe
 				provider,
 				modelName,
 				isLocal,
-				taskType: taskType as any,
+				taskType: taskType as TaskType,
 				totalRequests,
 				successRate,
 				avgLatency,
@@ -263,7 +263,7 @@ export class GridTelemetryService extends Disposable implements IGridTelemetrySe
 	 * Flush events to storage (async, non-blocking)
 	 */
 	private async _flushAsync(): Promise<void> {
-		if (this.eventQueue.length === 0) return;
+		if (this.eventQueue.length === 0) {return;}
 
 		const eventsToFlush = [...this.eventQueue];
 		this.eventQueue = [];

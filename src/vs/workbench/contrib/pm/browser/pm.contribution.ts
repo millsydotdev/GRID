@@ -1,3 +1,7 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { Registry } from '../../../../platform/registry/common/platform.js';
 import { IViewContainersRegistry, ViewContainerLocation, Extensions as ViewContainerExtensions, IViewsRegistry } from '../../../common/views.js';
 import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
@@ -42,7 +46,7 @@ CommandsRegistry.registerCommand('grid.pm.createTaskFromSelection', async (acces
     const activeEditor = editorService.activeTextEditorControl;
     const activeModel = activeEditor?.getModel();
 
-    if (!activeEditor || !activeModel || !('uri' in activeModel)) return;
+    if (!activeEditor || !activeModel || !('uri' in activeModel)) {return;}
 
     const selection = activeEditor.getSelection();
     const selectedText = selection ? activeModel.getValueInRange(selection) : '';

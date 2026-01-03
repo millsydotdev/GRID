@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { generateUuid } from '../../../../../base/common/uuid.js';
@@ -26,9 +26,9 @@ export const extractReasoningWrapper = (
 	let fullReasoningSoFar = '';
 
 	if (!thinkTags[0] || !thinkTags[1])
-		throw new Error(`thinkTags must not be empty if provided. Got ${JSON.stringify(thinkTags)}.`);
+		{throw new Error(`thinkTags must not be empty if provided. Got ${JSON.stringify(thinkTags)}.`);}
 
-	let onText_ = onText;
+	const onText_ = onText;
 	onText = (params) => {
 		onText_(params);
 	};
@@ -104,8 +104,8 @@ export const extractReasoningWrapper = (
 		const fullText_ = fullTextSoFar;
 		const tag1Idx = fullText_.indexOf(thinkTags[0]);
 		const tag2Idx = fullText_.indexOf(thinkTags[1]);
-		if (tag1Idx === -1) return { fullText: fullText_, fullReasoning: '' }; // never started reasoning
-		if (tag2Idx === -1) return { fullText: '', fullReasoning: fullText_ }; // never stopped reasoning
+		if (tag1Idx === -1) {return { fullText: fullText_, fullReasoning: '' };} // never started reasoning
+		if (tag2Idx === -1) {return { fullText: '', fullReasoning: fullText_ };} // never stopped reasoning
 
 		const fullReasoning = fullText_.substring(tag1Idx + thinkTags[0].length, tag2Idx);
 		const fullText = fullText_.substring(0, tag1Idx) + fullText_.substring(tag2Idx + thinkTags[1].length, Infinity);
@@ -162,7 +162,7 @@ const parseXMLPrefixToToolCall = <T extends ToolName>(
 		for (const p in paramsObj) {
 			const paramName = p as ToolParamName<T>;
 			const orig = paramsObj[paramName];
-			if (orig === undefined) continue;
+			if (orig === undefined) {continue;}
 			paramsObj[paramName] = trimBeforeAndAfterNewLines(orig);
 		}
 
@@ -179,23 +179,23 @@ const parseXMLPrefixToToolCall = <T extends ToolName>(
 
 	// find first toolName tag
 	const openToolTag = `<${toolName}>`;
-	let i = str.indexOf(openToolTag);
-	if (i === -1) return getAnswer();
+	const i = str.indexOf(openToolTag);
+	if (i === -1) {return getAnswer();}
 	let j = str.lastIndexOf(`</${toolName}>`);
-	if (j === -1) j = Infinity;
-	else isDone = true;
+	if (j === -1) {j = Infinity;}
+	else {isDone = true;}
 
 	str = str.substring(i + openToolTag.length, j);
 
 	const pm = new SurroundingsRemover(str);
 
 	const allowedParams = Object.keys(toolOfToolName[toolName]?.params ?? {}) as ToolParamName<T>[];
-	if (allowedParams.length === 0) return getAnswer();
+	if (allowedParams.length === 0) {return getAnswer();}
 	let latestMatchedOpenParam: null | ToolParamName<T> = null;
 	let n = 0;
 	while (true) {
 		n += 1;
-		if (n > 10) return getAnswer(); // just for good measure as this code is early
+		if (n > 10) {return getAnswer();} // just for good measure as this code is early
 
 		// find the param name opening tag
 		let matchedOpenParam: null | ToolParamName<T> = null;
@@ -250,9 +250,9 @@ export const extractXMLToolsWrapper = (
 	chatMode: ChatMode | null,
 	mcpTools: InternalToolInfo[] | undefined
 ): { newOnText: OnText; newOnFinalMessage: OnFinalMessage } => {
-	if (!chatMode) return { newOnText: onText, newOnFinalMessage: onFinalMessage };
+	if (!chatMode) {return { newOnText: onText, newOnFinalMessage: onFinalMessage };}
 	const tools = availableTools(chatMode, mcpTools);
-	if (!tools) return { newOnText: onText, newOnFinalMessage: onFinalMessage };
+	if (!tools) {return { newOnText: onText, newOnFinalMessage: onFinalMessage };}
 
 	const toolOfToolName: ToolOfToolName = {};
 	const toolOpenTags = tools.map((t) => `<${t.name}>`);
@@ -333,7 +333,7 @@ export const extractXMLToolsWrapper = (
 
 // trim all whitespace up until the first newline, and all whitespace up until the last newline
 const trimBeforeAndAfterNewLines = (s: string) => {
-	if (!s) return s;
+	if (!s) {return s;}
 
 	const firstNewLineIndex = s.indexOf('\n');
 

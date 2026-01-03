@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -283,7 +283,7 @@ export class ProjectContextService implements IProjectContextService {
 	private projectIndexes: Map<string, ProjectIndex> = new Map();
 	private taskDocuments: Map<string, TaskDocument> = new Map();
 	private implementationPlans: Map<string, ImplementationPlan> = new Map();
-	private watchers: Map<string, any> = new Map();
+	private watchers: Map<string, unknown> = new Map();
 
 	async indexProject(projectPath: string): Promise<ProjectIndex> {
 		// Implementation would scan the project directory

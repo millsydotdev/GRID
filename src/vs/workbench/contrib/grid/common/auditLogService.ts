@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -36,7 +36,7 @@ export interface AuditEvent {
 	model?: string;
 	latencyMs?: number;
 	ok: boolean;
-	meta?: Record<string, any>;
+	meta?: Record<string, unknown>;
 }
 
 export const IAuditLogService = createDecorator<IAuditLogService>('auditLogService');
@@ -117,7 +117,7 @@ class AuditLogService extends Disposable implements IAuditLogService {
 	}
 
 	private async _initializeLogFile(): Promise<void> {
-		if (!this._logPath) return;
+		if (!this._logPath) {return;}
 
 		const parentDir = this._logPath.with({ path: this._logPath.path.replace(/\/[^/]*$/, '') });
 		try {
@@ -170,7 +170,7 @@ class AuditLogService extends Disposable implements IAuditLogService {
 	}
 
 	private async _rotateLogFile(): Promise<void> {
-		if (!this._logPath) return;
+		if (!this._logPath) {return;}
 
 		try {
 			// Read current file

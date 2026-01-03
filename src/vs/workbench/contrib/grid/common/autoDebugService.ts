@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { parse, ParsedPattern, IExpression } from '../../../../../base/common/glob.js';
+import { parse, ParsedExpression, IExpression } from '../../../../base/common/glob.js';
 
 /**
  * AI-Powered Auto-Debug Service
@@ -126,7 +126,7 @@ export class AutoDebugService implements IAutoDebugService {
 	private monitoredFiles: Set<string> = new Set();
 	private detectedBugs: Map<string, DetectedBug[]> = new Map(); // filePath -> bugs
 	private errorPatterns: ErrorPattern[] = [];
-	private ignorePattern: ParsedPattern | undefined;
+	private ignorePattern: ParsedExpression | undefined;
 	private stats: AutoDebugStats = {
 		totalBugsDetected: 0,
 		totalBugsFixed: 0,
@@ -136,9 +136,9 @@ export class AutoDebugService implements IAutoDebugService {
 	};
 
 	constructor(
-		private llmService: unknown, // Inject LLM service for AI-powered suggestions
-		private fileService: unknown, // For reading/writing files
-		private diagnosticsService: unknown, // For getting compiler errors
+		private llmService: any, // Inject LLM service for AI-powered suggestions
+		private fileService: any, // For reading/writing files
+		private diagnosticsService: any, // For getting compiler errors
 		private workspaceContextService: any // Inject workspace service
 	) {
 		this.initializeErrorPatterns();
@@ -193,9 +193,9 @@ export class AutoDebugService implements IAutoDebugService {
 
 	private async loadGridIgnore(): Promise<void> {
 		try {
-			if (!this.workspaceContextService) return;
+			if (!this.workspaceContextService) {return;}
 			const workspace = (this.workspaceContextService as any).getWorkspace();
-			if (!workspace.folders.length) return;
+			if (!workspace.folders.length) {return;}
 
 			const rootPath = workspace.folders[0].uri.fsPath || workspace.folders[0].uri.path;
 			const sep = rootPath.includes('\\') ? '\\' : '/';
@@ -227,11 +227,11 @@ export class AutoDebugService implements IAutoDebugService {
 	}
 
 	private isIgnored(filePath: string): boolean {
-		return this.ignorePattern ? this.ignorePattern(filePath) : false;
+		return this.ignorePattern ? !!this.ignorePattern(filePath) : false;
 	}
 
 	public startMonitoring(filePath: string): void {
-		if (this.isIgnored(filePath)) return;
+		if (this.isIgnored(filePath)) {return;}
 		this.monitoredFiles.add(filePath);
 		// Set up file watcher and diagnostic listener
 		this.setupFileWatcher(filePath);
@@ -242,7 +242,7 @@ export class AutoDebugService implements IAutoDebugService {
 	}
 
 	public async detectBugs(filePath: string, code: string): Promise<DetectedBug[]> {
-		if (this.isIgnored(filePath)) return [];
+		if (this.isIgnored(filePath)) {return [];}
 
 		// Get compiler/linter errors
 		const diagnostics: any[] = await this.diagnosticsService.getDiagnostics(filePath);
@@ -309,7 +309,7 @@ export class AutoDebugService implements IAutoDebugService {
 
 		try {
 			const bug = this.findBugById(fix.bugId);
-			if (!bug) return false;
+			if (!bug) {return false;}
 
 			// Read current file content
 			const content: string = await this.fileService.readFile(bug.filePath);
@@ -348,7 +348,7 @@ export class AutoDebugService implements IAutoDebugService {
 	public learnFromFix(fix: BugFix, wasSuccessful: boolean): void {
 		// Update pattern success rates
 		const bug = this.findBugById(fix.bugId);
-		if (!bug) return;
+		if (!bug) {return;}
 
 		const pattern = this.findMatchingPattern(bug);
 		if (pattern) {
@@ -458,7 +458,7 @@ Format your response as JSON:
 	private findBugById(bugId: string): DetectedBug | undefined {
 		for (const bugs of this.detectedBugs.values()) {
 			const bug = bugs.find((b) => b.id === bugId);
-			if (bug) return bug;
+			if (bug) {return bug;}
 		}
 		return undefined;
 	}

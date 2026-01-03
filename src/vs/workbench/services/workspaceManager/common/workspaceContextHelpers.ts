@@ -1,7 +1,7 @@
-/*--------------------------------------------------------------------------------------
- *  Copyright 2025 Millsy.dev All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
- *--------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { IWorkspaceContext, IAgentSession } from './workspaceContext.js';
 import { IWorkspaceMetadata } from './workspaceManager.js';
@@ -206,9 +206,9 @@ export function createSafeWorkspaceContext(context: IWorkspaceContext): Partial<
  * Merge workspace properties from multiple sources
  */
 export function mergeWorkspaceProperties(
-	base: Record<string, any>,
-	...overrides: (Record<string, any> | undefined)[]
-): Record<string, any> {
+	base: Record<string, unknown>,
+	...overrides: (Record<string, unknown> | undefined)[]
+): Record<string, unknown> {
 	let result = { ...base };
 
 	for (const override of overrides) {

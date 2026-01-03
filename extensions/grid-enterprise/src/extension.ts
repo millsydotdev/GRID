@@ -1,3 +1,13 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 import * as vscode from 'vscode';
 import * as https from 'node:https';
 import * as http from 'node:http';
@@ -84,7 +94,7 @@ async function connectToHub(context: vscode.ExtensionContext) {
         ignoreFocusOut: true
     });
 
-    if (!token) return;
+    if (!token) {return;}
 
     // 2. Validate token with API
     const userInfo = await vscode.window.withProgress({
@@ -113,14 +123,14 @@ async function connectToHub(context: vscode.ExtensionContext) {
 }
 
 async function logout(context: vscode.ExtensionContext) {
-    await context.secrets.delete(TOKEN_KEY);
+    await context.secrets.delete(getTokenKey());
     currentTier = 'community';
     vscode.commands.executeCommand('setContext', 'grid.tier', 'community');
     vscode.window.showInformationMessage('GRID: Signed out. Now using Community tier.');
 }
 
 async function checkConnection(context: vscode.ExtensionContext) {
-    const token = await context.secrets.get(TOKEN_KEY);
+    const token = await context.secrets.get(getTokenKey());
 
     if (!token) {
         // Community mode - no token needed, no blocking
@@ -147,10 +157,10 @@ async function checkConnection(context: vscode.ExtensionContext) {
 
 async function sendTelemetry(context: vscode.ExtensionContext) {
     const enabled = vscode.workspace.getConfiguration().get(TELEMETRY_CONFIG);
-    if (!enabled) return;
+    if (!enabled) {return;}
 
-    const token = await context.secrets.get(TOKEN_KEY);
-    if (!token) return; // Only track authenticated users
+    const token = await context.secrets.get(getTokenKey());
+    if (!token) {return;} // Only track authenticated users
 
     const hubUrl = vscode.workspace.getConfiguration().get<string>(HUB_URL_CONFIG, 'https://grideditor.com');
     const url = new URL('/api/telemetry', hubUrl);
@@ -175,4 +185,3 @@ async function sendTelemetry(context: vscode.ExtensionContext) {
     req.write(payload);
     req.end();
 }
-

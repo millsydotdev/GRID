@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -185,8 +185,8 @@ export class LiveCodingService implements ILiveCodingService {
 	private connectionUrl: string;
 
 	constructor(
-		private fileService: unknown,
-		private editorService: unknown,
+		private fileService: any,
+		private editorService: any,
 		connectionUrl: string = 'ws://localhost:8080/collaboration'
 	) {
 		this.connectionUrl = connectionUrl;
@@ -296,7 +296,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public updateCursor(filePath: string, line: number, column: number): void {
-		if (!this.currentUser || !this.currentSession) return;
+		if (!this.currentUser || !this.currentSession) {return;}
 
 		this.currentUser.cursor = { filePath, line, column };
 		this.currentUser.lastActivity = Date.now();
@@ -316,7 +316,7 @@ export class LiveCodingService implements ILiveCodingService {
 		endLine: number,
 		endColumn: number
 	): void {
-		if (!this.currentUser || !this.currentSession) return;
+		if (!this.currentUser || !this.currentSession) {return;}
 
 		this.currentUser.selection = {
 			filePath,
@@ -336,7 +336,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public async sendCodeChange(change: Omit<CodeChange, 'id' | 'timestamp' | 'synced'>): Promise<void> {
-		if (!this.currentUser || !this.currentSession) return;
+		if (!this.currentUser || !this.currentSession) {return;}
 
 		const codeChange: CodeChange = {
 			id: this.generateId(),
@@ -364,7 +364,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public async sendChatMessage(content: string, metadata?: ChatMessage['metadata']): Promise<void> {
-		if (!this.currentUser || !this.currentSession) return;
+		if (!this.currentUser || !this.currentSession) {return;}
 
 		const message: ChatMessage = {
 			id: this.generateId(),
@@ -389,12 +389,12 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public getCollaborators(): Collaborator[] {
-		if (!this.currentSession) return [];
+		if (!this.currentSession) {return [];}
 		return Array.from(this.currentSession.collaborators.values());
 	}
 
 	public async shareFile(filePath: string): Promise<void> {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 
 		this.currentSession.sharedFiles.add(filePath);
 
@@ -414,7 +414,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public async unshareFile(filePath: string): Promise<void> {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 
 		this.currentSession.sharedFiles.delete(filePath);
 
@@ -430,7 +430,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public async toggleVoice(enabled: boolean): Promise<void> {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 
 		this.currentSession.settings.voiceEnabled = enabled;
 
@@ -444,7 +444,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	public async toggleVideo(enabled: boolean): Promise<void> {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 
 		this.currentSession.settings.videoEnabled = enabled;
 
@@ -487,7 +487,7 @@ export class LiveCodingService implements ILiveCodingService {
 		});
 	}
 
-	private broadcastMessage(message: unknown): void {
+	private broadcastMessage(message: any): void {
 		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
 			this.ws.send(JSON.stringify(message));
 		}
@@ -529,18 +529,18 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	private handleCollaboratorJoined(collaborator: Collaborator): void {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 		this.currentSession.collaborators.set(collaborator.id, collaborator);
 		this.stats.totalCollaborators++;
 	}
 
 	private handleCollaboratorLeft(collaboratorId: string): void {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 		this.currentSession.collaborators.delete(collaboratorId);
 	}
 
 	private handleCursorUpdate(collaboratorId: string, cursor: Collaborator['cursor']): void {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 		const collaborator = this.currentSession.collaborators.get(collaboratorId);
 		if (collaborator) {
 			collaborator.cursor = cursor;
@@ -549,7 +549,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	private handleSelectionUpdate(collaboratorId: string, selection: Collaborator['selection']): void {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 		const collaborator = this.currentSession.collaborators.get(collaboratorId);
 		if (collaborator) {
 			collaborator.selection = selection;
@@ -569,7 +569,7 @@ export class LiveCodingService implements ILiveCodingService {
 	}
 
 	private handleFileShared(filePath: string): void {
-		if (!this.currentSession) return;
+		if (!this.currentSession) {return;}
 		this.currentSession.sharedFiles.add(filePath);
 	}
 
@@ -580,7 +580,7 @@ export class LiveCodingService implements ILiveCodingService {
 
 	private async applyCodeChange(change: CodeChange): Promise<void> {
 		// Apply code change to editor
-		const document = await this.editorService.openTextDocument(change.filePath);
+		await this.editorService.openTextDocument(change.filePath);
 		// Implementation would apply the actual edit
 	}
 

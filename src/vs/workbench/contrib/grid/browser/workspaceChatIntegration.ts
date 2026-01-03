@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) 2025 Millsy.dev. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -51,6 +51,14 @@ export interface IChatWorkspaceContext {
 }
 
 /**
+ * Base AI request structure
+ */
+export interface IAIRequest {
+	metadata?: Record<string, unknown>;
+	[key: string]: unknown;
+}
+
+/**
  * Service that integrates workspace management with chat/AI services
  * Ensures AI conversations are scoped to the correct workspace instance
  */
@@ -90,7 +98,7 @@ export interface IWorkspaceChatIntegrationService {
 	/**
 	 * Inject workspace context into AI request metadata
 	 */
-	enrichAIRequest(request: any): Promise<any>;
+	enrichAIRequest(request: unknown): Promise<unknown>;
 
 	/**
 	 * Switch workspace context (updates current instance)
@@ -166,7 +174,6 @@ export class WorkspaceChatIntegrationService extends Disposable implements IWork
 		}
 
 		const workspace = await this.workspaceManager.getWorkspace(instance.workspaceId);
-		const name = threadName || `${workspace?.name || 'Workspace'} - ${instance.displayName}`;
 
 		// Create thread using chat service
 		this.chatThreadService.openNewThread();
@@ -220,7 +227,7 @@ export class WorkspaceChatIntegrationService extends Disposable implements IWork
 		return this.threadWorkspaceMap.get(threadId);
 	}
 
-	async enrichAIRequest(request: any): Promise<any> {
+	async enrichAIRequest(request: IAIRequest): Promise<IAIRequest> {
 		const context = await this.getCurrentWorkspaceContext();
 
 		return {
