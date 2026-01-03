@@ -320,7 +320,7 @@ export function detectSecrets(text: string, config: SecretDetectionConfig = DEFA
 export function redactSecretsInObject(
 	obj: unknown,
 	config: SecretDetectionConfig = DEFAULT_CONFIG
-): { redacted: Record<string, unknown>; hasSecrets: boolean; matches: SecretMatch[] } {
+): { redacted: any; hasSecrets: boolean; matches: SecretMatch[] } {
 	if (typeof obj === 'string') {
 		const result = detectSecrets(obj, config);
 		return {
