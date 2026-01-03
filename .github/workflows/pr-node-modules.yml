@@ -10,13 +10,13 @@ permissions: {}
 jobs:
   compile:
     name: Compile
-    runs-on: [ self-hosted, 1ES.Pool=1es-vscode-oss-ubuntu-22.04-x64 ]
+    runs-on: [self-hosted, 1ES.Pool=1es-vscode-oss-ubuntu-22.04-x64]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -25,7 +25,7 @@ jobs:
 
       - name: Restore node_modules cache
         id: cache-node-modules
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .build/node_modules_cache
           key: "node_modules-compile-${{ hashFiles('.build/packagelockhash') }}"
@@ -72,7 +72,7 @@ jobs:
 
       - name: Restore built-in extensions cache
         id: cache-builtin-extensions
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
           path: .build/builtInExtensions
@@ -86,16 +86,16 @@ jobs:
 
   linux:
     name: Linux
-    runs-on: [ self-hosted, 1ES.Pool=1es-vscode-oss-ubuntu-22.04-x64 ]
+    runs-on: [self-hosted, 1ES.Pool=1es-vscode-oss-ubuntu-22.04-x64]
     env:
       NPM_ARCH: x64
       VSCODE_ARCH: x64
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -104,7 +104,7 @@ jobs:
 
       - name: Restore node_modules cache
         id: cache-node-modules
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .build/node_modules_cache
           key: "node_modules-linux-${{ hashFiles('.build/packagelockhash') }}"
@@ -164,10 +164,10 @@ jobs:
       VSCODE_ARCH: arm64
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -176,7 +176,7 @@ jobs:
 
       - name: Restore node_modules cache
         id: cache-node-modules
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .build/node_modules_cache
           key: "node_modules-macos-${{ hashFiles('.build/packagelockhash') }}"
@@ -219,16 +219,16 @@ jobs:
 
   windows:
     name: Windows
-    runs-on: [ self-hosted, 1ES.Pool=1es-vscode-oss-windows-2022-x64 ]
+    runs-on: [self-hosted, 1ES.Pool=1es-vscode-oss-windows-2022-x64]
     env:
       NPM_ARCH: x64
       VSCODE_ARCH: x64
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -239,7 +239,7 @@ jobs:
           node build/azure-pipelines/common/computeNodeModulesCacheKey.js win32 ${{ env.VSCODE_ARCH }} $(node -p process.arch) > .build/packagelockhash
 
       - name: Restore node_modules cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         id: node-modules-cache
         with:
           path: .build/node_modules_cache

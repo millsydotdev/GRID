@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., 1.106.0)'
+        description: "Release version (e.g., 1.106.0)"
         required: true
-        default: '1.106.0'
+        default: "1.106.0"
       create_release:
-        description: 'Create GitHub Release'
+        description: "Create GitHub Release"
         required: true
         type: boolean
         default: false
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,7 +25,7 @@ permissions:
   packages: write
 
 env:
-  VSCODE_QUALITY: 'stable'
+  VSCODE_QUALITY: "stable"
   ELECTRON_SKIP_BINARY_DOWNLOAD: 0
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
@@ -35,10 +35,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -74,7 +74,7 @@ jobs:
           tar -czf artifacts/GRID-linux-x64-${{ github.event.inputs.version || github.ref_name }}.tar.gz GRID
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: GRID-linux-x64
           path: ../artifacts/GRID-linux-x64-*.tar.gz
@@ -85,10 +85,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -118,7 +118,7 @@ jobs:
         working-directory: ..
 
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: GRID-windows-x64
           path: ../artifacts/GRID-windows-x64-*.zip
@@ -129,10 +129,10 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
 
@@ -161,7 +161,7 @@ jobs:
           tar -czf artifacts/GRID-macos-universal-${{ github.event.inputs.version || github.ref_name }}.tar.gz GRID
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: GRID-macos-universal
           path: ../artifacts/GRID-macos-universal-*.tar.gz
