@@ -9,7 +9,8 @@ on:
     branches:
       - main
       - release/*
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   main:

@@ -1,7 +1,8 @@
 name: Prevent package-lock.json changes in PRs
 
 on: pull_request
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   main:
@@ -31,7 +32,7 @@ jobs:
         id: get_permissions
         if: ${{ steps.lockfile_check.outputs.lockfiles_modified == 'true' && github.event.pull_request.user.login != 'Copilot' }}
         with:
-          route: GET /repos/GRID-NETWORK-REPO/GRID/collaborators/{username}/permission
+          route: GET /repos/GRID-Editor/GRID/collaborators/{username}/permission
           username: ${{ github.event.pull_request.user.login }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,7 @@
 name: "Telemetry"
 on: pull_request
-permissions: {}
+permissions:
+  contents: read
 jobs:
   check-metadata:
     name: "Check metadata"
