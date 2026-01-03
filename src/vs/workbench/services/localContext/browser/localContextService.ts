@@ -21,7 +21,7 @@ export class LocalContextService extends Disposable implements ILocalContextServ
     readonly onDidChangeStatus = this._onDidChangeStatus.event;
 
     private _vectors: IEmbedding[] = [];
-    private _pipeline: unknown = null;
+    private _pipeline: any = null;
 
     constructor(
         @ILogService private readonly logService: ILogService,

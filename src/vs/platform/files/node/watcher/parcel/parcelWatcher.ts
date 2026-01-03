@@ -210,7 +210,7 @@ export class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithS
 
 	protected override async doWatch(requests: IRecursiveWatchRequest[]): Promise<void> {
 		for (const request of requests) {
-			(request as unknown).path = normalize(request.path);
+			(request as any).path = normalize(request.path);
 		}
 
 		// Figure out duplicates to remove from the requests
