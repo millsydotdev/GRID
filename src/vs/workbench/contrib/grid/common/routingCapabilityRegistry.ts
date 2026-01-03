@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProviderName, ModelSelection } from './gridSettingsTypes.js';
-import { getModelCapabilities, GridStaticModelInfo } from './modelCapabilities.js';
+import { getModelCapabilities, GridStaticModelInfo, OverridesOfModel } from './modelCapabilities.js';
 import { localProviderNames } from './gridSettingsTypes.js';
 
 /**
@@ -58,7 +58,7 @@ export class ModelCapabilityRegistry {
 	/**
 	 * Get or create capability profile for a model
 	 */
-	getProfile(modelSelection: ModelSelection, overridesOfModel?: Record<string, unknown>): ModelCapabilityProfile {
+	getProfile(modelSelection: ModelSelection, overridesOfModel?: OverridesOfModel): ModelCapabilityProfile {
 		const key = `${modelSelection.providerName}:${modelSelection.modelName}`;
 
 		if (this.profiles.has(key)) {
