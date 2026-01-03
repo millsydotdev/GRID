@@ -155,24 +155,24 @@ suite('ChatThreadService', () => {
 
 		// Register all mock services
 		instantiationService.stub(IStorageService, storageService);
-		instantiationService.stub(ILLMMessageService, new MockLLMMessageService());
-		instantiationService.stub(IGridSettingsService, new MockGridSettingsService());
-		instantiationService.stub(IToolsService, new MockToolsService());
-		instantiationService.stub(ILanguageFeaturesService, {});
-		instantiationService.stub(IMetricsService, new MockMetricsService());
-		instantiationService.stub(IGridModelService, {});
-		instantiationService.stub(IEditCodeService, new MockEditCodeService());
-		instantiationService.stub(INotificationService, new MockNotificationService());
-		instantiationService.stub(IConvertToLLMMessageService, new MockConvertToLLMMessageService());
-		instantiationService.stub(IWorkspaceContextService, new MockWorkspaceContextService());
-		instantiationService.stub(IDirectoryStrService, new MockDirectoryStrService());
-		instantiationService.stub(IFileService, new MockFileService());
-		instantiationService.stub(IMCPService, new MockMCPService());
-		instantiationService.stub(ITaskAwareModelRouter, new MockModelRouter());
-		instantiationService.stub(IEditRiskScoringService, new MockEditRiskScoringService());
-		instantiationService.stub(IModelService, new MockModelService());
-		instantiationService.stub(ICommandService, new MockCommandService());
-		instantiationService.stub(IAuditLogService, new MockAuditLogService());
+		instantiationService.stub(ILLMMessageService, new MockLLMMessageService() as any);
+		instantiationService.stub(IGridSettingsService, new MockGridSettingsService() as any);
+		instantiationService.stub(IToolsService, new MockToolsService() as any);
+		instantiationService.stub(ILanguageFeaturesService, {} as any);
+		instantiationService.stub(IMetricsService, new MockMetricsService() as any);
+		instantiationService.stub(IGridModelService, {} as any);
+		instantiationService.stub(IEditCodeService, new MockEditCodeService() as any);
+		instantiationService.stub(INotificationService, new MockNotificationService() as any);
+		instantiationService.stub(IConvertToLLMMessageService, new MockConvertToLLMMessageService() as any);
+		instantiationService.stub(IWorkspaceContextService, new MockWorkspaceContextService() as any);
+		instantiationService.stub(IDirectoryStrService, new MockDirectoryStrService() as any);
+		instantiationService.stub(IFileService, new MockFileService() as any);
+		instantiationService.stub(IMCPService, new MockMCPService() as any);
+		instantiationService.stub(ITaskAwareModelRouter, new MockModelRouter() as any);
+		instantiationService.stub(IEditRiskScoringService, new MockEditRiskScoringService() as any);
+		instantiationService.stub(IModelService, new MockModelService() as any);
+		instantiationService.stub(ICommandService, new MockCommandService() as any);
+		instantiationService.stub(IAuditLogService, new MockAuditLogService() as any);
 
 		// Note: ChatThreadService class is not exported, use service locator
 		chatThreadService = instantiationService.get(IChatThreadService) as any;
