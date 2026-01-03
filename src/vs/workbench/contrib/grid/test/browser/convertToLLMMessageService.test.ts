@@ -130,18 +130,19 @@ class MockMemoriesService {
 class MockConvertToLLMMessageService implements IConvertToLLMMessageService {
 	readonly _serviceBrand: undefined;
 
+	// Most dependencies unused in mock, only repoIndexerService is used
 	constructor(
-		private _modelService: MockModelService,
-		private _workspaceContextService: MockWorkspaceContextService,
-		private _editorService: MockEditorService,
-		private _directoryStrService: MockDirectoryStrService,
-		private _terminalToolService: MockTerminalToolService,
-		private _gridSettingsService: MockGridSettingsService,
-		private _gridModelService: MockGridModelService,
-		private _mcpService: MockMCPService,
+		_modelService: MockModelService,
+		_workspaceContextService: MockWorkspaceContextService,
+		_editorService: MockEditorService,
+		_directoryStrService: MockDirectoryStrService,
+		_terminalToolService: MockTerminalToolService,
+		_gridSettingsService: MockGridSettingsService,
+		_gridModelService: MockGridModelService,
+		_mcpService: MockMCPService,
 		private repoIndexerService: MockRepoIndexerService,
-		private _notificationService: MockNotificationService,
-		private _memoriesService: MockMemoriesService
+		_notificationService: MockNotificationService,
+		_memoriesService: MockMemoriesService
 	) {}
 
 	prepareLLMSimpleMessages(opts: {
@@ -332,10 +333,10 @@ suite('ConvertToLLMMessageService Tests', () => {
 				timestamp: Date.now(),
 				modelUsed: null,
 				tokensUsed: null,
-			},
+			} as any,
 		];
 
-		const result = await service.startRepoIndexerQuery(chatMessages, 'chat');
+		const result = await service.startRepoIndexerQuery(chatMessages, 'chat' as any);
 
 		assert.ok(result, 'Should return result');
 		assert.ok(Array.isArray(result.results), 'Should have results array');
@@ -388,10 +389,10 @@ suite('ConvertToLLMMessageService Tests', () => {
 				timestamp: Date.now(),
 				modelUsed: null,
 				tokensUsed: null,
-			},
+			} as any,
 		];
 
-		const modes: ChatMode[] = ['chat', 'architect', 'code'];
+		const modes = ['chat', 'architect', 'code'] as any[];
 		for (const mode of modes) {
 			const result = await service.prepareLLMChatMessages({
 				chatMessages,
@@ -480,14 +481,14 @@ suite('ConvertToLLMMessageService Tests', () => {
 				timestamp: Date.now(),
 				modelUsed: null,
 				tokensUsed: null,
-			},
+			} as any,
 		];
 
 		const repoIndexerPromise = mockRepoIndexerService.query('auth');
 
 		const result = await service.prepareLLMChatMessages({
 			chatMessages,
-			chatMode: 'chat',
+			chatMode: 'chat' as any,
 			modelSelection: null,
 			repoIndexerPromise,
 		});
@@ -499,7 +500,7 @@ suite('ConvertToLLMMessageService Tests', () => {
 	test('should handle null repo indexer query result', async () => {
 		const chatMessages: ChatMessage[] = [];
 
-		const result = await service.startRepoIndexerQuery(chatMessages, 'chat');
+		const result = await service.startRepoIndexerQuery(chatMessages, 'chat' as any);
 
 		assert.strictEqual(result, null, 'Should return null for empty messages');
 	});
@@ -591,17 +592,17 @@ suite('ConvertToLLMMessageService Tests', () => {
 				timestamp: Date.now(),
 				modelUsed: null,
 				tokensUsed: null,
-			},
+			} as any,
 		];
 
 		const modelSelection: ModelSelection = {
-			provider: 'openai',
+			providerName: 'openAI',
 			modelName: 'gpt-4o',
 		};
 
 		const result = await service.prepareLLMChatMessages({
 			chatMessages,
-			chatMode: 'chat',
+			chatMode: 'chat' as any,
 			modelSelection,
 		});
 
