@@ -1591,7 +1591,7 @@ type CallFnOfProvider = {
 	[providerName in ProviderName]: {
 		sendChat: (params: SendChatParams_Internal) => Promise<void>;
 		sendFIM: ((params: SendFIMParams_Internal) => void) | null;
-		list: ((params: ListParams_Internal<unknown>) => void) | null;
+		list: ((params: ListParams_Internal<any>) => void) | null;
 	};
 };
 
