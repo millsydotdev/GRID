@@ -328,7 +328,7 @@ export class DashboardConfigService extends Disposable implements IDashboardConf
 		for (const providerName of Object.keys(dashboardConfig.providerSettings) as Array<keyof SettingsOfProvider>) {
 			const dashboardProvider = dashboardConfig.providerSettings[providerName];
 			if (dashboardProvider._didFillInProviderSettings) {
-				mergedProviderSettings[providerName] = dashboardProvider;
+				(mergedProviderSettings as any)[providerName] = dashboardProvider;
 			}
 		}
 

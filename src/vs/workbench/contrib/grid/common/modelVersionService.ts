@@ -10,7 +10,6 @@ import { registerSingleton, InstantiationType } from '../../../../platform/insta
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
 import { ProviderName, providerNames } from './gridSettingsTypes.js';
-import { getProvidersWithCatalog } from './providerRegistry.js';
 
 export interface IModelVersionService {
     readonly _serviceBrand: undefined;
@@ -30,10 +29,10 @@ export class ModelVersionService extends Disposable implements IModelVersionServ
         @ILogService private readonly logService: ILogService
     ) {
         super();
-        this._register(this.settingsService.waitForInitState.then(() => {
+        this.settingsService.waitForInitState.then(() => {
             this.checkForUpdates();
             setInterval(() => this.checkForUpdates(), this.CHECK_INTERVAL);
-        }));
+        });
     }
 
     async checkForUpdates(): Promise<void> {
