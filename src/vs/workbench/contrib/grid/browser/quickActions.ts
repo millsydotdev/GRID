@@ -147,7 +147,7 @@ function registerQuickAction({
 	promptMaker,
 }: {
 	id: string;
-	title: string | ICommandActionTitle;
+	title: ICommandActionTitle;
 	kb?: number;
 	task: QuickActionTask;
 	promptMaker?: (base: {

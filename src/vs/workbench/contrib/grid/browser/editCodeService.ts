@@ -1778,12 +1778,6 @@ class EditCodeService extends Disposable implements IEditCodeService {
 			applyStr: applyStr,
 		});
 
-		// Detect if local provider for minimal prompts
-		const isLocal =
-			modelSelection &&
-			modelSelection.providerName !== 'auto' &&
-			isLocalProvider(modelSelection.providerName, this._settingsService.state.settingsOfProvider);
-
 		// Warm up local model in background (fire-and-forget, doesn't block)
 		// This reduces first-request latency for Apply on local models
 		if (modelSelection && modelSelection.providerName !== 'auto' && modelSelection.modelName !== 'auto') {

@@ -4,32 +4,31 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
-import { ILanguageModelToolsService, IToolInvocation } from '../../common/languageModelToolsService.js';
+import { IToolData, IToolInvocation, ToolDataSource } from '../../common/languageModelToolsService.js';
 import { localize } from '../../../../../nls.js';
 
 interface IWebSearchToolParameters {
     query: string;
 }
 
-// Note: ILanguageModelTool interface removed from codebase
+export const WebSearchToolData: IToolData = {
+	id: 'workbench.tools.webSearch',
+	displayName: localize('webSearch.displayName', "Web Search"),
+	modelDescription: localize('webSearch.description', "Search the web for information using DuckDuckGo."),
+	source: ToolDataSource.Internal,
+	inputSchema: {
+		type: 'object',
+		properties: {
+			query: {
+				type: 'string',
+				description: localize('webSearch.query.description', "The search query to send to DuckDuckGo.")
+			}
+		},
+		required: ['query']
+	}
+};
+
 export class WebSearchTool {
-    static readonly ID = 'workbench.tools.webSearch';
-
-    readonly id = WebSearchTool.ID;
-    readonly name = 'webSearch';
-    readonly displayName = localize('webSearch.displayName', "Web Search");
-    readonly description = localize('webSearch.description', "Search the web for information using DuckDuckGo.");
-
-    readonly parameters = {
-        type: 'object',
-        properties: {
-            query: {
-                type: 'string',
-                description: localize('webSearch.query.description', "The search query to send to DuckDuckGo.")
-            }
-        },
-        required: ['query']
-    };
 
     constructor(
     ) { }

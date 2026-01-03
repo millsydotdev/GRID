@@ -128,7 +128,7 @@ import './promptSyntax/promptToolsCodeLensProvider.js';
 import { PromptUrlHandler } from './promptSyntax/promptUrlHandler.js';
 import { ConfigureToolSets, UserToolSetsContributions } from './tools/toolSetsContribution.js';
 import { ChatViewsWelcomeHandler } from './viewsWelcome/chatViewsWelcomeHandler.js';
-import { WebSearchTool } from './tools/webSearchTool.js';
+import { WebSearchTool, WebSearchToolData } from './tools/webSearchTool.js';
 import { GridRulesContribution } from './contrib/gridRulesContribution.js';
 
 // Register configuration
@@ -989,7 +989,8 @@ class WebSearchToolContribution extends Disposable implements IWorkbenchContribu
 		@ILanguageModelToolsService toolsService: ILanguageModelToolsService,
 	) {
 		super();
-		this._register(toolsService.registerTool(new WebSearchTool()));
+		const tool = new WebSearchTool();
+		this._register(toolsService.registerTool(WebSearchToolData, tool));
 	}
 }
 
