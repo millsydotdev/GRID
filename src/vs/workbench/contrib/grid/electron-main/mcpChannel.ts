@@ -76,7 +76,7 @@ export class MCPChannel implements IServerChannel<string> {
 	constructor() {}
 
 	// browser uses this to listen for changes
-	listen(_: unknown, event: string): Event<unknown> {
+	listen(_: unknown, event: string, arg?: any): Event<unknown> {
 		// server events
 		if (event === 'onAdd_server') {return this.mcpEmitters.serverEvent.onAdd.event;}
 		else if (event === 'onUpdate_server') {return this.mcpEmitters.serverEvent.onUpdate.event;}
@@ -88,16 +88,16 @@ export class MCPChannel implements IServerChannel<string> {
 	}
 
 	// browser uses this to call (see this.channel.call() in mcpConfigService.ts for all usages)
-	async call(_: unknown, command: string, params: unknown): Promise<unknown> {
+	async call(_: unknown, command: string, arg?: any, cancellationToken?: any): Promise<unknown> {
 		try {
 			if (command === 'refreshMCPServers') {
-				await this._refreshMCPServers(params);
+				await this._refreshMCPServers(arg);
 			} else if (command === 'closeAllMCPServers') {
 				await this._closeAllMCPServers();
 			} else if (command === 'toggleMCPServer') {
-				await this._toggleMCPServer(params.serverName, params.isOn);
+				await this._toggleMCPServer(arg.serverName, arg.isOn);
 			} else if (command === 'callTool') {
-				const p: MCPToolCallParams = params;
+				const p: MCPToolCallParams = arg;
 				const response = await this._safeCallTool(p.serverName, p.toolName, p.params);
 				return response;
 			} else {

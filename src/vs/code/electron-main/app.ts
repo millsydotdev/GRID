@@ -50,8 +50,7 @@ import { DiskFileSystemProvider } from '../../platform/files/node/diskFileSystem
 import { SyncDescriptor } from '../../platform/instantiation/common/descriptors.js';
 import { IInstantiationService, ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
 import { ServiceCollection } from '../../platform/instantiation/common/serviceCollection.js';
-import { IProcessService } from '../../platform/process/common/process.js';
-import { ProcessMainService } from '../../platform/process/electron-main/processMainService.js';
+import { IProcessService, ProcessMainService } from '../../platform/process/electron-main/processMainService.js';
 import { IKeyboardLayoutMainService, KeyboardLayoutMainService } from '../../platform/keyboardLayout/electron-main/keyboardLayoutMainService.js';
 import { ILaunchMainService, LaunchMainService } from '../../platform/launch/electron-main/launchMainService.js';
 import { ILifecycleMainService, LifecycleMainPhase, ShutdownReason } from '../../platform/lifecycle/electron-main/lifecycleMainService.js';
@@ -575,7 +574,7 @@ export class CodeApplication extends Disposable {
 		const [machineId, sqmId, devDeviceId] = await Promise.all([
 			resolveMachineId(this.stateService, this.logService),
 			resolveSqmId(this.stateService, this.logService),
-			resolvedevDeviceId(this.stateService, this.logService)
+			resolveDevDeviceId(this.stateService, this.logService)
 		]);
 		this.logService.trace(`Resolved machine identifier: ${machineId}`);
 
@@ -1024,7 +1023,7 @@ export class CodeApplication extends Disposable {
 		services.set(IDiagnosticsService, ProxyChannel.toService(getDelayedChannel(sharedProcessReady.then(client => client.getChannel('diagnostics')))));
 
 		// Process
-		services.set(IProcessMainService, new SyncDescriptor(ProcessMainService, [this.userEnv]));
+		services.set(IProcessService, new SyncDescriptor(ProcessMainService, [this.userEnv]));
 
 		// Encryption
 		services.set(IEncryptionMainService, new SyncDescriptor(EncryptionMainService));
@@ -1169,7 +1168,7 @@ export class CodeApplication extends Disposable {
 		mainProcessElectronServer.registerChannel('update', updateChannel);
 
 		// Process
-		const processChannel = ProxyChannel.fromService(accessor.get(IProcessMainService), disposables);
+		const processChannel = ProxyChannel.fromService(accessor.get(IProcessService), disposables);
 		mainProcessElectronServer.registerChannel('process', processChannel);
 
 		// Encryption
@@ -1493,6 +1492,6 @@ export class CodeApplication extends Disposable {
 
 		// Validate Device ID is up to date (delay this as it has shown significant perf impact)
 		// Refs: https://github.com/microsoft/vscode/issues/234064
-		validatedevDeviceId(this.stateService, this.logService);
+		validateDevDeviceId(this.stateService, this.logService);
 	}
 }
