@@ -122,7 +122,7 @@ export const sendLLMMessage = async (
 			onError({ message: `Error: Cannot use "auto" provider - must resolve to a real model first.`, fullError: null });
 			return;
 		}
-		const implementation = sendLLMMessageToProviderImplementation[providerName];
+		const implementation = (sendLLMMessageToProviderImplementation as any)[providerName];
 		if (!implementation) {
 			onError({ message: `Error: Provider "${providerName}" not recognized.`, fullError: null });
 			return;
