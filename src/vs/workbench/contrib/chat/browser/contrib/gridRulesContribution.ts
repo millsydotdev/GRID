@@ -29,7 +29,7 @@ export class GridRulesContribution extends Disposable implements IWorkbenchContr
         if (rulesFile) {
             // Check if already attached
             const isAttached = widget.input.attachmentModel.attachments.some(a =>
-                a.kind === 'file' && a.value.toString() === rulesFile.toString()
+                a.kind === 'file' && (a.value as any).toString() === rulesFile.toString()
             );
 
             if (!isAttached) {
