@@ -109,14 +109,26 @@ export interface IPRReviewService {
 	exportReview(analysis: PRAnalysis): string;
 }
 
+import { ILLMMessageService } from './sendLLMMessageService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { VSBuffer } from '../../../../base/common/buffer.js';
+
+export const IGitService = createDecorator<IGitService>('gitService');
+export interface IGitService {
+	getPullRequest(prNumber: number): Promise<any>;
+	getPRFiles(prNumber: number): Promise<PRFile[]>;
+}
+
 export class PRReviewService implements IPRReviewService {
 	private analysisHistory: PRAnalysis[] = [];
 
 	constructor(
-		private llmService: any,
-		private gitService: any,
-		private fileService: any
-	) {}
+		@ILLMMessageService private llmService: ILLMMessageService,
+		@IGitService private gitService: IGitService,
+		@IFileService private fileService: IFileService
+	) { }
 
 	public async analyzePR(prNumber: number): Promise<PRAnalysis> {
 		// Fetch PR data from Git
@@ -208,7 +220,8 @@ export class PRReviewService implements IPRReviewService {
 
 		try {
 			// Read file
-			const content = await this.fileService.readFile(review.file);
+			const contentBuffer = await this.fileService.readFile(URI.file(review.file));
+			const content = contentBuffer.value.toString();
 			const lines = content.split('\n');
 
 			// Apply fix (replace old code with new code)
@@ -217,7 +230,7 @@ export class PRReviewService implements IPRReviewService {
 				lines[lineIndex] = review.codeSnippet.new;
 
 				// Write back
-				await this.fileService.writeFile(review.file, lines.join('\n'));
+				await this.fileService.writeFile(URI.file(review.file), VSBuffer.fromString(lines.join('\n')));
 				return true;
 			}
 
@@ -269,7 +282,7 @@ export class PRReviewService implements IPRReviewService {
 
 		// Grouped reviews
 		for (const [category, categoryReviews] of Object.entries(grouped)) {
-			if (categoryReviews.length === 0) {continue;}
+			if (categoryReviews.length === 0) { continue; }
 
 			comment += `### ${this.getCategoryEmoji(category as any)} ${this.getCategoryTitle(category as any)}\n\n`;
 
@@ -358,13 +371,22 @@ Analyze this pull request and provide a concise summary:
 Provide a 2-3 sentence summary of what this PR does and any concerns.
 `;
 
-		const response = await this.llmService.sendMessage({
-			messages: [{ role: 'user', content: prompt }],
-			temperature: 0.3,
-			maxTokens: 200,
+		return new Promise((resolve, reject) => {
+			this.llmService.sendLLMMessage({
+				messagesType: 'chatMessages',
+				messages: [{ role: 'user', content: prompt }],
+				separateSystemMessage: undefined,
+				chatMode: null,
+				onText: () => { },
+				onFinalMessage: (params) => resolve(params.fullText),
+				onError: (err) => reject(new Error(err.message)),
+				logging: { loggingName: 'PRReview' },
+				modelSelection: null,
+				modelSelectionOptions: undefined,
+				overridesOfModel: undefined,
+				onAbort: () => { }
+			});
 		});
-
-		return response.content;
 	}
 
 	private parsePatch(patch: string): Array<{ line: number; content: string; type: 'add' | 'remove' }> {

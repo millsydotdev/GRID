@@ -78,7 +78,7 @@ export class PDFService implements IPDFService {
 	private initialized = false;
 
 	private async ensureInitialized(): Promise<void> {
-		if (this.initialized && this.pdfjsLib) {return;}
+		if (this.initialized && this.pdfjsLib) { return; }
 
 		try {
 			// Try multiple approaches to load PDF.js (ESM module)
@@ -229,7 +229,7 @@ export class PDFService implements IPDFService {
 
 				// Extract text
 				const textItems = textContent.items
-					.filter((item: any) => item.str)
+					.filter((item: { str?: string }): item is { str: string } => typeof item.str === 'string')
 					.map((item: { str: string }) => item.str);
 				const text = textItems.join(' ');
 
@@ -363,7 +363,7 @@ export class PDFService implements IPDFService {
 
 				// Extract text
 				const textItems = textContent.items
-					.filter((item: any) => item.str)
+					.filter((item: { str?: string }): item is { str: string } => typeof item.str === 'string')
 					.map((item: { str: string }) => item.str);
 				const text = textItems.join(' ');
 

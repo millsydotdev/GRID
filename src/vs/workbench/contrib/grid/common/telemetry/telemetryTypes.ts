@@ -14,9 +14,9 @@ export type TaskType = 'chat' | 'code' | 'vision' | 'pdf' | 'web_search' | 'eval
 export type TelemetryEventType = 'routing' | 'model_performance' | 'optimization_impact';
 
 /**
- * Base telemetry event
+ * Base telemetry event (internal)
  */
-export interface TelemetryEvent {
+export interface BaseTelemetryEvent {
 	type: TelemetryEventType;
 	timestamp: number;
 	eventId: string;
@@ -25,7 +25,7 @@ export interface TelemetryEvent {
 /**
  * Routing decision event - tracks every routing decision and its outcome
  */
-export interface RoutingDecisionEvent extends TelemetryEvent {
+export interface RoutingDecisionEvent extends BaseTelemetryEvent {
 	type: 'routing';
 
 	// Task context
@@ -92,7 +92,7 @@ export interface RoutingDecisionEvent extends TelemetryEvent {
 /**
  * Model performance event - aggregate metrics computed periodically
  */
-export interface ModelPerformanceEvent extends TelemetryEvent {
+export interface ModelPerformanceEvent extends BaseTelemetryEvent {
 	type: 'model_performance';
 	provider: string;
 	modelName: string;
@@ -122,7 +122,7 @@ export interface ModelPerformanceEvent extends TelemetryEvent {
 /**
  * Optimization impact event - tracks effectiveness of optimizations
  */
-export interface OptimizationImpactEvent extends TelemetryEvent {
+export interface OptimizationImpactEvent extends BaseTelemetryEvent {
 	type: 'optimization_impact';
 	optimizationType: 'warmup' | 'pruning' | 'truncation' | 'caching' | 'historyLimiting' | 'compression';
 	latencyBefore: number;
@@ -133,6 +133,11 @@ export interface OptimizationImpactEvent extends TelemetryEvent {
 		contextLost?: number; // tokens removed
 	};
 }
+
+/**
+ * Union type for all telemetry events
+ */
+export type TelemetryEvent = RoutingDecisionEvent | ModelPerformanceEvent | OptimizationImpactEvent;
 
 /**
  * Query interface for telemetry storage

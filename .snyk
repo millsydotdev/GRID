@@ -26,3 +26,6 @@ ignore:
         reason: 'Trusted input'
     - 'src/vs/platform/userDataProfile/browser/userDataProfile.ts':
         reason: 'Trusted input'
+
+exclude:
+  - .vscode/extensions/

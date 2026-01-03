@@ -216,7 +216,7 @@ export class DashboardApiClient implements IDashboardApiClient {
 	/**
 	 * Generic request method
 	 */
-	private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: any): Promise<T> {
+	private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T> {
 		if (!this.apiKey) {
 			throw new Error('Dashboard API key not set. Please configure your API key in settings.');
 		}
