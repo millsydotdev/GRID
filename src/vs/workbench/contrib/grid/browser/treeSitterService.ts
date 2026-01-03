@@ -159,8 +159,8 @@ class TreeSitterService implements ITreeSitterService {
 
 			// Get or create parser for this language
 			let parser = this._parserCache.get(language);
-			if (!parser && wasmModule.createParser) {
-				parser = await wasmModule.createParser(language);
+			if (!parser) {
+				parser = await wasmModule.createParser?.(language) ?? null;
 				if (parser) {
 					this._parserCache.set(language, parser);
 				}
@@ -302,8 +302,8 @@ class TreeSitterService implements ITreeSitterService {
 			}
 
 			let parser = this._parserCache.get(language);
-			if (!parser && wasmModule.createParser) {
-				parser = await wasmModule.createParser(language);
+			if (!parser) {
+				parser = await wasmModule.createParser?.(language) ?? null;
 				if (parser) {
 					this._parserCache.set(language, parser);
 				}
