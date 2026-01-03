@@ -45,7 +45,11 @@ interface TreeSitterParser {
 }
 
 interface TreeSitterWasmModule {
-	createParser(language: string): Promise<TreeSitterParser | null>;
+	createParser?(language: string): Promise<TreeSitterParser | null>;
+	Parser?: any;
+	Tree?: any;
+	Language?: any;
+	[key: string]: any;
 }
 
 export const ITreeSitterService = createDecorator<ITreeSitterService>('treeSitterService');
@@ -155,7 +159,7 @@ class TreeSitterService implements ITreeSitterService {
 
 			// Get or create parser for this language
 			let parser = this._parserCache.get(language);
-			if (!parser) {
+			if (!parser && wasmModule.createParser) {
 				parser = await wasmModule.createParser(language);
 				if (parser) {
 					this._parserCache.set(language, parser);
@@ -298,7 +302,7 @@ class TreeSitterService implements ITreeSitterService {
 			}
 
 			let parser = this._parserCache.get(language);
-			if (!parser) {
+			if (!parser && wasmModule.createParser) {
 				parser = await wasmModule.createParser(language);
 				if (parser) {
 					this._parserCache.set(language, parser);
