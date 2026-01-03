@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../base/common/cancellation.js';
-import { VSBuffer, VSBufferReadableStream, streamToBuffer } from '../../../../base/common/buffer.js';
+import { VSBufferReadableStream, streamToBuffer } from '../../../../base/common/buffer.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { registerSingleton, InstantiationType } from '../../../../platform/instantiation/common/extensions.js';
 import { IRequestService } from '../../../../platform/request/common/request.js';
