@@ -6,7 +6,8 @@
 			"node"
 		],
 		"typeRoots": [
-			"./node_modules/@types"
+			"./node_modules/@types",
+			"../../node_modules/@types"
 		]
 	},
 	"include": [
@@ -14,4 +15,3 @@
 		"../../src/vscode-dts/vscode.d.ts"
 	]
 }
-

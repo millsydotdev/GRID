@@ -3,6 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { URI } from '../../../../base/common/uri.js';
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { IMarkerService, MarkerSeverity } from '../../../../platform/markers/common/markers.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { ILLMMessageService } from './sendLLMMessageService.js';
 import { parse, ParsedExpression, IExpression } from '../../../../base/common/glob.js';
 
 /**
@@ -34,6 +40,16 @@ export interface DetectedBug {
 	detectedAt: number; // Timestamp
 }
 
+export interface AdditionalChange {
+	filePath: string;
+	change: {
+		old: string;
+		new: string;
+		startLine: number;
+		endLine: number;
+	};
+}
+
 export interface BugFix {
 	bugId: string;
 	confidence: number; // 0-1 score
@@ -45,15 +61,7 @@ export interface BugFix {
 		startLine: number;
 		endLine: number;
 	};
-	additionalChanges?: Array<{
-		filePath: string;
-		change: {
-			old: string;
-			new: string;
-			startLine: number;
-			endLine: number;
-		};
-	}>;
+	additionalChanges?: AdditionalChange[];
 	estimatedImpact: 'low' | 'medium' | 'high'; // Risk of breaking other code
 	relatedErrors?: string[]; // Other bugs this fix resolves
 }
@@ -136,10 +144,10 @@ export class AutoDebugService implements IAutoDebugService {
 	};
 
 	constructor(
-		private llmService: any, // Inject LLM service for AI-powered suggestions
-		private fileService: any, // For reading/writing files
-		private diagnosticsService: any, // For getting compiler errors
-		private workspaceContextService: any // Inject workspace service
+		@ILLMMessageService private llmService: ILLMMessageService,
+		@IFileService private fileService: IFileService,
+		@IMarkerService private markerService: IMarkerService,
+		@IWorkspaceContextService private workspaceContextService: IWorkspaceContextService
 	) {
 		this.initializeErrorPatterns();
 		this.loadGridIgnore();
@@ -193,16 +201,17 @@ export class AutoDebugService implements IAutoDebugService {
 
 	private async loadGridIgnore(): Promise<void> {
 		try {
-			if (!this.workspaceContextService) {return;}
-			const workspace = (this.workspaceContextService as any).getWorkspace();
-			if (!workspace.folders.length) {return;}
+			if (!this.workspaceContextService) { return; }
+			const workspace = this.workspaceContextService.getWorkspace();
+			if (!workspace.folders.length) { return; }
 
-			const rootPath = workspace.folders[0].uri.fsPath || workspace.folders[0].uri.path;
+			const rootPath = workspace.folders[0].uri.fsPath;
 			const sep = rootPath.includes('\\') ? '\\' : '/';
 			const ignorePath = rootPath.endsWith(sep) ? `${rootPath}.gridignore` : `${rootPath}${sep}.gridignore`;
 
 			try {
-				const content = await (this.fileService as any).readFile(ignorePath);
+				const contentBuffer = await this.fileService.readFile(URI.file(ignorePath));
+				const content = contentBuffer.value.toString();
 				const expression: IExpression = {};
 				content.split('\n').forEach((line: string) => {
 					const trimmed = line.trim();
@@ -231,7 +240,7 @@ export class AutoDebugService implements IAutoDebugService {
 	}
 
 	public startMonitoring(filePath: string): void {
-		if (this.isIgnored(filePath)) {return;}
+		if (this.isIgnored(filePath)) { return; }
 		this.monitoredFiles.add(filePath);
 		// Set up file watcher and diagnostic listener
 		this.setupFileWatcher(filePath);
@@ -242,23 +251,23 @@ export class AutoDebugService implements IAutoDebugService {
 	}
 
 	public async detectBugs(filePath: string, code: string): Promise<DetectedBug[]> {
-		if (this.isIgnored(filePath)) {return [];}
+		if (this.isIgnored(filePath)) { return []; }
 
 		// Get compiler/linter errors
-		const diagnostics: any[] = await this.diagnosticsService.getDiagnostics(filePath);
+		const diagnostics = this.markerService.read({ resource: URI.file(filePath) });
 
-		const bugs: DetectedBug[] = diagnostics.map((diag: any) => {
+		const bugs: DetectedBug[] = diagnostics.map((diag) => {
 			const lines = code.split('\n');
-			const startLine = diag.range.start.line;
+			const startLine = diag.startLineNumber;
 
 			return {
 				id: `${filePath}:${startLine}:${diag.code}:${Date.now()}`,
 				filePath,
 				line: startLine,
-				column: diag.range.start.character,
-				severity: diag.severity === 1 ? 'error' : diag.severity === 2 ? 'warning' : 'info',
+				column: diag.startColumn,
+				severity: diag.severity === MarkerSeverity.Error ? 'error' : diag.severity === MarkerSeverity.Warning ? 'warning' : 'info',
 				message: diag.message,
-				code: diag.code?.toString() || 'unknown',
+				code: typeof diag.code === 'string' ? diag.code : diag.code?.value || 'unknown',
 				stackTrace: undefined,
 				context: {
 					beforeCode: lines.slice(Math.max(0, startLine - 10), startLine).join('\n'),
@@ -283,19 +292,30 @@ export class AutoDebugService implements IAutoDebugService {
 
 		// Generate AI-powered fix suggestions
 		const aiPrompt = this.buildFixPrompt(bug, knownPattern);
-		const aiResponse: any = await this.llmService.sendMessage({
-			messages: [
-				{
-					role: 'system',
-					content: 'You are an expert debugging assistant. Analyze bugs and suggest precise fixes with code examples.',
-				},
-				{
-					role: 'user',
-					content: aiPrompt,
-				},
-			],
-			temperature: 0.3, // Low temperature for consistent fixes
-			maxTokens: 1000,
+		const aiResponse: string = await new Promise((resolve, reject) => {
+			this.llmService.sendLLMMessage({
+				messagesType: 'chatMessages',
+				messages: [
+					{
+						role: 'system',
+						content: 'You are an expert debugging assistant. Analyze bugs and suggest precise fixes with code examples.',
+					},
+					{
+						role: 'user',
+						content: aiPrompt,
+					},
+				],
+				separateSystemMessage: undefined,
+				chatMode: null,
+				onText: () => { },
+				onFinalMessage: (params) => resolve(params.fullText),
+				onError: (err) => reject(new Error(err.message)),
+				logging: { loggingName: 'AutoDebug' },
+				modelSelection: null,
+				modelSelectionOptions: undefined,
+				overridesOfModel: undefined,
+				onAbort: () => { }
+			});
 		});
 
 		// Parse AI response into fix suggestions
@@ -309,10 +329,11 @@ export class AutoDebugService implements IAutoDebugService {
 
 		try {
 			const bug = this.findBugById(fix.bugId);
-			if (!bug) {return false;}
+			if (!bug) { return false; }
 
 			// Read current file content
-			const content: string = await this.fileService.readFile(bug.filePath);
+			const contentBuffer = await this.fileService.readFile(URI.file(bug.filePath));
+			const content = contentBuffer.value.toString();
 			const lines = content.split('\n');
 
 			// Apply main code change
@@ -320,7 +341,7 @@ export class AutoDebugService implements IAutoDebugService {
 			lines.splice(startLine, endLine - startLine + 1, newCode);
 
 			// Write back to file
-			await this.fileService.writeFile(bug.filePath, lines.join('\n'));
+			await this.fileService.writeFile(URI.file(bug.filePath), VSBuffer.fromString(lines.join('\n')));
 
 			// Apply additional changes if any
 			if (fix.additionalChanges) {
@@ -348,7 +369,7 @@ export class AutoDebugService implements IAutoDebugService {
 	public learnFromFix(fix: BugFix, wasSuccessful: boolean): void {
 		// Update pattern success rates
 		const bug = this.findBugById(fix.bugId);
-		if (!bug) {return;}
+		if (!bug) { return; }
 
 		const pattern = this.findMatchingPattern(bug);
 		if (pattern) {
@@ -458,7 +479,7 @@ Format your response as JSON:
 	private findBugById(bugId: string): DetectedBug | undefined {
 		for (const bugs of this.detectedBugs.values()) {
 			const bug = bugs.find((b) => b.id === bugId);
-			if (bug) {return bug;}
+			if (bug) { return bug; }
 		}
 		return undefined;
 	}
@@ -473,12 +494,13 @@ Format your response as JSON:
 		}
 	}
 
-	private async applyAdditionalChange(change: any): Promise<void> {
-		const content: string = await this.fileService.readFile(change.filePath);
+	private async applyAdditionalChange(change: AdditionalChange): Promise<void> {
+		const contentBuffer = await this.fileService.readFile(URI.file(change.filePath));
+		const content = contentBuffer.value.toString();
 		const lines = content.split('\n');
 		const { startLine, endLine, new: newCode } = change.change;
 		lines.splice(startLine, endLine - startLine + 1, newCode);
-		await this.fileService.writeFile(change.filePath, lines.join('\n'));
+		await this.fileService.writeFile(URI.file(change.filePath), VSBuffer.fromString(lines.join('\n')));
 	}
 
 	private updateTopErrorCodes(bugs: DetectedBug[]): void {

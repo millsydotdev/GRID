@@ -306,7 +306,7 @@ export class ComposerUnifiedDiffView {
 					return;
 				}
 
-				if (diff && diff.changes.length > 0) {
+				if (diff && (diff as any).changes?.length > 0) {
 					const hunksContainer = document.createElement('div');
 					hunksContainer.className = 'composer-hunks-container';
 
@@ -321,7 +321,7 @@ export class ComposerUnifiedDiffView {
 					fileCheckbox.setAttribute('aria-label', localize('composer.selectAllFileAria', "Select all hunks in {0}", fileName));
 					fileCheckbox.setAttribute('role', 'checkbox');
 
-					const allEnabled = diff.changes.every((_: DetailedLineRangeMapping, idx: number) => {
+					const allEnabled = (diff as any).changes.every((_: DetailedLineRangeMapping, idx: number) => {
 						const key = `${entry.entryId}-${idx}`;
 						return this._enabledHunks.get(key) !== false;
 					});
@@ -331,13 +331,13 @@ export class ComposerUnifiedDiffView {
 					fileCheckbox.addEventListener('change', () => {
 						const enabled = fileCheckbox.checked;
 						fileCheckbox.setAttribute('aria-checked', enabled ? 'true' : 'false');
-						diff.changes.forEach((hunk: DetailedLineRangeMapping, idx: number) => {
+						(diff as any).changes.forEach((hunk: DetailedLineRangeMapping, idx: number) => {
 							const key = `${entry.entryId}-${idx}`;
 							this._enabledHunks.set(key, enabled);
 							this._onHunkToggle(entry, hunk, enabled);
 						});
 						// Update individual checkboxes without full re-render
-						diff.changes.forEach((_: DetailedLineRangeMapping, idx: number) => {
+						(diff as any).changes.forEach((_: DetailedLineRangeMapping, idx: number) => {
 							const checkbox = hunksContainer.querySelector(`#hunk-${entry.entryId}-${idx}`) as HTMLInputElement;
 							if (checkbox) {
 								checkbox.checked = enabled;
@@ -354,7 +354,7 @@ export class ComposerUnifiedDiffView {
 					hunksContainer.appendChild(fileToggle);
 
 					// Render each hunk
-					diff.changes.forEach((hunk: DetailedLineRangeMapping, idx: number) => {
+					(diff as any).changes.forEach((hunk: DetailedLineRangeMapping, idx: number) => {
 						const hunkEl = this._renderHunk(entry, hunk, idx, reader);
 						hunksContainer.appendChild(hunkEl);
 					});

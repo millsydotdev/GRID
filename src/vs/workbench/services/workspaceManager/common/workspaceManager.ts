@@ -6,7 +6,6 @@
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { Event } from '../../../../base/common/event.js';
 import { URI } from '../../../../base/common/uri.js';
-import { IDisposable } from '../../../../base/common/lifecycle.js';
 
 export const IWorkspaceManagerService = createDecorator<IWorkspaceManagerService>('workspaceManagerService');
 

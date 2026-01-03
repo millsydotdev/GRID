@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., 1.106.0)'
+        description: "Release version (e.g., 1.106.0)"
         required: true
-        default: '1.106.0'
+        default: "1.106.0"
       create_release:
-        description: 'Create GitHub Release'
+        description: "Create GitHub Release"
         required: true
         type: boolean
         default: false
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,7 +25,7 @@ permissions:
   packages: write
 
 env:
-  VSCODE_QUALITY: 'stable'
+  VSCODE_QUALITY: "stable"
   ELECTRON_SKIP_BINARY_DOWNLOAD: 0
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 

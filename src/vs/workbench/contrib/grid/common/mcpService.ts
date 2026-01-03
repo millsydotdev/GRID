@@ -206,8 +206,9 @@ class MCPService extends Disposable implements IMCPService {
 		if (!inputSchema || !inputSchema.properties) {return {};}
 
 		const params: { [paramName: string]: { description: string } } = {};
-		Object.keys(inputSchema.properties).forEach(paramName => {
-			const propertyValues = inputSchema.properties[paramName];
+		const properties = inputSchema.properties as Record<string, any>;
+		Object.keys(properties).forEach(paramName => {
+			const propertyValues = properties[paramName];
 
 			// Check if propertyValues is not an object
 			if (typeof propertyValues !== 'object') {

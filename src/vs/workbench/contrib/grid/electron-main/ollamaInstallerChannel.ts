@@ -14,13 +14,13 @@ export class OllamaInstallerChannel implements IServerChannel {
 	private readonly _onLog = new Emitter<{ text: string }>();
 	private readonly _onDone = new Emitter<{ ok: boolean }>();
 
-	listen(_: unknown, event: string): Event<unknown> {
+	listen(_: any, event: string): Event<any> {
 		if (event === 'onLog') {return this._onLog.event;}
 		if (event === 'onDone') {return this._onDone.event;}
 		throw new Error(`Event not found: ${event}`);
 	}
 
-	async call(_: unknown, command: string, params: unknown): Promise<unknown> {
+	async call(_: any, command: string, params: any): Promise<any> {
 		if (command === 'install') {
 			this.install(params as InstallParams);
 			return;

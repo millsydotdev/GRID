@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { VSBufferReadableStream, streamToBuffer } from '../../../../base/common/buffer.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { registerSingleton, InstantiationType } from '../../../../platform/instantiation/common/extensions.js';
 import { IRequestService } from '../../../../platform/request/common/request.js';
@@ -215,7 +216,7 @@ export class DashboardApiClient implements IDashboardApiClient {
 	/**
 	 * Generic request method
 	 */
-	private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: any): Promise<T> {
+	private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T> {
 		if (!this.apiKey) {
 			throw new Error('Dashboard API key not set. Please configure your API key in settings.');
 		}
@@ -272,13 +273,9 @@ export class DashboardApiClient implements IDashboardApiClient {
 	/**
 	 * Helper to convert stream to string
 	 */
-	private async streamToString(stream: NodeJS.ReadableStream): Promise<string> {
-		return new Promise((resolve, reject) => {
-			const chunks: Buffer[] = [];
-			stream.on('data', (chunk: any) => chunks.push(Buffer.from(chunk)));
-			stream.on('error', (err: any) => reject(err));
-			stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-		});
+	private async streamToString(stream: VSBufferReadableStream): Promise<string> {
+		const buffer = await streamToBuffer(stream);
+		return buffer.toString();
 	}
 }
 

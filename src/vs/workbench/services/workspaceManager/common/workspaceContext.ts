@@ -5,7 +5,6 @@
 
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { Event } from '../../../../base/common/event.js';
-import { IDisposable } from '../../../../base/common/lifecycle.js';
 
 export const IWorkspaceContextManagerService = createDecorator<IWorkspaceContextManagerService>('workspaceContextManagerService');
 
@@ -33,6 +32,11 @@ export interface IWorkspaceContext {
 	 * Whether this is the primary/active instance
 	 */
 	isPrimary: boolean;
+
+	/**
+	 * Whether this workspace is in parallel mode (multiple instances)
+	 */
+	isParallelMode: boolean;
 
 	/**
 	 * Chat thread IDs associated with this workspace instance

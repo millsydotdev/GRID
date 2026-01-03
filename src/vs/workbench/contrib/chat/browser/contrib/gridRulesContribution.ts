@@ -3,13 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable, DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
 import { IWorkbenchContribution } from '../../../../common/contributions.js';
 import { IChatWidget, IChatWidgetService } from '../chat.js';
 import { IFileService } from '../../../../../platform/files/common/files.js';
-import { IWorkspaceContextService, WorkbenchState } from '../../../../../platform/workspace/common/workspace.js';
+import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { basename } from '../../../../../base/common/resources.js';
 import { IChatRequestVariableEntry } from '../../common/chatVariableEntries.js';
+import { ChatAgentLocation } from '../../common/constants.js';
 
 export class GridRulesContribution extends Disposable implements IWorkbenchContribution {
     static readonly ID = 'chat.gridRules';
@@ -21,7 +22,7 @@ export class GridRulesContribution extends Disposable implements IWorkbenchContr
     ) {
         super();
         this._register(this.chatWidgetService.onDidAddWidget(widget => this.handleWidget(widget)));
-        this.chatWidgetService.getWidgetsByLocations().forEach(widget => this.handleWidget(widget));
+        this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat).forEach(widget => this.handleWidget(widget));
     }
 
     private async handleWidget(widget: IChatWidget): Promise<void> {
@@ -29,7 +30,7 @@ export class GridRulesContribution extends Disposable implements IWorkbenchContr
         if (rulesFile) {
             // Check if already attached
             const isAttached = widget.input.attachmentModel.attachments.some(a =>
-                a.kind === 'file' && a.value.toString() === rulesFile.toString()
+                a.kind === 'file' && (a.value as any).toString() === rulesFile.toString()
             );
 
             if (!isAttached) {

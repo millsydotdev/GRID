@@ -145,8 +145,8 @@ class StartupAudit {
 	 * Sample memory and CPU usage
 	 */
 	private sampleResources(): void {
-		if (typeof performance !== 'undefined' && (performance as unknown).memory) {
-			const memory = (performance as unknown).memory.usedJSHeapSize / 1024 / 1024; // MB
+		if (typeof performance !== 'undefined' && (performance as any).memory) {
+			const memory = (performance as any).memory.usedJSHeapSize / 1024 / 1024; // MB
 			this.memorySamples.push(memory);
 		}
 
@@ -172,8 +172,8 @@ class StartupAudit {
 		// Sample every 100ms for first 5 seconds
 		let samples = 0;
 		const interval = setInterval(() => {
-			if (typeof performance !== 'undefined' && (performance as unknown).memory) {
-				const memory = (performance as unknown).memory.usedJSHeapSize / 1024 / 1024;
+			if (typeof performance !== 'undefined' && (performance as any).memory) {
+				const memory = (performance as any).memory.usedJSHeapSize / 1024 / 1024;
 				this.memorySamples.push(memory);
 			}
 			samples++;

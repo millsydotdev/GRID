@@ -20,14 +20,12 @@ import { Registry } from '../../../../platform/registry/common/platform.js';
 import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
 import { IEditorService } from '../../../services/editor/common/editorService.js';
 import { URI } from '../../../../base/common/uri.js';
-import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
-import { mountWorkspaceManager } from './react/out/workspace-manager-tsx/index.js';
+// TODO: React component not built yet
+// import { mountWorkspaceManager } from './react/out/workspace-manager-tsx/index.js';
 import { Codicon } from '../../../../base/common/codicons.js';
-import { toDisposable } from '../../../../base/common/lifecycle.js';
 import { IWorkspaceManagerService } from '../../../services/workspaceManager/common/workspaceManager.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
-import { IFileDialogService } from '../../../../platform/dialogs/common/dialogs.js';
 
 class WorkspaceManagerInput extends EditorInput {
 	static readonly ID: string = 'workbench.input.workspaceManager';
@@ -62,8 +60,7 @@ class WorkspaceManagerPane extends EditorPane {
 		group: IEditorGroup,
 		@ITelemetryService telemetryService: ITelemetryService,
 		@IThemeService themeService: IThemeService,
-		@IStorageService storageService: IStorageService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService
+		@IStorageService storageService: IStorageService
 	) {
 		super(WorkspaceManagerPane.ID, group, telemetryService, themeService, storageService);
 	}
@@ -78,11 +75,14 @@ class WorkspaceManagerPane extends EditorPane {
 
 		parent.appendChild(managerElt);
 
-		// Mount React component
-		this.instantiationService.invokeFunction(accessor => {
-			const disposeFn = mountWorkspaceManager(managerElt, accessor)?.dispose;
-			this._register(toDisposable(() => disposeFn?.()));
-		});
+		// TODO: Mount React component when available
+		// this.instantiationService.invokeFunction(accessor => {
+		// 	const disposeFn = mountWorkspaceManager(managerElt, accessor)?.dispose;
+		// 	this._register(toDisposable(() => disposeFn?.()));
+		// });
+
+		// Temporary placeholder
+		managerElt.innerHTML = '<div style="padding: 20px;">Workspace Manager UI - Coming Soon</div>';
 	}
 
 	layout(dimension: Dimension): void {
@@ -209,7 +209,6 @@ registerAction2(class extends Action2 {
 		const workspaceManager = accessor.get(IWorkspaceManagerService);
 
 		const workspaces = await workspaceManager.getWorkspaces();
-		const activeWorkspace = await workspaceManager.getActiveWorkspace();
 
 		const items = workspaces.map(ws => ({
 			label: ws.name,

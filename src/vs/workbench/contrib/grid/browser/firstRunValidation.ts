@@ -54,12 +54,12 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 		const originalDebug = console.debug;
 
 		// Wrap console methods to redact secrets
-		console.log = (...args: any[]) => {
+		console.log = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalLog(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
+			originalLog(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
-		console.error = (...args: any[]) => {
+		console.error = (...args: unknown[]) => {
 			// Suppress non-fatal Web Locks API errors (they occur during initialization when context isn't fully ready)
 			const errorMessage = args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' ');
 			if (
@@ -70,22 +70,22 @@ export class FirstRunValidationContribution extends Disposable implements IWorkb
 				return;
 			}
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalError(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
+			originalError(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
-		console.warn = (...args: any[]) => {
+		console.warn = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalWarn(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
+			originalWarn(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
-		console.info = (...args: any[]) => {
+		console.info = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalInfo(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
+			originalInfo(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
-		console.debug = (...args: any[]) => {
+		console.debug = (...args: unknown[]) => {
 			const redacted = this.secretDetectionService.redactSecretsInObject(args);
-			originalDebug(...(redacted.hasSecrets ? (redacted.redacted as any as any[]) : args));
+			originalDebug(...(redacted.hasSecrets ? (redacted.redacted as unknown as any[]) : args));
 		};
 
 		// Restore on dispose

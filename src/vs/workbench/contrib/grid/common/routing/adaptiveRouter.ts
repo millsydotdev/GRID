@@ -224,8 +224,8 @@ export class AdaptiveModelRouter extends Disposable implements IAdaptiveModelRou
 		const models: ModelSelection[] = [];
 
 		// Get all configured models from settings
-		for (const providerName of Object.keys(settingsState.providers) as ProviderName[]) {
-			const providerSettings = settingsState.providers[providerName];
+		for (const providerName of Object.keys(settingsState.settingsOfProvider) as ProviderName[]) {
+			const providerSettings = settingsState.settingsOfProvider[providerName];
 			if (!providerSettings || !providerSettings._didFillInProviderSettings) {continue;}
 
 			for (const modelInfo of providerSettings.models || []) {
@@ -409,14 +409,14 @@ export class AdaptiveModelRouter extends Disposable implements IAdaptiveModelRou
 				provider: best.model.providerName,
 				modelName: best.model.modelName,
 				isLocal: (localProviderNames as readonly string[]).includes(best.model.providerName),
-			} as unknown,
+			} as any,
 			routingScore: best.finalScore,
 			routingConfidence: Math.min(1.0, best.finalScore / 100),
 			routingReasoning: `Score: ${best.finalScore.toFixed(0)}`,
 			fallbackChain: scored.slice(1, 4).map((s) => ({
 				provider: s.model.providerName,
 				modelName: s.model.modelName,
-			})) as unknown,
+			})) as any,
 			cacheHit: false,
 			localFirstMode: this.settingsService.state.globalSettings.localFirstAI ?? false,
 			privacyMode: context.requiresPrivacy || false,

@@ -32,8 +32,11 @@ interface TreeSitterNode {
 	type: string;
 	startPosition: { row: number; column: number };
 	endPosition: { row: number; column: number };
-	children?: TreeSitterNode[];
-	text?: string;
+	childCount: number;
+	text: string;
+	child(index: number): TreeSitterNode | null;
+	childForFieldName(name: string): TreeSitterNode | null;
+	children?: TreeSitterNode[]; // For compatibility if needed, though usually traversed via methods
 }
 
 interface TreeSitterTree {
@@ -187,8 +190,8 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _traverseAST(node: any, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
-		if (!node) {return;}
+	private _traverseAST(node: TreeSitterNode, content: string, symbols: ASTSymbol[], parent: ASTSymbol | null): void {
+		if (!node) { return; }
 
 		// Extract symbol based on node type
 		const nodeType = node.type;
@@ -264,7 +267,7 @@ class TreeSitterService implements ITreeSitterService {
 		}
 	}
 
-	private _extractNameFromNode(node: any, content: string): string | null {
+	private _extractNameFromNode(node: TreeSitterNode, content: string): string | null {
 		// Try common name field patterns
 		const nameFields = ['name', 'identifier', 'declaration', 'definition'];
 		for (const field of nameFields) {
@@ -351,7 +354,7 @@ class TreeSitterService implements ITreeSitterService {
 	}
 
 	private _extractTopLevelChunks(
-		rootNode: any,
+		rootNode: TreeSitterNode,
 		content: string,
 		lines: string[],
 		chunks: ASTChunk[],
@@ -363,8 +366,8 @@ class TreeSitterService implements ITreeSitterService {
 			coveredRanges.add(`${symbol.startLine}-${symbol.endLine}`);
 		}
 
-		const processNode = (node: any) => {
-			if (!node) {return;}
+		const processNode = (node: TreeSitterNode) => {
+			if (!node) { return; }
 
 			// Check if this is a top-level statement/declaration
 			const nodeType = node.type;

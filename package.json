@@ -20,7 +20,9 @@
       "tar": "^6.2.1"
     },
     "qs": "^6.14.1",
-    "dagre-d3-es": "^7.0.14"
+    "dagre-d3-es": "^7.0.14",
+    "sharp": "^0.33.5",
+    "postcss": "^8.5.4"
   },
   "resolutions": {
     "@electron/get": "2.0.3"
@@ -198,7 +200,7 @@
     "@types/yauzl": "^2.10.0",
     "@types/yazl": "^3.3.0",
     "@typescript-eslint/utils": "^8.45.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260102.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260103.1",
     "@vscode/gulp-electron": "^1.38.2",
     "@vscode/l10n-dev": "0.0.35",
     "@vscode/telemetry-extractor": "^1.10.2",
@@ -282,7 +284,7 @@
     "tsec": "0.2.9",
     "tslib": "^2.6.3",
     "tsup": "^8.4.0",
-    "typescript": "^6.0.0-dev.20260102",
+    "typescript": "^6.0.0-dev.20260103",
     "typescript-eslint": "^8.45.0",
     "util": "^0.12.4",
     "webpack": "^5.94.0",

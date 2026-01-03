@@ -52,10 +52,10 @@ export class TaskService extends Disposable implements ITaskService {
 
             const data = await response.json();
             // Map raw data to IProject interface if needed, or assume match
-            this._projects = data.map((p: unknown) => ({
+            this._projects = data.map((p: any) => ({
                 id: p.id,
                 name: p.name,
-                tasks: p.tasks?.map((t: unknown) => ({
+                tasks: p.tasks?.map((t: any) => ({
                     id: t.id,
                     projectId: t.project_id,
                     title: t.title,

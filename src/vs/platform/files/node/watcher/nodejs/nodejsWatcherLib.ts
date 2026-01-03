@@ -97,7 +97,7 @@ export class NodeJSFileWatcherLibrary extends Disposable {
 	) {
 		super();
 
-		(this.request as unknown).path = normalize(this.request.path);
+		(this.request as any).path = normalize(this.request.path);
 
 		this.excludes = parseWatcherPatterns(this.request.path, this.request.excludes);
 		this.includes = this.request.includes ? parseWatcherPatterns(this.request.path, this.request.includes) : undefined;

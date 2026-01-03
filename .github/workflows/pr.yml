@@ -4,21 +4,23 @@ on:
   pull_request:
     branches:
       - main
-      - 'release/*'
+      - "release/*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: {}
+permissions:
+  contents: read
+  statuses: write
 
 env:
-  VSCODE_QUALITY: 'oss'
+  VSCODE_QUALITY: "oss"
 
 jobs:
   compile:
     name: Compile & Hygiene
-    runs-on: [ self-hosted, 1ES.Pool=1es-vscode-oss-ubuntu-22.04-x64 ]
+    runs-on: [self-hosted, 1ES.Pool=1es-vscode-oss-ubuntu-22.04-x64]
     steps:
       - name: Checkout
         uses: actions/checkout@v6

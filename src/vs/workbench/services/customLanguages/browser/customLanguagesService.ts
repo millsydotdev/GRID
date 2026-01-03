@@ -37,9 +37,9 @@ export class CustomLanguagesService extends Disposable implements ICustomLanguag
 		@ILanguageService private readonly languageService: ILanguageService,
 		@ILanguageConfigurationService private readonly languageConfigurationService: ILanguageConfigurationService,
 		@IFileService private readonly fileService: IFileService,
-		@ITextMateTokenizationService private readonly _textMateService: ITextMateTokenizationService,
+		@ITextMateTokenizationService _textMateService: ITextMateTokenizationService,
 		@ILogService private readonly logService: ILogService,
-		@IConfigurationService private readonly _configurationService: IConfigurationService
+		@IConfigurationService _configurationService: IConfigurationService
 	) {
 		super();
 		this.loadFromConfiguration();

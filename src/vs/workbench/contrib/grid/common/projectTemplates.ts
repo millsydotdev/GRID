@@ -8,7 +8,7 @@
  * Pre-defined templates with recommended tech stacks, architectures, and file formats
  */
 
-import type { ProjectTemplate, FileFormatRecommendation, TechStack, ProjectCategory } from './projectContextService.js';
+import type { ProjectTemplate, FileFormatRecommendation, ProjectCategory } from './projectContextService.js';
 
 /**
  * Common file format recommendations by category

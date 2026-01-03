@@ -33,7 +33,7 @@ export class TasksView extends ViewPane {
         super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     }
 
-    protected renderBody(container: HTMLElement): void {
+    protected override renderBody(container: HTMLElement): void {
         super.renderBody(container);
 
         const listContainer = $('.tasks-list-container');

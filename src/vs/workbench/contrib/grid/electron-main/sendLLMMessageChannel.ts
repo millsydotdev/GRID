@@ -55,8 +55,8 @@ export class LLMMessageChannel implements IServerChannel<string> {
 		},
 	} satisfies {
 		[providerName in 'ollama' | 'openaiCompat']: {
-			success: Emitter<EventModelListOnSuccessParams<unknown>>;
-			error: Emitter<EventModelListOnErrorParams<unknown>>;
+			success: Emitter<EventModelListOnSuccessParams<any>>;
+			error: Emitter<EventModelListOnErrorParams<any>>;
 		};
 	};
 
@@ -142,7 +142,10 @@ export class LLMMessageChannel implements IServerChannel<string> {
 				emitters.error.fire({ requestId, ...p });
 			},
 		};
-		sendLLMMessageToProviderImplementation.ollama.list(mainThreadParams);
+		const listFn = sendLLMMessageToProviderImplementation.ollama.list;
+		if (listFn) {
+			listFn(mainThreadParams);
+		}
 	};
 
 	_callOpenAICompatibleList = (params: MainModelListParams<OpenaiCompatibleModelResponse>) => {
@@ -157,6 +160,9 @@ export class LLMMessageChannel implements IServerChannel<string> {
 				emitters.error.fire({ requestId, ...p });
 			},
 		};
-		sendLLMMessageToProviderImplementation[providerName].list(mainThreadParams);
+		const listFn = sendLLMMessageToProviderImplementation[providerName].list;
+		if (listFn) {
+			listFn(mainThreadParams);
+		}
 	};
 }
