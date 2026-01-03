@@ -37,7 +37,7 @@
     "@types/pump": "^1.0.1",
     "@types/rimraf": "^4.0.5",
     "@types/through": "^0.0.29",
-    "@types/through2": "^2.0.36",
+    "@types/through2": "^2.0.41",
     "@types/vinyl": "^2.0.12",
     "@types/workerpool": "^6.4.0",
     "@types/xml2js": "0.0.33",
