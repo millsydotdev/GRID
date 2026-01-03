@@ -15,6 +15,9 @@ import {
 } from './telemetryTypes.js';
 import { TelemetryStorageService } from './telemetryStorage.js';
 import { generateUuid } from '../../../../../base/common/uuid.js';
+import { TaskType } from '../modelRouter.js';
+import { IFileService } from '../../../../../platform/files/common/files.js';
+import { IEnvironmentService } from '../../../../../platform/environment/common/environment.js';
 
 export const IGridTelemetryService = createDecorator<IGridTelemetryService>('GridTelemetryService');
 
@@ -56,9 +59,12 @@ export class GridTelemetryService extends Disposable implements IGridTelemetrySe
 	private pendingEventIds: Map<string, RoutingDecisionEvent> = new Map();
 	private storageService: TelemetryStorageService;
 
-	constructor() {
+	constructor(
+		@IFileService fileService: IFileService,
+		@IEnvironmentService environmentService: IEnvironmentService
+	) {
 		super();
-		this.storageService = new TelemetryStorageService();
+		this.storageService = new TelemetryStorageService(fileService, environmentService);
 		this._startFlushTimer();
 		this._register({
 			dispose: () => {
