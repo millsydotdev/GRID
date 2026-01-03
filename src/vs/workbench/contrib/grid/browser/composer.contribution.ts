@@ -36,7 +36,7 @@ const container = viewContainerRegistry.registerViewContainer(
         ]),
         hideIfEmpty: false,
         order: 4,
-        icon: ThemeIcon.asThemeIcon(Codicon.wand), // Magic wand for AI Composer
+        icon: Codicon.wand, // Magic wand for AI Composer
     },
     ViewContainerLocation.Sidebar,
     { isDefault: false }

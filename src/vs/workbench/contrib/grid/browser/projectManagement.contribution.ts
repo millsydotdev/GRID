@@ -36,7 +36,7 @@ const container = viewContainerRegistry.registerViewContainer(
         ]),
         hideIfEmpty: false,
         order: 3,
-        icon: ThemeIcon.asThemeIcon(Codicon.project),
+        icon: Codicon.project,
     },
     ViewContainerLocation.Sidebar,
     { isDefault: false }

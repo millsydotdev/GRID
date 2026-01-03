@@ -100,7 +100,7 @@ const container = viewContainerRegistry.registerViewContainer(
         ]),
         hideIfEmpty: false,
         order: 2, // explicit order
-        icon: ThemeIcon.asThemeIcon(Codicon.server),
+        icon: Codicon.server,
     },
     ViewContainerLocation.Sidebar,
     { isDefault: false }
