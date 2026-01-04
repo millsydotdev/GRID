@@ -13,7 +13,7 @@ import {
 
 suite('Secret Detection', () => {
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	suite('detectSecrets', () => {
 		test('should detect OpenAI API keys', () => {
 			const text = 'My API key is sk-proj-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz';

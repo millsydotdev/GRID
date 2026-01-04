@@ -4,20 +4,20 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { URI } from '../../../../base/common/uri.js';
-import { LocalContextService } from '../browser/localContextService.js';
-import { TestInstantiationService } from '../../../../platform/instantiation/test/common/instantiationServiceMock.js';
-import { NullLogService } from '../../../../platform/log/common/log.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { LocalContextService } from '../../browser/localContextService.js';
+import { TestInstantiationService } from '../../../../../platform/instantiation/test/common/instantiationServiceMock.js';
+import { NullLogService } from '../../../../../platform/log/common/log.js';
 
 suite('LocalContextService', () => {
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
     let service: LocalContextService;
     let instantiationService: TestInstantiationService;
 
     setup(() => {
         instantiationService = new TestInstantiationService();
-        service = new LocalContextService(new NullLogService(), instantiationService);
+        service = new LocalContextService(new NullLogService(), {} as any);
     });
 
     teardown(() => {

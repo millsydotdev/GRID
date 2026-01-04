@@ -6,11 +6,8 @@
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
-import { ITextModel } from '../../../../editor/common/model.js';
 import { Range } from '../../../../editor/common/core/range.js';
-import { Selection } from '../../../../editor/common/core/selection.js';
 import { DiffLine, myersDiff, myersCharDiff, DiffChar } from './diff/myersDiff.js';
-import { streamDiff, stringToLineStream, applyStreamingDiff } from './diff/streamDiff.js';
 
 export const IStreamingDiffService = createDecorator<IStreamingDiffService>('streamingDiffService');
 
@@ -152,10 +149,6 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 		this.activeStreams.set(editorId, abortController);
 
 		try {
-			// Convert string stream to line stream
-			const oldLines = oldContent.split('\n');
-			const newLineStream = stringToLineStream(''); // Placeholder
-
 			// Create an async generator that yields new content as it arrives
 			const streamGenerator = async function* () {
 				let accumulated = '';
@@ -326,29 +319,6 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 				{
 					range: fullRange,
 					text: newContent,
-				},
-			],
-			() => []
-		);
-	}
-
-	/**
-	 * Reject a diff and revert to old content
-	 */
-	private rejectDiff(editor: ICodeEditor, oldContent: string): void {
-		const model = editor.getModel();
-		if (!model) {
-			return;
-		}
-
-		// Revert to old content
-		const fullRange = model.getFullModelRange();
-		model.pushEditOperations(
-			[],
-			[
-				{
-					range: fullRange,
-					text: oldContent,
 				},
 			],
 			() => []

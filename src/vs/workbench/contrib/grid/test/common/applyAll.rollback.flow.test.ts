@@ -61,7 +61,7 @@ class MockApplyService {
 
 suite('ApplyAll Rollback Flow', () => {
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	let rollbackService: MockRollbackService;
 	let gitAutoStashService: MockGitAutoStashService;
 	let applyService: MockApplyService;

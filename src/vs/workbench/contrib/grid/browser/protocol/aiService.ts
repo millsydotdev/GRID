@@ -6,7 +6,6 @@
 import { URI } from '../../../../../base/common/uri.js';
 import { Position } from '../../../../../editor/common/core/position.js';
 import { Range } from '../../../../../editor/common/core/range.js';
-import { IProtocol } from './messenger.js';
 
 /**
  * Chat message structure

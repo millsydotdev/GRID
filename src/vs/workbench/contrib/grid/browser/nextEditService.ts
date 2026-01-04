@@ -4,13 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
-import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-import type * as vscode from 'vscode';
 import { URI } from '../../../../base/common/uri.js';
 import { Position } from '../../../../editor/common/core/position.js';
 import { Range } from '../../../../editor/common/core/range.js';
-import { ITextModel } from '../../../../editor/common/model.js';
 
 export const INextEditService = createDecorator<INextEditService>('nextEditService');
 
@@ -156,9 +153,7 @@ export class NextEditService extends Disposable implements INextEditService {
 	private readonly CHAIN_MIN_LENGTH = 2;
 	private readonly PREFETCH_DELAY = 500; // ms
 
-	constructor(
-		@IInstantiationService private readonly instantiationService: IInstantiationService
-	) {
+	constructor() {
 		super();
 	}
 

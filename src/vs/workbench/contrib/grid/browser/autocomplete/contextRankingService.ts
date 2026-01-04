@@ -6,7 +6,6 @@
 import { Disposable } from '../../../../../base/common/lifecycle.js';
 import { createDecorator } from '../../../../../platform/instantiation/common/instantiation.js';
 import { URI } from '../../../../../base/common/uri.js';
-import { ITextModel } from '../../../../../editor/common/model.js';
 import { Range } from '../../../../../editor/common/core/range.js';
 
 export const IContextRankingService = createDecorator<IContextRankingService>('contextRankingService');
@@ -150,7 +149,6 @@ export class ContextRankingService extends Disposable implements IContextRanking
 
 	// Recency decay parameters
 	private readonly RECENCY_DECAY_HOURS = 24;
-	private readonly RECENCY_DECAY_FACTOR = 0.5; // Half-life
 
 	constructor() {
 		super();
