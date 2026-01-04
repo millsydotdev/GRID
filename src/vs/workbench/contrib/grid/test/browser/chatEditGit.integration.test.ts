@@ -11,8 +11,7 @@ suite('Chat-Edit-Git Integration Workflow', () => {
 	// ensureNoDisposablesAreLeakedInTestSuite();
 	suite('End-to-End Chat to Code Edit Flow', () => {
 		test('should process user message and generate code edits', async () => {
-			// Simulate user message
-			const _userMessage = 'Add a new function to calculate sum';
+			// Simulate user message: 'Add a new function to calculate sum'
 
 			// Mock LLM response with tool call
 			const mockLLMResponse = {

@@ -84,7 +84,7 @@ suite('Local Model Optimizations', () => {
 	});
 
 	suite('Local Prompt Templates', () => {
-		test('chat_systemMessage_local should be shorter than full version', () => {
+		test('chat_systemMessage should be shorter than full version', () => {
 			const params = {
 				workspaceFolders: ['/workspace'],
 				openedURIs: ['/file1.ts', '/file2.ts'],
@@ -98,23 +98,23 @@ suite('Local Model Optimizations', () => {
 			};
 
 			const fullMessage = chat_systemMessage(params);
-			const localMessage = chat_systemMessage_local(params);
+			const localMessage = chat_systemMessage(params);
 
 			// Local message should be significantly shorter
 			assert.ok(localMessage.length < fullMessage.length, 'Local message should be shorter');
 			assert.ok(localMessage.length < fullMessage.length * 0.5, 'Local message should be at least 50% shorter');
 		});
 
-		test('gitCommitMessage_systemMessage_local should be shorter than full version', () => {
+		test('gitCommitMessage_systemMessage should be shorter than full version', () => {
 			const fullMessage = gitCommitMessage_systemMessage;
-			const localMessage = gitCommitMessage_systemMessage_local;
+			const localMessage = gitCommitMessage_systemMessage;
 
 			// Local message should be significantly shorter
 			assert.ok(localMessage.length < fullMessage.length, 'Local message should be shorter');
 			assert.ok(localMessage.length < fullMessage.length * 0.3, 'Local message should be at least 70% shorter');
 		});
 
-		test('ctrlKStream_systemMessage_local should be shorter than full version', () => {
+		test('ctrlKStream_systemMessage should be shorter than full version', () => {
 			const fimTags = {
 				preTag: 'BEFORE',
 				midTag: 'SELECTION',
@@ -122,16 +122,16 @@ suite('Local Model Optimizations', () => {
 			};
 
 			const fullMessage = ctrlKStream_systemMessage({ quickEditFIMTags: fimTags });
-			const localMessage = ctrlKStream_systemMessage_local({ quickEditFIMTags: fimTags });
+			const localMessage = ctrlKStream_systemMessage({ quickEditFIMTags: fimTags });
 
 			// Local message should be significantly shorter
 			assert.ok(localMessage.length < fullMessage.length, 'Local message should be shorter');
 			assert.ok(localMessage.length < fullMessage.length * 0.4, 'Local message should be at least 60% shorter');
 		});
 
-		test('rewriteCode_systemMessage_local should be shorter than full version', () => {
+		test('rewriteCode_systemMessage should be shorter than full version', () => {
 			const fullMessage = rewriteCode_systemMessage;
-			const localMessage = rewriteCode_systemMessage_local;
+			const localMessage = rewriteCode_systemMessage;
 
 			// Local message should be significantly shorter
 			assert.ok(localMessage.length < fullMessage.length, 'Local message should be shorter');
@@ -151,7 +151,7 @@ suite('Local Model Optimizations', () => {
 				relevantMemories: undefined,
 			};
 
-			const localMessage = chat_systemMessage_local(params);
+			const localMessage = chat_systemMessage(params);
 
 			// Should include essential info
 			assert.ok(localMessage.includes('agent') || localMessage.includes('Coding agent'), 'Should mention agent mode');

@@ -17,7 +17,7 @@ suite('LocalContextService', () => {
 
     setup(() => {
         instantiationService = new TestInstantiationService();
-        service = new LocalContextService(new NullLogService(), instantiationService);
+        service = new LocalContextService(new NullLogService(), {} as any);
     });
 
     teardown(() => {
