@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
-import { ITextModel, IModelContentChangedEvent } from '../../../../editor/common/model.js';
+import { ITextModel } from '../../../../editor/common/model.js';
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 import { INextEditService, IDocumentChange } from './nextEditService.js';
 import { URI } from '../../../../base/common/uri.js';
@@ -64,7 +64,7 @@ export class DocumentHistoryTracker extends Disposable {
 		this.trackedModels.set(uriKey, model);
 
 		// Listen for content changes
-		const changeListener = model.onDidChangeContent((e: IModelContentChangedEvent) => {
+		const changeListener = model.onDidChangeContent((e: any) => {
 			this.onModelContentChanged(model, e);
 		});
 
@@ -82,7 +82,7 @@ export class DocumentHistoryTracker extends Disposable {
 	/**
 	 * Handle model content changes
 	 */
-	private onModelContentChanged(model: ITextModel, event: IModelContentChangedEvent): void {
+	private onModelContentChanged(model: ITextModel, event: any): void {
 		// Convert VS Code change event to our IDocumentChange format
 		const documentChange: IDocumentChange = {
 			uri: model.uri,
