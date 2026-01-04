@@ -17,7 +17,7 @@ clap = { version = "4.5.22", features = ["derive", "env"] }
 open = "4.1.0"
 reqwest = { version = "0.11.22", default-features = false, features = ["json", "stream", "native-tls"] }
 tokio = { version = "1.38.2", features = ["full"] }
-tokio-util = { version = "0.7.17", features = ["compat", "codec"] }
+tokio-util = { version = "0.7.18", features = ["compat", "codec"] }
 flate2 = { version = "1.0.26", default-features = false, features = ["zlib"] }
 zip = { version = "2.3.0", default-features = false, features = ["time", "deflate-zlib"] }
 regex = "1.12.2"
