@@ -26,7 +26,7 @@
     "@types/gulp-rename": "^0.0.33",
     "@types/gulp-replace": "^1.1.0",
     "@types/gulp-sort": "^2.0.4",
-    "@types/gulp-sourcemaps": "^0.0.32",
+    "@types/gulp-sourcemaps": "^0.0.38",
     "@types/jws": "^3.2.10",
     "@types/lazy.js": "^0.5.9",
     "@types/mime": "4.0.0",
