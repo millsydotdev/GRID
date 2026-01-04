@@ -429,7 +429,7 @@ export class ContentAddressableIndexingService extends Disposable implements ICo
 		try {
 			// Find entry across all branches
 			let entry: IIndexEntry | undefined;
-			for (const [key, e] of this._index.entries()) {
+			for (const [_key, e] of this._index.entries()) {
 				if (e.uri.toString() === uri.toString()) {
 					entry = e;
 					break;
@@ -473,7 +473,7 @@ export class ContentAddressableIndexingService extends Disposable implements ICo
 		try {
 			// Find entry across all branches
 			let entry: IIndexEntry | undefined;
-			for (const [key, e] of this._index.entries()) {
+			for (const [_key, e] of this._index.entries()) {
 				if (e.uri.toString() === uri.toString()) {
 					entry = e;
 					break;

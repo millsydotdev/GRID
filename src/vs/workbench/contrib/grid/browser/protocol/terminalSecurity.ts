@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IProtocol } from './messenger.js';
 import { ISecurityEvaluation, ISecurityRisk, SecurityPolicy } from '../terminalSecurityService.js';
 
 /**
