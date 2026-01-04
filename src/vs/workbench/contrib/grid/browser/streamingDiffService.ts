@@ -8,7 +8,6 @@ import { createDecorator } from '../../../../platform/instantiation/common/insta
 import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
 import { Range } from '../../../../editor/common/core/range.js';
 import { DiffLine, myersDiff, myersCharDiff, DiffChar } from './diff/myersDiff.js';
-import { stringToLineStream } from './diff/streamDiff.js';
 
 export const IStreamingDiffService = createDecorator<IStreamingDiffService>('streamingDiffService');
 
