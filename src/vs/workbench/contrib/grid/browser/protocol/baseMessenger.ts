@@ -20,11 +20,10 @@ export abstract class BaseMessenger<TSend extends IProtocol, TReceive extends IP
 	private readonly _pendingRequests = new Map<string, {
 		resolve: (value: any) => void;
 		reject: (error: Error) => void;
-		timeout?: NodeJS.Timeout;
+		timeout?: any;
 	}>();
 
 	private readonly _onError = this._register(new Emitter<{ message: IMessage; error: Error }>());
-	readonly onError: Event<{ message: IMessage; error: Error }> = this._onError.event;
 
 	// Configuration
 	protected readonly requestTimeout = 30000; // 30 seconds
@@ -200,7 +199,7 @@ export abstract class BaseMessenger<TSend extends IProtocol, TReceive extends IP
 	 */
 	override dispose(): void {
 		// Reject all pending requests
-		for (const [id, request] of this._pendingRequests.entries()) {
+		for (const [_id, request] of this._pendingRequests.entries()) {
 			request.reject(new Error('Messenger disposed'));
 			if (request.timeout) {
 				clearTimeout(request.timeout);
