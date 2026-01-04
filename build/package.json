@@ -5,7 +5,7 @@
   "devDependencies": {
     "@azure/core-auth": "^1.9.0",
     "@azure/cosmos": "^4",
-    "@azure/identity": "^4.2.1",
+    "@azure/identity": "^4.13.0",
     "@azure/msal-node": "^2.16.1",
     "@azure/storage-blob": "^12.25.0",
     "@electron/get": "^2.0.0",
@@ -42,7 +42,7 @@
     "@types/workerpool": "^6.4.0",
     "@types/xml2js": "0.0.33",
     "@vscode/iconv-lite-umd": "0.7.1",
-    "@vscode/ripgrep": "^1.15.13",
+    "@vscode/ripgrep": "^1.17.0",
     "@vscode/vsce": "3.6.1",
     "ansi-colors": "^3.2.3",
     "byline": "^5.0.0",
