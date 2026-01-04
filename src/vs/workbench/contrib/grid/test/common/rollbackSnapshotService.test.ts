@@ -103,7 +103,7 @@ class MockResolvedTextEditorModel {
 	}
 
 	load(): Promise<IResolvedTextEditorModel> {
-		return Promise.resolve(this);
+		return Promise.resolve(this as any);
 	}
 
 	save(): Promise<void> {

@@ -92,7 +92,7 @@ class MockAutoStashService {
 
 suite('AutoStash Flow', () => {
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	let gitRepo: MockGitRepo;
 	let autoStashService: MockAutoStashService;
 

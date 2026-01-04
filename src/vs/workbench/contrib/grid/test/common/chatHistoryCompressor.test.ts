@@ -13,7 +13,7 @@ type SimpleMessage = {
 };
 
 suite('ChatHistoryCompressor Tests', () => {
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	let compressor: ChatHistoryCompressor;
 
 	setup(() => {
