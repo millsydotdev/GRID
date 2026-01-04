@@ -150,10 +150,6 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 		this.activeStreams.set(editorId, abortController);
 
 		try {
-			// Convert string stream to line stream
-			const _oldLines = oldContent.split('\n');
-			const _newLineStream = stringToLineStream(''); // Placeholder
-
 			// Create an async generator that yields new content as it arrives
 			const streamGenerator = async function* () {
 				let accumulated = '';
@@ -324,29 +320,6 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 				{
 					range: fullRange,
 					text: newContent,
-				},
-			],
-			() => []
-		);
-	}
-
-	/**
-	 * Reject a diff and revert to old content
-	 */
-	private _rejectDiff(editor: ICodeEditor, oldContent: string): void {
-		const model = editor.getModel();
-		if (!model) {
-			return;
-		}
-
-		// Revert to old content
-		const fullRange = model.getFullModelRange();
-		model.pushEditOperations(
-			[],
-			[
-				{
-					range: fullRange,
-					text: oldContent,
 				},
 			],
 			() => []

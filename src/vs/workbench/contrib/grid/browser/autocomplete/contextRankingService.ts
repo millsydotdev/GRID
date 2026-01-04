@@ -149,7 +149,6 @@ export class ContextRankingService extends Disposable implements IContextRanking
 
 	// Recency decay parameters
 	private readonly RECENCY_DECAY_HOURS = 24;
-	private readonly _RECENCY_DECAY_FACTOR = 0.5; // Half-life
 
 	constructor() {
 		super();

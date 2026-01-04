@@ -591,7 +591,7 @@ export class ContentAddressableIndexingService extends Disposable implements ICo
 		}
 
 		// Find files that were indexed but no longer exist
-		for (const [key, entry] of this._index.entries()) {
+		for (const [_key, entry] of this._index.entries()) {
 			if (entry.branch === toBranch) {
 				const exists = Array.from(currentFiles.keys()).some(
 					uri => uri.toString() === entry.uri.toString()

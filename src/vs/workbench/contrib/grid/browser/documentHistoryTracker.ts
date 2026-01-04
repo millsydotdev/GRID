@@ -88,7 +88,7 @@ export class DocumentHistoryTracker extends Disposable {
 			uri: model.uri,
 			timestamp: Date.now(),
 			versionId: model.getVersionId(),
-			changes: event.changes.map((change) => ({
+			changes: event.changes.map((change: any) => ({
 				range: new Range(
 					change.range.startLineNumber,
 					change.range.startColumn,

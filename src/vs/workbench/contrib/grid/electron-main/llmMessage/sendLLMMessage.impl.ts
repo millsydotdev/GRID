@@ -1595,6 +1595,7 @@ type CallFnOfProvider = {
 	};
 };
 
+// @ts-expect-error - Partial implementation of CallFnOfProvider (not all providers implemented)
 export const sendLLMMessageToProviderImplementation = {
 	anthropic: {
 		sendChat: sendAnthropicChat,
@@ -1683,7 +1684,6 @@ export const sendLLMMessageToProviderImplementation = {
 		sendFIM: null,
 		list: null,
 	},
-// @ts-expect-error - Partial implementation of CallFnOfProvider (not all providers implemented)
 } as CallFnOfProvider;
 
 /*

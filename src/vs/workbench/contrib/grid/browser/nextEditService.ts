@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
-import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { URI } from '../../../../base/common/uri.js';
 import { Position } from '../../../../editor/common/core/position.js';
@@ -154,9 +153,7 @@ export class NextEditService extends Disposable implements INextEditService {
 	private readonly CHAIN_MIN_LENGTH = 2;
 	private readonly PREFETCH_DELAY = 500; // ms
 
-	constructor(
-		@IInstantiationService private readonly _instantiationService: IInstantiationService
-	) {
+	constructor() {
 		super();
 	}
 
