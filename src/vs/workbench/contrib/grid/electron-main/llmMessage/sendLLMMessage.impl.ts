@@ -1683,7 +1683,8 @@ export const sendLLMMessageToProviderImplementation = {
 		sendFIM: null,
 		list: null,
 	},
-} as unknown as CallFnOfProvider;
+// @ts-expect-error - Partial implementation of CallFnOfProvider (not all providers implemented)
+} as CallFnOfProvider;
 
 /*
 FIM info (this may be useful in the future with vLLM, but in most cases the only way to use FIM is if the provider explicitly supports it):
