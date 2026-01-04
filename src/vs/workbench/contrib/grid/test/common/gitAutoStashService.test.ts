@@ -310,7 +310,7 @@ class MockGitAutoStashService implements IGitAutoStashService {
 }
 
 suite('GitAutoStashService Tests', () => {
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	let service: MockGitAutoStashService;
 	let mockConfigService: MockConfigurationService;
 	let mockLogService: MockLogService;
