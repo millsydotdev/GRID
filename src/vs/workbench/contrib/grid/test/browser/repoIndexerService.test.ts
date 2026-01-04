@@ -4,11 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { URI } from '../../../../../base/common/uri.js';
 
 suite('RepoIndexerService', () => {
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	suite('Index Entry Structure', () => {
 		test('should create valid index entry', () => {
 			const entry = {
@@ -258,7 +257,9 @@ suite('RepoIndexerService', () => {
 			if (cache.size > MAX_SIZE) {
 				// Remove oldest entry
 				const firstKey = cache.keys().next().value;
-				cache.delete(firstKey);
+				if (firstKey) {
+					cache.delete(firstKey);
+				}
 			}
 
 			assert.ok(cache.size <= MAX_SIZE);

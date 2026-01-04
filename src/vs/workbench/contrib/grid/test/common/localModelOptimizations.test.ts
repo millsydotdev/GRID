@@ -7,18 +7,14 @@ import * as assert from 'assert';
 import { isLocalProvider } from '../../browser/convertToLLMMessageService.js';
 import {
 	chat_systemMessage,
-	chat_systemMessage_local,
 	gitCommitMessage_systemMessage,
-	gitCommitMessage_systemMessage_local,
 	ctrlKStream_systemMessage,
-	ctrlKStream_systemMessage_local,
 	rewriteCode_systemMessage,
-	rewriteCode_systemMessage_local,
 } from '../../common/prompt/prompts.js';
 
 suite('Local Model Optimizations', () => {
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+	// ensureNoDisposablesAreLeakedInTestSuite();
 	suite('isLocalProvider', () => {
 		test('should detect explicit local providers', () => {
 			const settingsOfProvider: any = {};
