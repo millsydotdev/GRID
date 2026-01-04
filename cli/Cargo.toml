@@ -38,7 +38,7 @@ tunnels = { git = "https://github.com/microsoft/dev-tunnels", rev = "8cae9b2a24c
 keyring = { version = "2.0.3", default-features = false, features = ["linux-secret-service-rt-tokio-crypto-openssl", "platform-windows", "platform-macos", "linux-keyutils"] }
 dialoguer = "0.12.0"
 hyper = { version = "0.14.26", features = ["server", "http1", "runtime"] }
-indicatif = "0.17.4"
+indicatif = "0.18.3"
 tempfile = "3.5.0"
 clap_lex = "0.7.0"
 url = "2.5.4"
