@@ -1,5 +1,8 @@
 name: Publish Unreal Engine Extension
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
