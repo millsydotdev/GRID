@@ -110,7 +110,7 @@
     "@microsoft/1ds-core-js": "^4.3.10",
     "@microsoft/1ds-post-js": "^4.3.10",
     "@mistralai/mistralai": "^1.6.0",
-    "@modelcontextprotocol/sdk": "^1.11.2",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@parcel/watcher": "parcel-bundler/watcher#1ca032aa8339260a8a3bcf825c3a1a71e3e43542",
     "@types/semver": "^7.5.8",
     "@vscode/deviceid": "^0.1.1",
