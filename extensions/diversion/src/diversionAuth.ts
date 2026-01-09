@@ -55,7 +55,7 @@ export class DiversionAuthenticationProvider implements vscode.AuthenticationPro
 				disposable.dispose();
 			}, 5 * 60 * 1000);
 
-			const disposable = this.uriHandler.onToken(token => {
+			const disposable = this.uriHandler.onToken((token: string) => {
 				clearTimeout(timeout);
 				resolve(token);
 				disposable.dispose();
