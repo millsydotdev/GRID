@@ -18,7 +18,7 @@ import ternaryStream from 'ternary-stream';
 
 const root = path.dirname(path.dirname(__dirname));
 
-// Use require for rimraf 2.2.8 (CommonJS module, no default export)
+// Use require for rimraf v3 (CommonJS module with callback API)
 const rimrafModule = require('rimraf');
 
 export interface ICancellationToken {
@@ -300,7 +300,7 @@ export function rimraf(dir: string): () => Promise<void> {
 		let retries = 0;
 
 		const retry = () => {
-			rimrafModule(dir, { maxBusyTries: 1 }, (err: any) => {
+			rimrafModule(dir, (err: any) => {
 				if (!err) {
 					return c();
 				}

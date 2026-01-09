@@ -101,7 +101,9 @@ class TranspileWorker {
                     SuffixTypes[SuffixTypes["Ts"] = 3] = "Ts";
                     SuffixTypes[SuffixTypes["Unknown"] = 0] = "Unknown";
                 })(SuffixTypes || (SuffixTypes = {}));
-                const suffixLen = file.path.endsWith('.d.ts') ? 5 /* SuffixTypes.Dts */ : file.path.endsWith('.ts') ? 3 /* SuffixTypes.Ts */ : 0 /* SuffixTypes.Unknown */;
+                const suffixLen = file.path.endsWith('.d.ts') ? 5 /* SuffixTypes.Dts */
+                    : file.path.endsWith('.ts') ? 3 /* SuffixTypes.Ts */
+                        : 0 /* SuffixTypes.Unknown */;
                 // check if output of a DTS-files isn't just "empty" and iff so
                 // skip this file
                 if (suffixLen === 5 /* SuffixTypes.Dts */ && _isDefaultEmpty(jsSrc)) {

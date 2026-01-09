@@ -1,8 +1,4 @@
-"use strict";
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+﻿"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -69,7 +65,6 @@ const fs_1 = __importDefault(require("fs"));
 const url_1 = require("url");
 const ternary_stream_1 = __importDefault(require("ternary-stream"));
 const root = path_1.default.dirname(path_1.default.dirname(__dirname));
-// Use require for rimraf 2.2.8 (CommonJS module, no default export)
 const rimrafModule = require('rimraf');
 const NoCancellationToken = { isCancellationRequested: () => false };
 function incremental(streamProvider, initial, supportsCancellation) {
@@ -154,7 +149,7 @@ function setExecutableBit(pattern) {
             const stat = { isFile() { return true; }, mode: 0 };
             f.stat = stat;
         }
-        f.stat.mode = /* 100755 */ 33261;
+        f.stat.mode = 33261;
         return f;
     });
     if (!pattern) {
@@ -187,8 +182,8 @@ function cleanNodeModules(rulePath) {
         .split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line && !/^#/.test(line));
-    const excludes = rules.filter(line => !/^!/.test(line)).map(line => `!**/node_modules/${line}`);
-    const includes = rules.filter(line => /^!/.test(line)).map(line => `**/node_modules/${line.substr(1)}`);
+    const excludes = rules.filter(line => !/^!/.test(line)).map(line => '!**/node_modules/' + line);
+    const includes = rules.filter(line => /^!/.test(line)).map(line => '**/node_modules/' + line.substr(1));
     const input = es.through();
     const output = es.merge(input.pipe((0, gulp_filter_1.default)(['**', ...excludes])), input.pipe((0, gulp_filter_1.default)(includes)));
     return es.duplex(input, output);
@@ -244,22 +239,20 @@ function stripSourceMappingURL() {
     }));
     return es.duplex(input, output);
 }
-/** Splits items in the stream based on the predicate, sending them to onTrue if true, or onFalse otherwise */
 function $if(test, onTrue, onFalse = es.through()) {
     if (typeof test === 'boolean') {
         return test ? onTrue : onFalse;
     }
     return (0, ternary_stream_1.default)(test, onTrue, onFalse);
 }
-/** Operator that appends the js files' original path a sourceURL, so debug locations map */
 function appendOwnPathSourceURL() {
     const input = es.through();
     const output = input
         .pipe(es.mapSync(f => {
         if (!(f.contents instanceof Buffer)) {
-            throw new Error(`contents of ${f.path} are not a buffer`);
+            throw new Error('contents of ' + f.path + ' are not a buffer');
         }
-        f.contents = Buffer.concat([f.contents, Buffer.from(`\n//# sourceURL=${(0, url_1.pathToFileURL)(f.path)}`)]);
+        f.contents = Buffer.concat([f.contents, Buffer.from('\n//# sourceURL=' + (0, url_1.pathToFileURL)(f.path))]);
         return f;
     }));
     return es.duplex(input, output);
@@ -269,7 +262,7 @@ function rewriteSourceMappingURL(sourceMappingURLBase) {
     const output = input
         .pipe(es.mapSync(f => {
         const contents = f.contents.toString('utf8');
-        const str = `//# sourceMappingURL=${sourceMappingURLBase}/${path_1.default.dirname(f.relative).replace(/\\/g, '/')}/$1`;
+        const str = '//# sourceMappingURL=' + sourceMappingURLBase + '/' + path_1.default.dirname(f.relative).replace(/\\/g, '/') + '/$1';
         f.contents = Buffer.from(contents.replace(/\n\/\/# sourceMappingURL=(.*)$/gm, str));
         return f;
     }));
@@ -279,7 +272,7 @@ function rimraf(dir) {
     const result = () => new Promise((c, e) => {
         let retries = 0;
         const retry = () => {
-            rimrafModule(dir, { maxBusyTries: 1 }, (err) => {
+            rimrafModule(dir, (err) => {
                 if (!err) {
                     return c();
                 }
@@ -291,17 +284,17 @@ function rimraf(dir) {
         };
         retry();
     });
-    result.taskName = `clean-${path_1.default.basename(dir).toLowerCase()}`;
+    result.taskName = 'clean-' + path_1.default.basename(dir).toLowerCase();
     return result;
 }
 function _rreaddir(dirPath, prepend, result) {
     const entries = fs_1.default.readdirSync(dirPath, { withFileTypes: true });
     for (const entry of entries) {
         if (entry.isDirectory()) {
-            _rreaddir(path_1.default.join(dirPath, entry.name), `${prepend}/${entry.name}`, result);
+            _rreaddir(path_1.default.join(dirPath, entry.name), prepend + '/' + entry.name, result);
         }
         else {
-            result.push(`${prepend}/${entry.name}`);
+            result.push(prepend + '/' + entry.name);
         }
     }
 }
@@ -395,4 +388,3 @@ class VinylStat {
     isSocket() { return false; }
 }
 exports.VinylStat = VinylStat;
-//# sourceMappingURL=util.js.map

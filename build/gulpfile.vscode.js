@@ -33,8 +33,8 @@ const minimist = require('minimist');
 const { compileBuildWithoutManglingTask, compileBuildWithManglingTask } = require('./gulpfile.compile');
 const { compileNonNativeExtensionsBuildTask, compileNativeExtensionsBuildTask, compileAllExtensionsBuildTask, compileExtensionMediaBuildTask, cleanExtensionsBuildTask } = require('./gulpfile.extensions');
 const { promisify } = require('util');
-const glob = promisify(require('glob'));
-const rcedit = promisify(require('rcedit'));
+const { glob } = require('glob');
+const { rcedit } = require('rcedit');
 
 // Build
 const vscodeEntryPoints = [

@@ -112,7 +112,7 @@ async function main(buildDir) {
     await retrySignOnKeychainError(() => (0, osx_sign_1.sign)(appOpts));
 }
 if (require.main === module) {
-    main(process.argv[2]).catch(async err => {
+    main(process.argv[2]).catch(async (err) => {
         console.error(err);
         const tempDir = process.env['AGENT_TEMPDIRECTORY'];
         if (tempDir) {
