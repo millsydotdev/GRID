@@ -37,6 +37,8 @@ import { IConvertToLLMMessageService } from './convertToLLMMessageService.js';
 import { IAutocompleteDebouncer } from './autocomplete/autocompleteDebouncer.js';
 import { IBracketMatchingService } from './autocomplete/bracketMatchingService.js';
 import { IAutocompleteLoggingService } from './autocomplete/autocompleteLoggingService.js';
+import { IContextRankingService } from './autocomplete/contextRankingService.js';
+import { IRootPathContextService } from './autocomplete/rootPathContextService.js';
 import { LRUCache as EnhancedLRUCache } from './lruCache.js';
 
 
@@ -738,11 +740,30 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 
 		// gather relevant context from the code around the user's selection and definitions
-		// const relevantSnippetsList = await this._contextGatheringService.readCachedSnippets(model, position, 3);
-		// const relevantSnippetsList = this._contextGatheringService.getCachedSnippets();
-		// const relevantSnippets = relevantSnippetsList.map((text) => `${text}`).join('\n-------------------------------\n')
-		// console.log('@@---------------------\n' + relevantSnippets)
-		const relevantContext = '';
+		let relevantContext = '';
+		const useContextRanking = this._settingsService.state.globalSettings.autocomplete?.enableContextRanking ?? true;
+		if (useContextRanking) {
+			try {
+				// Gather context snippets from the codebase
+				const contextSnippets = await this._rootPathContext.getContextSnippets(model.uri, position);
+
+				// Rank snippets using multi-signal ranking
+				const rankedSnippets = this._contextRanking.rankSnippets(
+					model.uri,
+					contextSnippets,
+					[] // edit history - would need to track this
+				);
+
+				// Take top 3 snippets and format for LLM
+				relevantContext = rankedSnippets
+					.slice(0, 3)
+					.map(snippet => `// ${snippet.uri.fsPath}\n${snippet.content}`)
+					.join('\n\n');
+			} catch (e) {
+				console.error('Error gathering context:', e);
+				relevantContext = '';
+			}
+		}
 
 		const { shouldGenerate, predictionType, llmPrefix, llmSuffix, stopTokens } = getCompletionOptions(prefixAndSuffix, relevantContext, justAcceptedAutocompletion);
 
@@ -904,7 +925,9 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		// New autocomplete services
 		@IAutocompleteDebouncer private readonly _debouncer: IAutocompleteDebouncer,
 		@IBracketMatchingService private readonly _bracketMatching: IBracketMatchingService,
-		@IAutocompleteLoggingService private readonly _loggingService: IAutocompleteLoggingService
+		@IAutocompleteLoggingService private readonly _loggingService: IAutocompleteLoggingService,
+		@IContextRankingService private readonly _contextRanking: IContextRankingService,
+		@IRootPathContextService private readonly _rootPathContext: IRootPathContextService
 		// @IContextGatheringService private readonly _contextGatheringService: IContextGatheringService,
 	) {
 		super();
@@ -944,6 +967,12 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 						console.log('ACCEPT', autocompletion.id);
 						this._lastCompletionAccept = Date.now();
 						cache.delete(String(autocompletion.id));
+
+						// Track brackets from accepted completion (if enabled in settings)
+						const useBracketMatching = this._settingsService.state.globalSettings.autocomplete?.enableBracketMatching ?? true;
+						if (useBracketMatching) {
+							this._bracketMatching.handleAcceptedCompletion(autocompletion.insertText, model.uri);
+						}
 
 						// Log acceptance via logging service (if enabled in settings)
 						const useLogging = this._settingsService.state.globalSettings.autocomplete?.enableLogging ?? true;
