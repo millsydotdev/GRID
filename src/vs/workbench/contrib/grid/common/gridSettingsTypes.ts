@@ -1096,6 +1096,17 @@ export type GlobalSettings = {
 		sufTag?: string; // FIM suffix tag (default: '<SUF>')
 		midTag?: string; // FIM middle tag (default: '<MID>')
 	};
+	// Autocomplete feature flags
+	autocomplete?: {
+		enableContextRanking?: boolean; // Enable multi-signal context ranking (default: true)
+		enableBracketMatching?: boolean; // Enable bracket matching filter (default: true)
+		enableImportDefinitions?: boolean; // Enable import/definition tracking (default: true)
+		enableGeneratorReuse?: boolean; // Enable LLM generator reuse optimization (default: true)
+		enableLogging?: boolean; // Enable autocomplete telemetry logging (default: true)
+		enableStaticContext?: boolean; // Enable static context extraction (default: true)
+		enableTokenBatching?: boolean; // Enable token batching for analytics (default: true)
+		enableDebouncer?: boolean; // Enable smart debouncing (default: true)
+	};
 };
 
 export const defaultGlobalSettings: GlobalSettings = {
@@ -1159,6 +1170,17 @@ export const defaultGlobalSettings: GlobalSettings = {
 		preTag: 'ABOVE', // Default prefix tag
 		sufTag: 'BELOW', // Default suffix tag
 		midTag: 'SELECTION', // Default middle tag
+	},
+	// Autocomplete feature defaults (all features enabled by default)
+	autocomplete: {
+		enableContextRanking: true, // Multi-signal context ranking
+		enableBracketMatching: true, // Bracket matching filter
+		enableImportDefinitions: true, // Import/definition tracking
+		enableGeneratorReuse: true, // LLM generator reuse
+		enableLogging: true, // Telemetry logging
+		enableStaticContext: true, // Static context extraction
+		enableTokenBatching: true, // Token batching
+		enableDebouncer: true, // Smart debouncing
 	},
 };
 

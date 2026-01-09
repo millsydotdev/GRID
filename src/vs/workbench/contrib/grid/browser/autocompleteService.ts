@@ -634,30 +634,9 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 				const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: cachedAutocompletion, prefixAndSuffix, position, debug: true });
 
-				// Log completion display
-				this._loggingService.markDisplayed(String(cachedAutocompletion.id), {
-					completionId: String(cachedAutocompletion.id),
-					accepted: false,
-					completion: cachedAutocompletion.insertText,
-					prefix: cachedAutocompletion.prefix,
-					suffix: cachedAutocompletion.suffix,
-					filepath: docUriStr,
-					cacheHit: true,
-					time: cachedAutocompletion.endTime ? cachedAutocompletion.endTime - cachedAutocompletion.startTime : 0,
-					numLines: cachedAutocompletion.insertText.split('\n').length,
-					timestamp: Date.now(),
-				});
-
-				return inlineCompletions;
-
-			} else if (cachedAutocompletion.status === 'pending') {
-				console.log('A2');
-
-				try {
-					await cachedAutocompletion.llmPromise;
-					const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: cachedAutocompletion, prefixAndSuffix, position });
-
-					// Log completion display
+				// Log completion display (if enabled in settings)
+				const useLogging = this._settingsService.state.globalSettings.autocomplete?.enableLogging ?? true;
+				if (useLogging) {
 					this._loggingService.markDisplayed(String(cachedAutocompletion.id), {
 						completionId: String(cachedAutocompletion.id),
 						accepted: false,
@@ -670,6 +649,33 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 						numLines: cachedAutocompletion.insertText.split('\n').length,
 						timestamp: Date.now(),
 					});
+				}
+
+				return inlineCompletions;
+
+			} else if (cachedAutocompletion.status === 'pending') {
+				console.log('A2');
+
+				try {
+					await cachedAutocompletion.llmPromise;
+					const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: cachedAutocompletion, prefixAndSuffix, position });
+
+					// Log completion display (if enabled in settings)
+					const useLogging = this._settingsService.state.globalSettings.autocomplete?.enableLogging ?? true;
+					if (useLogging) {
+						this._loggingService.markDisplayed(String(cachedAutocompletion.id), {
+							completionId: String(cachedAutocompletion.id),
+							accepted: false,
+							completion: cachedAutocompletion.insertText,
+							prefix: cachedAutocompletion.prefix,
+							suffix: cachedAutocompletion.suffix,
+							filepath: docUriStr,
+							cacheHit: true,
+							time: cachedAutocompletion.endTime ? cachedAutocompletion.endTime - cachedAutocompletion.startTime : 0,
+							numLines: cachedAutocompletion.insertText.split('\n').length,
+							timestamp: Date.now(),
+						});
+					}
 
 					return inlineCompletions;
 
@@ -689,10 +695,25 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 		// else if no more typing happens, then go forwards with the request
 
-		// Use debouncer service instead of manual debouncing
-		const shouldDebounce = await this._debouncer.delayAndShouldDebounce(DEBOUNCE_TIME);
-		if (shouldDebounce) {
-			return [];
+		// Use debouncer service instead of manual debouncing (if enabled in settings)
+		const useDebouncer = this._settingsService.state.globalSettings.autocomplete?.enableDebouncer ?? true;
+		if (useDebouncer) {
+			const shouldDebounce = await this._debouncer.delayAndShouldDebounce(DEBOUNCE_TIME);
+			if (shouldDebounce) {
+				return [];
+			}
+		} else {
+			// Fall back to manual debouncing if service is disabled
+			const thisTime = Date.now();
+			this._lastCompletionStart = thisTime;
+			const didTypingHappenDuringDebounce = await new Promise((resolve) =>
+				setTimeout(() => {
+					resolve(this._lastCompletionStart !== thisTime);
+				}, DEBOUNCE_TIME)
+			);
+			if (didTypingHappenDuringDebounce) {
+				return [];
+			}
 		}
 
 		const justAcceptedAutocompletion = Date.now() - this._lastCompletionAccept < 500;
@@ -846,19 +867,22 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 			const autocompletionMatchup: AutocompletionMatchupBounds = { startIdx: 0, startLine: 0, startCharacter: 0 };
 			const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: newAutocompletion, prefixAndSuffix, position });
 
-			// Log completion display
-			this._loggingService.markDisplayed(String(newAutocompletion.id), {
-				completionId: String(newAutocompletion.id),
-				accepted: false,
-				completion: newAutocompletion.insertText,
-				prefix: newAutocompletion.prefix,
-				suffix: newAutocompletion.suffix,
-				filepath: docUriStr,
-				cacheHit: false,
-				time: newAutocompletion.endTime ? newAutocompletion.endTime - newAutocompletion.startTime : 0,
-				numLines: newAutocompletion.insertText.split('\n').length,
-				timestamp: Date.now(),
-			});
+			// Log completion display (if enabled in settings)
+			const useLogging = this._settingsService.state.globalSettings.autocomplete?.enableLogging ?? true;
+			if (useLogging) {
+				this._loggingService.markDisplayed(String(newAutocompletion.id), {
+					completionId: String(newAutocompletion.id),
+					accepted: false,
+					completion: newAutocompletion.insertText,
+					prefix: newAutocompletion.prefix,
+					suffix: newAutocompletion.suffix,
+					filepath: docUriStr,
+					cacheHit: false,
+					time: newAutocompletion.endTime ? newAutocompletion.endTime - newAutocompletion.startTime : 0,
+					numLines: newAutocompletion.insertText.split('\n').length,
+					timestamp: Date.now(),
+				});
+			}
 
 			return inlineCompletions;
 
@@ -921,8 +945,11 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 						this._lastCompletionAccept = Date.now();
 						cache.delete(String(autocompletion.id));
 
-						// Log acceptance via logging service
-						this._loggingService.accept(String(autocompletion.id));
+						// Log acceptance via logging service (if enabled in settings)
+						const useLogging = this._settingsService.state.globalSettings.autocomplete?.enableLogging ?? true;
+						if (useLogging) {
+							this._loggingService.accept(String(autocompletion.id));
+						}
 					}
 				}
 

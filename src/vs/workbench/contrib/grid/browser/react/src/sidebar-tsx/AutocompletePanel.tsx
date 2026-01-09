@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAccessor } from '../hooks.js';
+import { useSettingsState } from '../hooks.js';
 
 interface AutocompleteStatistics {
 	totalRequests: number;
@@ -15,6 +17,10 @@ interface Feature {
 }
 
 export const AutocompletePanel: React.FC = () => {
+	const accessor = useAccessor();
+	const gridSettingsService = accessor.get('IGridSettingsService');
+	const settingsState = useSettingsState();
+
 	const [statistics, setStatistics] = useState<AutocompleteStatistics>({
 		totalRequests: 0,
 		cachedResponses: 0,
@@ -23,43 +29,60 @@ export const AutocompletePanel: React.FC = () => {
 		bracketMatchesPrevented: 0,
 	});
 
-	const [features, setFeatures] = useState<Feature[]>([
-		{
-			name: 'Smart Code Chunking',
-			enabled: true,
-			description: 'Intelligently chunks code for better context',
-		},
-		{
-			name: 'Generator Reuse',
-			enabled: true,
-			description: 'Reuses API requests when typing ahead',
-		},
+	// Read feature states from settings
+	const autocompleteSettings = settingsState.globalSettings.autocomplete ?? {
+		enableContextRanking: true,
+		enableBracketMatching: true,
+		enableImportDefinitions: true,
+		enableGeneratorReuse: true,
+		enableLogging: true,
+		enableStaticContext: true,
+		enableTokenBatching: true,
+		enableDebouncer: true,
+	};
+
+	const features: Feature[] = [
 		{
 			name: 'Context Ranking',
-			enabled: true,
+			enabled: autocompleteSettings.enableContextRanking ?? true,
 			description: '5-signal ranking for better suggestions',
 		},
 		{
 			name: 'Bracket Matching',
-			enabled: true,
+			enabled: autocompleteSettings.enableBracketMatching ?? true,
 			description: 'Prevents unmatched bracket suggestions',
 		},
 		{
 			name: 'Import Definitions',
-			enabled: true,
+			enabled: autocompleteSettings.enableImportDefinitions ?? true,
 			description: 'Import-aware autocomplete context',
 		},
 		{
-			name: 'LRU Caching',
-			enabled: true,
-			description: 'Caches expensive computations',
+			name: 'Generator Reuse',
+			enabled: autocompleteSettings.enableGeneratorReuse ?? true,
+			description: 'Reuses API requests when typing ahead',
 		},
 		{
-			name: 'Request Debouncing',
-			enabled: true,
+			name: 'Telemetry Logging',
+			enabled: autocompleteSettings.enableLogging ?? true,
+			description: 'Tracks autocomplete performance metrics',
+		},
+		{
+			name: 'Static Context',
+			enabled: autocompleteSettings.enableStaticContext ?? true,
+			description: 'Extracts type and function declarations',
+		},
+		{
+			name: 'Token Batching',
+			enabled: autocompleteSettings.enableTokenBatching ?? true,
+			description: 'Batches telemetry to reduce API calls',
+		},
+		{
+			name: 'Smart Debouncing',
+			enabled: autocompleteSettings.enableDebouncer ?? true,
 			description: 'Reduces API calls during typing',
 		},
-	]);
+	];
 
 	// Mock data update (in production, would come from service)
 	useEffect(() => {
@@ -78,11 +101,26 @@ export const AutocompletePanel: React.FC = () => {
 		? ((statistics.reusedGenerators / statistics.totalRequests) * 100).toFixed(1)
 		: '0.0';
 
-	const toggleFeature = (index: number) => {
-		setFeatures(prev => prev.map((f, i) =>
-			i === index ? { ...f, enabled: !f.enabled } : f
-		));
-	};
+	const toggleFeature = useCallback((featureName: string) => {
+		const currentSettings = settingsState.globalSettings.autocomplete ?? {};
+		const settingKey = featureName === 'Context Ranking' ? 'enableContextRanking'
+			: featureName === 'Bracket Matching' ? 'enableBracketMatching'
+			: featureName === 'Import Definitions' ? 'enableImportDefinitions'
+			: featureName === 'Generator Reuse' ? 'enableGeneratorReuse'
+			: featureName === 'Telemetry Logging' ? 'enableLogging'
+			: featureName === 'Static Context' ? 'enableStaticContext'
+			: featureName === 'Token Batching' ? 'enableTokenBatching'
+			: featureName === 'Smart Debouncing' ? 'enableDebouncer'
+			: null;
+
+		if (settingKey) {
+			const newValue = !(currentSettings[settingKey] ?? true);
+			gridSettingsService.setGlobalSetting('autocomplete', {
+				...currentSettings,
+				[settingKey]: newValue,
+			});
+		}
+	}, [gridSettingsService, settingsState]);
 
 	return (
 		<div style={{ padding: '20px', fontFamily: 'system-ui' }}>
@@ -149,11 +187,11 @@ export const AutocompletePanel: React.FC = () => {
 				</h3>
 
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-					{features.map((feature, index) => (
+					{features.map((feature) => (
 						<FeatureCard
 							key={feature.name}
 							feature={feature}
-							onToggle={() => toggleFeature(index)}
+							onToggle={() => toggleFeature(feature.name)}
 						/>
 					))}
 				</div>
