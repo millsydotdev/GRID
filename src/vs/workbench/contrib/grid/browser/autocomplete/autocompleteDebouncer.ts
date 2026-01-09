@@ -1,10 +1,10 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable } from '../../../../base/common/lifecycle.js';
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { createDecorator } from '../../../../../platform/instantiation/common/instantiation.js';
 
 export const IAutocompleteDebouncer = createDecorator<IAutocompleteDebouncer>('autocompleteDebouncer');
 
@@ -39,7 +39,7 @@ export interface IAutocompleteDebouncer {
 export class AutocompleteDebouncer extends Disposable implements IAutocompleteDebouncer {
 	readonly _serviceBrand: undefined;
 
-	private debounceTimeout: any | undefined = undefined;
+	private debounceTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 	private currentRequestId: string | undefined = undefined;
 	private requestIdCounter = 0;
 

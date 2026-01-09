@@ -14,6 +14,9 @@ import { QueryBuilder } from '../../../services/search/common/queryBuilder.js';
 import { ISearchService } from '../../../services/search/common/search.js';
 import { IEditCodeService } from './editCodeServiceInterface.js';
 import { ITerminalToolService } from './terminalToolService.js';
+import { ILanguageFeaturesService } from '../../../../editor/common/services/languageFeatures.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { IRange } from '../../../../editor/common/core/range.js';
 import {
 	LintErrorItem,
 	BuiltinToolCallParams,
@@ -41,14 +44,14 @@ import {
 import { IGridSettingsService } from '../common/gridSettingsService.js';
 import { generateUuid } from '../../../../base/common/uuid.js';
 import { INotificationService } from '../../../../platform/notification/common/notification.js';
-import { IRequestService } from '../../../../platform/request/common/request.js';
+import { IRequestService, asJson, asTextOrError } from '../../../../platform/request/common/request.js';
 import { IWebContentExtractorService } from '../../../../platform/webContentExtractor/common/webContentExtractor.js';
-import { asJson, asTextOrError } from '../../../../platform/request/common/request.js';
 import { LRUCache } from '../../../../base/common/map.js';
 import { OfflinePrivacyGate } from '../common/offlinePrivacyGate.js';
 import { INLShellParserService } from '../common/nlShellParserService.js';
 import { ISecretDetectionService } from '../common/secretDetectionService.js';
 import { projectResearchService } from '../common/projectResearchService.js';
+import { imageGenerationService } from '../common/imageGenerationService.js';
 
 // DuckDuckGo API response types
 interface DDGRelatedTopic {
@@ -262,7 +265,8 @@ export class ToolsService implements IToolsService {
 		@IWebContentExtractorService private readonly webContentExtractorService: IWebContentExtractorService,
 		@IRepoIndexerService private readonly repoIndexerService: IRepoIndexerService,
 		@INLShellParserService private readonly nlShellParserService: INLShellParserService,
-		@ISecretDetectionService private readonly secretDetectionService: ISecretDetectionService
+		@ISecretDetectionService private readonly secretDetectionService: ISecretDetectionService,
+		@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService
 	) {
 		this._offlineGate = new OfflinePrivacyGate();
 		const queryBuilder = instantiationService.createInstance(QueryBuilder);
@@ -446,6 +450,36 @@ export class ToolsService implements IToolsService {
 				const { intent: intentUnknown } = params;
 				const intent = validateStr('intent', intentUnknown);
 				return { intent };
+			},
+			generate_image: (params: RawToolParamsObj) => {
+				const { prompt: promptUnknown, width: widthUnknown, height: heightUnknown, num_images: numImagesUnknown } = params;
+				const prompt = validateStr('prompt', promptUnknown);
+				const width = validateNumber(widthUnknown, { default: null });
+				const height = validateNumber(heightUnknown, { default: null });
+				const num_images = validateNumber(numImagesUnknown, { default: null });
+				return { prompt, width: width ?? undefined, height: height ?? undefined, num_images: num_images ?? undefined };
+			},
+
+			go_to_definition: (params: RawToolParamsObj) => {
+				const { uri: uriUnknown, line: lineUnknown, column: columnUnknown } = params;
+				const uri = validateURI(uriUnknown, workspaceContextService, true);
+				const line = validateNumber(lineUnknown, { default: null });
+				const column = validateNumber(columnUnknown, { default: 1 });
+				if (line === null) {
+					throw new Error(`Invalid line number for go_to_definition`);
+				}
+				return { uri, line, column };
+			},
+
+			go_to_usages: (params: RawToolParamsObj) => {
+				const { uri: uriUnknown, line: lineUnknown, column: columnUnknown } = params;
+				const uri = validateURI(uriUnknown, workspaceContextService, true);
+				const line = validateNumber(lineUnknown, { default: null });
+				const column = validateNumber(columnUnknown, { default: 1 });
+				if (line === null) {
+					throw new Error(`Invalid line number for go_to_usages`);
+				}
+				return { uri, line, column };
 			}
 		};
 
@@ -765,6 +799,92 @@ export class ToolsService implements IToolsService {
 			start_project_research: async ({ intent }) => {
 				await projectResearchService.startSession(intent);
 				return { result: { success: true } };
+			},
+
+			generate_image: async ({ prompt, width, height, num_images }) => {
+				// Default to DALL-E 3 for simplicity, or we could let user choose but for now we pick a good default
+				const modelId = 'dall-e-3';
+				// We need provider config. For now, since we don't have direct access to settings service here easily (it's private),
+				// we'll rely on the service to handle missing keys or use what it has stored if it was stateful,
+				// BUT ImageGenerationService is a singleton and might need config passed in.
+				// Looking at ImageGenerationService, it REQUIRES ProviderConfig in GenerateImageOptions.
+				// This is a bit tricky. The settings service HAS the keys.
+				// I need to access gridSettingsService to get the API keys.
+
+				const settings = this.gridSettingsService.state.settingsOfProvider;
+				const providerConfig = {
+					openaiApiKey: settings.openAI?.apiKey,
+					huggingfaceApiKey: settings.huggingFace?.apiKey,
+					// stabilityApiKey: settings.stability?.apiKey, // Not currently available in settings
+					// ... map others if needed
+				};
+
+				const options = {
+					prompt,
+					modelId,
+					providerConfig,
+					width,
+					height,
+					num_images
+				};
+
+				const image = await imageGenerationService.generateImage(options);
+				return { result: { images: [{ url: image.imageData, prompt: image.prompt }] } };
+			},
+
+			go_to_definition: async ({ uri, line, column }) => {
+				await gridModelService.initializeModel(uri);
+				const { model } = await gridModelService.getModelSafe(uri);
+				if (!model) { throw new Error(`File not found: ${uri.fsPath}`); }
+
+				const position = new Position(line, column || 1);
+				const providers = this.languageFeaturesService.definitionProvider.all(model);
+
+				const results = await Promise.all(providers.map(p => p.provideDefinition(model, position, CancellationToken.None)));
+
+				const definitions: Array<{ uri: URI; range: IRange }> = [];
+				for (const res of results) {
+					if (!res) {
+						continue;
+					}
+					const items = Array.isArray(res) ? res : [res];
+					for (const item of items) {
+						// Type guard for LocationLink
+						// eslint-disable-next-line
+						if ((item as any).targetUri) {
+							// It's a LocationLink
+							// eslint-disable-next-line
+							definitions.push({ uri: (item as any).targetUri, range: (item as any).targetRange });
+						} else {
+							// It's a Location
+							// eslint-disable-next-line
+							definitions.push({ uri: (item as any).uri, range: (item as any).range });
+						}
+					}
+				}
+				return { result: { definitions } };
+			},
+
+			go_to_usages: async ({ uri, line, column }) => {
+				await gridModelService.initializeModel(uri);
+				const { model } = await gridModelService.getModelSafe(uri);
+				if (!model) { throw new Error(`File not found: ${uri.fsPath}`); }
+
+				const position = new Position(line, column || 1);
+				const providers = this.languageFeaturesService.referenceProvider.all(model);
+
+				const results = await Promise.all(providers.map(p => p.provideReferences(model, position, { includeDeclaration: true }, CancellationToken.None)));
+
+				const references: Array<{ uri: URI; range: IRange }> = [];
+				for (const res of results) {
+					if (!res) {
+						continue;
+					}
+					for (const item of res) {
+						references.push({ uri: item.uri, range: item.range });
+					}
+				}
+				return { result: { references } };
 			},
 
 			// ---
@@ -1302,6 +1422,21 @@ export class ToolsService implements IToolsService {
 			},
 			start_project_research: (params, result) => {
 				return result.success ? 'Research started successfully.' : 'Failed to start research.';
+			},
+			generate_image: (params, result) => {
+				return result.images.map(img => `Image generated successfully.\nURL: ${img.url}\nPrompt: ${img.prompt}`).join('\n\n');
+			},
+			go_to_definition: (params, result) => {
+				if (result.definitions.length === 0) {
+					return 'No definitions found.';
+				}
+				return result.definitions.map(d => `Definition found at: ${d.uri.fsPath}:${d.range.startLineNumber}:${d.range.startColumn}`).join('\n');
+			},
+			go_to_usages: (params, result) => {
+				if (result.references.length === 0) {
+					return 'No usages found.';
+				}
+				return `Found ${result.references.length} usages:\n` + result.references.map(r => `- ${r.uri.fsPath}:${r.range.startLineNumber}:${r.range.startColumn}`).join('\n');
 			},
 		};
 	}

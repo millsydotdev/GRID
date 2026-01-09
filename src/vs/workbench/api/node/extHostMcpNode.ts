@@ -21,7 +21,7 @@ import { McpStdioStateHandler } from '../../contrib/mcp/node/mcpStdioStateHandle
 import { CommonRequestInit, CommonResponse, ExtHostMcpService, McpHTTPHandle } from '../common/extHostMcp.js';
 
 export class NodeExtHostMpcService extends ExtHostMcpService {
-	private nodeServers = this._register(new DisposableMap<number, McpStdioStateHandler>());
+	private readonly nodeServers = this._register(new DisposableMap<number, McpStdioStateHandler>());
 
 	protected override _startMcp(id: number, launch: McpServerLaunch, defaultCwd?: URI, errorOnUserInteraction?: boolean): void {
 		if (launch.type === McpServerTransportType.Stdio) {
@@ -148,32 +148,31 @@ class McpHTTPHandleNode extends McpHTTPHandle {
 
 		const undiciInit: UndiciRequestInit = { ...init };
 
-		let httpUrl = url;
 		const uri = URI.parse(url);
 
-		if (uri.scheme === 'unix' || uri.scheme === 'pipe') {
-			// By convention, we put the *socket path* as the URI path, and the *request path* in the fragment
-			// So, set the dispatcher with the socket path
-			undiciInit.dispatcher = new Agent({
-				socketPath: uri.path,
-			});
-
-			// And then rewrite the URL to be http://localhost/<fragment>
-			httpUrl = uri.with({
-				scheme: 'http',
-				authority: 'localhost', // HTTP always wants a host (not that we're using it), but if we're using a socket or pipe then localhost is sorta right anyway
-				path: uri.fragment,
-			}).toString(true);
-		} else {
+		if (uri.scheme !== 'unix' && uri.scheme !== 'pipe') {
 			return super._fetchInternal(url, init);
 		}
+
+		// By convention, we put the *socket path* as the URI path, and the *request path* in the fragment
+		// So, set the dispatcher with the socket path
+		undiciInit.dispatcher = new Agent({
+			socketPath: uri.path,
+		});
+
+		// And then rewrite the URL to be http://localhost/<fragment>
+		const httpUrl = uri.with({
+			scheme: 'http',
+			authority: 'localhost', // HTTP always wants a host (not that we're using it), but if we're using a socket or pipe then localhost is sorta right anyway
+			path: uri.fragment,
+		}).toString(true);
 
 		const undiciResponse = await fetch(httpUrl, undiciInit);
 
 		return {
 			status: undiciResponse.status,
 			statusText: undiciResponse.statusText,
-			headers: undiciResponse.headers,
+			headers: undiciResponse.headers as unknown as Headers,
 			body: undiciResponse.body as ReadableStream, // Way down in `ReadableStreamReadDoneResult<T>`, `value` is optional in the undici type but required (yet can be `undefined`) in the standard type
 			url: undiciResponse.url,
 			json: () => undiciResponse.json(),

@@ -1,7 +1,7 @@
 {
-    "name": "grid-enterprise",
-    "displayName": "GRID Enterprise Features",
-    "description": "Enterprise features for GRID IDE including License Management and AI Services",
+    "name": "grid-extension",
+    "displayName": "GRID Extension",
+    "description": "Official GRID extension for VSCode and other IDEs. Provides Sync, Auth, and Cloud Workspace features.",
     "version": "1.0.0",
     "publisher": "grid",
     "license": "MIT",
@@ -19,13 +19,28 @@
     "contributes": {
         "commands": [
             {
+                "command": "grid.login",
+                "title": "GRID: Sign In (Browser)",
+                "category": "GRID"
+            },
+            {
                 "command": "grid.connect",
-                "title": "GRID: Connect to Enterprise Hub",
+                "title": "GRID: Sign In with API Key",
                 "category": "GRID"
             },
             {
                 "command": "grid.logout",
                 "title": "GRID: Sign Out",
+                "category": "GRID"
+            },
+            {
+                "command": "grid.createWorkspace",
+                "title": "GRID: Create Cloud Workspace",
+                "category": "GRID"
+            },
+            {
+                "command": "grid.showWorkspaces",
+                "title": "GRID: Show Cloud Workspaces",
                 "category": "GRID"
             }
         ],

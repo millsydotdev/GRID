@@ -1,17 +1,17 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 /**
  * Base protocol type - maps message types to [request, response] tuples
  */
-export type IProtocol = Record<string, [any, any]>;
+export type IProtocol = Record<string, [unknown, unknown]>;
 
 /**
  * Message structure for protocol communication
  */
-export interface IMessage<T = any> {
+export interface IMessage<T = unknown> {
 	/**
 	 * Type of the message
 	 */

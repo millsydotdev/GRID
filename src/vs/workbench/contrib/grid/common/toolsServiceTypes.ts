@@ -65,6 +65,9 @@ export type BuiltinToolCallParams = {
 	web_search: { query: string; k?: number; refresh?: boolean };
 	browse_url: { url: string; refresh?: boolean };
 	start_project_research: { intent: string };
+	generate_image: { prompt: string; width?: number; height?: number; num_images?: number };
+	go_to_definition: { uri: URI; line: number; column: number | null };
+	go_to_usages: { uri: URI; line: number; column: number | null };
 };
 
 // RESULT OF TOOL CALL
@@ -96,6 +99,9 @@ export type BuiltinToolResultType = {
 	web_search: { results: Array<{ title: string; snippet: string; url: string }> };
 	browse_url: { content: string; title?: string; url: string; metadata?: { publishedDate?: string } };
 	start_project_research: { success: boolean };
+	generate_image: { images: Array<{ url: string; prompt: string }> };
+	go_to_definition: { definitions: Array<{ uri: URI; range: { startLineNumber: number; startColumn: number; endLineNumber: number; endColumn: number } }> };
+	go_to_usages: { references: Array<{ uri: URI; range: { startLineNumber: number; startColumn: number; endLineNumber: number; endColumn: number } }> };
 };
 
 export type ToolCallParams<T extends BuiltinToolName | (string & {})> = T extends BuiltinToolName

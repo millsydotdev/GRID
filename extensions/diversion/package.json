@@ -1,0 +1,54 @@
+{
+    "name": "diversion",
+    "displayName": "Diversion",
+    "description": "Diversion Version Control Integration",
+    "publisher": "grid",
+    "license": "MIT",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "icon": "images/icon.png",
+    "categories": [
+        "SCM Providers"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "extensionDependencies": [
+        "vscode.git"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "diversion.login",
+                "title": "Diversion: Sign In"
+            }
+        ],
+        "authentication": [
+            {
+                "id": "diversion",
+                "label": "Diversion"
+            }
+        ]
+    },
+    "browser": "./out/extension.js",
+    "capabilities": {
+        "virtualWorkspaces": true,
+        "untrustedWorkspaces": {
+            "supported": true
+        }
+    },
+    "scripts": {
+        "compile": "tsc -p .",
+        "watch": "tsc -w -p ."
+    },
+    "dependencies": {
+        "@types/node": "^16.x"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "typescript": "^5.0.0"
+    }
+}

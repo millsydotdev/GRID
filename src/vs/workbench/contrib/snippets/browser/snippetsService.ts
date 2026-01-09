@@ -275,16 +275,16 @@ export class SnippetsService implements ISnippetsService {
 			if (this._languageService.isRegisteredLanguageId(languageId)) {
 				for (const file of this._files.values()) {
 					promises.push(file.load()
-						.then(file => file.select(languageId, result))
-						.catch(err => this._logService.error(err, file.location.toString()))
+						.then((file: SnippetFile) => file.select(languageId, result))
+						.catch((err: any) => this._logService.error(err, file.location.toString()))
 					);
 				}
 			}
 		} else {
 			for (const file of this._files.values()) {
 				promises.push(file.load()
-					.then(file => insertInto(result, result.length, file.data))
-					.catch(err => this._logService.error(err, file.location.toString()))
+					.then((file: SnippetFile) => insertInto(result, result.length, file.data))
+					.catch((err: any) => this._logService.error(err, file.location.toString()))
 				);
 			}
 		}
@@ -298,7 +298,7 @@ export class SnippetsService implements ISnippetsService {
 			for (const file of this._files.values()) {
 				// kick off loading (which is a noop in case it's already loaded)
 				// and optimistically collect snippets
-				file.load().catch(_err => { /*ignore*/ });
+				file.load().catch((_err: any) => { /*ignore*/ });
 				file.select(languageId, result);
 			}
 		}

@@ -372,11 +372,38 @@ export const builtinTools: {
 		params: {
 			intent: { description: 'A description of what the user wants to build.' }
 		}
+	},
+
+	generate_image: {
+		name: 'generate_image',
+		description: 'Generates an image based on a text prompt. Use this when the user asks to generate an image, picture, or logo.',
+		params: {
+			prompt: { description: 'The text description of the image to generate.' },
+			width: { description: 'Optional. The width of the image. Default is 1024.' },
+			height: { description: 'Optional. The height of the image. Default is 1024.' },
+			num_images: { description: 'Optional. The number of images to generate. Default is 1.' }
+		}
+	},
+
+	go_to_definition: {
+		name: 'go_to_definition',
+		description: 'Returns the definition location of the symbol at the given position. Use this to find where a variable, function, or class is defined.',
+		params: {
+			...uriParam('file'),
+			line: { description: 'The line number (1-indexed) of the symbol.' },
+			column: { description: 'Optional. The column number (1-indexed) of the symbol. Defaults to 1.' }
+		}
+	},
+
+	go_to_usages: {
+		name: 'go_to_usages',
+		description: 'Returns all usages/references of the symbol at the given position. Use this to find where a variable, function, or class is used.',
+		params: {
+			...uriParam('file'),
+			line: { description: 'The line number (1-indexed) of the symbol.' },
+			column: { description: 'Optional. The column number (1-indexed) of the symbol. Defaults to 1.' }
+		}
 	}
-
-
-	// go_to_definition
-	// go_to_usages
 
 } satisfies { [T in keyof BuiltinToolResultType]: InternalToolInfo };
 
@@ -397,7 +424,7 @@ export const isABuiltinToolName = (toolName: string): toolName is BuiltinToolNam
 export const availableTools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | undefined) => {
 
 	const builtinToolNames: BuiltinToolName[] | undefined = chatMode === 'normal' ? undefined
-		: chatMode === 'gather' ? (Object.keys(builtinTools) as BuiltinToolName[]).filter(toolName => !(toolName in approvalTypeOfBuiltinToolName))
+		: chatMode === 'gather' ? (Object.keys(builtinTools) as BuiltinToolName[]).filter(toolName => !Object.keys(approvalTypeOfBuiltinToolName).includes(toolName))
 			: chatMode === 'agent' ? Object.keys(builtinTools) as BuiltinToolName[]
 				: undefined;
 
@@ -417,19 +444,19 @@ const toolCallDefinitionsXMLString = (tools: InternalToolInfo[]) => {
 	return `${tools.map((t, i) => {
 		const params = Object.keys(t.params).map(paramName => `<${paramName}>${t.params[paramName].description}</${paramName}>`).join('\n');
 		return `\
-    ${i + 1}. ${t.name}
-    Description: ${t.description}
-    Format:
-    <${t.name}>${!params ? '' : `\n${params}`}
-    </${t.name}>`;
+	${i + 1}. ${t.name}
+	Description: ${t.description}
+	Format:
+	<${t.name}>${!params ? '' : `\n${params}`}
+	</${t.name}>`;
 	}).join('\n\n')}`;
 };
 
 export const reParsedToolXMLString = (toolName: ToolName, toolParams: RawToolParamsObj) => {
 	const params = Object.keys(toolParams).map(paramName => `<${paramName}>${toolParams[paramName]}</${paramName}>`).join('\n');
 	return `\
-    <${toolName}>${!params ? '' : `\n${params}`}
-    </${toolName}>`
+	<${toolName}>${!params ? '' : `\n${params}`}
+	</${toolName}>`
 		.replace('\t', '  ');
 };
 
@@ -437,25 +464,25 @@ export const reParsedToolXMLString = (toolName: ToolName, toolParams: RawToolPar
 // - You are allowed to call multiple tools by specifying them consecutively. However, there should be NO text or writing between tool calls or after them.
 const systemToolsXMLPrompt = (chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined) => {
 	const tools = availableTools(chatMode, mcpTools);
-	if (!tools || tools.length === 0) {return null;}
+	if (!tools || tools.length === 0) { return null; }
 
 	const toolXMLDefinitions = (`\
-    Available tools:
+	Available tools:
 
-    ${toolCallDefinitionsXMLString(tools)}`);
+	${toolCallDefinitionsXMLString(tools)}`);
 
 	const toolCallXMLGuidelines = (`\
-    Tool calling details:
-    - To call a tool, write its name and parameters in one of the XML formats specified above.
-    - After you write the tool call, you must STOP and WAIT for the result.
-    - All parameters are REQUIRED unless noted otherwise.
-    - You are only allowed to output ONE tool call, and it must be at the END of your response.
-    - Your tool call will be executed immediately, and the results will appear in the following user message.`);
+	Tool calling details:
+	- To call a tool, write its name and parameters in one of the XML formats specified above.
+	- After you write the tool call, you must STOP and WAIT for the result.
+	- All parameters are REQUIRED unless noted otherwise.
+	- You are only allowed to output ONE tool call, and it must be at the END of your response.
+	- Your tool call will be executed immediately, and the results will appear in the following user message.`);
 
 	return `\
-    ${toolXMLDefinitions}
+	${toolXMLDefinitions}
 
-    ${toolCallXMLGuidelines}`;
+	${toolCallXMLGuidelines}`;
 };
 
 // ======================================================== chat (normal, gather, agent) ========================================================
@@ -552,8 +579,8 @@ ${details.map((d, i) => `${i + 1}. ${d}`).join('\n\n')}`);
 	const ansStrs: string[] = [];
 	ansStrs.push(header);
 	ansStrs.push(sysInfo);
-	if (toolDefinitions) {ansStrs.push(toolDefinitions);}
-	if (relevantMemories) {ansStrs.push(`Relevant memories:\n<memories>\n${relevantMemories}\n</memories>`);}
+	if (toolDefinitions) { ansStrs.push(toolDefinitions); }
+	if (relevantMemories) { ansStrs.push(`Relevant memories:\n<memories>\n${relevantMemories}\n</memories>`); }
 	ansStrs.push(importantDetails);
 	ansStrs.push(fsInfo);
 
@@ -587,7 +614,7 @@ export const readFile = async (fileService: IFileService, uri: URI, fileSizeLimi
 	try {
 		const fileContent = await fileService.readFile(uri);
 		const val = fileContent.value.toString();
-		if (val.length > fileSizeLimit) {return { val: val.substring(0, fileSizeLimit), truncated: true, fullFileLen: val.length };}
+		if (val.length > fileSizeLimit) { return { val: val.substring(0, fileSizeLimit), truncated: true, fullFileLen: val.length }; }
 		return { val, truncated: false, fullFileLen: val.length };
 	}
 	catch (e) {
@@ -647,8 +674,7 @@ export const messageOfSelection = async (
 		const contentStr = [folderStructure, ...strOfFiles].join('\n\n');
 		return contentStr;
 	}
-	else
-		{return '';}
+	else { return ''; }
 
 };
 
@@ -676,7 +702,7 @@ export const chat_userMessageContent = async (
 	str += `${instructions}`;
 
 	const selnsStr = selnsStrs.join('\n\n') ?? '';
-	if (selnsStr) {str += `\n---\nSELECTIONS\n${selnsStr}`;}
+	if (selnsStr) { str += `\n---\nSELECTIONS\n${selnsStr}`; }
 	return str;
 };
 
@@ -760,7 +786,7 @@ export const gridPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullF
 			prefix = `${newLine}\n${prefix}`;
 			i -= 1;
 		}
-		else {break;}
+		else { break; }
 	}
 
 	let suffix = '';
@@ -771,7 +797,7 @@ export const gridPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullF
 			suffix = `${suffix}\n${newLine}`;
 			j += 1;
 		}
-		else {break;}
+		else { break; }
 	}
 
 	return { prefix, suffix };

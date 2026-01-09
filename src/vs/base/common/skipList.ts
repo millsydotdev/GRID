@@ -82,32 +82,41 @@ export class SkipList<K, V> implements Map<K, V> {
 		}
 	}
 
-	[Symbol.iterator](): IterableIterator<[K, V]> {
+	[Symbol.iterator](): MapIterator<[K, V]> {
 		return this.entries();
 	}
 
-	*entries(): IterableIterator<[K, V]> {
-		let node = this._header.forward[0];
-		while (node) {
-			yield [node.key, node.value];
-			node = node.forward[0];
-		}
+	entries(): MapIterator<[K, V]> {
+		const header = this._header;
+		return (function* () {
+			let node = header.forward[0];
+			while (node) {
+				yield [node.key, node.value];
+				node = node.forward[0];
+			}
+		})() as unknown as MapIterator<[K, V]>;
 	}
 
-	*keys(): IterableIterator<K> {
-		let node = this._header.forward[0];
-		while (node) {
-			yield node.key;
-			node = node.forward[0];
-		}
+	keys(): MapIterator<K> {
+		const header = this._header;
+		return (function* () {
+			let node = header.forward[0];
+			while (node) {
+				yield node.key;
+				node = node.forward[0];
+			}
+		})() as unknown as MapIterator<K>;
 	}
 
-	*values(): IterableIterator<V> {
-		let node = this._header.forward[0];
-		while (node) {
-			yield node.value;
-			node = node.forward[0];
-		}
+	values(): MapIterator<V> {
+		const header = this._header;
+		return (function* () {
+			let node = header.forward[0];
+			while (node) {
+				yield node.value;
+				node = node.forward[0];
+			}
+		})() as unknown as MapIterator<V>;
 	}
 
 	toString(): string {

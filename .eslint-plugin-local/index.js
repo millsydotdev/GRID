@@ -19,7 +19,7 @@ require('ts-node').register({
 /** @type {Record<string, import('@typescript-eslint/utils/dist/ts-eslint').LooseRuleDefinition>} */
 const rules = {};
 glob.sync(`${__dirname}/*.ts`).forEach((file) => {
-	rules[path.basename(file, '.ts')] = require(file);
+	rules[path.basename(file, '.ts')] = require(path.join(__dirname, path.basename(file)));
 });
 
 exports.rules = rules;

@@ -21,7 +21,7 @@ export default defineConfig({
 	format: ['esm'],
 	splitting: false,
 
-	// dts: true,
+	dts: true,
 	// sourcemap: true,
 
 	clean: false,

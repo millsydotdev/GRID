@@ -575,7 +575,7 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 				const interalSelector = typeConverters.LanguageSelector.from(selector);
 				let notebook: vscode.NotebookDocument | undefined;
 				if (targetsNotebooks(interalSelector)) {
-					notebook = extHostNotebook.notebookDocuments.find(value => value.apiNotebook.getCells().find(c => c.document === document))?.apiNotebook;
+					notebook = extHostNotebook.notebookDocuments.find((value: any) => value.apiNotebook.getCells().find((c: any) => c.document === document))?.apiNotebook;
 				}
 				return score(interalSelector, document.uri, document.languageId, true, notebook?.uri, notebook?.notebookType);
 			},

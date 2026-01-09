@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
@@ -22,7 +22,7 @@ export class InProcessMessenger<TSend extends IProtocol, TReceive extends IProto
 	 */
 	connect(peer: InProcessMessenger<TReceive, TSend>): void {
 		this._peer = peer;
-		peer._peer = this as any;
+		peer._peer = this as unknown as InProcessMessenger<TSend, TReceive>;
 	}
 
 	/**

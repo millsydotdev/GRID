@@ -66,7 +66,7 @@ export async function readFromStdin(targetPath: string, verbose: boolean, onEnd?
 
 	const decoder = iconv.default.getDecoder(encoding);
 
-	process.stdin.on('data', chunk => {
+	process.stdin.on('data', (chunk: Buffer) => {
 		const chunkStr = decoder.write(chunk);
 		appendFileQueue.queue(() => fs.promises.appendFile(targetPath, chunkStr));
 	});

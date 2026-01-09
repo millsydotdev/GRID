@@ -11,8 +11,10 @@ import { SidebarChat } from './SidebarChat.js';
 import ErrorBoundary from './ErrorBoundary.js';
 import { AgentManagerEnhanced } from './AgentManager.js';
 import { ProjectTaskManager } from './ProjectTaskManager.js';
+import { AccountPanel } from './AccountPanel.js';
+import { DashboardPanel } from './DashboardPanel.js';
 
-type GridSidebarView = 'chat' | 'agents' | 'projects';
+type GridSidebarView = 'chat' | 'agents' | 'projects' | 'account' | 'dashboard';
 
 export const Sidebar = ({ className }: { className: string }) => {
 	const isDark = useIsDark();
@@ -48,9 +50,19 @@ export const Sidebar = ({ className }: { className: string }) => {
 							label="Projects"
 							onClick={() => setActiveView('projects')}
 						/>
+						<GridTab
+							active={activeView === 'account'}
+							label="Account"
+							onClick={() => setActiveView('account')}
+						/>
+						<GridTab
+							active={activeView === 'dashboard'}
+							label="Dashboard"
+							onClick={() => setActiveView('dashboard')}
+						/>
 					</div>
 					<span className="text-[10px] text-void-fg-3 uppercase tracking-[0.18em]">
-						GRID CHAT
+						GRID
 					</span>
 				</div>
 
@@ -61,6 +73,12 @@ export const Sidebar = ({ className }: { className: string }) => {
 							<AgentManagerEnhanced onClose={() => setActiveView('chat')} />
 						)}
 						{activeView === 'projects' && <ProjectTaskManager />}
+						{activeView === 'account' && (
+							<AccountPanel onClose={() => setActiveView('chat')} />
+						)}
+						{activeView === 'dashboard' && (
+							<DashboardPanel onClose={() => setActiveView('chat')} />
+						)}
 					</ErrorBoundary>
 				</div>
 			</div>
@@ -81,8 +99,8 @@ const GridTab = ({
 		type="button"
 		onClick={onClick}
 		className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-colors ${active
-				? 'bg-void-bg-3 text-void-fg-0'
-				: 'text-void-fg-3 hover:text-void-fg-1 hover:bg-void-bg-3/60'
+			? 'bg-void-bg-3 text-void-fg-0'
+			: 'text-void-fg-3 hover:text-void-fg-1 hover:bg-void-bg-3/60'
 			}`}
 	>
 		{label}

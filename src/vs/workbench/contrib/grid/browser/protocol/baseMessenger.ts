@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
@@ -16,11 +16,11 @@ export abstract class BaseMessenger<TSend extends IProtocol, TReceive extends IP
 	extends Disposable
 	implements IMessenger<TSend, TReceive> {
 
-	private readonly _handlers = new Map<keyof TReceive, ((message: IMessage) => Promise<any> | any)[]>();
+	private readonly _handlers = new Map<keyof TReceive, ((message: IMessage) => Promise<unknown> | unknown)[]>();
 	private readonly _pendingRequests = new Map<string, {
-		resolve: (value: any) => void;
+		resolve: (value: unknown) => void;
 		reject: (error: Error) => void;
-		timeout?: any;
+		timeout?: ReturnType<typeof setTimeout>;
 	}>();
 
 	private readonly _onError = this._register(new Emitter<{ message: IMessage; error: Error }>());
@@ -130,8 +130,9 @@ export abstract class BaseMessenger<TSend extends IProtocol, TReceive extends IP
 				const response = await handler(message);
 
 				// Handle async generators (streaming)
-				if (response && typeof response[Symbol.asyncIterator] === 'function') {
-					for await (const chunk of response) {
+				const asyncIteratorCheck = response as { [Symbol.asyncIterator]?: () => AsyncIterator<unknown> };
+				if (response && typeof asyncIteratorCheck[Symbol.asyncIterator] === 'function') {
+					for await (const chunk of response as AsyncIterable<unknown>) {
 						this.sendResponse(message.messageId, message.messageType, {
 							done: false,
 							content: chunk,
@@ -168,7 +169,7 @@ export abstract class BaseMessenger<TSend extends IProtocol, TReceive extends IP
 	/**
 	 * Send a response to a request
 	 */
-	protected sendResponse(messageId: string, messageType: string, response: IResponse<any>): void {
+	protected sendResponse(messageId: string, messageType: string, response: IResponse<unknown>): void {
 		const message: IMessage = {
 			messageType,
 			messageId,

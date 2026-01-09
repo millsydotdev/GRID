@@ -27,11 +27,21 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 		// Get the active window reference for multi-window support
 		const targetWindow = getActiveWindow();
 
-		// Find the monaco-workbench element using the proper window reference
+		// eslint-disable-next-line
 		const workbench = targetWindow.document.querySelector('.monaco-workbench');
 
 		if (workbench) {
-			const onboardingContainer = h('div.grid-onboarding-container').root;
+			const onboardingContainer = h('div.grid-onboarding-container', {
+				style: {
+					position: 'absolute',
+					top: '0',
+					left: '0',
+					width: '100%',
+					height: '100%',
+					zIndex: '2500', // Material Design max is usually 1500-2000, ensuring we are on top
+					pointerEvents: 'none' // Default to none, child must enable
+				}
+			}).root;
 			workbench.appendChild(onboardingContainer);
 			this.instantiationService.invokeFunction((accessor: ServicesAccessor) => {
 				const result = mountGridOnboarding(onboardingContainer, accessor);
@@ -53,3 +63,11 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 
 // Register the contribution to be initialized during the AfterRestored phase
 registerWorkbenchContribution2(OnboardingContribution.ID, OnboardingContribution, WorkbenchPhase.AfterRestored);
+
+import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
+import { IGridSettingsService } from '../common/gridSettingsService.js';
+
+CommandsRegistry.registerCommand('grid.openOnboarding', (accessor) => {
+	const settingsService = accessor.get(IGridSettingsService);
+	settingsService.setGlobalSetting('isOnboardingComplete', false);
+});

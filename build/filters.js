@@ -13,8 +13,8 @@
  * all ⊃ eol ⊇ indentation ⊃ copyright ⊃ typescript
  */
 
-const { readFileSync } = require('fs');
-const { join } = require('path');
+const { readFileSync } = require('node:fs');
+const { join } = require('node:path');
 
 module.exports.all = [
 	'*',
@@ -71,6 +71,8 @@ module.exports.indentationFilter = [
 	'**',
 
 	// except specific files
+	'!extensions/grid-cli/src/commands/agent.ts',
+	'!extensions/grid-extension/src/extension.ts',
 	'!**/ThirdPartyNotices.txt',
 	'!**/ThirdPartyNotices.cli.txt',
 	'!**/LICENSE.{txt,rtf}',
@@ -188,6 +190,7 @@ module.exports.copyrightFilter = [
 	'!extensions/*/server/bin/*',
 	'!src/vs/workbench/contrib/terminal/common/scripts/psreadline/**',
 	'!src/vs/workbench/contrib/grid/browser/react/**',
+	'!extensions/grid-cli/src/index.ts',
 ];
 
 module.exports.tsFormattingFilter = [

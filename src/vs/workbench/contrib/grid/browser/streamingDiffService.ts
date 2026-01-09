@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
- *  Licensed under the MIT License.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
 import { Range } from '../../../../editor/common/core/range.js';
+import { IModelDeltaDecoration } from '../../../../editor/common/model.js';
 import { DiffLine, myersDiff, myersCharDiff, DiffChar } from './diff/myersDiff.js';
 
 export const IStreamingDiffService = createDecorator<IStreamingDiffService>('streamingDiffService');
@@ -266,7 +267,7 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 		}
 
 		// Create decorations for added/removed lines
-		const decorations: any[] = [];
+		const decorations: IModelDeltaDecoration[] = [];
 		let lineNumber = 1;
 
 		for (const diffLine of diffLines) {
@@ -278,6 +279,7 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 						isWholeLine: true,
 						className: 'line-insert',
 						linesDecorationsClassName: 'insert-sign',
+						description: 'streaming-diff-insert'
 					},
 				});
 			} else if (diffLine.type === 'old') {
@@ -288,6 +290,7 @@ export class StreamingDiffService extends Disposable implements IStreamingDiffSe
 						isWholeLine: true,
 						className: 'line-delete',
 						linesDecorationsClassName: 'delete-sign',
+						description: 'streaming-diff-delete'
 					},
 				});
 			}

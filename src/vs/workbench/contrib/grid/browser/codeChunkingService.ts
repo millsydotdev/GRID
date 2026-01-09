@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
@@ -120,10 +120,7 @@ export class CodeChunkingService extends Disposable implements ICodeChunkingServ
 	private readonly MAX_FILE_SIZE = 1_000_000; // 1MB
 
 	// Language patterns for smart chunking
-	private readonly CODE_LANGUAGES = new Set([
-		'typescript', 'javascript', 'python', 'java', 'cpp', 'c',
-		'csharp', 'go', 'rust', 'php', 'ruby', 'swift', 'kotlin'
-	]);
+
 
 	private readonly NON_CODE_EXTENSIONS = new Set([
 		'css', 'html', 'htm', 'json', 'toml', 'yaml', 'yml', 'xml', 'md', 'txt'

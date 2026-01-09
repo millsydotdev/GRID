@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
- *  Licensed under the MIT License.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../../base/common/lifecycle.js';
@@ -194,7 +194,7 @@ export class ContextRankingService extends Disposable implements IContextRanking
 	/**
 	 * Calculate Jaccard similarity between two snippets
 	 *
-	 * Jaccard similarity = |A ∩ B| / |A ∪ B|
+	 * Jaccard similarity = |A intersect B| / |A union B|
 	 */
 	jaccardSimilarity(snippet1: string, snippet2: string): number {
 		const symbols1 = this.extractSymbols(snippet1);
@@ -257,7 +257,7 @@ export class ContextRankingService extends Disposable implements IContextRanking
 		const hoursSinceEdit =
 			(now - mostRecentEdit.timestamp) / (1000 * 60 * 60);
 
-		// Exponential decay: score = e^(-λt) where λ controls decay rate
+		// Exponential decay: score = e^(-lambda * t) where lambda controls decay rate
 		const decayRate = Math.log(2) / this.RECENCY_DECAY_HOURS; // Logarithmic decay
 		const score = Math.exp(-decayRate * hoursSinceEdit);
 

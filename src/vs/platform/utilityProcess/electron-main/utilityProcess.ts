@@ -354,7 +354,7 @@ export class UtilityProcess extends Disposable {
 				});
 
 				// Event
-				this._onCrash.fire({ pid: this.processPid!, code: details.exitCode, reason: details.reason });
+				this._onCrash.fire({ pid: this.processPid!, code: details.exitCode, reason: details.reason as IUtilityProcessCrashEvent['reason'] });
 
 				// Cleanup
 				this.onDidExitOrCrashOrKill();

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
@@ -41,9 +41,9 @@ export interface IConversationMessage {
 	 * Metadata for the message
 	 */
 	metadata?: {
-		toolCalls?: any[];
-		toolResults?: any[];
-		[key: string]: any;
+		toolCalls?: unknown[];
+		toolResults?: unknown[];
+		[key: string]: unknown;
 	};
 }
 

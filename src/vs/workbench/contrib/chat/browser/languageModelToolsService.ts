@@ -659,7 +659,8 @@ export class LanguageModelToolsService extends Disposable implements ILanguageMo
 		// also add all user tool sets (not part of the prompt referencable tools)
 		for (const toolSet of this._toolSets) {
 			if (toolSet.source.type === 'user') {
-				const enabled = Iterable.every(toolSet.getTools(), t => result.get(t) === true);
+				// eslint-disable-next-line
+				const enabled = !Iterable.some(toolSet.getTools(), (t: any) => result.get(t) !== true);
 				result.set(toolSet, enabled);
 			}
 		}

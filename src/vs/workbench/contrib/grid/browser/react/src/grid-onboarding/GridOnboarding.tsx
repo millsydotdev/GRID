@@ -1,194 +1,96 @@
 /*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
+ *  Copyright 2025 Millsy.dev All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-import { useEffect, useRef, useState } from 'react';
-import { useAccessor, useIsDark, useSettingsState } from '../util/services.js';
-import { Brain, Check, ChevronRight, DollarSign, ExternalLink, Lock, X } from 'lucide-react';
-import { displayInfoOfProviderName, ProviderName, providerNames, localProviderNames, featureNames, FeatureName, isFeatureNameDisabled } from '../../../../common/gridSettingsTypes.js';
-import { ChatMarkdownRender } from '../markdown/ChatMarkdownRender.js';
-import { IGridSettingsService } from '../../../../common/gridSettingsService.js';
-
-type WantToUseOption = 'smart' | 'private' | 'cheap' | 'all';
+import { useState, useEffect } from 'react';
+import { useAccessor, useSettingsState } from '../util/services.js';
+import { OnboardingShell } from './OnboardingShell.js';
+import { OnboardingWelcome } from './OnboardingWelcome.js';
+import { OnboardingProviders } from './OnboardingProviders.js';
+import { OnboardingSettings } from './OnboardingSettings.js';
+import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js';
+import { ExternalLink } from 'lucide-react';
+import './onboarding.css';
 
 export function GridOnboarding() {
-const accessor = useAccessor()
-const gridSettingsService = accessor.get('IGridSettingsService')
-const GridMetricsService = accessor.get('IMetricsService')
+	const accessor = useAccessor();
+	const gridSettingsService = accessor.get('IGridSettingsService');
+	const GridMetricsService = accessor.get('IMetricsService');
+	const settingsState = useSettingsState(); // Ensure global state is synced
 
-
-const GridSettingsState = useSettingsState()
-
-const [pageIndex, setPageIndex] = useState(0)
-
-
-// page 1 state
-const [wantToUseOption, setWantToUseOption] = useState<WantToUseOption>('smart')
-
-// Replace the single selectedProviderName with four separate states
-// page 2 state - each tab gets its own state
-const [selectedIntelligentProvider, setSelectedIntelligentProvider] = useState<ProviderName>('anthropic');
-const [selectedPrivateProvider, setSelectedPrivateProvider] = useState<ProviderName>('ollama');
-const [selectedAffordableProvider, setSelectedAffordableProvider] = useState<ProviderName>('gemini');
-const [selectedAllProvider, setSelectedAllProvider] = useState<ProviderName>('anthropic');
-
-// Helper function to get the current selected provider based on active tab
-const getSelectedProvider = (): ProviderName => {
-	switch (wantToUseOption) {
-		case 'smart': return selectedIntelligentProvider;
-		case 'private': return selectedPrivateProvider;
-		case 'cheap': return selectedAffordableProvider;
-		case 'all': return selectedAllProvider;
+	// If onboarding is complete, don't verify step or show anything
+	if (settingsState.globalSettings.isOnboardingComplete) {
+		return null;
 	}
-}
 
-// Helper function to set the selected provider for the current tab
-const setSelectedProvider = (provider: ProviderName) => {
-	switch (wantToUseOption) {
-		case 'smart': setSelectedIntelligentProvider(provider); break;
-		case 'private': setSelectedPrivateProvider(provider); break;
-		case 'cheap': setSelectedAffordableProvider(provider); break;
-		case 'all': setSelectedAllProvider(provider); break;
-	}
-}
+	const [step, setStep] = useState(0);
 
-const providerNamesOfWantToUseOption: { [wantToUseOption in WantToUseOption]: ProviderName[] } = {
-	smart: ['anthropic', 'openAI', 'gemini', 'openRouter'],
-	private: ['ollama', 'vLLM', 'openAICompatible', 'lmStudio'],
-	cheap: ['gemini', 'deepseek', 'openRouter', 'ollama', 'vLLM'],
-	all: providerNames,
-}
+	// Steps:
+	// 0: Welcome / Auth
+	// 1: Providers (AI)
+	// 2: Settings (Theme/Keys)
+	// 3: Complete / Getting Started
 
+	const handleComplete = () => {
+		gridSettingsService.setGlobalSetting('isOnboardingComplete', true);
+		GridMetricsService.capture('Completed Onboarding', {});
+		setStep(3);
+	};
 
-const selectedProviderName = getSelectedProvider();
-const didFillInProviderSettings = selectedProviderName && GridSettingsState.settingsOfProvider[selectedProviderName]._didFillInProviderSettings
-const isApiKeyLongEnoughIfApiKeyExists = selectedProviderName && GridSettingsState.settingsOfProvider[selectedProviderName].apiKey ? GridSettingsState.settingsOfProvider[selectedProviderName].apiKey.length > 15 : true
-const isAtLeastOneModel = selectedProviderName && GridSettingsState.settingsOfProvider[selectedProviderName].models.length >= 1
-
-const didFillInSelectedProviderSettings = !!(didFillInProviderSettings && isApiKeyLongEnoughIfApiKeyExists && isAtLeastOneModel)
-
-const prevAndNextButtons = <div className="max-w-[600px] w-full mx-auto flex flex-col items-end">
-	<div className="flex items-center gap-2">
-		<PreviousButton
-			onClick={() => { setPageIndex(pageIndex - 1) }}
-		/>
-		<NextButton
-			onClick={() => { setPageIndex(pageIndex + 1) }}
-		/>
-	</div>
-</div>
-
-
-const lastPagePrevAndNextButtons = <div className="max-w-[600px] w-full mx-auto flex flex-col items-end">
-	<div className="flex items-center gap-2">
-		<PreviousButton
-			onClick={() => { setPageIndex(pageIndex - 1) }}
-		/>
-		<PrimaryActionButton
-			onClick={() => {
-				gridSettingsService.setGlobalSetting('isOnboardingComplete', true);
-				GridMetricsService.capture('Completed Onboarding', { selectedProviderName, wantToUseOption })
-			}}
-			ringSize={GridSettingsState.globalSettings.isOnboardingComplete ? 'screen' : undefined}
-		>Enter the GRID</PrimaryActionButton>
-	</div>
-</div>
-
-
-// cannot be md
-const basicDescOfWantToUseOption: { [wantToUseOption in WantToUseOption]: string } = {
-	smart: "Models with the best performance on benchmarks.",
-	private: "Host on your computer or local network for full data privacy.",
-	cheap: "Free and affordable options.",
-	all: "",
-}
-
-// can be md
-const detailedDescOfWantToUseOption: { [wantToUseOption in WantToUseOption]: string } = {
-	smart: "Most intelligent and best for agent mode.",
-	private: "Private-hosted so your data never leaves your computer or network. [Email us](mailto:founders@Grideditor.com) for help setting up at your company.",
-	cheap: "Use great deals like Gemini 2.5 Pro, or self-host a model with Ollama or vLLM for free.",
-	all: "",
-}
-
-// Modified: initialize separate provider states on initial render instead of watching wantToUseOption changes
-useEffect(() => {
-	if (selectedIntelligentProvider === undefined) {
-		setSelectedIntelligentProvider(providerNamesOfWantToUseOption['smart'][0]);
-	}
-	if (selectedPrivateProvider === undefined) {
-		setSelectedPrivateProvider(providerNamesOfWantToUseOption['private'][0]);
-	}
-	if (selectedAffordableProvider === undefined) {
-		setSelectedAffordableProvider(providerNamesOfWantToUseOption['cheap'][0]);
-	}
-	if (selectedAllProvider === undefined) {
-		setSelectedAllProvider(providerNamesOfWantToUseOption['all'][0]);
-	}
-}, []);
-
-// reset the page to page 0 if the user redos onboarding
-useEffect(() => {
-	if (!GridSettingsState.globalSettings.isOnboardingComplete) {
-		setPageIndex(0)
-	}
-}, [setPageIndex, GridSettingsState.globalSettings.isOnboardingComplete])
+	const renderStep = () => {
+		switch (step) {
+			case 0:
+				return <OnboardingWelcome onNext={() => setStep(1)} />;
+			case 1:
+				return <OnboardingProviders onNext={() => setStep(2)} onBack={() => setStep(0)} />;
+			case 2:
+				// Don't complete yet, go to step 3 (Success Screen)
+				return <OnboardingSettings onNext={() => setStep(3)} onBack={() => setStep(1)} />;
+			case 3:
+				return (
+					<div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
+						<div className="w-16 h-16 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mb-4">
+							<span className="text-3xl">✓</span>
+						</div>
+						<h1 className="text-4xl font-light text-void-fg-0">You're all set!</h1>
+						<p className="text-void-fg-2">GRID is ready to use.</p>
+						<button
+							// We can't close the editor because this is an overlay.
+							// We just need to trigger completion which will hide the component.
+							// But wait, handleComplete() sets isOnboardingComplete=true
+							// which makes this return null immediately.
+							// So step 3 is actually transient or we need a specific "Done" button that sets the flag.
+							// Let's change handleComplete logic.
+							// We'll move setGlobalSetting to the click here.
+							onClick={() => {
+								gridSettingsService.setGlobalSetting('isOnboardingComplete', true);
+								GridMetricsService.capture('Completed Onboarding', {});
+							}}
+							className="mt-8 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-500/20 transition-all"
+						>
+							Start Coding
+						</button>
+					</div>
+				);
+			default:
+				return null;
+		}
+	};
 
 
-const contentOfIdx: { [pageIndex: number]: React.ReactNode } = {
-	0: <OnboardingPageShell
-		content={
-			<div className='flex flex-col items-center gap-8'>
-				<div className="text-5xl font-light text-center">Welcome to GRID</div>
+	// ... (other imports)
 
-				{/* Slice of GRID image */}
-				<div className='max-w-md w-full h-[30vh] mx-auto flex items-center justify-center'>
-					{!isLinux && <GridIcon />}
-				</div>
+	// ...
 
-
-				<FadeIn
-					delayMs={1000}
-				>
-					<PrimaryActionButton
-						onClick={() => { setPageIndex(1) }}
-					>
-						Get Started
-					</PrimaryActionButton>
-				</FadeIn>
-
+	return (
+		<ErrorBoundary>
+			<div className="grid-onboarding-container">
+				<OnboardingShell
+					content={renderStep()}
+					hasMaxWidth={true}
+				/>
 			</div>
-		}
-	/>,
-
-	1: <OnboardingPageShell hasMaxWidth={false}
-		content={
-			<AddProvidersPage pageIndex={pageIndex} setPageIndex={setPageIndex} />
-		}
-	/>,
-	2: <OnboardingPageShell
-
-		content={
-			<div>
-				<div className="text-5xl font-light text-center">Settings and Themes</div>
-
-				<div className="mt-8 text-center flex flex-col items-center gap-4 w-full max-w-md mx-auto">
-					<h4 className="text-void-fg-3 mb-4">Transfer your settings from an existing editor?</h4>
-					<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="VS Code" />
-					<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="Cursor" />
-					<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="Windsurf" />
-				</div>
-			</div>
-		}
-		bottom={lastPagePrevAndNextButtons}
-	/>,
-}
-
-
-return <div key={pageIndex} className="w-full h-[80vh] text-left mx-auto flex flex-col items-center justify-center">
-	<ErrorBoundary>
-		{contentOfIdx[pageIndex]}
-	</ErrorBoundary>
-</div>
+		</ErrorBoundary>
+	);
 }

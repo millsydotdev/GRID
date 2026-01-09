@@ -125,28 +125,35 @@ export class ResourceMap<T> implements Map<URI, T> {
 		}
 	}
 
-	*values(): IterableIterator<T> {
-		for (const entry of this.map.values()) {
-			yield entry.value;
-		}
+	values(): MapIterator<T> {
+		const map = this.map;
+		return (function* () {
+			for (const entry of map.values()) {
+				yield entry.value;
+			}
+		})() as unknown as MapIterator<T>;
 	}
 
-	*keys(): IterableIterator<URI> {
-		for (const entry of this.map.values()) {
-			yield entry.uri;
-		}
+	keys(): MapIterator<URI> {
+		const map = this.map;
+		return (function* () {
+			for (const entry of map.values()) {
+				yield entry.uri;
+			}
+		})() as unknown as MapIterator<URI>;
 	}
 
-	*entries(): IterableIterator<[URI, T]> {
-		for (const entry of this.map.values()) {
-			yield [entry.uri, entry.value];
-		}
+	entries(): MapIterator<[URI, T]> {
+		const map = this.map;
+		return (function* () {
+			for (const entry of map.values()) {
+				yield [entry.uri, entry.value];
+			}
+		})() as unknown as MapIterator<[URI, T]>;
 	}
 
-	*[Symbol.iterator](): IterableIterator<[URI, T]> {
-		for (const [, entry] of this.map) {
-			yield [entry.uri, entry.value];
-		}
+	[Symbol.iterator](): MapIterator<[URI, T]> {
+		return this.entries();
 	}
 }
 
@@ -193,19 +200,19 @@ export class ResourceSet implements Set<URI> {
 		return this._map.has(value);
 	}
 
-	entries(): IterableIterator<[URI, URI]> {
-		return this._map.entries();
+	entries(): SetIterator<[URI, URI]> {
+		return this._map.entries() as unknown as SetIterator<[URI, URI]>;
 	}
 
-	keys(): IterableIterator<URI> {
-		return this._map.keys();
+	keys(): SetIterator<URI> {
+		return this._map.keys() as unknown as SetIterator<URI>;
 	}
 
-	values(): IterableIterator<URI> {
-		return this._map.keys();
+	values(): SetIterator<URI> {
+		return this._map.keys() as unknown as SetIterator<URI>;
 	}
 
-	[Symbol.iterator](): IterableIterator<URI> {
+	[Symbol.iterator](): SetIterator<URI> {
 		return this.keys();
 	}
 }
@@ -356,11 +363,11 @@ export class LinkedMap<K, V> implements Map<K, V> {
 		}
 	}
 
-	keys(): IterableIterator<K> {
+	keys(): MapIterator<K> {
 		const map = this;
 		const state = this._state;
 		let current = this._head;
-		const iterator: IterableIterator<K> = {
+		const iterator = {
 			[Symbol.iterator]() {
 				return iterator;
 			},
@@ -377,14 +384,14 @@ export class LinkedMap<K, V> implements Map<K, V> {
 				}
 			}
 		};
-		return iterator;
+		return iterator as unknown as MapIterator<K>;
 	}
 
-	values(): IterableIterator<V> {
+	values(): MapIterator<V> {
 		const map = this;
 		const state = this._state;
 		let current = this._head;
-		const iterator: IterableIterator<V> = {
+		const iterator = {
 			[Symbol.iterator]() {
 				return iterator;
 			},
@@ -401,14 +408,14 @@ export class LinkedMap<K, V> implements Map<K, V> {
 				}
 			}
 		};
-		return iterator;
+		return iterator as unknown as MapIterator<V>;
 	}
 
-	entries(): IterableIterator<[K, V]> {
+	entries(): MapIterator<[K, V]> {
 		const map = this;
 		const state = this._state;
 		let current = this._head;
-		const iterator: IterableIterator<[K, V]> = {
+		const iterator = {
 			[Symbol.iterator]() {
 				return iterator;
 			},
@@ -425,10 +432,10 @@ export class LinkedMap<K, V> implements Map<K, V> {
 				}
 			}
 		};
-		return iterator;
+		return iterator as unknown as MapIterator<[K, V]>;
 	}
 
-	[Symbol.iterator](): IterableIterator<[K, V]> {
+	[Symbol.iterator](): MapIterator<[K, V]> {
 		return this.entries();
 	}
 

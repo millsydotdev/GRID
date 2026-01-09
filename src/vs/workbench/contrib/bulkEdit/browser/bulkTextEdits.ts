@@ -10,6 +10,7 @@ import { EditOperation, ISingleEditOperation } from '../../../../editor/common/c
 import { Range } from '../../../../editor/common/core/range.js';
 import { Selection } from '../../../../editor/common/core/selection.js';
 import { EndOfLineSequence, ITextModel } from '../../../../editor/common/model.js';
+import { TextEdit } from '../../../../editor/common/languages.js';
 import { ITextModelService, IResolvedTextEditorModel } from '../../../../editor/common/services/resolverService.js';
 import { IProgress } from '../../../../platform/progress/common/progress.js';
 import { IEditorWorkerService } from '../../../../editor/common/services/editorWorker.js';
@@ -251,7 +252,7 @@ export class BulkTextEdits {
 
 				const makeGroupMoreMinimal = async (start: number, end: number) => {
 					const oldEdits = edits.slice(start, end);
-					const newEdits = await this._editorWorker.computeMoreMinimalEdits(ref.object.textEditorModel.uri, oldEdits.map(e => e.textEdit), false);
+					const newEdits = await this._editorWorker.computeMoreMinimalEdits(ref.object.textEditorModel.uri, oldEdits.map(e => e.textEdit as TextEdit), false);
 					if (!newEdits) {
 						oldEdits.forEach(task.addEdit, task);
 					} else {

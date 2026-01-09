@@ -1,10 +1,11 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
- *  Licensed under the MIT License.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { ITextModel } from '../../../../editor/common/model.js';
+import { IModelContentChangedEvent } from '../../../../editor/common/textModelEvents.js';
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 import { INextEditService, IDocumentChange } from './nextEditService.js';
 import { URI } from '../../../../base/common/uri.js';
@@ -64,7 +65,7 @@ export class DocumentHistoryTracker extends Disposable {
 		this.trackedModels.set(uriKey, model);
 
 		// Listen for content changes
-		const changeListener = model.onDidChangeContent((e: any) => {
+		const changeListener = model.onDidChangeContent((e: IModelContentChangedEvent) => {
 			this.onModelContentChanged(model, e);
 		});
 
@@ -82,13 +83,13 @@ export class DocumentHistoryTracker extends Disposable {
 	/**
 	 * Handle model content changes
 	 */
-	private onModelContentChanged(model: ITextModel, event: any): void {
+	private onModelContentChanged(model: ITextModel, event: IModelContentChangedEvent): void {
 		// Convert VS Code change event to our IDocumentChange format
 		const documentChange: IDocumentChange = {
 			uri: model.uri,
 			timestamp: Date.now(),
 			versionId: model.getVersionId(),
-			changes: event.changes.map((change: any) => ({
+			changes: event.changes.map((change) => ({
 				range: new Range(
 					change.range.startLineNumber,
 					change.range.startColumn,

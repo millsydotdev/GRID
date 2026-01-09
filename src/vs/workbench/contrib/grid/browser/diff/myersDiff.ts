@@ -1,8 +1,9 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) GRID Editor. All rights reserved.
- *  Licensed under the MIT License.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+// eslint-disable-next-line
 import { diffLines, diffChars, type Change } from 'diff';
 
 /**
@@ -59,7 +60,7 @@ export function myersDiff(oldContent: string, newContent: string): DiffLine[] {
 		ignoreNewlineAtEof: true,
 	});
 
-	let ourFormat = theirFormat.flatMap(convertChangeToDiffLines);
+	const ourFormat = theirFormat.flatMap(convertChangeToDiffLines);
 
 	// Combine consecutive old/new pairs that are identical after trimming
 	for (let i = 0; i < ourFormat.length - 1; i++) {
