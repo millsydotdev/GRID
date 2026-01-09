@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { registerSingleton } from '../../../../../platform/instantiation/common/extensions.js';
+import { registerSingleton, InstantiationType } from '../../../../../platform/instantiation/common/extensions.js';
 import { IAutocompleteDebouncer, AutocompleteDebouncer } from './autocompleteDebouncer.js';
 import { IBracketMatchingService, BracketMatchingService } from './bracketMatchingService.js';
 import { IImportDefinitionsService, ImportDefinitionsService } from './importDefinitionsService.js';
@@ -16,13 +16,13 @@ import { IAutocompleteLoggingService, AutocompleteLoggingService } from './autoc
 // Register all autocomplete services as singletons
 
 // Core services
-registerSingleton(IAutocompleteDebouncer, AutocompleteDebouncer, true);
-registerSingleton(IBracketMatchingService, BracketMatchingService, true);
-registerSingleton(IImportDefinitionsService, ImportDefinitionsService, true);
-registerSingleton(IRootPathContextService, RootPathContextService, true);
-registerSingleton(IContextRankingService, ContextRankingService, true);
-registerSingleton(IStaticContextService, StaticContextService, true);
-registerSingleton(IAutocompleteLoggingService, AutocompleteLoggingService, true);
+registerSingleton(IAutocompleteDebouncer, AutocompleteDebouncer, InstantiationType.Delayed);
+registerSingleton(IBracketMatchingService, BracketMatchingService, InstantiationType.Delayed);
+registerSingleton(IImportDefinitionsService, ImportDefinitionsService, InstantiationType.Delayed);
+registerSingleton(IRootPathContextService, RootPathContextService, InstantiationType.Delayed);
+registerSingleton(IContextRankingService, ContextRankingService, InstantiationType.Delayed);
+registerSingleton(IStaticContextService, StaticContextService, InstantiationType.Delayed);
+registerSingleton(IAutocompleteLoggingService, AutocompleteLoggingService, InstantiationType.Delayed);
 
 // Enhanced service (coordinates all others)
-registerSingleton(IEnhancedAutocompleteService, EnhancedAutocompleteService, true);
+registerSingleton(IEnhancedAutocompleteService, EnhancedAutocompleteService, InstantiationType.Delayed);

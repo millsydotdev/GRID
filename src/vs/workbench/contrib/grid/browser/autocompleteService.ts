@@ -596,14 +596,18 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		// initialize cache if it doesnt exist
 		// note that whenever an autocompletion is accepted, it is removed from cache
 		if (!this._autocompletionsOfDocument[docUriStr]) {
-			this._autocompletionsOfDocument[docUriStr] = this._register(new EnhancedLRUCache<Autocompletion>(
-				MAX_CACHE_SIZE,
-				(autocompletion: Autocompletion, key?: string) => {
-					if (autocompletion.requestId) {
-						this._llmMessageService.abort(autocompletion.requestId);
-					}
+			const cache = this._register(new EnhancedLRUCache<Autocompletion>({
+				maxSize: MAX_CACHE_SIZE
+			}));
+
+			// Handle evicted items
+			this._register(cache.onEvict(entry => {
+				if (entry.value.requestId) {
+					this._llmMessageService.abort(entry.value.requestId);
 				}
-			));
+			}));
+
+			this._autocompletionsOfDocument[docUriStr] = cache;
 		}
 		// this._lastPrefix = prefix
 
@@ -616,7 +620,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		let cachedAutocompletion: Autocompletion | undefined = undefined;
 		let autocompletionMatchup: AutocompletionMatchupBounds | undefined = undefined;
 		const cache = this._autocompletionsOfDocument[docUriStr];
-		for (const [key, autocompletion] of cache.entries()) {
+		for (const [, autocompletion] of cache.items()) {
 			// if the user's change matches with the autocompletion
 			autocompletionMatchup = getAutocompletionMatchup({ prefix, autocompletion });
 			if (autocompletionMatchup !== undefined) {
@@ -726,7 +730,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		// if there are too many pending requests, cancel the oldest one
 		let numPending = 0;
 		let oldestPending: Autocompletion | undefined = undefined;
-		for (const [key, autocompletion] of cache.entries()) {
+		for (const [, autocompletion] of cache.items()) {
 			if (autocompletion.status === 'pending') {
 				numPending += 1;
 				if (oldestPending === undefined) {
@@ -734,7 +738,9 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 				}
 				if (numPending >= MAX_PENDING_REQUESTS) {
 					// cancel the oldest pending request and remove it from cache
-					cache.delete(String(oldestPending.id));
+					if (oldestPending) {
+						cache.delete(String(oldestPending.id));
+					}
 					break;
 				}
 			}
@@ -753,10 +759,14 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 				// 1. Static context (type and function declarations from current file)
 				if (useStaticContext) {
-					const staticDeclarations = this._staticContext.extractDeclarations(prefix + suffix, model.uri);
-					if (staticDeclarations.length > 0) {
-						const declarationsText = staticDeclarations
-							.map(decl => `// ${decl.type}: ${decl.name}\n${decl.code}`)
+					const content = prefix + suffix;
+					const typeDecls = this._staticContext.extractTypeDeclarations(content, model.uri);
+					const funcDecls = this._staticContext.extractFunctionDeclarations(content, model.uri);
+					const allDeclarations = [...typeDecls, ...funcDecls];
+
+					if (allDeclarations.length > 0) {
+						const declarationsText = allDeclarations
+							.map((decl: any) => `// ${decl.name}\n${decl.code || decl.signature}`)
 							.join('\n\n');
 						contextParts.push(`// Current file declarations:\n${declarationsText}`);
 					}
@@ -764,11 +774,11 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 				// 2. Import definitions (types/functions from imported files)
 				if (useImportDefinitions) {
-					const imports = this._importDefinitions.getImports(model.uri);
-					if (imports.length > 0) {
-						const importedSymbols = imports
+					const fileImportInfo = this._importDefinitions.get(model.uri);
+					if (fileImportInfo && fileImportInfo.importStatements.length > 0) {
+						const importedSymbols = fileImportInfo.importStatements
 							.slice(0, 5) // Limit to 5 imports
-							.map(imp => `// from ${imp.from}\nimport { ${imp.symbols.join(', ')} }`)
+							.map((imp: any) => `// from ${imp.source}\nimport ${imp.name}`)
 							.join('\n');
 						contextParts.push(`// Imports:\n${importedSymbols}`);
 					}
@@ -995,7 +1005,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 				// go through cached items and remove matching ones
 				// autocompletion.prefix + autocompletion.insertedText ~== insertedText
 				const cache = this._autocompletionsOfDocument[docUriStr];
-				for (const [key, autocompletion] of cache.entries()) {
+				for (const [, autocompletion] of cache.items()) {
 					// we can do this more efficiently, I just didn't want to deal with all of the edge cases
 					const matchup = removeAllWhitespace(prefix) === removeAllWhitespace(autocompletion.prefix + autocompletion.insertText);
 

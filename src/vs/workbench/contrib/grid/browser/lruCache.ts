@@ -257,7 +257,7 @@ export class LRUCache<V> extends Disposable {
 	/**
 	 * Get an iterable of [key, value] pairs (for compatibility with Map API)
 	 */
-	*entries(): IterableIterator<[string, V]> {
+	*items(): IterableIterator<[string, V]> {
 		for (const [key, entry] of this.entries.entries()) {
 			yield [key, entry.value];
 		}
