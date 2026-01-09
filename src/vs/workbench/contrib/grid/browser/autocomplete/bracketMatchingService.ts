@@ -66,6 +66,11 @@ export interface IBracketMatchingService {
 		uri: URI,
 		multiline: boolean
 	): AsyncGenerator<string>;
+
+	/**
+	 * Clear tracked state
+	 */
+	clear(): void;
 }
 
 export class BracketMatchingService extends Disposable implements IBracketMatchingService {
