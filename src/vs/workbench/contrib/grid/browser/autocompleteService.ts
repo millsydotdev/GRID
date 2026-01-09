@@ -39,6 +39,8 @@ import { IBracketMatchingService } from './autocomplete/bracketMatchingService.j
 import { IAutocompleteLoggingService } from './autocomplete/autocompleteLoggingService.js';
 import { IContextRankingService } from './autocomplete/contextRankingService.js';
 import { IRootPathContextService } from './autocomplete/rootPathContextService.js';
+import { IImportDefinitionsService } from './autocomplete/importDefinitionsService.js';
+import { IStaticContextService } from './autocomplete/staticContextService.js';
 import { LRUCache as EnhancedLRUCache } from './lruCache.js';
 
 
@@ -742,23 +744,55 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		// gather relevant context from the code around the user's selection and definitions
 		let relevantContext = '';
 		const useContextRanking = this._settingsService.state.globalSettings.autocomplete?.enableContextRanking ?? true;
-		if (useContextRanking) {
+		const useImportDefinitions = this._settingsService.state.globalSettings.autocomplete?.enableImportDefinitions ?? true;
+		const useStaticContext = this._settingsService.state.globalSettings.autocomplete?.enableStaticContext ?? true;
+
+		if (useContextRanking || useImportDefinitions || useStaticContext) {
 			try {
-				// Gather context snippets from the codebase
-				const contextSnippets = await this._rootPathContext.getContextSnippets(model.uri, position);
+				const contextParts: string[] = [];
 
-				// Rank snippets using multi-signal ranking
-				const rankedSnippets = this._contextRanking.rankSnippets(
-					model.uri,
-					contextSnippets,
-					[] // edit history - would need to track this
-				);
+				// 1. Static context (type and function declarations from current file)
+				if (useStaticContext) {
+					const staticDeclarations = this._staticContext.extractDeclarations(prefix + suffix, model.uri);
+					if (staticDeclarations.length > 0) {
+						const declarationsText = staticDeclarations
+							.map(decl => `// ${decl.type}: ${decl.name}\n${decl.code}`)
+							.join('\n\n');
+						contextParts.push(`// Current file declarations:\n${declarationsText}`);
+					}
+				}
 
-				// Take top 3 snippets and format for LLM
-				relevantContext = rankedSnippets
-					.slice(0, 3)
-					.map(snippet => `// ${snippet.uri.fsPath}\n${snippet.content}`)
-					.join('\n\n');
+				// 2. Import definitions (types/functions from imported files)
+				if (useImportDefinitions) {
+					const imports = this._importDefinitions.getImports(model.uri);
+					if (imports.length > 0) {
+						const importedSymbols = imports
+							.slice(0, 5) // Limit to 5 imports
+							.map(imp => `// from ${imp.from}\nimport { ${imp.symbols.join(', ')} }`)
+							.join('\n');
+						contextParts.push(`// Imports:\n${importedSymbols}`);
+					}
+				}
+
+				// 3. Ranked code snippets from codebase
+				if (useContextRanking) {
+					const contextSnippets = await this._rootPathContext.getContextSnippets(model.uri, position);
+					const rankedSnippets = this._contextRanking.rankSnippets(
+						model.uri,
+						contextSnippets,
+						[] // edit history - would need to track this
+					);
+
+					if (rankedSnippets.length > 0) {
+						const snippetsText = rankedSnippets
+							.slice(0, 3)
+							.map(snippet => `// ${snippet.uri.fsPath}\n${snippet.content}`)
+							.join('\n\n');
+						contextParts.push(`// Related code:\n${snippetsText}`);
+					}
+				}
+
+				relevantContext = contextParts.join('\n\n');
 			} catch (e) {
 				console.error('Error gathering context:', e);
 				relevantContext = '';
@@ -927,7 +961,9 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		@IBracketMatchingService private readonly _bracketMatching: IBracketMatchingService,
 		@IAutocompleteLoggingService private readonly _loggingService: IAutocompleteLoggingService,
 		@IContextRankingService private readonly _contextRanking: IContextRankingService,
-		@IRootPathContextService private readonly _rootPathContext: IRootPathContextService
+		@IRootPathContextService private readonly _rootPathContext: IRootPathContextService,
+		@IImportDefinitionsService private readonly _importDefinitions: IImportDefinitionsService,
+		@IStaticContextService private readonly _staticContext: IStaticContextService
 		// @IContextGatheringService private readonly _contextGatheringService: IContextGatheringService,
 	) {
 		super();
