@@ -136,6 +136,11 @@ export const mcpStdioServerSchema: IJSONSchema = {
 			enum: ['stdio'],
 			description: localize('app.mcp.json.type', "The type of the server.")
 		},
+		enabled: {
+			type: 'boolean',
+			default: true,
+			description: localize('app.mcp.json.enabled', "Whether the server is enabled. Disabled servers will not be started.")
+		},
 		command: {
 			type: 'string',
 			description: localize('app.mcp.json.command', "The command to run the server.")
@@ -196,6 +201,11 @@ export const mcpServerSchema: IJSONSchema = {
 								type: 'string',
 								enum: ['http', 'sse'],
 								description: localize('app.mcp.json.type', "The type of the server.")
+							},
+							enabled: {
+								type: 'boolean',
+								default: true,
+								description: localize('app.mcp.json.enabled', "Whether the server is enabled. Disabled servers will not be started.")
 							},
 							url: {
 								type: 'string',

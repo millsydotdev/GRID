@@ -491,6 +491,27 @@ export class McpWorkbenchService extends Disposable implements IMcpWorkbenchServ
 		await this.mcpManagementService.uninstall(server.local);
 	}
 
+	async updateConfiguration(server: IWorkbenchMcpServer, configUpdate: Partial<IMcpServerConfiguration>): Promise<void> {
+		if (!server.local) {
+			throw new Error('Local server is missing');
+		}
+
+		const configPath = this.getMcpConfigPath(server.local);
+		if (!configPath) {
+			throw new Error('Configuration path not found');
+		}
+
+		const section = configPath.section ? [...configPath.section, mcpConfigurationSection, 'servers', server.name] : [mcpConfigurationSection, 'servers', server.name];
+		const currentConfig = this.configurationService.inspect(section.join('.'), { resource: configPath.workspaceFolder?.uri }).value || server.local.config;
+		const updatedConfig = { ...currentConfig, ...configUpdate };
+
+		await this.configurationService.updateValue(
+			section.join('.'),
+			updatedConfig,
+			configPath.target
+		);
+	}
+
 	private async doInstall(server: McpWorkbenchServer, installTask: () => Promise<IWorkbenchLocalMcpServer>): Promise<IWorkbenchMcpServer> {
 		const source = server.gallery ? 'gallery' : 'local';
 		const serverName = server.name;
@@ -752,6 +773,17 @@ export class McpWorkbenchService extends Disposable implements IMcpWorkbenchServ
 	private getEnablementStatus(mcpServer: McpWorkbenchServer): McpServerEnablementStatus | undefined {
 		if (!mcpServer.local) {
 			return undefined;
+		}
+
+		// Check if the server is explicitly disabled in configuration
+		if (mcpServer.local.config.enabled === false) {
+			return {
+				state: McpServerEnablementState.Disabled,
+				message: {
+					severity: Severity.Info,
+					text: new MarkdownString(localize('disabled - explicitly', "This MCP Server is disabled in the configuration."))
+				}
+			};
 		}
 
 		const settingsCommandLink = createCommandUri('workbench.action.openSettings', { query: `@id:${mcpAccessConfig}` }).toString();
