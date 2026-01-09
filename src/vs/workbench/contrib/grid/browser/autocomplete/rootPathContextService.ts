@@ -44,16 +44,6 @@ export interface ICodeSnippet {
 }
 
 /**
- * AST node type for context analysis
- */
-interface IASTNode {
-	type: string;
-	startLine: number;
-	endLine: number;
-	name?: string;
-}
-
-/**
  * Root Path Context Service
  *
  * Finds relevant code snippets based on imports and definitions:
@@ -84,19 +74,6 @@ export class RootPathContextService extends Disposable implements IRootPathConte
 	readonly _serviceBrand: undefined;
 
 	private cache: LRUCache<ICodeSnippet[]>;
-
-	// Node types that are interesting for context
-	private static readonly TYPES_TO_USE = new Set([
-		'function_declaration',
-		'arrow_function',
-		'function',
-		'method_definition',
-		'method',
-		'class_declaration',
-		'class',
-		'interface_declaration',
-		'interface',
-	]);
 
 	constructor(
 		@IImportDefinitionsService private readonly importDefinitionsService: IImportDefinitionsService
@@ -130,7 +107,7 @@ export class RootPathContextService extends Disposable implements IRootPathConte
 
 			if (importInfo) {
 				// For each import, get its definition snippets
-				for (const [name, definitions] of importInfo.imports) {
+				for (const [, definitions] of importInfo.imports) {
 					for (const def of definitions) {
 						// In a full implementation, we would read the definition content
 						// For now, we create placeholder snippets
@@ -189,86 +166,6 @@ export class RootPathContextService extends Disposable implements IRootPathConte
 		return 'variable';
 	}
 
-	/**
-	 * Find AST nodes in content (simplified regex-based approach)
-	 */
-	private findASTNodes(content: string): IASTNode[] {
-		const nodes: IASTNode[] = [];
-		const lines = content.split('\n');
-
-		// Find function declarations
-		const functionRegex = /^(export\s+)?(async\s+)?function\s+(\w+)/;
-		// Find class declarations
-		const classRegex = /^(export\s+)?(abstract\s+)?class\s+(\w+)/;
-		// Find method declarations
-		const methodRegex = /^\s*(public|private|protected|static)?\s*(\w+)\s*\(/;
-
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
-
-			// Check for functions
-			const funcMatch = line.match(functionRegex);
-			if (funcMatch) {
-				const endLine = this.findBlockEnd(lines, i);
-				nodes.push({
-					type: 'function_declaration',
-					startLine: i,
-					endLine,
-					name: funcMatch[3],
-				});
-			}
-
-			// Check for classes
-			const classMatch = line.match(classRegex);
-			if (classMatch) {
-				const endLine = this.findBlockEnd(lines, i);
-				nodes.push({
-					type: 'class_declaration',
-					startLine: i,
-					endLine,
-					name: classMatch[3],
-				});
-			}
-
-			// Check for methods
-			const methodMatch = line.match(methodRegex);
-			if (methodMatch) {
-				const endLine = this.findBlockEnd(lines, i);
-				nodes.push({
-					type: 'method_definition',
-					startLine: i,
-					endLine,
-					name: methodMatch[2],
-				});
-			}
-		}
-
-		return nodes;
-	}
-
-	/**
-	 * Find the end of a code block (matching braces)
-	 */
-	private findBlockEnd(lines: string[], startLine: number): number {
-		let braceCount = 0;
-		let foundOpenBrace = false;
-
-		for (let i = startLine; i < lines.length; i++) {
-			for (const char of lines[i]) {
-				if (char === '{') {
-					braceCount++;
-					foundOpenBrace = true;
-				} else if (char === '}') {
-					braceCount--;
-					if (foundOpenBrace && braceCount === 0) {
-						return i;
-					}
-				}
-			}
-		}
-
-		return lines.length - 1;
-	}
 
 	/**
 	 * Get cache key for position

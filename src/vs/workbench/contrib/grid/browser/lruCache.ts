@@ -255,6 +255,15 @@ export class LRUCache<V> extends Disposable {
 	}
 
 	/**
+	 * Get an iterable of [key, value] pairs (for compatibility with Map API)
+	 */
+	*items(): IterableIterator<[string, V]> {
+		for (const [key, entry] of this.entries.entries()) {
+			yield [key, entry.value];
+		}
+	}
+
+	/**
 	 * Evict the least recently used entry
 	 */
 	private evictOldest(): void {

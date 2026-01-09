@@ -178,11 +178,10 @@ export class ImportDefinitionsService extends Disposable implements IImportDefin
 	 */
 	private async parseImports(uri: URI): Promise<IImportInfo[]> {
 		const imports: IImportInfo[] = [];
-		const extension = this.getFileExtension(uri);
 
 		// Note: In a real implementation, we would:
 		// 1. Read file content using IFileService
-		// 2. Parse with tree-sitter or regex patterns
+		// 2. Parse with tree-sitter or regex patterns based on file extension
 		// 3. Extract all import statements
 
 		// For now, return empty array as placeholder
@@ -192,130 +191,6 @@ export class ImportDefinitionsService extends Disposable implements IImportDefin
 		return imports;
 	}
 
-	/**
-	 * Parse TypeScript/JavaScript imports
-	 */
-	private parseJavaScriptImports(content: string, uri: URI): IImportInfo[] {
-		const imports: IImportInfo[] = [];
-
-		// Match ES6 imports
-		const es6ImportRegex = /import\s+(?:{([^}]+)}|(\*\s+as\s+\w+)|(\w+))\s+from\s+['"]([^'"]+)['"]/g;
-		const lines = content.split('\n');
-
-		for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-			const line = lines[lineIndex];
-			let match;
-
-			while ((match = es6ImportRegex.exec(line)) !== null) {
-				const [fullMatch, namedImports, namespaceImport, defaultImport, source] = match;
-				const startCol = match.index;
-				const endCol = match.index + fullMatch.length;
-
-				if (defaultImport) {
-					imports.push({
-						name: defaultImport.trim(),
-						source,
-						isDefault: true,
-						range: new Range(lineIndex + 1, startCol + 1, lineIndex + 1, endCol + 1),
-					});
-				}
-
-				if (namedImports) {
-					const names = namedImports.split(',').map(n => n.trim());
-					for (const name of names) {
-						imports.push({
-							name: name.replace(/\s+as\s+.+/, '').trim(),
-							source,
-							isDefault: false,
-							range: new Range(lineIndex + 1, startCol + 1, lineIndex + 1, endCol + 1),
-						});
-					}
-				}
-
-				if (namespaceImport) {
-					const name = namespaceImport.replace('*', '').replace(/\s+as\s+/, '').trim();
-					imports.push({
-						name,
-						source,
-						isDefault: false,
-						range: new Range(lineIndex + 1, startCol + 1, lineIndex + 1, endCol + 1),
-					});
-				}
-			}
-		}
-
-		// Match CommonJS requires
-		const requireRegex = /(?:const|let|var)\s+(?:{([^}]+)}|(\w+))\s*=\s*require\(['"]([^'"]+)['"]\)/g;
-
-		for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-			const line = lines[lineIndex];
-			let match;
-
-			while ((match = requireRegex.exec(line)) !== null) {
-				const [fullMatch, namedImports, singleImport, source] = match;
-				const startCol = match.index;
-				const endCol = match.index + fullMatch.length;
-
-				if (singleImport) {
-					imports.push({
-						name: singleImport.trim(),
-						source,
-						isDefault: true,
-						range: new Range(lineIndex + 1, startCol + 1, lineIndex + 1, endCol + 1),
-					});
-				}
-
-				if (namedImports) {
-					const names = namedImports.split(',').map(n => n.trim());
-					for (const name of names) {
-						imports.push({
-							name: name.replace(/\s+as\s+.+/, '').trim(),
-							source,
-							isDefault: false,
-							range: new Range(lineIndex + 1, startCol + 1, lineIndex + 1, endCol + 1),
-						});
-					}
-				}
-			}
-		}
-
-		return imports;
-	}
-
-	/**
-	 * Parse Python imports
-	 */
-	private parsePythonImports(content: string, uri: URI): IImportInfo[] {
-		const imports: IImportInfo[] = [];
-		const lines = content.split('\n');
-
-		// Match: import module
-		// Match: from module import name
-		const importRegex = /^(?:from\s+([^\s]+)\s+)?import\s+(.+)$/;
-
-		for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-			const line = lines[lineIndex].trim();
-			const match = importRegex.exec(line);
-
-			if (match) {
-				const [fullMatch, fromModule, importPart] = match;
-				const source = fromModule || importPart.split(',')[0].split(' as ')[0].trim();
-				const names = importPart.split(',').map(n => n.trim());
-
-				for (const nameWithAlias of names) {
-					const name = nameWithAlias.split(' as ')[0].trim();
-					imports.push({
-						name,
-						source,
-						isDefault: false,
-						range: new Range(lineIndex + 1, 1, lineIndex + 1, line.length + 1),
-					});
-				}
-			}
-		}
-
-		return imports;
-	}
 
 	/**
 	 * Check if file extension is a code file

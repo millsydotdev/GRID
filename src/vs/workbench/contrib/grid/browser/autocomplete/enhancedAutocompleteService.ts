@@ -11,8 +11,8 @@ import { CancellationToken } from '../../../../../base/common/cancellation.js';
 import { Emitter, Event } from '../../../../../base/common/event.js';
 
 import { CompletionStreamer } from './completionStreamer.js';
-import { AutocompleteDebouncer, IAutocompleteDebouncer } from './autocompleteDebouncer.js';
-import { BracketMatchingService, IBracketMatchingService } from './bracketMatchingService.js';
+import { IAutocompleteDebouncer } from './autocompleteDebouncer.js';
+import { IBracketMatchingService } from './bracketMatchingService.js';
 import { IImportDefinitionsService } from './importDefinitionsService.js';
 import { IRootPathContextService } from './rootPathContextService.js';
 import { IContextRankingService } from './contextRankingService.js';

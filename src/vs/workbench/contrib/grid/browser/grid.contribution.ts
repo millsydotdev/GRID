@@ -23,6 +23,7 @@ import './quickActions.js';
 
 // register Autocomplete
 import './autocompleteService.js';
+import './autocomplete/autocomplete.contribution.js';
 
 // settings pane
 import './gridSettingsPane.js';
