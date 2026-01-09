@@ -33,6 +33,12 @@ import { FeatureName, ProviderName } from '../common/gridSettingsTypes.js';
 import { IConvertToLLMMessageService } from './convertToLLMMessageService.js';
 // import { IContextGatheringService } from './contextGatheringService.js';
 
+// Import new autocomplete services
+import { IAutocompleteDebouncer } from './autocomplete/autocompleteDebouncer.js';
+import { IBracketMatchingService } from './autocomplete/bracketMatchingService.js';
+import { IAutocompleteLoggingService } from './autocomplete/autocompleteLoggingService.js';
+import { LRUCache as EnhancedLRUCache } from './lruCache.js';
+
 
 
 const allLinebreakSymbols = ['\r\n', '\n'];
@@ -76,82 +82,8 @@ Details
 -
 */
 
-class LRUCache<K, V> {
-	public items: Map<K, V>;
-	private keyOrder: K[];
-	private maxSize: number;
-	private disposeCallback?: (value: V, key?: K) => void;
-
-	constructor(maxSize: number, disposeCallback?: (value: V, key?: K) => void) {
-		if (maxSize <= 0) {throw new Error('Cache size must be greater than 0');}
-
-		this.items = new Map();
-		this.keyOrder = [];
-		this.maxSize = maxSize;
-		this.disposeCallback = disposeCallback;
-	}
-
-	set(key: K, value: V): void {
-		// If key exists, remove it from the order list
-		if (this.items.has(key)) {
-			this.keyOrder = this.keyOrder.filter(k => k !== key);
-		}
-		// If cache is full, remove least recently used item
-		else if (this.items.size >= this.maxSize) {
-			const key = this.keyOrder[0];
-			const value = this.items.get(key);
-
-			// Call dispose callback if it exists
-			if (this.disposeCallback && value !== undefined) {
-				this.disposeCallback(value, key);
-			}
-
-			this.items.delete(key);
-			this.keyOrder.shift();
-		}
-
-		// Add new item
-		this.items.set(key, value);
-		this.keyOrder.push(key);
-	}
-
-	delete(key: K): boolean {
-		const value = this.items.get(key);
-
-		if (value !== undefined) {
-			// Call dispose callback if it exists
-			if (this.disposeCallback) {
-				this.disposeCallback(value, key);
-			}
-
-			this.items.delete(key);
-			this.keyOrder = this.keyOrder.filter(k => k !== key);
-			return true;
-		}
-
-		return false;
-	}
-
-	clear(): void {
-		// Call dispose callback for all items if it exists
-		if (this.disposeCallback) {
-			for (const [key, value] of this.items.entries()) {
-				this.disposeCallback(value, key);
-			}
-		}
-
-		this.items.clear();
-		this.keyOrder = [];
-	}
-
-	get size(): number {
-		return this.items.size;
-	}
-
-	has(key: K): boolean {
-		return this.items.has(key);
-	}
-}
+// NOTE: Old LRUCache class replaced with EnhancedLRUCache from ./lruCache.js
+// The new implementation provides TTL support, hit/miss events, and better performance
 
 type AutocompletionPredictionType =
 	| 'single-line-fill-middle'
@@ -362,7 +294,9 @@ const postprocessAutocompletion = ({ autocompletionMatchup, autocompletion, pref
 	// console.log('pFinal', startIdx, endIdx)
 	let completionStr = generatedMiddle.slice(startIdx, endIdx);
 
-	// filter out unbalanced parentheses
+	// NOTE: Bracket matching is now handled by BracketMatchingService
+	// For now, still use the old logic for postprocessing
+	// In the future, we should integrate this with the streaming bracket matching
 	completionStr = getStringUpToUnbalancedClosingParenthesis(completionStr, prefix);
 	// console.log('originalCompletionStr: ', JSON.stringify(generatedMiddle.slice(startIdx)))
 	// console.log('finalCompletionStr: ', JSON.stringify(completionStr))
@@ -632,7 +566,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 	_serviceBrand: undefined;
 
 	private _autocompletionId: number = 0;
-	private _autocompletionsOfDocument: { [docUriStr: string]: LRUCache<number, Autocompletion> } = {};
+	private _autocompletionsOfDocument: { [docUriStr: string]: EnhancedLRUCache<Autocompletion> } = {};
 
 	private _lastCompletionStart = 0;
 	private _lastCompletionAccept = 0;
@@ -658,13 +592,14 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		// initialize cache if it doesnt exist
 		// note that whenever an autocompletion is accepted, it is removed from cache
 		if (!this._autocompletionsOfDocument[docUriStr]) {
-			this._autocompletionsOfDocument[docUriStr] = new LRUCache<number, Autocompletion>(
+			this._autocompletionsOfDocument[docUriStr] = this._register(new EnhancedLRUCache<Autocompletion>(
 				MAX_CACHE_SIZE,
-				(autocompletion: Autocompletion) => {
-					if (autocompletion.requestId)
-						{this._llmMessageService.abort(autocompletion.requestId);}
+				(autocompletion: Autocompletion, key?: string) => {
+					if (autocompletion.requestId) {
+						this._llmMessageService.abort(autocompletion.requestId);
+					}
 				}
-			);
+			));
 		}
 		// this._lastPrefix = prefix
 
@@ -676,7 +611,8 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		// get autocompletion from cache
 		let cachedAutocompletion: Autocompletion | undefined = undefined;
 		let autocompletionMatchup: AutocompletionMatchupBounds | undefined = undefined;
-		for (const autocompletion of this._autocompletionsOfDocument[docUriStr].items.values()) {
+		const cache = this._autocompletionsOfDocument[docUriStr];
+		for (const [key, autocompletion] of cache.entries()) {
 			// if the user's change matches with the autocompletion
 			autocompletionMatchup = getAutocompletionMatchup({ prefix, autocompletion });
 			if (autocompletionMatchup !== undefined) {
@@ -697,6 +633,21 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 				console.log('A1');
 
 				const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: cachedAutocompletion, prefixAndSuffix, position, debug: true });
+
+				// Log completion display
+				this._loggingService.markDisplayed(String(cachedAutocompletion.id), {
+					completionId: String(cachedAutocompletion.id),
+					accepted: false,
+					completion: cachedAutocompletion.insertText,
+					prefix: cachedAutocompletion.prefix,
+					suffix: cachedAutocompletion.suffix,
+					filepath: docUriStr,
+					cacheHit: true,
+					time: cachedAutocompletion.endTime ? cachedAutocompletion.endTime - cachedAutocompletion.startTime : 0,
+					numLines: cachedAutocompletion.insertText.split('\n').length,
+					timestamp: Date.now(),
+				});
+
 				return inlineCompletions;
 
 			} else if (cachedAutocompletion.status === 'pending') {
@@ -705,10 +656,25 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 				try {
 					await cachedAutocompletion.llmPromise;
 					const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: cachedAutocompletion, prefixAndSuffix, position });
+
+					// Log completion display
+					this._loggingService.markDisplayed(String(cachedAutocompletion.id), {
+						completionId: String(cachedAutocompletion.id),
+						accepted: false,
+						completion: cachedAutocompletion.insertText,
+						prefix: cachedAutocompletion.prefix,
+						suffix: cachedAutocompletion.suffix,
+						filepath: docUriStr,
+						cacheHit: true,
+						time: cachedAutocompletion.endTime ? cachedAutocompletion.endTime - cachedAutocompletion.startTime : 0,
+						numLines: cachedAutocompletion.insertText.split('\n').length,
+						timestamp: Date.now(),
+					});
+
 					return inlineCompletions;
 
 				} catch (e) {
-					this._autocompletionsOfDocument[docUriStr].delete(cachedAutocompletion.id);
+					this._autocompletionsOfDocument[docUriStr].delete(String(cachedAutocompletion.id));
 					console.error('Error creating autocompletion (1): ' + e);
 				}
 
@@ -723,32 +689,19 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 		// else if no more typing happens, then go forwards with the request
 
-		// wait DEBOUNCE_TIME for the user to stop typing
-		const thisTime = Date.now();
-
-		const justAcceptedAutocompletion = thisTime - this._lastCompletionAccept < 500;
-
-		this._lastCompletionStart = thisTime;
-		const didTypingHappenDuringDebounce = await new Promise((resolve, reject) =>
-			setTimeout(() => {
-				if (this._lastCompletionStart === thisTime) {
-					resolve(false);
-				} else {
-					resolve(true);
-				}
-			}, DEBOUNCE_TIME)
-		);
-
-		// if more typing happened, then do not go forwards with the request
-		if (didTypingHappenDuringDebounce) {
+		// Use debouncer service instead of manual debouncing
+		const shouldDebounce = await this._debouncer.delayAndShouldDebounce(DEBOUNCE_TIME);
+		if (shouldDebounce) {
 			return [];
 		}
+
+		const justAcceptedAutocompletion = Date.now() - this._lastCompletionAccept < 500;
 
 
 		// if there are too many pending requests, cancel the oldest one
 		let numPending = 0;
 		let oldestPending: Autocompletion | undefined = undefined;
-		for (const autocompletion of this._autocompletionsOfDocument[docUriStr].items.values()) {
+		for (const [key, autocompletion] of cache.entries()) {
 			if (autocompletion.status === 'pending') {
 				numPending += 1;
 				if (oldestPending === undefined) {
@@ -756,7 +709,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 				}
 				if (numPending >= MAX_PENDING_REQUESTS) {
 					// cancel the oldest pending request and remove it from cache
-					this._autocompletionsOfDocument[docUriStr].delete(oldestPending.id);
+					cache.delete(String(oldestPending.id));
 					break;
 				}
 			}
@@ -883,7 +836,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 
 		// add autocompletion to cache
-		this._autocompletionsOfDocument[docUriStr].set(newAutocompletion.id, newAutocompletion);
+		cache.set(String(newAutocompletion.id), newAutocompletion);
 
 		// show autocompletion
 		try {
@@ -892,10 +845,25 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 			const autocompletionMatchup: AutocompletionMatchupBounds = { startIdx: 0, startLine: 0, startCharacter: 0 };
 			const inlineCompletions = toInlineCompletions({ autocompletionMatchup, autocompletion: newAutocompletion, prefixAndSuffix, position });
+
+			// Log completion display
+			this._loggingService.markDisplayed(String(newAutocompletion.id), {
+				completionId: String(newAutocompletion.id),
+				accepted: false,
+				completion: newAutocompletion.insertText,
+				prefix: newAutocompletion.prefix,
+				suffix: newAutocompletion.suffix,
+				filepath: docUriStr,
+				cacheHit: false,
+				time: newAutocompletion.endTime ? newAutocompletion.endTime - newAutocompletion.startTime : 0,
+				numLines: newAutocompletion.insertText.split('\n').length,
+				timestamp: Date.now(),
+			});
+
 			return inlineCompletions;
 
 		} catch (e) {
-			this._autocompletionsOfDocument[docUriStr].delete(newAutocompletion.id);
+			cache.delete(String(newAutocompletion.id));
 			console.error('Error creating autocompletion (2): ' + e);
 			return [];
 		}
@@ -908,7 +876,11 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		@IEditorService private readonly _editorService: IEditorService,
 		@IModelService private readonly _modelService: IModelService,
 		@IGridSettingsService private readonly _settingsService: IGridSettingsService,
-		@IConvertToLLMMessageService private readonly _convertToLLMMessageService: IConvertToLLMMessageService
+		@IConvertToLLMMessageService private readonly _convertToLLMMessageService: IConvertToLLMMessageService,
+		// New autocomplete services
+		@IAutocompleteDebouncer private readonly _debouncer: IAutocompleteDebouncer,
+		@IBracketMatchingService private readonly _bracketMatching: IBracketMatchingService,
+		@IAutocompleteLoggingService private readonly _loggingService: IAutocompleteLoggingService
 		// @IContextGatheringService private readonly _contextGatheringService: IContextGatheringService,
 	) {
 		super();
@@ -939,17 +911,20 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 
 				// go through cached items and remove matching ones
 				// autocompletion.prefix + autocompletion.insertedText ~== insertedText
-				this._autocompletionsOfDocument[docUriStr].items.forEach((autocompletion: Autocompletion) => {
-
+				const cache = this._autocompletionsOfDocument[docUriStr];
+				for (const [key, autocompletion] of cache.entries()) {
 					// we can do this more efficiently, I just didn't want to deal with all of the edge cases
 					const matchup = removeAllWhitespace(prefix) === removeAllWhitespace(autocompletion.prefix + autocompletion.insertText);
 
 					if (matchup) {
 						console.log('ACCEPT', autocompletion.id);
 						this._lastCompletionAccept = Date.now();
-						this._autocompletionsOfDocument[docUriStr].delete(autocompletion.id);
+						cache.delete(String(autocompletion.id));
+
+						// Log acceptance via logging service
+						this._loggingService.accept(String(autocompletion.id));
 					}
-				});
+				}
 
 			},
 		}));
