@@ -13,8 +13,9 @@ import { AgentManagerEnhanced } from './AgentManager.js';
 import { ProjectTaskManager } from './ProjectTaskManager.js';
 import { AccountPanel } from './AccountPanel.js';
 import { DashboardPanel } from './DashboardPanel.js';
+import { AutocompletePanel } from './AutocompletePanel.js';
 
-type GridSidebarView = 'chat' | 'agents' | 'projects' | 'account' | 'dashboard';
+type GridSidebarView = 'chat' | 'agents' | 'projects' | 'account' | 'dashboard' | 'autocomplete';
 
 export const Sidebar = ({ className }: { className: string }) => {
 	const isDark = useIsDark();
@@ -60,6 +61,11 @@ export const Sidebar = ({ className }: { className: string }) => {
 							label="Dashboard"
 							onClick={() => setActiveView('dashboard')}
 						/>
+						<GridTab
+							active={activeView === 'autocomplete'}
+							label="Autocomplete"
+							onClick={() => setActiveView('autocomplete')}
+						/>
 					</div>
 					<span className="text-[10px] text-void-fg-3 uppercase tracking-[0.18em]">
 						GRID
@@ -79,6 +85,7 @@ export const Sidebar = ({ className }: { className: string }) => {
 						{activeView === 'dashboard' && (
 							<DashboardPanel onClose={() => setActiveView('chat')} />
 						)}
+						{activeView === 'autocomplete' && <AutocompletePanel />}
 					</ErrorBoundary>
 				</div>
 			</div>
