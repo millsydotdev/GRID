@@ -36,6 +36,7 @@ export interface ICommonMcpServerConfiguration {
 	readonly type: McpServerType;
 	readonly version?: string;
 	readonly gallery?: boolean | string;
+	readonly enabled?: boolean;
 }
 
 export interface IMcpStdioServerConfiguration extends ICommonMcpServerConfiguration {
