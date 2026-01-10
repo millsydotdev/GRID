@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAccessor } from '../hooks.js';
-import { useSettingsState } from '../hooks.js';
+import { useAccessor } from '../util/services.js';
+import { useSettingsState } from '../util/services.js';
 
 interface AutocompleteStatistics {
 	totalRequests: number;
@@ -105,13 +105,13 @@ export const AutocompletePanel: React.FC = () => {
 		const currentSettings = settingsState.globalSettings.autocomplete ?? {};
 		const settingKey = featureName === 'Context Ranking' ? 'enableContextRanking'
 			: featureName === 'Bracket Matching' ? 'enableBracketMatching'
-			: featureName === 'Import Definitions' ? 'enableImportDefinitions'
-			: featureName === 'Generator Reuse' ? 'enableGeneratorReuse'
-			: featureName === 'Telemetry Logging' ? 'enableLogging'
-			: featureName === 'Static Context' ? 'enableStaticContext'
-			: featureName === 'Token Batching' ? 'enableTokenBatching'
-			: featureName === 'Smart Debouncing' ? 'enableDebouncer'
-			: null;
+				: featureName === 'Import Definitions' ? 'enableImportDefinitions'
+					: featureName === 'Generator Reuse' ? 'enableGeneratorReuse'
+						: featureName === 'Telemetry Logging' ? 'enableLogging'
+							: featureName === 'Static Context' ? 'enableStaticContext'
+								: featureName === 'Token Batching' ? 'enableTokenBatching'
+									: featureName === 'Smart Debouncing' ? 'enableDebouncer'
+										: null;
 
 		if (settingKey) {
 			const newValue = !(currentSettings[settingKey] ?? true);
@@ -172,7 +172,7 @@ export const AutocompletePanel: React.FC = () => {
 						Performance Improvement
 					</div>
 					<div style={{ fontSize: '20px', fontWeight: 600, color: '#FF9800' }}>
-						{statistics.reusedGenerators > 0 ? `↓ ${((statistics.reusedGenerators / Math.max(statistics.totalRequests, 1)) * 100).toFixed(0)}%` : '—'}
+						{statistics.reusedGenerators > 0 ? `↓ ${((statistics.reusedGenerators / Math.max(statistics.totalRequests, 1)) * 100).toFixed(0)}%` : '-'}
 						<span style={{ fontSize: '12px', fontWeight: 400, marginLeft: '8px', color: '#888' }}>
 							API calls saved
 						</span>
@@ -241,7 +241,7 @@ const FeatureCard: React.FC<{ feature: Feature; onToggle: () => void }> = ({ fea
 		cursor: 'pointer',
 		transition: 'all 0.2s',
 	}}
-	onClick={onToggle}
+		onClick={onToggle}
 	>
 		<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
 			<div style={{ fontSize: '14px', fontWeight: 500 }}>
