@@ -6,11 +6,11 @@
 	"compilerOptions": {
 		"strict": true,
 		"exactOptionalPropertyTypes": false,
-
 		"jsx": "react-jsx",
 		"moduleResolution": "NodeNext",
 		"module": "NodeNext",
 		"esModuleInterop": true,
+		"ignoreDeprecations": "6.0"
 	},
 	"include": [
 		// this is just for type checking, so src/ is the correct dir
@@ -18,8 +18,8 @@
 		"./src/**/*.tsx"
 	],
 	"plugins": [
-      {
-        "name": "next"
-      }
-    ]
+		{
+			"name": "next"
+		}
+	]
 }
