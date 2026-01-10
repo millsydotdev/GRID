@@ -7,7 +7,7 @@ import { mountFnGenerator } from '../util/mountFnGenerator.js'
 import { GridCommandBarMain } from './GridCommandBar.js'
 import { GridSelectionHelperMain } from './GridSelectionHelper.js'
 
-export const mountGridCommandBar = mountFnGenerator(GridCommandBarMain)
+export const mountGridCommandBar = mountFnGenerator(GridCommandBarMain as any)
 
-export const mountGridSelectionHelper = mountFnGenerator(GridSelectionHelperMain)
+export const mountGridSelectionHelper = mountFnGenerator(GridSelectionHelperMain as any)
 
