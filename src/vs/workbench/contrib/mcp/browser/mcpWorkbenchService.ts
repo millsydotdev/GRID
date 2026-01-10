@@ -209,7 +209,7 @@ export class McpWorkbenchService extends Disposable implements IMcpWorkbenchServ
 		});
 		urlService.registerHandler(this);
 		this._register(this.configurationService.onDidChangeConfiguration(e => {
-			if (e.affectsConfiguration(mcpAccessConfig)) {
+			if (e.affectsConfiguration(mcpAccessConfig) || e.affectsConfiguration(mcpConfigurationSection)) {
 				this._onChange.fire(undefined);
 			}
 		}));
