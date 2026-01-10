@@ -9,8 +9,7 @@
 		"jsx": "react-jsx",
 		"moduleResolution": "NodeNext",
 		"module": "NodeNext",
-		"esModuleInterop": true,
-		"ignoreDeprecations": "6.0"
+		"esModuleInterop": true
 	},
 	"include": [
 		// this is just for type checking, so src/ is the correct dir

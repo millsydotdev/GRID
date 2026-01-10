@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import * as ReactDOM from 'react-dom/client'
-import { _registerServices } from './services.js';
+import { _registerServices } from './servicesCore.js';
 
 
 import { ServicesAccessor } from '../../../../../../../editor/browser/editorExtensions.js';
