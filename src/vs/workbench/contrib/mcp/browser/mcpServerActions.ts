@@ -508,6 +508,47 @@ export class UninstallAction extends McpServerAction {
 	}
 }
 
+export class ToggleServerEnablementAction extends McpServerAction {
+
+	static readonly CLASS = `${this.LABEL_ACTION_CLASS} toggle-enablement`;
+	private static readonly HIDE = `${this.CLASS} hide`;
+
+	constructor(
+		@IMcpWorkbenchService private readonly mcpWorkbenchService: IMcpWorkbenchService,
+	) {
+		super('extensions.toggleEnablement', localize('toggleEnablement', "Toggle Enablement"), ToggleServerEnablementAction.CLASS, false);
+		this.update();
+	}
+
+	update(): void {
+		this.enabled = false;
+		this.class = ToggleServerEnablementAction.HIDE;
+		if (!this.mcpServer) {
+			return;
+		}
+		if (!this.mcpServer.local) {
+			return;
+		}
+		if (this.mcpServer.installState !== McpServerInstallState.Installed) {
+			return;
+		}
+
+		const isEnabled = this.mcpServer.local.config.enabled !== false;
+		this.class = ToggleServerEnablementAction.CLASS;
+		this.enabled = true;
+		this.label = isEnabled ? localize('disable', "Disable") : localize('enable', "Enable");
+	}
+
+	override async run(): Promise<void> {
+		if (!this.mcpServer?.local) {
+			return;
+		}
+
+		const isCurrentlyEnabled = this.mcpServer.local.config.enabled !== false;
+		await this.mcpWorkbenchService.updateConfiguration(this.mcpServer, { enabled: !isCurrentlyEnabled });
+	}
+}
+
 export function getContextMenuActions(mcpServer: IWorkbenchMcpServer, isEditorAction: boolean, instantiationService: IInstantiationService): IAction[][] {
 	return instantiationService.invokeFunction(accessor => {
 		const workspaceService = accessor.get(IWorkspaceContextService);
@@ -540,7 +581,10 @@ export function getContextMenuActions(mcpServer: IWorkbenchMcpServer, isEditorAc
 				instantiationService.createInstance(BrowseResourcesAction),
 			]);
 			if (!isEditorAction) {
-				const installGroup: McpServerAction[] = [instantiationService.createInstance(UninstallAction)];
+				const installGroup: McpServerAction[] = [
+					instantiationService.createInstance(ToggleServerEnablementAction),
+					instantiationService.createInstance(UninstallAction)
+				];
 				if (workspaceService.getWorkbenchState() !== WorkbenchState.EMPTY) {
 					installGroup.push(instantiationService.createInstance(InstallInWorkspaceAction, false));
 				}

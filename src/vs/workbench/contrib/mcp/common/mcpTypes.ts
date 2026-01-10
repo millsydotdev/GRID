@@ -744,6 +744,7 @@ export interface IMcpWorkbenchService {
 	canInstall(mcpServer: IWorkbenchMcpServer): true | IMarkdownString;
 	install(server: IWorkbenchMcpServer, installOptions?: IWorkbencMcpServerInstallOptions): Promise<IWorkbenchMcpServer>;
 	uninstall(mcpServer: IWorkbenchMcpServer): Promise<void>;
+	updateConfiguration(mcpServer: IWorkbenchMcpServer, configUpdate: Partial<IMcpServerConfiguration>): Promise<void>;
 	getMcpConfigPath(arg: IWorkbenchLocalMcpServer): IMcpConfigPath | undefined;
 	getMcpConfigPath(arg: URI): Promise<IMcpConfigPath | undefined>;
 	openSearch(searchValue: string, preserveFoucs?: boolean): Promise<void>;
