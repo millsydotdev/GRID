@@ -3,9 +3,8 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------------*/
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { MCPUserState, RefreshableProviderName, SettingsOfProvider } from '../../../../../../../workbench/contrib/grid/common/gridSettingsTypes.js'
-import { DisposableStore, IDisposable } from '../../../../../../../base/common/lifecycle.js'
+import { RefreshableProviderName } from '../../../../../../../workbench/contrib/grid/common/gridSettingsTypes.js'
+import { IDisposable } from '../../../../../../../base/common/lifecycle.js'
 import { GridSettingsState } from '../../../../../../../workbench/contrib/grid/common/gridSettingsService.js'
 import { ColorScheme } from '../../../../../../../platform/theme/common/theme.js'
 import { RefreshModelStateOfProvider } from '../../../../../../../workbench/contrib/grid/common/refreshModelService.js'
@@ -52,8 +51,7 @@ import { ITerminalService } from '../../../../../terminal/browser/terminal.js'
 import { ISearchService } from '../../../../../../services/search/common/search.js'
 import { IExtensionManagementService } from '../../../../../../../platform/extensionManagement/common/extensionManagement.js'
 import { IMCPService } from '../../../../common/mcpService.js';
-import { IStorageService, StorageScope } from '../../../../../../../platform/storage/common/storage.js'
-import { OPT_OUT_KEY } from '../../../../common/storageKeys.js'
+import { IStorageService } from '../../../../../../../platform/storage/common/storage.js'
 import { IRepoIndexerService } from '../../../repoIndexerService.js'
 import { ISecretDetectionService } from '../../../../common/secretDetectionService.js'
 
@@ -63,27 +61,27 @@ import { ISecretDetectionService } from '../../../../common/secretDetectionServi
 // even if React hasn't mounted yet, the variables are always updated to the latest state.
 // React listens by adding a setState function to these listeners.
 
-let chatThreadsState: ThreadsState
-const chatThreadsStateListeners: Set<(s: ThreadsState) => void> = new Set()
+export let chatThreadsState: ThreadsState
+export const chatThreadsStateListeners: Set<(s: ThreadsState) => void> = new Set()
 
-let chatThreadsStreamState: ThreadStreamState
-const chatThreadsStreamStateListeners: Set<(threadId: string) => void> = new Set()
+export let chatThreadsStreamState: ThreadStreamState
+export const chatThreadsStreamStateListeners: Set<(threadId: string) => void> = new Set()
 
-let settingsState: GridSettingsState
-const settingsStateListeners: Set<(s: GridSettingsState) => void> = new Set()
+export let settingsState: GridSettingsState
+export const settingsStateListeners: Set<(s: GridSettingsState) => void> = new Set()
 
-let refreshModelState: RefreshModelStateOfProvider
-const refreshModelStateListeners: Set<(s: RefreshModelStateOfProvider) => void> = new Set()
-const refreshModelProviderListeners: Set<(p: RefreshableProviderName, s: RefreshModelStateOfProvider) => void> = new Set()
+export let refreshModelState: RefreshModelStateOfProvider
+export const refreshModelStateListeners: Set<(s: RefreshModelStateOfProvider) => void> = new Set()
+export const refreshModelProviderListeners: Set<(p: RefreshableProviderName, s: RefreshModelStateOfProvider) => void> = new Set()
 
-let colorThemeState: ColorScheme
-const colorThemeStateListeners: Set<(s: ColorScheme) => void> = new Set()
+export let colorThemeState: ColorScheme
+export const colorThemeStateListeners: Set<(s: ColorScheme) => void> = new Set()
 
-const ctrlKZoneStreamingStateListeners: Set<(diffareaid: number, s: boolean) => void> = new Set()
-const commandBarURIStateListeners: Set<(uri: URI) => void> = new Set();
-const activeURIListeners: Set<(uri: URI | null) => void> = new Set();
+export const ctrlKZoneStreamingStateListeners: Set<(diffareaid: number, s: boolean) => void> = new Set()
+export const commandBarURIStateListeners: Set<(uri: URI) => void> = new Set();
+export const activeURIListeners: Set<(uri: URI | null) => void> = new Set();
 
-const mcpListeners: Set<() => void> = new Set()
+export const mcpListeners: Set<() => void> = new Set()
 
 
 // must call this before you can use any of the hooks below
@@ -246,7 +244,7 @@ const getReactAccessor = (accessor: ServicesAccessor) => {
 	}
 }
 
-type ReactAccessor = ReturnType<typeof getReactAccessor>
+export type ReactAccessor = ReturnType<typeof getReactAccessor>
 
 
 let reactAccessor_: ReactAccessor | null = null
@@ -262,179 +260,4 @@ export const useAccessor = () => {
 	}
 
 	return { get: <S extends keyof ReactAccessor,>(service: S): ReactAccessor[S] => reactAccessor_![service] }
-}
-
-
-
-// -- state of services --
-
-export const useSettingsState = () => {
-	const [s, ss] = useState(settingsState)
-	useEffect(() => {
-		ss(settingsState)
-		settingsStateListeners.add(ss)
-		return () => { settingsStateListeners.delete(ss) }
-	}, [ss])
-	return s
-}
-
-export const useChatThreadsState = () => {
-	const [s, ss] = useState(chatThreadsState)
-	useEffect(() => {
-		ss(chatThreadsState)
-		chatThreadsStateListeners.add(ss)
-		return () => { chatThreadsStateListeners.delete(ss) }
-	}, [ss])
-	return s
-	// allow user to set state natively in react
-	// const ss: React.Dispatch<React.SetStateAction<ThreadsState>> = (action)=>{
-	// 	_ss(action)
-	// 	if (typeof action === 'function') {
-	// 		const newState = action(chatThreadsState)
-	// 		chatThreadsState = newState
-	// 	} else {
-	// 		chatThreadsState = action
-	// 	}
-	// }
-	// return [s, ss] as const
-}
-
-
-
-
-export const useChatThreadsStreamState = (threadId: string) => {
-	const [s, ss] = useState<ThreadStreamState[string] | undefined>(chatThreadsStreamState[threadId])
-	useEffect(() => {
-		ss(chatThreadsStreamState[threadId])
-		const listener = (threadId_: string) => {
-			if (threadId_ !== threadId) return
-			ss(chatThreadsStreamState[threadId])
-		}
-		chatThreadsStreamStateListeners.add(listener)
-		return () => { chatThreadsStreamStateListeners.delete(listener) }
-	}, [ss, threadId])
-	return s
-}
-
-export const useFullChatThreadsStreamState = () => {
-	const [s, ss] = useState(chatThreadsStreamState)
-	useEffect(() => {
-		ss(chatThreadsStreamState)
-		const listener = () => { ss(chatThreadsStreamState) }
-		chatThreadsStreamStateListeners.add(listener)
-		return () => { chatThreadsStreamStateListeners.delete(listener) }
-	}, [ss])
-	return s
-}
-
-
-
-export const useRefreshModelState = () => {
-	const [s, ss] = useState(refreshModelState)
-	useEffect(() => {
-		ss(refreshModelState)
-		refreshModelStateListeners.add(ss)
-		return () => { refreshModelStateListeners.delete(ss) }
-	}, [ss])
-	return s
-}
-
-
-export const useRefreshModelListener = (listener: (providerName: RefreshableProviderName, s: RefreshModelStateOfProvider) => void) => {
-	useEffect(() => {
-		refreshModelProviderListeners.add(listener)
-		return () => { refreshModelProviderListeners.delete(listener) }
-	}, [listener, refreshModelProviderListeners])
-}
-
-export const useCtrlKZoneStreamingState = (listener: (diffareaid: number, s: boolean) => void) => {
-	useEffect(() => {
-		ctrlKZoneStreamingStateListeners.add(listener)
-		return () => { ctrlKZoneStreamingStateListeners.delete(listener) }
-	}, [listener, ctrlKZoneStreamingStateListeners])
-}
-
-export const useIsDark = () => {
-	const [s, ss] = useState(colorThemeState)
-	useEffect(() => {
-		ss(colorThemeState)
-		colorThemeStateListeners.add(ss)
-		return () => { colorThemeStateListeners.delete(ss) }
-	}, [ss])
-
-	// s is the theme, return isDark instead of s
-	const isDark = s === ColorScheme.DARK || s === ColorScheme.HIGH_CONTRAST_DARK
-	return isDark
-}
-
-export const useCommandBarURIListener = (listener: (uri: URI) => void) => {
-	useEffect(() => {
-		commandBarURIStateListeners.add(listener);
-		return () => { commandBarURIStateListeners.delete(listener) };
-	}, [listener]);
-};
-export const useCommandBarState = () => {
-	const accessor = useAccessor()
-	const commandBarService = accessor.get('IGridCommandBarService')
-	const [s, ss] = useState({ stateOfURI: commandBarService.stateOfURI, sortedURIs: commandBarService.sortedURIs });
-	const listener = useCallback(() => {
-		ss({ stateOfURI: commandBarService.stateOfURI, sortedURIs: commandBarService.sortedURIs });
-	}, [commandBarService])
-	useCommandBarURIListener(listener)
-
-	return s;
-}
-
-
-
-// roughly gets the active URI - this is used to get the history of recent URIs
-export const useActiveURI = () => {
-	const accessor = useAccessor()
-	const commandBarService = accessor.get('IGridCommandBarService')
-	const [s, ss] = useState(commandBarService.activeURI)
-	useEffect(() => {
-		const listener = () => { ss(commandBarService.activeURI) }
-		activeURIListeners.add(listener);
-		return () => { activeURIListeners.delete(listener) };
-	}, [])
-	return { uri: s }
-}
-
-
-
-
-export const useMCPServiceState = () => {
-	const accessor = useAccessor()
-	const mcpService = accessor.get('IMCPService')
-	const [s, ss] = useState(mcpService.state)
-	useEffect(() => {
-		const listener = () => { ss(mcpService.state) }
-		mcpListeners.add(listener);
-		return () => { mcpListeners.delete(listener) };
-	}, []);
-	return s
-}
-
-
-
-export const useIsOptedOut = () => {
-	const accessor = useAccessor()
-	const storageService = accessor.get('IStorageService')
-
-	const getVal = useCallback(() => {
-		return storageService.getBoolean(OPT_OUT_KEY, StorageScope.APPLICATION, false)
-	}, [storageService])
-
-	const [s, ss] = useState(getVal())
-
-	useEffect(() => {
-		const disposables = new DisposableStore();
-		const d = storageService.onDidChangeValue(StorageScope.APPLICATION, OPT_OUT_KEY, disposables)(e => {
-			ss(getVal())
-		})
-		disposables.add(d)
-		return () => disposables.clear()
-	}, [storageService, getVal])
-
-	return s
 }
